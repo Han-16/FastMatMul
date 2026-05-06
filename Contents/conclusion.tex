@@ -1,0 +1,43 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+We have presented $\protocol$, a verifiable computation protocol for matrix
+multiplication that achieves a SNARK circuit size of $\mathcal{O}(tk)$, where
+$t$ is a small constant determined by the security parameter and $k$ is the
+matrix dimension.
+The protocol combines Freivalds' randomized reduction with proximity testing
+over linear error-correcting codes, cleanly decoupling the expensive matrix
+arithmetic (performed outside the SNARK by the prover) from the lightweight
+algebraic checks (arithmetized inside the SNARK).
+We proved that $\protocol$ achieves perfect completeness and computational
+soundness with error
+$\epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$.
+
+Our experimental evaluation demonstrates that the theoretical advantages
+translate into concrete gains: $\protocol$ reduces the constraint count
+by up to $30\times$ at $k = 4{,}096$ relative to a direct Freivalds SNARK
+baseline, achieves $1.7$--$6.6\times$ proving-time speedups for
+$k \geq 1{,}024$, and continues to scale at $k = 8{,}192$ where the baseline
+exhausts memory.
+The off-circuit encoding cost is negligible (under $1\,\text{s}$ at
+$k = 2^{20}$), confirming that the code-based approach does not introduce
+a new bottleneck.
+
+\paragraph{Future directions.}
+Several avenues remain.
+First, while our protocol targets a single matrix multiplication, deep
+learning inference involves \emph{chains} of matrix multiplications
+interleaved with non-linear activations.
+Extending $\protocol$ to handle layered computations---by chaining the
+commitment outputs of one layer as inputs to the next---is a natural step
+toward fully verifiable neural network inference.
+Second, the encoding constraints, which contribute $\mathcal{O}(k^2)$ under
+general constant-rate codes, could potentially be deferred to a separate
+proximity test (e.g., FRI~\cite{ben2018fast}), further reducing the circuit.
+Third, replacing the Merkle-based commitment with an algebraic vector
+commitment (e.g., KZG) would reduce proof sizes from megabytes to kilobytes
+at the cost of a structured setup; evaluating this trade-off in practice is
+an important engineering task.
+Finally, exploring \emph{batched verification}---where multiple matrix
+multiplications share a single encoding and commitment phase---could yield
+significant amortized cost savings in practical deployments.

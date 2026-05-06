@@ -1,0 +1,143 @@
+
+
+\[
+\mathcal{R}_{\text{SNARK}} = \left\{
+\left( 
+\begin{array}{l}
+\{ \cm_{\chi} \}_{\chi \in \mathcal{S}}, r, I \ ; 
+\\
+\vect{x},\vect{y},\vect{z}, \ \{ \enc_{\chi}^{(j)}, \pi_{\chi,j} \}_{j \in I, \chi \in \mathcal{S}}
+\end{array}
+\right)
+\ \middle\vert \
+\begin{array}{l}
+\enc_x = \enc(\vect{x}) \ \land \
+\enc_y = \enc(\vect{y}) \ \land \
+\enc_z = \enc(\vect{z})
+\\
+\bigwedge_{j \in I} \left( \enc_{x,j} = \fold(\enc_A^{(j)},\vect{r}) \right)
+\\
+\bigwedge_{j \in I} \left( \enc_{y,j} = \fold(\enc_B^{(j)},\vect{x}) \right)
+\\
+\bigwedge_{j \in I} \left( \enc_{z,j} = \fold(\enc_C^{(j)},\vect{r}) \right)
+\\
+\bigwedge_{j \in I} \Big( \enc_{y,j} = \enc_{z,j} \Big)
+\\
+\bigwedge_{\chi \in \mathcal{S}, j \in I} \left(  \merkleV(\pi_{\chi,j},\enc_{\chi}^{(j)},\cm_{\chi}) \right)
+\end{array}
+\right\}
+\]
+
+
+\begin{figure*}[ht!]
+\centering
+\scalebox{1}{%
+    \fbox{%
+    \procedure[]{\protocol}{%
+    \mathcal{P} \< \< \mathcal{V} \\
+    \mat{A}, \mat{B} \leftarrow \textsf{Mat}_{k \times k}(\FF) \< \< \\
+    \mat{C} \leftarrow \mat{AB} \< \< \\
+    \enc_A \gets \enc(\mat{A}),\ \cm_A \gets \merkle(\enc_A) \< \< \\
+    \enc_B \gets \enc(\mat{B}),\ \cm_B \gets \merkle(\enc_B) \< \< \\
+    \enc_C \gets \enc(\mat{C}),\ \cm_C \gets \merkle(\enc_C) \< \< \\
+    \< \sendmessageright*[2.5cm]{\cm_A,\cm_B,\cm_C} \< 
+    \\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\< \< r \sample \FF 
+\\
+\< \sendmessageleft*[2.5cm]{r} \< 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    \\
+    \vect{x} \gets \vect{r}\mat{A}, \ \vect{y} \gets \vect{x}\mat{B}, \ \vect{z} \gets \vect{r}\mat{C} \< \< \\
+    \enc_x \gets \enc(\vect{x}),\ \cm_x \leftarrow \merkle(\enc_x) \< \< \\
+    \enc_y \gets \enc(\vect{y}),\ \cm_y \leftarrow \merkle(\enc_y) \< \< \\
+    \enc_z \gets \enc(\vect{z}),\ \cm_z \leftarrow \merkle(\enc_z) \< \< \\
+    \< \sendmessageright*[2.5cm]{\cm_x,\cm_y,\cm_z} \< \\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+\< \< I \sample [n]
+ \\
+\< \sendmessageleft*[2.5cm]{I} \< 
+ \\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \text{For } j \in I: \< \< \\
+    \quad \text{For } \chi \in \mathcal{S}=\{\mat{A}, \mat{B}, \mat{C}, \vect{x}, \vect{y}, \vect{z}\}: \< \< \\
+    \quad \quad (\enc_\chi^{(j)}, \pi_{\chi,j}) \gets \merkleO(\cm_\chi,j) \< \< \\
+    \stmt \gets (\cm_{\chi}, r, I)_{\chi \in \mathcal{S}} \< \< \\
+    \wit \gets (\vect{x}, \vect{y}, \vect{z}, \{\enc_{\chi}^{(j)}, \pi_{\chi,j}\})_{j \in I, \chi \in \mathcal{S}} \< \< \\
+    \pi_{\mathsf{snark}} \gets \snarkP(\para,\stmt,\wit) \< \< \\
+    \< \sendmessageright*[2.5cm]{\pi_{\mathsf{snark}}} \< \\
+    \< \< b \gets \snarkV(\para,\stmt,\pi_{\mathsf{snark}}) \\
+    \< \< \text{Accept if b = 1}
+    }
+    }
+} 
+\caption{\protocol}
+\end{figure*}
+
+
+
+
+
+
+
+% \begin{figure}[ht!]
+% \centering
+% \[
+% \mathcal{R}_{\text{SNARK}} = \left\{
+% \left( 
+% \begin{array}{l}
+% \{ \cm_{\chi} \}_{\chi \in \mathcal{S}}, r, I \ ; 
+% \\
+% \vect{x}, \ \{ \enc_{\chi}^{(j)}, \pi_{\chi,j} \}_{j \in I, \chi \in \mathcal{S}}
+% \end{array}
+% \right)
+% \ \middle\vert \
+% \begin{array}{l}
+% r = \Hash(\cm_A,\cm_B,\cm_C) \\ 
+% \land \ I = \Hash(\cm_x,\cm_y,\cm_z) \\
+% \bigwedge_{j \in I} \left( \enc_{x,j} = \fold(\enc_A^{(j)},\vect{r}) \right)
+% \\
+% \bigwedge_{j \in I} \left( \enc_{y,j} = \fold(\enc_B^{(j)},\vect{x}) \right)
+% \\
+% \bigwedge_{j \in I} \left( \enc_{z,j} = \fold(\enc_C^{(j)},\vect{r}) \right)
+% \\
+% \bigwedge_{j \in I} \Big( \enc_{y,j} = \enc_{z,j} \Big)
+% \\
+% \bigwedge_{\chi \in \mathcal{S}, j \in I} \left(  \merkleV(\pi_{\chi,j},\enc_{\chi}^{(j)},\cm_{\chi}) \right)
+% \end{array}
+% \right\}
+% \]
+% \scalebox{1}{%
+%     \fbox{%
+%     \procedure[]{\protocol}{%
+%     \mathcal{P} \< \< \mathcal{V} \\
+%     \mat{A}, \mat{B} \leftarrow \textsf{Mat}_{k \times k}(\FF) \< \< \\
+%     \mat{C} \leftarrow \mat{AB} \< \< \\
+%     \enc_A \gets \enc(\mat{A}),\ \cm_A \gets \merkle(\enc_A) \< \< \\
+%     \enc_B \gets \enc(\mat{B}),\ \cm_B \gets \merkle(\enc_B) \< \< \\
+%     \enc_C \gets \enc(\mat{C}),\ \cm_C \gets \merkle(\enc_C) \< \< 
+% \\
+% r \gets \Hash(\cm_A,\cm_B,\cm_C) \< \<
+% \\  
+% \vect{r} \gets (1,r,r^2,\cdots,r^{k-1})
+% \\
+%     \vect{x} \gets \vect{r}\mat{A}, \ \vect{y} \gets \vect{x}\mat{B}, \ \vect{z} \gets \vect{r}\mat{C} \< \< \\
+%     \enc_x \gets \enc(\vect{x}),\ \cm_x \leftarrow \merkle(\enc_x) \< \< \\
+%     \enc_y \gets \enc(\vect{y}),\ \cm_y \leftarrow \merkle(\enc_y) \< \< \\
+%     \enc_z \gets \enc(\vect{z}),\ \cm_z \leftarrow \merkle(\enc_z) \< \< 
+% \\
+% I \gets \Hash(\cm_x,\cm_y,\cm_z) \< \<
+% \\  
+%     \text{For } j \in I, \ \chi \in \mathcal{S}: \< \< \\
+%     \quad \quad (\enc_\chi^{(j)}, \pi_{\chi,j}) \gets \merkleO(\cm_\chi,j) \< \< \\
+%     \mathbb{x}_{snark} \gets (\cm_{\chi}, r, I)_{\chi \in \mathcal{S}} \< \< \\
+%     \mathbb{w}_{snark} \gets (\{\enc_{\chi}^{(j)}, \pi_{\chi,j}\})_{j \in I, \chi \in \mathcal{S}} \< \< \\
+%     \pi_{snark} \gets \snarkP(\para,\mathbb{x}_{snark},\mathbb{w}_{snark}) \< \< \\
+%     \< \sendmessageright*[1.5cm]{\pi_{snark}} \< \\
+%     \< \< b \gets \snarkV(\para,\mathbb{x}_{snark},\pi_{snark}) \\
+%     \< \< \text{Accept if b = 1}
+%     }
+%     }
+% } 
+% \caption{\protocol}
+% \end{figure}

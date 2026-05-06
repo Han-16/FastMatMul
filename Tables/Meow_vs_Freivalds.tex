@@ -1,0 +1,33 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{Performance comparison of $\protocol$ and the SNARK-in-circuit Freivalds baseline.
+Constraint counts confirm $\mathcal{O}(k)$ vs.\ $\mathcal{O}(k^2)$ scaling.
+``---'' indicates the experiment could not be completed (out of memory or missing data).
+$\protocol$ uses a transparent SNARK backend; Freivalds uses a pairing-based backend.}
+\label{tab:meow-vs-freivalds}
+\begin{tabular}{c rr rr rr rr}
+\toprule
+\multirow{2}{*}{$\log k$}
+  & \multicolumn{2}{c}{\textbf{Constraints}}
+  & \multicolumn{2}{c}{\textbf{Prove Time (s)}}
+  & \multicolumn{2}{c}{\textbf{Verify Time (s)}}
+  & \multicolumn{2}{c}{\textbf{Proof Size (MB)}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+  & $\protocol$ & Freivalds
+  & $\protocol$ & Freivalds
+  & $\protocol$ & Freivalds
+  & $\protocol$ & Freivalds \\
+\midrule
+5  & ---         & 3,401       & ---    & ---    & ---   & 0.002 & ---   & --- \\
+6  & ---         & 12,617      & 0.197  & ---    & ---   & 0.002 & ---   & --- \\
+7  & 55,828      & 49,481      & 2.745  & 0.632  & 0.226 & 0.002 & 1.76  & --- \\
+8  & 107,546     & 196,937     & 4.606  & 2.223  & 0.268 & 0.002 & 3.28  & --- \\
+9  & 211,370     & 788,297     & 8.528  & 7.807  & 0.348 & 0.002 & 6.30  & --- \\
+10 & 419,012     & 3,155,273   & 17.947 & 29.835 & 0.485 & 0.002 & 12.32 & --- \\
+11 & 833,914     & 12,620,105  & 45.468 & 124.545& 0.783 & 0.002 & 24.34 & --- \\
+12 & 1,664,106   & 50,491,721  & 117.393& 772.935& 1.370 & 0.002 & 48.36 & --- \\
+13 & 3,324,484   & ---         & 465.661& ---    & 2.972 & ---   & 96.38 & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}

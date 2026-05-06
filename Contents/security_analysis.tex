@@ -1,0 +1,134 @@
+\section{Security Analysis}
+\label{sec:security}
+
+We prove that the protocol $\protocol$ (Figure~\ref{fig:protocol}) constitutes a secure interactive argument for the matrix multiplication relation $\mathcal{R}_{\mathsf{orig}}$.
+Soundness and completeness are established in Theorem~\ref{thm:security} below; knowledge soundness is discussed separately in Remark~\ref{rem:aok}.
+
+\begin{theorem}[Security of $\protocol$]\label{thm:security}
+The protocol $\protocol$ satisfies the following properties:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Perfect completeness.} If $\mat{A}\mat{B} = \mat{C}$, an honest prover always makes the verifier accept.
+  \item \textbf{Computational soundness.} For any $\ppt$ adversary $\mathcal{P}^*$, the probability that the verifier accepts a false statement $\mat{A}\mat{B} \neq \mat{C}$ satisfies:
+\[
+\Pr[\mathcal{V} \text{ accepts} \mid \mat{A}\mat{B} \neq \mat{C}]
+\;\le\;
+\epsilon_{\mathsf{bind}}(\lambda) + \frac{k-1}{|\mathbb{F}|} + 4(1 - \delta)^{t},
+\]
+where $t = |I|$ is the query complexity, $\delta$ is the relative minimum distance of $\mathcal{C}$, and $\epsilon_{\mathsf{bind}}(\lambda) = \mathsf{negl}(\lambda)$ under collision-resistant hashing.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We establish the two properties in turn.
+
+\paragraph{Perfect completeness.}
+Suppose the prover is honest and $\mat{A}\mat{B} = \mat{C}$.
+Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} = \mat{0}$.
+For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D} = \vect{0}$, so the intermediate vectors satisfy:
+\[
+\vect{y} = \vect{x}\mat{B} = (\vect{r}\mat{A})\mat{B} = \vect{r}(\mat{A}\mat{B}) = \vect{r}\mat{C} = \vect{z}.
+\]
+The encoding constraints hold by construction: the honest prover sets $\enc_v = \enc(v)$ for each $v \in \mathcal{W}$.
+For the fold checks at any index $j \in [n]$, the linearity of $\mathcal{C}$ (Definition~\ref{def:fold}) gives:
+\[
+\fold(\enc(\mat{A})^{(j)}, \vect{r}) = \enc(\vect{r}\mat{A})_j = \enc_{x,j},
+\]
+and likewise for $\mat{B}$ and $\mat{C}$.
+Since $\vect{y} = \vect{z}$, we also have $\enc_{y,j} = \enc_{z,j}$ for all $j$.
+All Merkle paths are valid by honest commitment.
+Therefore every check passes with probability $1$, establishing perfect completeness.
+
+\paragraph{Soundness decomposition.}
+Let $\mathsf{Acc}$ denote the event that the verifier accepts, and suppose $\mat{A}\mat{B} \neq \mat{C}$.
+We decompose the adversary's success probability via three bad events:
+\begin{align*}
+&\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}] \\
+&\;\le\; \Pr[\mathsf{Bad}_{\mathsf{bind}}]
+  + \Pr\!\bigl[\mathsf{Bad}_{\mathsf{rand}}
+      \mid \overline{\mathsf{Bad}_{\mathsf{bind}}}\bigr] \\
+&\qquad + \Pr\!\bigl[\mathsf{Bad}_{\mathsf{prox}}
+      \mid \overline{\mathsf{Bad}_{\mathsf{bind}}}
+           \land \overline{\mathsf{Bad}_{\mathsf{rand}}}\bigr].
+\end{align*}
+
+\paragraph{Step 1: Commitment binding.}
+Define $\mathsf{Bad}_{\mathsf{bind}}$ as the event that $\mathcal{P}^*$ produces a valid Merkle opening for some index $j$ inconsistent with the committed root---equivalently, finding a hash collision.
+Under collision resistance of the hash function:
+\[
+\Pr[\mathsf{Bad}_{\mathsf{bind}}] \le \epsilon_{\mathsf{bind}}(\lambda) = \mathsf{negl}(\lambda).
+\]
+Conditioned on $\overline{\mathsf{Bad}_{\mathsf{bind}}}$, every opened value is uniquely determined by the committed root.
+Hence the adversary commits to fixed matrices $\mat{A}, \mat{B}, \mat{C}$ and vectors $\vect{x}, \vect{y}, \vect{z}$ before seeing the verifier's challenge.
+
+\paragraph{Step 2: Randomized reduction.}
+Condition on $\overline{\mathsf{Bad}_{\mathsf{bind}}}$.
+The adversary has committed to fixed matrices with $\mat{A}\mat{B} \neq \mat{C}$.
+Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} \neq \mat{0}$.
+Since $\mat{D} \neq \mat{0}$, there exists at least one column $\vect{d}_j$ of $\mat{D}$ with $\vect{d}_j \neq \vect{0}$.
+
+The protocol requires $\vect{y} = \vect{z}$, i.e., $\vect{r}\mat{D} = \vect{0}$.
+The inner product $\langle \vect{r}, \vect{d}_j \rangle = \sum_{i=0}^{k-1} (\mat{D})_{i,j} \cdot r^i$ defines a non-zero univariate polynomial $P_j(r)$ of degree at most $k-1$ in the random variable $r$.
+Since $r$ is chosen after the adversary commits, by the Schwartz--Zippel lemma (Lemma~\ref{lem:sz}):
+\[
+\Pr[\mathsf{Bad}_{\mathsf{rand}}] = \Pr_{r \sample \mathbb{F}}[\vect{r}\mat{D} = \vect{0}]
+\le \Pr_{r \sample \mathbb{F}}[P_j(r) = 0]
+\le \frac{k-1}{|\mathbb{F}|}.
+\]
+
+\paragraph{Step 3: Proximity check.}
+Condition on $\overline{\mathsf{Bad}_{\mathsf{bind}}} \land \overline{\mathsf{Bad}_{\mathsf{rand}}}$.
+The second condition implies that the committed vectors violate at least one of:
+\begin{enumerate}[label=(\alph*)]
+  \item $\vect{x} \neq \vect{r}\mat{A}$, \quad or \quad
+        (b) $\vect{y} \neq \vect{x}\mat{B}$, \quad or \quad
+        (c) $\vect{z} \neq \vect{r}\mat{C}$, \quad or \quad
+        (d) $\vect{y} \neq \vect{z}$.
+\end{enumerate}
+The SNARK relation $\mathcal{R}_{\mathsf{SNARK}}$ (Section~\ref{sec:relation-chain}) includes the constraints $\enc(v) = \enc_v$ for each $v \in \mathcal{W}$, verified within the SNARK circuit.
+Conditioned on binding, the committed codeword $\enc_v$ is therefore a genuine codeword of $\mathcal{C}$.
+
+Consider case (a): $\vect{x} \neq \vect{r}\mat{A}$.
+Since $\mathcal{C}$ is injective, the codewords $\enc(\vect{x})$ and $\enc(\vect{r}\mat{A})$ are distinct.
+By the minimum distance property of $\mathcal{C}$:
+\[
+\big|\{j \in [n] : \enc(\vect{x})_j \neq \enc(\vect{r}\mat{A})_j\}\big| \ge \delta \cdot n.
+\]
+By the linearity of $\mathcal{C}$ (Definition~\ref{def:fold}), $\fold(\enc(\mat{A})^{(j)}, \vect{r}) = \enc(\vect{r}\mat{A})_j$.
+The fold check $\enc_{x,j} = \fold(\enc_A^{(j)}, \vect{r})$ fails whenever $j$ falls into the disagreement set, which has size at least $\delta n$.
+A uniformly random query $j$ avoids all disagreements with probability at most $1 - \delta$, so $t$ independent queries all pass with probability at most $(1-\delta)^t$.
+The same argument applies symmetrically to cases (b), (c), and (d).
+Applying the union bound over all four cases:
+\[
+\Pr[\mathsf{Bad}_{\mathsf{prox}}] \le 4(1 - \delta)^{t}.
+\]
+
+\paragraph{Remark on the union bound factor.}
+The factor of $4$ is conservative.
+If the adversary commits to vectors satisfying cases (a)--(c) honestly (i.e., $\vect{x} = \vect{r}\mat{A}$, etc.), then $\mat{A}\mat{B} \neq \mat{C}$ forces $\vect{y} \neq \vect{z}$, and only case (d) is active, giving $(1-\delta)^t$.
+In general, an adversary deviating on multiple relations is detected by any one of the corresponding checks, so the bound $4(1-\delta)^t$ covers all strategies without further case analysis.
+
+\paragraph{Combining the bounds.}
+Summing the three error terms:
+\[
+\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}]
+\;\le\;
+\epsilon_{\mathsf{bind}}(\lambda) + \frac{k-1}{|\mathbb{F}|} + 4(1-\delta)^{t}.
+\]
+
+\paragraph{Concrete parameters for $\lambda = 128$ bits.}
+Set $|\mathbb{F}| \ge 2^{256}$ so that $(k-1)/|\mathbb{F}| \le 2^{-128}$ for all practical $k$.
+Set $t = \lceil 128 / \log_2(1/(1-\delta)) \rceil$ so that $4(1-\delta)^t \le 4 \cdot 2^{-128} < 2^{-126}$.
+Under standard collision-resistance assumptions, $\epsilon_{\mathsf{bind}} \le 2^{-128}$.
+The total soundness error is therefore at most $3 \cdot 2^{-126} < 2^{-124}$, which is negligible in $\lambda = 128$.
+This completes the proof of Theorem~\ref{thm:security}.
+\end{proof}
+
+\begin{remark}[Knowledge Soundness]\label{rem:aok}
+The protocol $\protocol$ can be extended to a full \emph{argument of knowledge}, meaning one can efficiently extract a valid witness $(\mat{A}, \mat{B}, \mat{C})$ with $\mat{A}\mat{B} = \mat{C}$ from any $\ppt$ prover $\mathcal{P}^*$ that makes the verifier accept with non-negligible probability.
+The extraction proceeds in two stages.
+First, the knowledge extractor of the underlying SNARK (invoked via black-box rewind on the inner proof $\pi$) yields the SNARK witness $(\vect{x}, \vect{y}, \vect{z}, \{\enc_{\chi}^{(j)}, \pi_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}})$.
+Second, by rewinding $\mathcal{P}^*$ on $k$ distinct Freivalds challenges $r_1, \ldots, r_k \in \mathbb{F}$ while keeping the initial commitment phase fixed, the extractor collects $k$ evaluations $\vect{x}_{r_i} = \vect{r}_i\mat{A}$ of the polynomial-in-$r$ determined by the committed $\mat{A}$.
+Solving the resulting Vandermonde system over $\mathbb{F}$ recovers $\mat{A}$ exactly; an analogous argument recovers $\mat{B}$ and $\mat{C}$.
+Since the Merkle tree is computationally binding, the extracted matrices are consistent with the committed roots.
+The full formal proof follows standard rewinding techniques and is deferred to the full version of this work.
+\end{remark}

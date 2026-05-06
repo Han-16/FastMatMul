@@ -1,0 +1,95 @@
+\section{Related Work}
+\label{sec:related}
+
+We position our work within four lines of research:
+verifiable ML inference, dedicated matrix multiplication verification,
+code-based proof systems, and the sumcheck approach.
+
+\paragraph{Verifiable ML inference.}
+SafetyNets~\cite{ghodsi2017safetynets} was among the first to propose
+interactive proofs for deep neural networks, employing the sumcheck protocol
+to verify matrix multiplications layer by layer.
+zkCNN~\cite{liu2021zkcnn} extended this to convolutional layers by reducing
+convolution to polynomial multiplication and leveraging the
+GKR protocol~\cite{goldwasser2015delegating}.
+vCNN~\cite{lee2024vcnn} further optimized the verification of quantized
+convolution operations.
+Mystique~\cite{weng2021mystique} and zkML~\cite{chen2024zkml} have explored
+practical zero-knowledge proof systems for general ML inference, including
+Transformer architectures.
+In all of these systems, matrix multiplication is the dominant cost center.
+Our protocol is complementary: it provides a drop-in replacement for the
+matrix multiplication verification subroutine that reduces the SNARK circuit
+size from $\mathcal{O}(k^2)$ to $\mathcal{O}(tk)$.
+Composing $\protocol$ across the layers of a neural network is a natural
+extension that we outline in Section~\ref{sec:conclusion}.
+
+\paragraph{Dedicated matrix multiplication verification.}
+zkMatrix~\cite{cong2024zkmatrix} proposed a batched short-proof protocol for
+committed matrix multiplication using customized polynomial commitments,
+achieving proof sizes of $\mathcal{O}(\sqrt{k})$ group elements.
+DualMatrix~\cite{cong2026dualmatrix} combined polynomial evaluation and
+inner-product arguments to reduce the prover cost, though the prover still
+performs $\mathcal{O}(k^2)$ work inside the proof system.
+zkVC~\cite{zhang2025zkvc} introduced Constraint-Reduced Polynomial Circuits
+(CRPC) and Prefix-Sum Query (PSQ) techniques to reduce the R1CS constraint
+count, reporting a $12\times$ prover speedup and demonstrating applicability
+to Transformer inference.
+Bennett et al.~\cite{bennett2023matrix} explored the use of coding theory for
+matrix multiplication verification in an information-theoretic setting,
+establishing theoretical connections between code distance and verification
+complexity.
+Our work shares the coding-theoretic perspective
+of~\cite{bennett2023matrix} but differs in two key respects:
+(i)~we operate in the computational setting with Merkle commitments and
+SNARKs, yielding a \emph{non-interactive} protocol with succinct proofs;
+and (ii)~we provide a concrete implementation with experimental evaluation,
+demonstrating practical gains over the Freivalds baseline.
+Relative to zkMatrix, DualMatrix, and zkVC, our approach avoids
+polynomial commitment machinery entirely, relying instead on
+hash-based commitments that require no trusted setup.
+
+\paragraph{Code-based proof systems.}
+Ligero~\cite{ames2017ligero} pioneered the use of interleaved Reed--Solomon
+codes to construct transparent zero-knowledge proofs with
+$\mathcal{O}(\sqrt{n})$ proof size.
+Brakedown~\cite{golovnev2023brakedown} introduced expander-based linear codes
+as a drop-in replacement for polynomial commitments, achieving linear-time
+prover complexity for general-purpose R1CS.
+Orion~\cite{xie2022orion} combined code-based commitments with the sumcheck
+protocol.
+FRI~\cite{ben2018fast} (Fast Reed--Solomon Interactive Oracle Proofs of
+Proximity) established the foundation for proximity testing of
+Reed--Solomon codes, underpinning the STARK family of proof systems.
+Our work draws on the code-based commitment philosophy of Brakedown but
+applies it to the \emph{structured} setting of matrix multiplication, where
+the linearity of encoding interacts directly with the Freivalds reduction
+to yield a circuit-size improvement beyond what a generic code-based SNARK
+achieves.
+Specifically, while Brakedown provides a general $\mathcal{O}(n)$-prover
+SNARK for any circuit of size $n$, na\"ively feeding the
+$\mathcal{O}(k^2)$ Freivalds circuit into Brakedown still yields an
+$\mathcal{O}(k^2)$ prover.
+$\protocol$'s contribution is to \emph{restructure the problem itself}---via
+the relation chain
+$\mathcal{R}_{\mathsf{orig}} \to \mathcal{R}_{\mathsf{Freivalds}} \to \mathcal{R}_{\mathsf{SNARK}}$---so
+that the circuit presented to the SNARK is only $\mathcal{O}(tk)$.
+
+\paragraph{Sumcheck-based approaches.}
+The sumcheck protocol~\cite{goldwasser2015delegating} is a powerful
+interactive proof technique for verifying the evaluation of multivariate
+polynomials.
+When applied to matrix multiplication, it reduces the verifier's work to
+evaluating multilinear extensions of the input matrices at a random point,
+which requires $\mathcal{O}(k^2)$ field operations for the verifier (or
+$\mathcal{O}(k^2)$ oracle queries).
+SafetyNets~\cite{ghodsi2017safetynets} and
+zkCNN~\cite{liu2021zkcnn} use this approach.
+Unlike sumcheck-based methods, our proximity-based checks are purely
+combinatorial: they compare codeword coordinates via inner products rather
+than evaluating polynomial extensions, avoiding the algebraic overhead
+of sumcheck rounds.
+Moreover, our protocol naturally interfaces with any SNARK backend (the
+local checks are expressed as R1CS or PlonK constraints), whereas
+sumcheck-based systems typically require a specialized verifier or a
+dedicated GKR-to-SNARK compilation step.

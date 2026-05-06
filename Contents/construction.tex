@@ -1,0 +1,250 @@
+\section{Our Construction}
+\label{sec:construction}
+
+In this section we present the formal construction of our verifiable matrix multiplication protocol $\protocol$.
+We begin by defining the relation chain that reduces the original matrix multiplication statement to a succinct SNARK-friendly relation (Section~\ref{sec:relation-chain}), then give the full protocol description (Section~\ref{sec:protocol-desc}), and conclude with a complexity analysis (Section~\ref{sec:complexity}).
+Table~\ref{tab:notation} summarizes the notation used throughout the paper.
+
+\begin{table}[t]
+\centering
+\caption{Summary of notation.}
+\label{tab:notation}
+\small
+\begin{tabular}{@{}cl@{}}
+\toprule
+\textbf{Symbol} & \textbf{Description} \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Parameters}} \\
+$\mathbb{F}$                        & Finite field \\
+$k$                                  & Matrix dimension ($k \times k$) \\
+$n$                                  & Codeword length of $\mathcal{C}$ \\
+$\delta$                             & Relative minimum distance of $\mathcal{C}$ \\
+$t = |I|$                           & Query complexity (number of sampled indices) \\
+$\lambda$                            & Security parameter \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Matrices and Vectors}} \\
+$\mat{A}, \mat{B}, \mat{C}$         & Input/output matrices in $\mathbb{F}^{k \times k}$ \\
+$\mat{D}$                           & Error matrix $\mat{A}\mat{B} - \mat{C}$ \\
+$\vect{r}$                          & Challenge vector $(1,\, r,\, r^2, \ldots, r^{k-1})$ \\
+$\vect{x}, \vect{y}, \vect{z}$      & Intermediate vectors: $\vect{r}\mat{A}$,\; $\vect{x}\mat{B}$,\; $\vect{r}\mat{C}$ \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Encoding and Commitment}} \\
+$\mathcal{C}$                        & Linear error-correcting code $\mathbb{F}^k \to \mathbb{F}^n$ \\
+$\enc(\cdot)$                        & Encoding function (row-wise for matrices) \\
+$\enc(\mat{M})^{(j)}$               & $j$-th column of $\enc(\mat{M}) \in \mathbb{F}^{k \times n}$ \\
+$\fold(\vect{c}, \vect{r})$         & Inner product $\langle \vect{r}, \vect{c} \rangle$ \\
+$\merkle(\cdot)$                     & Merkle tree commitment \\
+$\merkleO(\cm, j)$                   & Merkle tree opening at index $j$ \\
+$\merkleV(\pi, v, \cm)$             & Merkle tree verification \\
+$\cm_\chi$                          & Merkle root for committed object $\chi$ \\
+$\pi_{\chi,j}$                      & Merkle authentication path for $\chi$ at position $j$ \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Sets}} \\
+$\mathcal{M}$                        & Matrix set $\{\mat{A}, \mat{B}, \mat{C}\}$ \\
+$\mathcal{W}$                        & Vector set $\{\vect{x}, \vect{y}, \vect{z}\}$ \\
+$\mathcal{S}$                        & Full committed-object set $\mathcal{M} \cup \mathcal{W}$ \\
+$I$                                  & Set of queried column indices ($I \subset [n]$) \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{SNARK}} \\
+$\stmt$                              & SNARK public statement (instance) \\
+$\wit$                               & SNARK witness \\
+$\pi$                                & SNARK proof \\
+$\snarkP, \snarkV$                   & SNARK prover and verifier \\
+$\para$                              & Public parameters \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Relation Reduction Chain}
+\label{sec:relation-chain}
+
+Our construction proceeds through two successive reductions.
+Each reduction preserves completeness exactly and introduces a bounded soundness error that we analyze in Section~\ref{sec:security}.
+
+\paragraph{The original relation $\mathcal{R}_{\mathsf{orig}}$.}
+The starting point is the straightforward statement that the prover knows matrices whose committed values satisfy the multiplication relation.
+The instance is $(\cm_A, \cm_B, \cm_C)$ and the witness is $(\mat{A}, \mat{B}, \mat{C})$; the relation $\mathcal{R}_{\mathsf{orig}}$ requires:
+\begin{align*}
+  &\cm_A = \merkle(\mat{A}) \;\land\; \cm_B = \merkle(\mat{B}) \; \land\; \cm_C = \merkle(\mat{C}), \\
+  &\mat{A}\mat{B} = \mat{C}.
+\end{align*}
+Proving membership in $\mathcal{R}_{\mathsf{orig}}$ directly inside a SNARK would require $\mathcal{O}(k^3)$ multiplication constraints, which is exactly what we aim to avoid.
+
+\paragraph{Reduction 1: Freivalds' randomization ($\mathcal{R}_{\mathsf{orig}} \rightsquigarrow \mathcal{R}_{\mathsf{Freivalds}}$).}
+Using the verifier's random challenge $r \in \mathbb{F}$, we construct the vector $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$ and define intermediate vectors $\vect{x} = \vect{r}\mat{A}$, $\vect{y} = \vect{x}\mat{B}$, $\vect{z} = \vect{r}\mat{C}$.
+Let $\mathcal{S} = \{\mat{A}, \mat{B}, \mat{C}, \vect{x}, \vect{y}, \vect{z}\}$ denote the full set of committed objects.
+The instance is $(\{\cm_{\chi}\}_{\chi \in \mathcal{S}}, r)$ and the witness is $\{\chi\}_{\chi \in \mathcal{S}}$;
+the relation $\mathcal{R}_{\mathsf{Freivalds}}$ requires:
+\begin{align*}
+  &\textstyle\bigwedge_{\chi \in \mathcal{S}}\; \cm_{\chi} = \merkle(\chi), \\
+  &\vect{r}\mat{A} = \vect{x} \;\land\; \vect{x}\mat{B} = \vect{y}, \\
+  &\vect{r}\mat{C} = \vect{z} \;\land\; \vect{y} = \vect{z}.
+\end{align*}
+By the Schwartz--Zippel lemma, if $\mat{A}\mat{B} \neq \mat{C}$, then $\vect{y} \neq \vect{z}$ with probability at least $1 - (k-1)/|\mathbb{F}|$.
+Note that while this relation eliminates the $\mathcal{O}(k^3)$ matrix product, verifying the vector-matrix products still costs $\mathcal{O}(k^2)$ each.
+
+\paragraph{Reduction 2: Proximity lifting ($\mathcal{R}_{\mathsf{Freivalds}} \rightsquigarrow \mathcal{R}_{\mathsf{SNARK}}$).}
+We now encode all matrices and vectors using a systematic $\mathbb{F}$-linear code $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ with relative distance $\delta$, and replace the global vector-matrix checks with \emph{local} consistency checks at random positions.
+Let $I \subset [n]$ be the set of queried column indices, and let $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$, $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ denote the matrix set and vector set respectively.
+
+The \emph{public instance} is
+$\stmt = \bigl(\{\cm_{\chi}\}_{\chi \in \mathcal{S}},\; r,\; I\bigr)$
+and the \emph{witness} is
+\[
+  \wit = \Bigl(\vect{x},\, \vect{y},\, \vect{z},\;
+    \bigl\{\enc_{\chi}^{(j)},\, \pi_{\chi,j}\bigr\}_{j \in I,\, \chi \in \mathcal{S}}\Bigr).
+\]
+The relation $\mathcal{R}_{\mathsf{SNARK}}$ requires $(\stmt, \wit)$ to satisfy all of:
+\begin{align}
+  &\enc(\vect{x}) = \enc_x \;\land\; \enc(\vect{y}) = \enc_y \notag\\
+  &\quad\;\land\; \enc(\vect{z}) = \enc_z, \tag{ENC} \label{eq:enc-cw}\\
+  &\forall j \in I{:}\quad
+    \enc_{x,j} = \fold\!\bigl(\enc_{A}^{(j)},\,\vect{r}\bigr), \tag{FOLD-A}\label{eq:fold-A}\\
+  &\forall j \in I{:}\quad
+    \enc_{y,j} = \fold\!\bigl(\enc_{B}^{(j)},\,\vect{x}\bigr), \tag{FOLD-B}\label{eq:fold-B}\\
+  &\forall j \in I{:}\quad
+    \enc_{z,j} = \fold\!\bigl(\enc_{C}^{(j)},\,\vect{r}\bigr), \tag{FOLD-C}\label{eq:fold-C}\\
+  &\forall j \in I{:}\quad
+    \enc_{y,j} = \enc_{z,j}, \tag{EQ}\label{eq:eq-check}\\
+  &\forall \chi \in \mathcal{S},\, j \in I{:}\quad
+    \merkleV\!\bigl(\pi_{\chi,j},\,\enc_{\chi}^{(j)},\,\cm_{\chi}\bigr) = 1.
+    \tag{PATH}\label{eq:path-check}
+\end{align}
+
+The critical property is that $\mathcal{R}_{\mathsf{SNARK}}$ involves only $\mathcal{O}(|I| \cdot k)$ constraints for the fold operations, plus $\mathcal{O}(|I| \cdot \log n)$ hash checks for the Merkle paths.
+Since $|I|$ is a security-parameter-sized constant independent of $k$, the circuit size is \emph{linear in $k$}.
+
+\paragraph{Encoding constraints.}
+The constraints $\enc(v) = \enc_v$ for $v \in \mathcal{W}$ force the prover to commit to \emph{valid codewords}.
+Without them, a cheating prover could commit to arbitrary strings that happen to satisfy the fold checks at queried positions without corresponding to any genuine encoding, defeating the distance-based soundness argument.
+We note that for a linear code with generator matrix $G \in \mathbb{F}^{k \times n}$, the constraint $\enc_v = v \cdot G$ requires $\mathcal{O}(k(n-k))$ inner-product checks.
+For codes with linear-time encoding (e.g., expander-based codes~\cite{golovnev2023brakedown}), this is $\mathcal{O}(kn)$ with small constants; for constant-rate codes $n = \mathcal{O}(k)$, the encoding constraints contribute $\mathcal{O}(k^2)$ total.
+We discuss the trade-off in Section~\ref{sec:complexity}.
+
+\subsection{Protocol Description}
+\label{sec:protocol-desc}
+
+We now give the full specification of $\protocol$.
+Let $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ be a systematic linear code with relative distance $\delta$ and $\merkle$ denote the Merkle tree commitment.
+Let $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$ be the matrix set, $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ the vector set, and $\mathcal{S} = \mathcal{M} \cup \mathcal{W}$.
+The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\mathcal{V}$ as shown in Figure~\ref{fig:protocol}.
+
+\begin{figure*}[ht!]
+\centering
+\scalebox{0.95}{%
+    \fbox{%
+    \procedure[]{\protocol}{%
+    \mathcal{P} \< \< \mathcal{V} \\[4pt]
+    %% Phase 1
+    \textbf{Phase 1: Commit} \< \< \\
+    \mat{A}, \mat{B} \gets \textsf{Mat}_{k \times k}(\FF);\ \mat{C} \gets \mat{A}\mat{B} \< \< \\
+    \text{For } M \in \mathcal{M}: \< \< \\
+    \quad \enc_M \gets \enc(M) \quad\text{// row-wise encoding} \< \< \\
+    \quad \cm_M \gets \merkle(\enc_M) \< \sendmessageright*[2.5cm]{\cm_A,\cm_B,\cm_C} \< \\[4pt]
+    %% Phase 2
+    \< \< \textbf{Phase 2: Challenge} \\
+    \< \sendmessageleft*[2.5cm]{r} \< r \sample \FF \\[4pt]
+    %% Phase 3
+    \textbf{Phase 3: Respond} \< \< \\
+    \vect{r} \gets (1, r, r^2, \dots, r^{k-1}) \< \< \\
+    \vect{x} \gets \vect{r}\mat{A},\quad \vect{y} \gets \vect{x}\mat{B},\quad \vect{z} \gets \vect{r}\mat{C} \< \< \\
+    \text{For } v \in \mathcal{W}: \< \< \\
+    \quad \enc_v \gets \enc(v),\quad \cm_v \gets \merkle(\enc_v) \< \sendmessageright*[2.5cm]{\cm_x,\cm_y,\cm_z} \< \\[4pt]
+    %% Phase 4
+    \< \< \textbf{Phase 4: Query} \\
+    \< \sendmessageleft*[2.5cm]{I} \< I \sample [n]^{t} \\[4pt]
+    %% Phase 5
+    \textbf{Phase 5: Open \& Prove} \< \< \\
+    \text{For } j \in I,\ \chi \in \mathcal{S}: \< \< \\
+    \quad (\enc_\chi^{(j)}, \pi_{\chi,j}) \gets \merkleO(\cm_\chi, j) \< \< \\
+    \stmt \gets \Big( \{\cm_{\chi}\}_{\chi \in \mathcal{S}},\, r,\, I \Big) \< \< \\
+    \wit \gets \Big( \vect{x}, \vect{y}, \vect{z},\, \{\enc_{\chi}^{(j)}, \pi_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}} \Big) \< \< \\
+    \pi \gets \snarkP(\para, \stmt, \wit) \< \sendmessageright*[2.5cm]{\pi} \< \\[4pt]
+    %% Phase 6
+    \< \< \textbf{Phase 6: Verify} \\
+    \< \< b \gets \snarkV(\para, \stmt, \pi) \\
+    \< \< \text{Accept iff } b = 1
+    }%
+    }%
+}
+\caption{The $\protocol$ protocol for verifiable matrix multiplication.
+$\mathcal{S} = \mathcal{M} \cup \mathcal{W}$ is the full set of committed objects, $t = |I|$ is the query complexity, and $\stmt, \wit$ denote the public statement and witness for the inner SNARK.}
+\label{fig:protocol}
+\end{figure*}
+
+\paragraph{Remark on the SNARK relation.}
+The SNARK proof $\pi$ attests to the validity of the relation $\mathcal{R}_{\mathsf{SNARK}}$ defined in Section~\ref{sec:relation-chain}.
+The SNARK circuit verifies: (1)~constraint~\eqref{eq:enc-cw}, ensuring $\vect{x}, \vect{y}, \vect{z}$ are valid codewords of~$\mathcal{C}$; (2)~constraints~\eqref{eq:fold-A}--\eqref{eq:eq-check}, the four fold/equality checks at each $j \in I$; and (3)~constraint~\eqref{eq:path-check}, consistency of all Merkle opening proofs with the committed roots.
+The public statement $\stmt$ consists of the commitment roots $\{\cm_\chi\}_{\chi \in \mathcal{S}}$, the challenge $r$, and the query set $I$.
+The witness $\wit$ consists of the intermediate vectors and the opened codeword columns with their authentication paths.
+
+\paragraph{Non-interactive variant.}
+The protocol as described is a three-round public-coin interactive protocol.
+By applying the Fiat--Shamir heuristic~\cite{fiat1987prove} in the random oracle model, it can be made non-interactive: set $r \gets \Hash(\cm_A, \cm_B, \cm_C)$ and $I \gets \Hash(\cm_x, \cm_y, \cm_z)$.
+The resulting non-interactive proof consists of the six commitment roots together with the SNARK proof $\pi$.
+
+\paragraph{Security of the non-interactive variant.}
+A potential concern with the Fiat--Shamir transform for proximity-based protocols is a \emph{grinding attack}: a malicious prover could try many different tuples $(\cm_x, \cm_y, \cm_z)$ until the resulting query set $I = \Hash(\cm_x, \cm_y, \cm_z)$ happens to avoid all positions where the committed codewords are inconsistent.
+We argue that this attack is infeasible in the random oracle model.
+Suppose the adversary has committed to $(\cm_A, \cm_B, \cm_C)$ (and hence to fixed encoded matrices) and is searching for $(\cm_x, \cm_y, \cm_z)$ such that $I$ avoids the disagreement set $D$ of some fold or equality check.
+If any of the four checks fails globally, then $|D| \ge \delta n$ by the minimum-distance property.
+For a single random query $j \in [n]$, the probability of $j \notin D$ is at most $1 - \delta$; for $t$ independent queries it is $(1-\delta)^t \le 2^{-\lambda}$.
+Each trial of the grinding attack produces an independently random $I$ in the random oracle model, so the probability that $q$ grinding attempts all yield a favorable $I$ is at most $q \cdot 2^{-\lambda}$.
+For any $\ppt$ adversary, $q$ is polynomially bounded in $\lambda$, giving a total success probability of $\mathsf{negl}(\lambda)$.
+Hence the non-interactive protocol retains the soundness bound of Theorem~\ref{thm:security} in the random oracle model.
+
+\paragraph{Zero-knowledge extension.}
+The protocol as stated is a \emph{verifiable computation} protocol and does not conceal the inputs $\mat{A}, \mat{B}, \mat{C}$ from the verifier.
+Zero-knowledge can be achieved straightforwardly by two modifications:
+(i) replace the Merkle tree commitments with a \emph{hiding} commitment scheme (e.g., salted hashes or Pedersen vector commitments~\cite{pedersen1991non}) so that the committed encoded matrices reveal no information about $\mat{A}, \mat{B}, \mat{C}$; and
+(ii) employ a zero-knowledge SNARK backend for the inner proof $\pi$.
+Masking the intermediate vectors $\vect{x}, \vect{y}, \vect{z}$ requires adding fresh random blinding vectors in Phase~3 and including the corresponding decommitment randomness in the SNARK witness.
+We omit the full ZK treatment here for clarity of presentation; the construction carries over to the ZK setting without structural changes to the protocol.
+
+
+\subsection{Complexity Analysis}
+\label{sec:complexity}
+
+We analyze the computational and communication costs of $\protocol$.
+
+\paragraph{Prover computation.}
+The prover's dominant costs are:
+\begin{enumerate}[label=(\roman*)]
+  \item \emph{Matrix multiplication}: Computing $\mat{C} = \mat{A}\mat{B}$ requires $\mathcal{O}(k^3)$ field operations (or $\mathcal{O}(k^\omega)$ with fast algorithms). This is performed natively outside the SNARK circuit and is amenable to GPU acceleration.
+  \item \emph{Encoding}: $3k$ rows (one per matrix row, three matrices) each encoded into length-$n$ codewords costs $\mathcal{O}(kn)$ per matrix with linear-time codes.
+  \item \emph{Vector computation}: Computing $\vect{x}, \vect{y}, \vect{z}$ costs $\mathcal{O}(k^2)$ in total.
+  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + t \cdot \log n)$ for the fold and Merkle checks, plus encoding constraints (see below). The SNARK prover time scales with the circuit size.
+\end{enumerate}
+
+\paragraph{Verifier computation.}
+The verifier performs only SNARK verification: $\mathcal{O}(1)$ for pairing-based SNARKs, or $\mathcal{O}(|\stmt|)$ for transparent SNARKs, both independent of the matrix dimension~$k$.
+
+\paragraph{Communication.}
+The proof consists of six Merkle roots ($\mathcal{O}(\lambda)$ bits) plus the SNARK proof $\pi$ ($\mathcal{O}(\lambda)$ bits for succinct schemes), giving total communication $\mathcal{O}(\lambda)$.
+
+\paragraph{Circuit size comparison.}
+Table~\ref{tab:cost-summary} summarizes the asymptotic costs.
+Na\"ive arithmetization of $\mat{A}\mat{B} = \mat{C}$ requires $\mathcal{O}(k^3)$ constraints.
+Freivalds' algorithm alone reduces this to $\mathcal{O}(k^2)$.
+Our approach achieves $\mathcal{O}(tk + k(n-k))$: the first term covers the fold and proximity checks; the second covers the encoding constraints.
+For constant-rate codes ($n = \Theta(k)$), the encoding constraints contribute $\mathcal{O}(k^2)$, which can be comparable to the direct Freivalds cost---but with a much smaller constant factor and, crucially, no dependence on the prover's matrix output.
+With linear-time encodable codes of rate $\rho$ and distance $\delta$, setting $t = \lceil\lambda / \log_2(1/(1-\delta))\rceil$ gives a circuit size of $\mathcal{O}(k)$ (up to the encoding constraint term), with concrete sizes discussed in Section~\ref{sec:implementation}.
+
+\begin{table}[t]
+\centering
+\caption{Asymptotic cost comparison. $k$: matrix dimension; $n$: codeword length; $t$: query count; $\lambda$: security parameter.}
+\label{tab:cost-summary}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+\midrule
+Matrix multiplication & $\mathcal{O}(k^3)$ & --- \\
+Encoding (row-wise) & $\mathcal{O}(kn)$ & --- \\
+Merkle commitment & $\mathcal{O}(n \log n)$ & --- \\
+SNARK circuit size & $\mathcal{O}(tk + k(n-k))$ & --- \\
+SNARK verification & --- & $\mathcal{O}(1)$ \\
+\midrule
+\textbf{Total} & $\mathcal{O}(k^3 + kn)$ & $\mathcal{O}(1)$ \\
+\bottomrule
+\end{tabular}
+\end{table}

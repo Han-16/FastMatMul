@@ -1,0 +1,131 @@
+\section{Introduction}
+\label{sec:intro}
+
+The deployment of machine learning models in outsourced and multi-party settings
+has created an urgent need for \emph{verifiable inference}: a protocol in which a
+prover (e.g., a cloud GPU server) convinces a verifier (e.g., a client or smart
+contract) that a claimed output was computed correctly from a given model and
+input.
+Zero-Knowledge Succinct Non-interactive Arguments of Knowledge (zk-SNARKs) are
+the natural cryptographic tool for this task, but their application to modern
+deep-learning architectures---particularly Transformer-based large language
+models---has been hampered by a single, dominant bottleneck: \emph{matrix
+multiplication}.
+In a standard Transformer layer, fully-connected projections and attention
+computations are expressed as products of matrices with dimensions
+$k \ge 1{,}000$.
+Na\"ive SNARK arithmetization of a single $k \times k$ matrix multiplication
+generates $\mathcal{O}(k^3)$ arithmetic constraints, a cost that is
+impractical even for moderate~$k$.
+
+\paragraph{The $\mathcal{O}(k^2)$ barrier.}
+Freivalds' classical randomized check~\cite{freivalds1977probabilistic}
+reduces the problem from $\mathcal{O}(k^3)$ to $\mathcal{O}(k^2)$: given
+matrices $\mat{A}, \mat{B}, \mat{C}$ and a random vector $\vect{r}$,
+one verifies $\vect{r}\mat{A}\mat{B} = \vect{r}\mat{C}$ instead of
+recomputing the full product.
+Several recent verifiable ML systems---Mystique~\cite{weng2021mystique},
+zkML~\cite{chen2024zkml}, and the Freivalds-based baseline
+in~\cite{ghodsi2017safetynets}---adopt this strategy, encoding the
+vector-matrix products directly as SNARK constraints.
+The resulting $\mathcal{O}(k^2)$ circuit is an improvement, yet it remains
+expensive: at $k = 4{,}096$, the direct Freivalds arithmetization requires
+over $50$ million R1CS constraints, takes $773\,\text{s}$ to prove, and
+exceeds available memory at $k = 8{,}192$.
+Since modern Transformer attention layers routinely operate at $k \ge 1{,}024$,
+the gap between the $\mathcal{O}(k^2)$ SNARK cost and practical
+deployability remains wide.
+
+\paragraph{Our insight: from computing to checking.}
+We observe that the $\mathcal{O}(k^2)$ barrier is \emph{not} inherent to
+the verification problem---it arises because existing approaches
+\emph{compute} the vector-matrix products inside the SNARK circuit.
+Our key idea is to shift the paradigm from ``computing in the circuit'' to
+``\emph{checking} in the circuit'': the prover performs the expensive
+matrix arithmetic \emph{outside} the SNARK and commits to all intermediate
+results; the verifier then checks a small number of lightweight algebraic
+relations that suffice to detect any inconsistency.
+
+The technical engine behind this shift is \emph{proximity testing over
+linear error-correcting codes}.
+By encoding each matrix row-wise with a systematic linear code $\mathcal{C}$
+of relative distance $\delta$, the vector-matrix product
+$\vect{x} = \vect{r}\mat{A}$ can be verified \emph{column by column} in
+the encoded domain: the linearity of $\mathcal{C}$ ensures that a single
+inner product (``fold'') of one codeword column suffices to check one
+coordinate of the encoded product.
+If the prover cheats on any relation, the committed codewords disagree
+in at least a $\delta$-fraction of positions, and a random query detects
+the inconsistency with probability $\ge \delta$.
+Crucially, the SNARK circuit only encodes the \emph{local checks}---fold
+computations and Merkle path verifications at $t$ queried positions---yielding
+a circuit size of $\mathcal{O}(tk)$, which is \emph{linear} in the matrix
+dimension when $t$ is a small security-parameter-dependent constant.
+
+\paragraph{Contributions.}
+We present $\protocol$, a verifiable computation protocol for matrix
+multiplication that realizes this approach.
+Our contributions are as follows.
+
+\begin{itemize}
+    \item \textbf{A novel code-based verification protocol.}
+    We design a three-round public-coin protocol that combines a structured
+    variant of Freivalds' randomized reduction with proximity testing over
+    linear codes and Merkle-tree commitments.
+    When instantiated with linear-time encodable codes
+    (e.g., expander-based codes~\cite{golovnev2023brakedown}), the resulting
+    SNARK circuit size is $\mathcal{O}(tk)$---a significant reduction from the
+    $\mathcal{O}(k^2)$ of Freivalds-based approaches.
+    For general constant-rate codes, encoding constraints contribute an
+    additional $\mathcal{O}(k^2)$ term; we analyze this trade-off in
+    Section~\ref{sec:complexity}.
+    The protocol is made non-interactive via the Fiat--Shamir
+    heuristic~\cite{fiat1987prove}.
+
+    \item \textbf{Rigorous security analysis.}
+    We prove that $\protocol$ achieves perfect completeness and computational
+    soundness with error bounded by
+    $\epsilon_{\mathsf{bind}} + (k\!-\!1)/|\mathbb{F}| + 4(1\!-\!\delta)^{t}$,
+    where $\delta$ is the code's relative distance and
+    $\epsilon_{\mathsf{bind}}$ is the Merkle commitment's binding error.
+    The analysis decomposes the adversary's strategy into three orthogonal
+    failure modes---commitment forgery, algebraic evasion, and proximity
+    evasion---and shows each is negligible for standard parameter choices
+    (Section~\ref{sec:security}).
+
+    \item \textbf{Concrete efficiency gains.}
+    We implement $\protocol$ in Rust and evaluate it against a direct
+    Freivalds SNARK baseline across matrix dimensions $k \in [2^5, 2^{13}]$.
+    Key findings (Section~\ref{sec:implementation}):
+    \begin{itemize}[nosep]
+        \item \emph{Constraint reduction.}
+        $\protocol$ constraints grow as $\mathcal{O}(k)$, versus
+        $\mathcal{O}(k^2)$ for Freivalds.
+        The gap reaches $30\times$ at $k = 4{,}096$
+        ($1{,}664{,}106$ vs.\ $50{,}491{,}721$ constraints);
+        Freivalds becomes infeasible at $k = 8{,}192$ while
+        $\protocol$ completes with $3{,}324{,}484$ constraints.
+
+        \item \emph{Proving-time speedup.}
+        $\protocol$ outperforms Freivalds for $k \geq 1{,}024$, achieving
+        $1.7\times$, $2.7\times$, and $6.6\times$ speedups at
+        $k = 1{,}024$, $2{,}048$, and $4{,}096$ respectively.
+        At $k = 8{,}192$, $\protocol$ proves in $466\,\text{s}$; Freivalds
+        cannot run.
+
+        \item \emph{Negligible encoding overhead.}
+        The prover's off-circuit encoding step takes less than
+        $1\,\text{s}$ even at $k = 2^{20}$, confirming that encoding
+        does not introduce a new bottleneck.
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Paper organization.}
+Section~\ref{sec:tech-overview} gives a high-level technical overview.
+Section~\ref{sec:prelim} recalls the necessary background.
+Section~\ref{sec:construction} presents the formal construction and complexity
+analysis.
+Section~\ref{sec:security} provides the security proof.
+Section~\ref{sec:implementation} reports our implementation and evaluation.
+Section~\ref{sec:related} surveys related work, and
+Section~\ref{sec:conclusion} concludes with future directions.

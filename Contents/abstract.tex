@@ -1,0 +1,10 @@
+Verifiable machine learning inference requires proving that a claimed output was computed correctly, yet the dominant computational primitive---matrix multiplication---creates a severe bottleneck for SNARK-based approaches: na\"ive arithmetization of a $k \times k$ product incurs $\mathcal{O}(k^3)$ constraints, and even the classical Freivalds reduction yields $\mathcal{O}(k^2)$.
+
+We present $\protocol$, a verifiable computation protocol that reduces the SNARK circuit size for matrix multiplication to $\mathcal{O}(tk)$, where $t$ is a small security-parameter-dependent constant independent of~$k$.
+The protocol combines a structured variant of Freivalds' randomized check with \emph{proximity testing over linear error-correcting codes}: matrices are encoded row-wise and committed via Merkle trees; the verifier detects any inconsistency by querying $t$ random codeword positions and checking lightweight algebraic fold relations.
+The expensive $\mathcal{O}(k^3)$ matrix arithmetic is performed entirely outside the SNARK.
+We prove that the protocol achieves perfect completeness and computational soundness with error $\epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$, where $\delta$ is the relative distance of the underlying code.
+
+We implement $\protocol$ in Rust and evaluate it against a direct Freivalds SNARK baseline.
+Experiments show a $30\times$ constraint reduction at $k = 4{,}096$ and $6.6\times$ proving-time speedup, while the baseline runs out of memory at $k = 8{,}192$ and $\protocol$ continues to scale.
+The proving-time advantage materializes for $k \geq 1{,}024$---the regime relevant to Transformer attention layers and feed-forward projections in modern large language models.

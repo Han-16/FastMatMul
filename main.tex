@@ -1,4 +1,66 @@
-\documentclass{article}
+\documentclass[sigconf]{acmart}
+\input{Styles/packages}
+\input{Styles/commands}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\settopmatter{printfolios=true} %% 제출 전에 삭제
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{Bib\TeX}}%
+  %% acmart sets up the 'theorem' counter inside \begin{document}.
+  %% Define extra theorem-like environments here, after the counter exists.
+  \newtheorem{claim}[theorem]{Claim}%
+}
+
+\setcopyright{acmlicensed}           %% CCS: DO NOT REMOVE
+\copyrightyear{2025}                  %% CCS: DO NOT REMOVE
+\acmYear{2025}                        %% CCS: DO NOT REMOVE
+\acmDOI{XXXXXXX.XXXXXXX}             %% CCS: DO NOT REMOVE
+\acmConference[CCS '25]{ACM Conference on Computer and Communications Security}{October 13--17, 2025}{Salt Lake City, UT, USA}
+\acmISBN{978-1-4503-XXXX-X/2025/10}  %% CCS: DO NOT REMOVE
+
 \begin{document}
-Hello, FastMatMul!
+
+\title{FastMatMul: Efficient Verifiable Matrix Multiplication\\via Linear Error-Correcting Codes}
+
+\author{}
+
+%% In acmart sigconf, the abstract MUST come before \maketitle.
+\begin{abstract}
+\input{Contents/abstract}
+\end{abstract}
+
+\maketitle
+
+%% Section 1: Introduction
+\input{Contents/introduction}
+
+%% Section 2: Technical Overview
+\input{Contents/technical_overview}
+
+%% Section 3: Preliminaries
+\input{Contents/preliminaries}
+
+%% Section 4: Our Construction
+\input{Contents/construction}
+
+%% Section 5: Security Analysis
+\input{Contents/security_analysis}
+
+%% Section 6: Implementation and Evaluation 
+\input{Contents/evaluation}
+
+%% Section 7: Related Work
+\input{Contents/related_work}
+
+%% Section 8: Conclusion
+\input{Contents/conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{Styles/bibliography}
+
+\appendix
+\input{Contents/appendix}
+
 \end{document}

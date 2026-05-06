@@ -1,0 +1,35 @@
+%% ── Commitment & Merkle ──────────────────────────────────────────────────────
+\newcommand{\para}{\textsf{pp}}
+\newcommand{\cm}{\textsf{cm}}
+\newcommand{\merkle}{\textsf{M.CM}}
+\newcommand{\merkleV}{\textsf{Merkle.Verify}}
+\newcommand{\merkleO}{\textsf{Merkle.Open}}
+\newcommand{\pedersen}{\textsf{P.CM}}
+
+%% ── Algebra ──────────────────────────────────────────────────────────────────
+\newcommand{\mat}{\mathbf}          % matrix: \mat{A}
+\newcommand{\vect}{\mathbf}         % vector: \vect{x}
+%% \enc is already defined by cryptocode's 'primitives' module (as encryption).
+%% We redefine it here to mean the linear-code encoding operator instead.
+\renewcommand{\enc}{\mathsf{Enc}}   % encoding operator (overrides cryptocode)
+
+%% ── SNARK ────────────────────────────────────────────────────────────────────
+\newcommand{\snarkP}{\textsf{SNARK.P}}
+\newcommand{\snarkV}{\textsf{SNARK.V}}
+
+%% ── SNARK statement / witness (replaces \mathbb{x}, \mathbb{w}) ─────────────
+%% \mathbb works only for uppercase.
+%% We use \mathsf to distinguish SNARK instances from vector \vect{x} (\mathbf{x}).
+\newcommand{\stmt}{\mathsf{x}}      % SNARK public statement
+\newcommand{\wit}{\mathsf{w}}       % SNARK witness
+
+%% ── Misc ─────────────────────────────────────────────────────────────────────
+\newcommand{\fold}{\textsf{Fold}}
+\newcommand{\Hash}{\textsf{Hash}}
+\newcommand{\protocol}{\textsf{FastMatMul}}   % protocol name
+
+%% ── Sets of objects (avoid \mathcal{V} collision with verifier) ──────────────
+%% Vector set is written explicitly in text to avoid notation collision.
+
+
+\newtheorem{remark}{Remark}

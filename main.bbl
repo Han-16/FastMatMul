@@ -1,0 +1,192 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{21}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Ames et~al\mbox{.}(2017)]%
+        {ames2017ligero}
+\bibfield{author}{\bibinfo{person}{Scott Ames}, \bibinfo{person}{Carmit Hazay}, \bibinfo{person}{Yuval Ishai}, {and} \bibinfo{person}{Muthuramakrishnan Venkitasubramaniam}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Ligero: Lightweight Sublinear Arguments Without a Trusted Setup}. In \bibinfo{booktitle}{\emph{Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security}}. \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{2087--2104}.
+\newblock
+
+
+\bibitem[Ben-Sasson et~al\mbox{.}(2018)]%
+        {ben2018fast}
+\bibfield{author}{\bibinfo{person}{Eli Ben-Sasson}, \bibinfo{person}{Iddo Bentov}, \bibinfo{person}{Yinon Horesh}, {and} \bibinfo{person}{Michael Riabzev}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Fast Reed-Solomon Interactive Oracle Proofs of Proximity}. In \bibinfo{booktitle}{\emph{45th International Colloquium on Automata, Languages, and Programming (ICALP 2018)}}. \bibinfo{publisher}{Schloss Dagstuhl--Leibniz-Zentrum f{\"u}r Informatik}, \bibinfo{address}{Dagstuhl, Germany}, \bibinfo{pages}{14:1--14:17}.
+\newblock
+
+
+\bibitem[Bennett et~al\mbox{.}(2023)]%
+        {bennett2023matrix}
+\bibfield{author}{\bibinfo{person}{Huck Bennett}, \bibinfo{person}{Karthik Gajulapalli}, \bibinfo{person}{Alexander Golovnev}, {and} \bibinfo{person}{Evelyn Warton}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Matrix multiplication verification using coding theory}.
+\newblock \bibinfo{journal}{\emph{arXiv preprint arXiv:2309.16176}} (\bibinfo{year}{2023}).
+\newblock
+
+
+\bibitem[Chen et~al\mbox{.}(2024)]%
+        {chen2024zkml}
+\bibfield{author}{\bibinfo{person}{Bing-Jyue Chen}, \bibinfo{person}{Suppakit Waiwitlikhit}, \bibinfo{person}{Ion Stoica}, {and} \bibinfo{person}{Daniel Kang}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Zkml: An optimizing system for ml inference in zero-knowledge proofs}. In \bibinfo{booktitle}{\emph{Proceedings of the Nineteenth European Conference on Computer Systems}}. \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{560--574}.
+\newblock
+
+
+\bibitem[Cong et~al\mbox{.}(2024)]%
+        {cong2024zkmatrix}
+\bibfield{author}{\bibinfo{person}{Mingshu Cong}, \bibinfo{person}{Tsz~Hon Yuen}, {and} \bibinfo{person}{Siu-Ming Yiu}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{zkmatrix: Batched short proof for committed matrix multiplication}. In \bibinfo{booktitle}{\emph{Proceedings of the 19th ACM Asia Conference on Computer and Communications Security}}. \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{289--305}.
+\newblock
+
+
+\bibitem[Cong et~al\mbox{.}(2026)]%
+        {cong2026dualmatrix}
+\bibfield{author}{\bibinfo{person}{Mingshu Cong}, \bibinfo{person}{Tsz~Hon Yuen}, {and} \bibinfo{person}{Siu~Ming Yiu}.} \bibinfo{year}{2026}\natexlab{}.
+\newblock \showarticletitle{Dualmatrix: conquering zkSNARK for large matrix multiplication}.
+\newblock \bibinfo{journal}{\emph{Cybersecurity}} \bibinfo{volume}{9}, \bibinfo{number}{1} (\bibinfo{year}{2026}), \bibinfo{pages}{126}.
+\newblock
+
+
+\bibitem[Fiat and Shamir(1987)]%
+        {fiat1987prove}
+\bibfield{author}{\bibinfo{person}{Amos Fiat} {and} \bibinfo{person}{Adi Shamir}.} \bibinfo{year}{1987}\natexlab{}.
+\newblock \showarticletitle{How to Prove Yourself: Practical Solutions to Identification and Signature Problems}. In \bibinfo{booktitle}{\emph{Advances in Cryptology -- CRYPTO '86}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Berlin, Heidelberg}, \bibinfo{pages}{186--194}.
+\newblock
+
+
+\bibitem[Freivalds(1977)]%
+        {freivalds1977probabilistic}
+\bibfield{author}{\bibinfo{person}{R{\=u}si{\c{n}}{\v{s}} Freivalds}.} \bibinfo{year}{1977}\natexlab{}.
+\newblock \showarticletitle{Probabilistic Machines Can Use Less Running Time}. In \bibinfo{booktitle}{\emph{Information Processing 77 (Proceedings of IFIP Congress 77)}}. \bibinfo{publisher}{North-Holland}, \bibinfo{address}{Amsterdam, The Netherlands}, \bibinfo{pages}{839--842}.
+\newblock
+
+
+\bibitem[Ghodsi et~al\mbox{.}(2017)]%
+        {ghodsi2017safetynets}
+\bibfield{author}{\bibinfo{person}{Zahra Ghodsi}, \bibinfo{person}{Tianyu Gu}, {and} \bibinfo{person}{Siddharth Garg}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Safetynets: Verifiable execution of deep neural networks on an untrusted cloud}.
+\newblock \bibinfo{journal}{\emph{Advances in Neural Information Processing Systems}}  \bibinfo{volume}{30} (\bibinfo{year}{2017}).
+\newblock
+
+
+\bibitem[Goldwasser et~al\mbox{.}(2015)]%
+        {goldwasser2015delegating}
+\bibfield{author}{\bibinfo{person}{Shafi Goldwasser}, \bibinfo{person}{Yael~Tauman Kalai}, {and} \bibinfo{person}{Guy~N. Rothblum}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{Delegating computation: Interactive proofs for muggles}.
+\newblock \bibinfo{journal}{\emph{J. ACM}} \bibinfo{volume}{62}, \bibinfo{number}{4} (\bibinfo{year}{2015}), \bibinfo{pages}{1--64}.
+\newblock
+
+
+\bibitem[Golovnev et~al\mbox{.}(2023)]%
+        {golovnev2023brakedown}
+\bibfield{author}{\bibinfo{person}{Alexander Golovnev}, \bibinfo{person}{Jonathan Lee}, \bibinfo{person}{Srinath Setty}, \bibinfo{person}{Justin Thaler}, {and} \bibinfo{person}{Riad~S. Wahby}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Brakedown: Linear-time and field-agnostic SNARKs for R1CS}. In \bibinfo{booktitle}{\emph{Advances in Cryptology -- CRYPTO 2023}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Cham}, \bibinfo{pages}{193--226}.
+\newblock
+
+
+\bibitem[Kate et~al\mbox{.}(2010)]%
+        {kate2010constant}
+\bibfield{author}{\bibinfo{person}{Aniket Kate}, \bibinfo{person}{Gregory~M. Zaverucha}, {and} \bibinfo{person}{Ian Goldberg}.} \bibinfo{year}{2010}\natexlab{}.
+\newblock \showarticletitle{Constant-Size Commitments to Polynomials and Their Applications}. In \bibinfo{booktitle}{\emph{Advances in Cryptology -- ASIACRYPT 2010}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Berlin, Heidelberg}, \bibinfo{pages}{177--194}.
+\newblock
+
+
+\bibitem[Lee et~al\mbox{.}(2024)]%
+        {lee2024vcnn}
+\bibfield{author}{\bibinfo{person}{Seunghwa Lee}, \bibinfo{person}{Hankyung Ko}, \bibinfo{person}{Jihye Kim}, {and} \bibinfo{person}{Hyunok Oh}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{vcnn: Verifiable convolutional neural network based on zk-snarks}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Dependable and Secure Computing}} \bibinfo{volume}{21}, \bibinfo{number}{4} (\bibinfo{year}{2024}), \bibinfo{pages}{4254--4270}.
+\newblock
+
+
+\bibitem[Liu et~al\mbox{.}(2021)]%
+        {liu2021zkcnn}
+\bibfield{author}{\bibinfo{person}{Tianyi Liu}, \bibinfo{person}{Xiang Xie}, {and} \bibinfo{person}{Yupeng Zhang}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Zkcnn: Zero knowledge proofs for convolutional neural network predictions and accuracy}. In \bibinfo{booktitle}{\emph{Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security}}. \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{2968--2985}.
+\newblock
+
+
+\bibitem[Merkle(1989)]%
+        {merkle1989certified}
+\bibfield{author}{\bibinfo{person}{Ralph~C. Merkle}.} \bibinfo{year}{1989}\natexlab{}.
+\newblock \showarticletitle{A Certified Digital Signature}. In \bibinfo{booktitle}{\emph{Advances in Cryptology -- CRYPTO '89}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Berlin, Heidelberg}, \bibinfo{pages}{218--238}.
+\newblock
+
+
+\bibitem[Pedersen(1991)]%
+        {pedersen1991non}
+\bibfield{author}{\bibinfo{person}{Torben~Pryds Pedersen}.} \bibinfo{year}{1991}\natexlab{}.
+\newblock \showarticletitle{Non-Interactive and Information-Theoretic Secure Verifiable Secret Sharing}. In \bibinfo{booktitle}{\emph{Advances in Cryptology -- CRYPTO '91}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Berlin, Heidelberg}, \bibinfo{pages}{129--140}.
+\newblock
+
+
+\bibitem[Schwartz(1980)]%
+        {schwartz1980fast}
+\bibfield{author}{\bibinfo{person}{Jacob~T. Schwartz}.} \bibinfo{year}{1980}\natexlab{}.
+\newblock \showarticletitle{Fast probabilistic algorithms for verification of polynomial identities}.
+\newblock \bibinfo{journal}{\emph{J. ACM}} \bibinfo{volume}{27}, \bibinfo{number}{4} (\bibinfo{year}{1980}), \bibinfo{pages}{701--717}.
+\newblock
+
+
+\bibitem[Weng et~al\mbox{.}(2021)]%
+        {weng2021mystique}
+\bibfield{author}{\bibinfo{person}{Chenkai Weng}, \bibinfo{person}{Kang Yang}, \bibinfo{person}{Xiang Xie}, \bibinfo{person}{Jonathan Katz}, {and} \bibinfo{person}{Xiao Wang}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Mystique: Efficient conversions for $\{$Zero-Knowledge$\}$ proofs with applications to machine learning}. In \bibinfo{booktitle}{\emph{30th USENIX Security Symposium (USENIX Security 21)}}. \bibinfo{publisher}{USENIX Association}, \bibinfo{address}{Berkeley, CA, USA}, \bibinfo{pages}{501--518}.
+\newblock
+
+
+\bibitem[Xie et~al\mbox{.}(2022)]%
+        {xie2022orion}
+\bibfield{author}{\bibinfo{person}{Tiancheng Xie}, \bibinfo{person}{Yupeng Zhang}, {and} \bibinfo{person}{Dawn Song}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Orion: Zero Knowledge Proof with Linear Prover Time}. In \bibinfo{booktitle}{\emph{Advances in Cryptology -- CRYPTO 2022}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Cham}, \bibinfo{pages}{299--328}.
+\newblock
+
+
+\bibitem[Zhang et~al\mbox{.}(2025)]%
+        {zhang2025zkvc}
+\bibfield{author}{\bibinfo{person}{Yancheng Zhang}, \bibinfo{person}{Mengxin Zheng}, \bibinfo{person}{Xun Chen}, \bibinfo{person}{Jingtong Hu}, \bibinfo{person}{Weidong Shi}, \bibinfo{person}{Lei Ju}, \bibinfo{person}{Yan Solihin}, {and} \bibinfo{person}{Qian Lou}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{zkvc: Fast zero-knowledge proof for private and verifiable computing}. In \bibinfo{booktitle}{\emph{2025 62nd ACM/IEEE Design Automation Conference (DAC)}}. IEEE, \bibinfo{publisher}{IEEE}, \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{1--7}.
+\newblock
+
+
+\bibitem[Zippel(1979)]%
+        {zippel1979probabilistic}
+\bibfield{author}{\bibinfo{person}{Richard Zippel}.} \bibinfo{year}{1979}\natexlab{}.
+\newblock \showarticletitle{Probabilistic algorithms for sparse polynomials}. In \bibinfo{booktitle}{\emph{Symbolic and Algebraic Computation (EUROSAM '79)}}. \bibinfo{publisher}{Springer}, \bibinfo{address}{Berlin, Heidelberg}, \bibinfo{pages}{216--226}.
+\newblock
+
+
+\end{thebibliography}

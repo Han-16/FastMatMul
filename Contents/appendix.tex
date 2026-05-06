@@ -1,0 +1,56 @@
+\section{Probabilistic Verification of Reed--Solomon Codewords}
+\label{app:rs-verify}
+
+\subsection{Problem Definition}
+
+Let $\mathbb{F}$ be a finite field.
+Consider a message vector $\vect{m} = (a_0, \ldots, a_{k-1}) \in \mathbb{F}^k$ and a received word $\vect{c} = (c_0, \ldots, c_{n-1}) \in \mathbb{F}^n$, where $n \ge k$.
+The evaluation domain is defined by distinct points $S = \{w^0, w^1, \ldots, w^{n-1}\} \subseteq \mathbb{F}$.
+
+We define two polynomials:
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{Message polynomial} $f(X) = \sum_{i=0}^{k-1} a_i X^i$ with $\deg(f) < k$.
+    \item \textbf{Interpolation polynomial} $g(X)$: the unique polynomial of degree less than $n$ satisfying $g(w^i) = c_i$ for all $i = 0, \ldots, n-1$.
+\end{enumerate}
+
+\noindent \textbf{Goal.} Efficiently verify whether $\vect{c}$ is a valid Reed--Solomon encoding of $\vect{m}$, i.e., whether $f(X) \equiv g(X)$.
+
+\subsection{Protocol: Randomized Consistency Check}
+
+Instead of re-encoding $\vect{m}$ (which costs $\mathcal{O}(k \log k)$), we apply the Schwartz--Zippel lemma (Lemma~\ref{lem:sz}) to check consistency at a random point $z \in \mathbb{F}$.
+
+\begin{algorithm}[ht]
+\caption{Probabilistic Verification of RS Codeword}
+\label{alg:rs-verify}
+\begin{algorithmic}[1]
+\Require Message coefficients $\{a_i\}_{i=0}^{k-1}$, codeword values $\{c_i\}_{i=0}^{n-1}$, domain $\{w^i\}_{i=0}^{n-1}$
+\State \textbf{Verifier} samples $z \sample \mathbb{F} \setminus S$.
+
+\State \textbf{Evaluate $f(z)$.}
+\State $v_1 \gets f(z) = \sum_{i=0}^{k-1} a_i z^i$ \quad (via Horner's method, $\mathcal{O}(k)$ operations)
+
+\State \textbf{Evaluate $g(z)$ via Barycentric Interpolation.}
+\State Precompute barycentric weights $\lambda_i$ for the domain $S$.
+\begin{align*}
+  v_2 \gets g(z) &=
+    \frac{\displaystyle\sum_{i=0}^{n-1} \dfrac{\lambda_i}{z - w^i}\, c_i}
+         {\displaystyle\sum_{i=0}^{n-1} \dfrac{\lambda_i}{z - w^i}}
+\end{align*}
+\State \quad ($\mathcal{O}(n)$ field operations via barycentric interpolation)
+
+\If{$v_1 = v_2$}
+    \State \Return \textbf{Accept} (valid codeword with high probability)
+\Else
+    \State \Return \textbf{Reject} (invalid codeword)
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Soundness Analysis}
+
+By the Schwartz--Zippel lemma, if $f(X) \not\equiv g(X)$, the polynomial $h(X) = f(X) - g(X)$ is non-zero with degree at most $\max(\deg f, \deg g) < n$.
+The probability that a uniformly random $z \in \mathbb{F} \setminus S$ satisfies $f(z) = g(z)$ is:
+\[
+\Pr_{z \sample \mathbb{F}}[f(z) = g(z)] \le \frac{n-1}{|\mathbb{F}|}.
+\]
+For a sufficiently large field ($|\mathbb{F}| \gg n$), this error probability is negligible.
