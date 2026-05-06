@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.12.23)  6 MAY 2026 14:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.12.23)  6 MAY 2026 14:27
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1326,6 +1326,10 @@ LaTeX Font Info:    Font shape `OT1/LinuxBiolinumT-TLF/m/n' will be
 LaTeX Font Info:    Font shape `OT1/LinuxBiolinumT-TLF/m/n' will be
 (Font)              scaled to size 5.5pt on input line 6.
 )
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\\' on input line 34.
+
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 8.0pt on input line 34.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
@@ -1368,7 +1372,7 @@ LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 8.0pt on input line 34.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 6.0pt on input line 34.
- (./Contents/introduction.tex
+(./Contents/introduction.tex
 
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 9.0pt on input line 24.
@@ -1396,9 +1400,6 @@ Overfull \hbox (3.99342pt too wide) in paragraph at lines 124--38
  []
 
 (./Contents/technical_overview.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
 
 
 Overfull \hbox (32.43518pt too wide) in paragraph at lines 34--36
@@ -1420,6 +1421,13 @@ Overfull \hbox (24.21474pt too wide) in paragraph at lines 34--35
  []
 
 
+
+
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 15.59048pt, for example:
+(fancyhdr)                \setlength{\headheight}{15.59048pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
 
 [3.3]
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
@@ -1474,6 +1482,13 @@ Overfull \hbox (13.9724pt too wide) in paragraph at lines 208--209
 
 
 
+
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 15.59048pt, for example:
+(fancyhdr)                \setlength{\headheight}{15.59048pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
+
 [5.5]
 Underfull \vbox (badness 3179) has occurred while \output is active []
 
@@ -1508,6 +1523,13 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/it' will be
 
 
 
+
+
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 15.59048pt, for example:
+(fancyhdr)                \setlength{\headheight}{15.59048pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
 
 [7.7{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/libertine/lbtn_omcwp2.enc}{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/libertine/lbtn_ki75ao.enc}]) (./Contents/evaluation.tex
 
@@ -1544,6 +1566,13 @@ Underfull \hbox (badness 1087) in paragraph at lines 6--6
  []
 
 )
+
+
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 15.59048pt, for example:
+(fancyhdr)                \setlength{\headheight}{15.59048pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
 
 [9.9]) (./Contents/related_work.tex
 
@@ -1582,6 +1611,13 @@ Overfull \hbox (17.07344pt too wide) in paragraph at lines 51--53
 
 
 
+
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 15.59048pt, for example:
+(fancyhdr)                \setlength{\headheight}{15.59048pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
+
 [11.11])
 
 Class acmart Warning: Some images may lack descriptions.
@@ -1615,15 +1651,15 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: ECF6CEB089F2B8F914BE28FAF1EB293D;6477.
  ) 
 Here is how much of TeX's memory you used:
- 46436 strings out of 473190
- 1010259 string characters out of 5715799
+ 46439 strings out of 473190
+ 1010323 string characters out of 5715799
  1582147 words of memory out of 5000000
- 67576 multiletter control sequences out of 15000+600000
- 927304 words of font info for 733 fonts, out of 8000000 for 9000
+ 67577 multiletter control sequences out of 15000+600000
+ 927582 words of font info for 735 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
  104i,31n,131p,1029b,2305s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/LibertineMathMI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/LibertineMathMI5.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/LibertineMathMI7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/LibertineMathRM.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinBiolinumT.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinBiolinumTB.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinBiolinumTI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinLibertineT.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinLibertineTB.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinLibertineTBI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinLibertineTI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/libertine/LinLibertineTZ.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txexs.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txsyc.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsym.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsys.pfb>
-Output written on main.pdf (12 pages, 732058 bytes).
+Output written on main.pdf (12 pages, 747265 bytes).
 PDF statistics:
  578 PDF objects out of 1000 (max. 8388607)
  510 compressed objects within 6 object streams

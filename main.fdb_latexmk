@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1778043498.64722 "main.aux" "main.bbl" "main" 1778045085.91381 0
+["bibtex main"] 1778043498.64722 "main.aux" "main.bbl" "main" 1778045231.7869 0
   "./Styles/bibliography.bib" 1778043489.38939 7063 c743ef15384b1655803e7bbd1e825892 ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/acmart/ACM-Reference-Format.bst" 1735764768 90749 48abc1cbed6fafc6fc31528e3aa606ca ""
-  "main.aux" 1778045084.66838 20300 9b0d6d4950b5bab5767b73a014374d2f "pdflatex"
+  "main.aux" 1778045230.81509 20300 9b0d6d4950b5bab5767b73a014374d2f "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1778045080.77432 "/Users/kyeongtae/FastMatMul/main.tex" "main.pdf" "main" 1778045085.91419 0
-  "/Users/kyeongtae/FastMatMul/main.tex" 1778045080.30038 1730 d978c2bf68b38a7156029df5b24a7c10 ""
+["pdflatex"] 1778045226.89155 "/Users/kyeongtae/FastMatMul/main.tex" "main.pdf" "main" 1778045231.78724 0
+  "/Users/kyeongtae/FastMatMul/main.tex" 1778045226.4552 1793 28de7e72f16d562113a1c317c4a9589a ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/libertine/lbtn_25tcsq.enc" 1490131464 2921 8ca0eb0831f9bc5da080d3697cfe67bf ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/libertine/lbtn_76gpa5.enc" 1490131464 2933 9ad527ce78d7c5fa0a642dead095f172 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/libertine/lbtn_7grukw.enc" 1490131464 2934 a4a9158faed2e9e89c771b4e3b7fc12f ""
@@ -380,10 +380,10 @@
   "Styles/packages.tex" 1778043489.39032 464 f35773d748f93aac8d97b6c2bad1b3f3 ""
   "Tables/Meow_vs_Freivalds.tex" 1778043489.39138 1644 23bb98c1c58516088af236ca9ebc2728 ""
   "Tables/Precompute_and_Encoding.tex" 1778043489.39204 971 add9e0b049accee85e7494e985804c4f ""
-  "main.aux" 1778045084.66838 20300 9b0d6d4950b5bab5767b73a014374d2f "pdflatex"
+  "main.aux" 1778045230.81509 20300 9b0d6d4950b5bab5767b73a014374d2f "pdflatex"
   "main.bbl" 1778043498.89818 12244 d27362ec7916cfaa314b96a76b692e86 "bibtex main"
-  "main.out" 1778045084.67137 6477 ecf6ceb089f2b8f914be28faf1eb293d "pdflatex"
-  "main.tex" 1778045080.30038 1730 d978c2bf68b38a7156029df5b24a7c10 ""
+  "main.out" 1778045230.81758 6477 ecf6ceb089f2b8f914be28faf1eb293d "pdflatex"
+  "main.tex" 1778045226.4552 1793 28de7e72f16d562113a1c317c4a9589a ""
   (generated)
   "main.aux"
   "main.log"
