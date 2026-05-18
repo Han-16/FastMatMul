@@ -1,6 +1,8 @@
-@echo off 
-cd "C:\Users\이경태\FastMatMul" 
-git add . 
-git commit -m "자동 저장" 
-git push 
-echo FastMatMul 저장 완료 
+@echo off
+chcp 65001 > nul
+cd "C:\Users\이경태\FastMatMul"
+git add .
+git commit -m "Auto save: FastMatMul update"
+git push origin main
+echo FastMatMul 저장 완료
+pause
