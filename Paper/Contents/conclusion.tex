@@ -15,9 +15,9 @@ $\epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$.
 
 Our experimental evaluation demonstrates that the theoretical advantages
 translate into concrete gains: $\protocol$ reduces the constraint count
-by up to $30\times$ at $k = 4{,}096$ relative to a direct Freivalds SNARK
-baseline, achieves $1.7$--$6.6\times$ proving-time speedups for
-$k \geq 1{,}024$, and continues to scale at $k = 8{,}192$ where the baseline
+by up to $7.5\times$ at $k = 1{,}024$ relative to a direct Freivalds SNARK
+baseline, achieves up to $23.9\times$ proving-time speedup for
+$k \geq 256$, and continues to scale at $k = 4{,}096$ where the baseline
 exhausts memory.
 The off-circuit encoding cost is negligible (under $1\,\text{s}$ at
 $k = 2^{20}$), confirming that the code-based approach does not introduce

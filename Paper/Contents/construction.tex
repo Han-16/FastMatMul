@@ -7,8 +7,6 @@ Table~\ref{tab:notation} summarizes the notation used throughout the paper.
 
 \begin{table}[t]
 \centering
-\caption{Summary of notation.}
-\label{tab:notation}
 \small
 \begin{tabular}{@{}cl@{}}
 \toprule
@@ -53,6 +51,8 @@ $\snarkP, \snarkV$                   & SNARK prover and verifier \\
 $\para$                              & Public parameters \\
 \bottomrule
 \end{tabular}
+\caption{Summary of notation.}
+\label{tab:notation}
 \end{table}
 
 \subsection{Relation Reduction Chain}
@@ -232,8 +232,6 @@ With linear-time encodable codes of rate $\rho$ and distance $\delta$, setting $
 
 \begin{table}[t]
 \centering
-\caption{Asymptotic cost comparison. $k$: matrix dimension; $n$: codeword length; $t$: query count; $\lambda$: security parameter.}
-\label{tab:cost-summary}
 \begin{tabular}{lcc}
 \toprule
 \textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
@@ -247,4 +245,6 @@ SNARK verification & --- & $\mathcal{O}(1)$ \\
 \textbf{Total} & $\mathcal{O}(k^3 + kn)$ & $\mathcal{O}(1)$ \\
 \bottomrule
 \end{tabular}
+\caption{Asymptotic cost comparison. $k$: matrix dimension; $n$: codeword length; $t$: query count; $\lambda$: security parameter.}
+\label{tab:cost-summary}
 \end{table}

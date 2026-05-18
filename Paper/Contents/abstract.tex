@@ -6,5 +6,5 @@ The expensive $\mathcal{O}(k^3)$ matrix arithmetic is performed entirely outside
 We prove that the protocol achieves perfect completeness and computational soundness with error $\epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$, where $\delta$ is the relative distance of the underlying code.
 
 We implement $\protocol$ in Rust and evaluate it against a direct Freivalds SNARK baseline.
-Experiments show a $30\times$ constraint reduction at $k = 4{,}096$ and $6.6\times$ proving-time speedup, while the baseline runs out of memory at $k = 8{,}192$ and $\protocol$ continues to scale.
-The proving-time advantage materializes for $k \geq 1{,}024$---the regime relevant to Transformer attention layers and feed-forward projections in modern large language models.
+Experiments show a $7.5\times$ constraint reduction at $k = 1{,}024$ and up to $23.9\times$ proving-time speedup, while the baseline runs out of memory at $k = 2{,}048$ and $\protocol$ continues to scale.
+The proving-time advantage materializes for $k \geq 256$---the regime relevant to Transformer attention layers and feed-forward projections in modern large language models.

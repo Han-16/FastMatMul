@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.3)  18 MAY 2026 16:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.3)  18 MAY 2026 18:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1416,13 +1416,13 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
 (Font)              scaled to size 5.5pt on input line 83.
 ) (Contents/construction.tex
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 8.0pt on input line 13.
+(Font)              scaled to size 8.0pt on input line 11.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 6.0pt on input line 13.
+(Font)              scaled to size 6.0pt on input line 11.
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 8.0pt on input line 35.
+(Font)              scaled to size 8.0pt on input line 33.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 6.0pt on input line 35.
+(Font)              scaled to size 6.0pt on input line 33.
  [4.4{C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}]
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 5.59998pt on input line 169.
@@ -1495,31 +1495,33 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
 
 [7.7{C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_omcwp2.enc}{C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_ki75ao.enc}]) (Contents/evaluation.tex
-Package pgfplots info on input line 51: Using 'lua backend=false' for axis: ymode=log unsupported (yet).
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-Underfull \hbox (badness 1642) in paragraph at lines 67--67
-[]\T1/LinuxLibertineT-TLF/b/n/9 (+20) Figure 2: |Con-straint count com-par-i-son on a log scale.
- []
+Package pgfplots info on input line 57: Using 'lua backend=false' for axis: ymode=log unsupported (yet).
 
 
-Class acmart Warning: A possible image without description on input line 69.
+Class acmart Warning: A possible image without description on input line 79.
 
-(Tables/Meow_vs_Freivalds.tex)
-Package pgfplots info on input line 100: Using 'lua backend=false' for axis: ymode=log unsupported (yet).
+(Tables/Meow_vs_Freivalds.tex
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
+(Font)              scaled to size 7.3pt on input line 4.
+LaTeX Font Info:    Font shape `OT1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 7.3pt on input line 4.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 7.0pt on input line 7.
+)
+Package pgfplots info on input line 110: Using 'lua backend=false' for axis: ymode=log unsupported (yet).
 
 
-Class acmart Warning: A possible image without description on input line 117.
+Class acmart Warning: A possible image without description on input line 131.
 
 [8.8]
-Overfull \hbox (3.76566pt too wide) in paragraph at lines 137--139
+Overfull \hbox (3.76566pt too wide) in paragraph at lines 153--155
 []\T1/LinuxLibertineT-TLF/m/n/9 (-20) We re-mark that the proof size and ver-i-fi-ca-tion time of $[]$
  []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- (Tables/Precompute_and_Encoding.tex
-Underfull \hbox (badness 1087) in paragraph at lines 6--6
+(Tables/Precompute_and_Encoding.tex
+Underfull \hbox (badness 1087) in paragraph at lines 29--29
 []\T1/LinuxLibertineT-TLF/b/n/9 (+20) Table 4: |Pre-com-pu-ta-tion and en-cod-ing cost un-der gen-
  []
 
@@ -1531,20 +1533,17 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
 
-[9.9]) (Contents/related_work.tex
+[9.9])
+Overfull \hbox (13.79965pt too wide) in paragraph at lines 196--53
+[]$\T1/LinuxLibertineT-TLF/m/n/9 (-20) (KZG) of-fers the best prov-ing time, while $[]$(Ped)
+ []
+
+(Contents/related_work.tex
 Overfull \hbox (5.60648pt too wide) in paragraph at lines 53--77
 \T1/LinuxLibertineT-TLF/m/n/9 (-20) leaved Reed--Solomon codes to con-struct trans-par-ent zero-knowledge
  []
 
-) (Contents/conclusion.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [10.10]) (main.bbl
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 7.3pt on input line 92.
-LaTeX Font Info:    Font shape `OT1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 7.3pt on input line 92.
-) (Contents/appendix.tex
+) [10.10] (Contents/conclusion.tex) (main.bbl) (Contents/appendix.tex
 Overfull \hbox (2.95313pt too wide) in paragraph at lines 6--9
 \T1/LinuxLibertineT-TLF/m/n/9 (-20) Let $\U/ntxsym/m/n/9 F$ \T1/LinuxLibertineT-TLF/m/n/9 (-20) be a fi-nite field. Con-sider a mes-sage vec-tor $\OT1/LinuxLibertineT-TLF/sb/n/9 (-20) m \U/ntxmia/m/it/9 = \LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 a[]; [] ; a[]\LMS/ntxsy/m/n/9 � 2
  []
@@ -1554,11 +1553,10 @@ Overfull \hbox (17.02989pt too wide) in paragraph at lines 6--9
 \T1/LinuxLibertineT-TLF/m/n/9 (-20) eval-u-a-tion do-main is de-fined by dis-tinct points $\OML/nxlmi/m/it/9 S \U/ntxmia/m/it/9 = \LMS/ntxsy/m/n/9 f\OML/nxlmi/m/it/9 w[]; w[]; [] ; w[]\LMS/ntxsy/m/n/9 g ^^R
  []
 
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 23.
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 45.
 
-Overfull \hbox (17.07344pt too wide) in paragraph at lines 51--53
-\OML/nxlmi/m/it/9 h\LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 X\LMS/ntxsy/m/n/9 � \U/ntxmia/m/it/9 = \OML/nxlmi/m/it/9 f\LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 X\LMS/ntxsy/m/n/9 � ^^@ \OML/nxlmi/m/it/9 g\LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 X\LMS/ntxsy/m/n/9 �$ \T1/LinuxLibertineT-TLF/m/n/9 (-20) is non-zero with de-gree at most $[]\LMS/ntxsy/m/n/9 �[] \OML/nxlmi/m/it/9 f; [] g\LMS/ntxsy/m/n/9 � \OML/nxlmi/m/it/9 <
- []
+Underfull \vbox (badness 8132) has occurred while \output is active []
+
 
 
 Package fancyhdr Warning: \headheight is too small (13.0pt): 
@@ -1567,7 +1565,12 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.59048pt}.
 
-[11.11])
+[11.11]
+Overfull \hbox (17.07344pt too wide) in paragraph at lines 51--53
+\OML/nxlmi/m/it/9 h\LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 X\LMS/ntxsy/m/n/9 � \U/ntxmia/m/it/9 = \OML/nxlmi/m/it/9 f\LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 X\LMS/ntxsy/m/n/9 � ^^@ \OML/nxlmi/m/it/9 g\LMS/ntxsy/m/n/9 �\OML/nxlmi/m/it/9 X\LMS/ntxsy/m/n/9 �$ \T1/LinuxLibertineT-TLF/m/n/9 (-20) is non-zero with de-gree at most $[]\LMS/ntxsy/m/n/9 �[] \OML/nxlmi/m/it/9 f; [] g\LMS/ntxsy/m/n/9 � \OML/nxlmi/m/it/9 <
+ []
+
+)
 
 Class acmart Warning: Some images may lack descriptions.
 (acmart)              ACM is committed to complying with the upcoming US ADA https://accessiblyapp.com/accessibility-compliance/ada/ and European Accessibility Act (EAA) https://accessiblyapp.com/accessibility-compliance/eaa/ regulations by actively working to ensure our publications and application services are accessible to individuals with disabilities, adhering to the WCAG guidelines to provide a seamless experience for all users, and regularly reviewing our accessibility practices to maintain compliance with evolving standards. 
@@ -1579,13 +1582,7 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
-
-Overfull \vbox (85.75677pt too high) has occurred while \output is active []
-
-
-Overfull \vbox (85.75677pt too high) has occurred while \output is active []
-
- (C:\Users\이경태\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\se-pdfdoc.def
+(C:\Users\이경태\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\se-pdfdoc.def
 File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
 ) (C:\Users\이경태\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\se-utf8.def
 File: se-utf8.def 2019/11/29 v1.12 stringenc: UTF-8
@@ -1594,28 +1591,21 @@ File: se-utf8.def 2019/11/29 v1.12 stringenc: UTF-8
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
-
-
-Package rerunfilecheck Warning: File `main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: A651FC68A27FDCDF37FB25C0D6379578;6509
-(rerunfilecheck)             After:  ECF6CEB089F2B8F914BE28FAF1EB293D;6477.
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: ECF6CEB089F2B8F914BE28FAF1EB293D;6477.
  ) 
 Here is how much of TeX's memory you used:
- 46416 strings out of 467871
- 1018948 string characters out of 5416441
+ 46469 strings out of 467871
+ 1020182 string characters out of 5416441
  1596562 words of memory out of 5000000
- 73174 multiletter control sequences out of 15000+600000
- 996466 words of font info for 739 fonts, out of 8000000 for 9000
+ 73188 multiletter control sequences out of 15000+600000
+ 1005751 words of font info for 765 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
- 104i,31n,131p,1037b,2303s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\이경태\AppData\Local\MiKTeX\fonts/pk/modeless/public/txfonts/dpi540\txsyc.pk><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathMI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathMI5.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathMI7.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathRM.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinBiolinumT.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinBiolinumTB.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinBiolinumTI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineT.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTB.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTBI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTZ.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/NewTXMI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/NewTXMI7.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txexs.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txmiaX.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txsym.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txsys.pfb>
-Output written on main.pdf (12 pages, 810847 bytes).
+ 104i,31n,131p,1037b,2301s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathMI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathMI5.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathMI7.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/LibertineMathRM.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinBiolinumT.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinBiolinumTB.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinBiolinumTI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineT.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTB.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTBI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTZ.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/NewTXMI.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/NewTXMI7.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txexs.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txmiaX.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/txfonts/txsyc.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txsym.pfb><C:/Users/이경태/AppData/Local/Programs/MiKTeX/fonts/type1/public/newtx/txsys.pfb>
+Output written on main.pdf (12 pages, 817054 bytes).
 PDF statistics:
- 571 PDF objects out of 1000 (max. 8388607)
+ 570 PDF objects out of 1000 (max. 8388607)
  169 named destinations out of 1000 (max. 500000)
- 200989 words of extra memory for PDF output out of 221844 (max. 10000000)
+ 207133 words of extra memory for PDF output out of 221844 (max. 10000000)
 

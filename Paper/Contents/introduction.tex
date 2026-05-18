@@ -101,17 +101,17 @@ Our contributions are as follows.
         \item \emph{Constraint reduction.}
         $\protocol$ constraints grow as $\mathcal{O}(k)$, versus
         $\mathcal{O}(k^2)$ for Freivalds.
-        The gap reaches $30\times$ at $k = 4{,}096$
-        ($1{,}664{,}106$ vs.\ $50{,}491{,}721$ constraints);
-        Freivalds becomes infeasible at $k = 8{,}192$ while
-        $\protocol$ completes with $3{,}324{,}484$ constraints.
+        The gap reaches $7.5\times$ at $k = 1{,}024$
+        ($420{,}197$ vs.\ $3{,}145{,}727$ constraints);
+        Freivalds becomes infeasible at $k = 2{,}048$ while
+        $\protocol$ scales to at least $k = 4{,}096$.
 
         \item \emph{Proving-time speedup.}
-        $\protocol$ outperforms Freivalds for $k \geq 1{,}024$, achieving
-        $1.7\times$, $2.7\times$, and $6.6\times$ speedups at
-        $k = 1{,}024$, $2{,}048$, and $4{,}096$ respectively.
-        At $k = 8{,}192$, $\protocol$ proves in $466\,\text{s}$; Freivalds
-        cannot run.
+        $\protocol$ outperforms Freivalds for $k \geq 256$, achieving
+        $2.8\times$ and $23.9\times$ speedups at
+        $k = 512$ and $k = 1{,}024$ respectively.
+        Beyond $k = 1{,}024$, Freivalds is infeasible; $\protocol$(KZG) proves
+        $k = 4{,}096$ in $117\,\text{s}$.
 
         \item \emph{Negligible encoding overhead.}
         The prover's off-circuit encoding step takes less than

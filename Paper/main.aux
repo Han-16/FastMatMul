@@ -113,17 +113,17 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6}Implementation and Evaluation}{8}{section.6}\protected@file@percent }
 \newlabel{sec:implementation}{{6}{8}{Implementation and Evaluation}{section.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Implementation Setup}{8}{subsection.6.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Constraint count comparison on a log scale. Both $\textsf  {FastMatMul}$ variants exhibit $\mathcal  {O}(k)$ growth (slope $\approx 1$), while Freivalds exhibits $\mathcal  {O}(k^2)$ (slope $\approx 2$). Freivalds exceeds memory at $\log k = 11$.}}{8}{figure.caption.51}\protected@file@percent }
+\newlabel{fig:constraints}{{2}{8}{Constraint count comparison on a log scale. Both $\protocol $ variants exhibit $\mathcal {O}(k)$ growth (slope $\approx 1$), while Freivalds exhibits $\mathcal {O}(k^2)$ (slope $\approx 2$). Freivalds exceeds memory at $\log k = 11$}{figure.caption.51}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Constraint Count Comparison}{8}{subsection.6.2}\protected@file@percent }
 \newlabel{sec:eval-constraints}{{6.2}{8}{Constraint Count Comparison}{subsection.6.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Constraint count comparison on a log scale. $\textsf  {FastMatMul}$ exhibits $\mathcal  {O}(k)$ growth (slope $\approx 1$), while Freivalds exhibits $\mathcal  {O}(k^2)$ (slope $\approx 2$). Freivalds exceeds memory at $\log k = 13$.}}{8}{figure.caption.51}\protected@file@percent }
-\newlabel{fig:constraints}{{2}{8}{Constraint count comparison on a log scale. $\protocol $ exhibits $\mathcal {O}(k)$ growth (slope $\approx 1$), while Freivalds exhibits $\mathcal {O}(k^2)$ (slope $\approx 2$). Freivalds exceeds memory at $\log k = 13$}{figure.caption.51}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Proving time comparison on a log scale. $\textsf  {FastMatMul}$ becomes faster than Freivalds at $\log k = 10$ ($k = 1{,}024$), with the gap widening to $6.6\times $ at $\log k = 12$.}}{8}{figure.caption.53}\protected@file@percent }
-\newlabel{fig:provetime}{{3}{8}{Proving time comparison on a log scale. $\protocol $ becomes faster than Freivalds at $\log k = 10$ ($k = 1{,}024$), with the gap widening to $6.6\times $ at $\log k = 12$}{figure.caption.53}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Proving Time}{8}{subsection.6.3}\protected@file@percent }
 \newlabel{sec:eval-proving}{{6.3}{8}{Proving Time}{subsection.6.3}{}}
 \citation{kate2010constant}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Performance comparison of $\textsf  {FastMatMul}$ and the SNARK-in-circuit Freivalds baseline. Constraint counts confirm $\mathcal  {O}(k)$ vs.\ $\mathcal  {O}(k^2)$ scaling. ``---'' indicates the experiment could not be completed (out of memory or missing data). $\textsf  {FastMatMul}$ uses a transparent SNARK backend; Freivalds uses a pairing-based backend.}}{9}{table.caption.52}\protected@file@percent }
-\newlabel{tab:meow-vs-freivalds}{{3}{9}{Performance comparison of $\protocol $ and the SNARK-in-circuit Freivalds baseline. Constraint counts confirm $\mathcal {O}(k)$ vs.\ $\mathcal {O}(k^2)$ scaling. ``---'' indicates the experiment could not be completed (out of memory or missing data). $\protocol $ uses a transparent SNARK backend; Freivalds uses a pairing-based backend}{table.caption.52}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Performance comparison of $\textsf  {FastMatMul}$ (Pedersen-based and KZG-based variants) and the SNARK-in-circuit Freivalds baseline. Constraint counts confirm $\mathcal  {O}(k)$ vs.\ $\mathcal  {O}(k^2)$ scaling. ``---'' indicates the experiment could not be completed (out of memory). $\textsf  {FastMatMul}$(Ped) uses a transparent SNARK backend; $\textsf  {FastMatMul}$(KZG) and Freivalds use a pairing-based backend.}}{9}{table.caption.52}\protected@file@percent }
+\newlabel{tab:meow-vs-freivalds}{{3}{9}{Performance comparison of $\protocol $ (Pedersen-based and KZG-based variants) and the SNARK-in-circuit Freivalds baseline. Constraint counts confirm $\mathcal {O}(k)$ vs.\ $\mathcal {O}(k^2)$ scaling. ``---'' indicates the experiment could not be completed (out of memory). $\protocol $(Ped) uses a transparent SNARK backend; $\protocol $(KZG) and Freivalds use a pairing-based backend}{table.caption.52}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Proving time comparison on a log scale. Both $\textsf  {FastMatMul}$ variants become faster than Freivalds at $\log k = 8$ ($k = 256$), with the gap widening to $23.9\times $ (Ped) and $23.3\times $ (KZG) at $\log k = 10$.}}{9}{figure.caption.53}\protected@file@percent }
+\newlabel{fig:provetime}{{3}{9}{Proving time comparison on a log scale. Both $\protocol $ variants become faster than Freivalds at $\log k = 8$ ($k = 256$), with the gap widening to $23.9\times $ (Ped) and $23.3\times $ (KZG) at $\log k = 10$}{figure.caption.53}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Verification Time and Proof Size}{9}{subsection.6.4}\protected@file@percent }
 \newlabel{sec:eval-verify}{{6.4}{9}{Verification Time and Proof Size}{subsection.6.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Encoding Cost Analysis}{9}{subsection.6.5}\protected@file@percent }
@@ -134,7 +134,6 @@
 \newlabel{sec:eval-summary}{{6.6}{9}{Summary}{subsection.6.6}{}}
 \@writefile{toc}{\contentsline {paragraph}{Constraint efficiency.}{9}{section*.57}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Proving time.}{9}{section*.58}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Verification and proof size.}{9}{section*.59}\protected@file@percent }
 \citation{ghodsi2017safetynets}
 \citation{liu2021zkcnn}
 \citation{goldwasser2015delegating}
@@ -155,6 +154,7 @@
 \citation{liu2021zkcnn}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Precomputation and encoding cost under general constant-rate codes. $\rho $: code rate; Constraint: number of encoding-only R1CS constraints (additional to the fold/Merkle constraints in Table\nonbreakingspace \ref {tab:meow-vs-freivalds}).}}{10}{table.caption.56}\protected@file@percent }
 \newlabel{tab:precompute-encoding}{{4}{10}{Precomputation and encoding cost under general constant-rate codes. $\rho $: code rate; Constraint: number of encoding-only R1CS constraints (additional to the fold/Merkle constraints in Table~\ref {tab:meow-vs-freivalds})}{table.caption.56}{}}
+\@writefile{toc}{\contentsline {paragraph}{Verification and proof size.}{10}{section*.59}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Practical recommendation.}{10}{section*.60}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {7}Related Work}{10}{section.7}\protected@file@percent }
 \newlabel{sec:related}{{7}{10}{Related Work}{section.7}{}}
@@ -193,8 +193,6 @@
 \@writefile{toc}{\contentsline {section}{\numberline {A}Probabilistic Verification of Reed--Solomon Codewords}{11}{appendix.A}\protected@file@percent }
 \newlabel{app:rs-verify}{{A}{11}{Probabilistic Verification of Reed--Solomon Codewords}{appendix.A}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Problem Definition}{11}{subsection.A.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}Protocol: Randomized Consistency Check}{11}{subsection.A.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}Soundness Analysis}{11}{subsection.A.3}\protected@file@percent }
 \newlabel{tocindent-1}{0pt}
 \newlabel{tocindent0}{0pt}
 \newlabel{tocindent1}{6.25499pt}
@@ -202,7 +200,9 @@
 \newlabel{tocindent3}{0pt}
 \newlabel{tocindent4}{0pt}
 \newlabel{tocindent5}{0pt}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}Protocol: Randomized Consistency Check}{12}{subsection.A.2}\protected@file@percent }
 \@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Probabilistic Verification of RS Codeword}}{12}{algorithm.1}\protected@file@percent }
 \newlabel{alg:rs-verify}{{1}{12}{Probabilistic Verification of RS Codeword}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}Soundness Analysis}{12}{subsection.A.3}\protected@file@percent }
 \newlabel{TotPages}{{12}{12}{}{page.12}{}}
 \gdef \@abspage@last{12}
