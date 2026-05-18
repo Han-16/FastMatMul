@@ -1,0 +1,12 @@
+Mac 명령어
+프로젝트2 (FastMatMul):
+sh ~/start2.sh    # 작업 시작 전 (git pull)
+sh ~/save2.sh     # 작업 종료 후 (git push)
+
+
+Windows 명령어
+프로젝트2 (FastMatMul):
+"%USERPROFILE%\start2.bat"    # 작업 시작 전 (git pull)
+"%USERPROFILE%\save2.bat"     # 작업 종료 후 (git push)
+
+
