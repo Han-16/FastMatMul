@@ -32,7 +32,7 @@ This identity is the engine that allows us to \emph{check vector-matrix products
 
 \paragraph{Commitment via Merkle trees.}
 Each encoded matrix $\enc(\mat{M})$ is committed column-by-column using a Merkle tree: $\cm_M \gets \textsf{M.CM}(\enc(\mat{M}))$.
-The prover sends only the root hashes $(\cm_A, \cm_B, \cm_C)$ to the verifier, binding the computation inputs and output at the cost of $\mathcal{O}(1)$ hash values.
+The verifier starts from certified public roots $(\cm_A, \cm_B, \cm_C)$ that bind the computation inputs and output at the cost of $\mathcal{O}(1)$ hash values.
 
 \subsection{Proximity-Based Verification via Random Sampling}
 \label{sec:overview-proximity}
@@ -44,8 +44,14 @@ After the Freivalds reduction, the verification task becomes: given committed en
 satisfy $\vect{y} = \vect{z}$.
 We now explain how to verify these relations in \emph{sub-linear} time using the encoding.
 
-The prover computes $\vect{x}, \vect{y}, \vect{z}$ outside the SNARK, encodes them, and commits to their codewords $(\cm_x, \cm_y, \cm_z)$.
-The verifier then selects a small random subset of column indices $I \subset [n]$ with $|I| = t$, and for each $j \in I$ requests the $j$-th column of every committed codeword together with its Merkle authentication path.
+The prover computes $\vect{x}, \vect{y}, \vect{z}$ outside the SNARK, encodes
+them, commits to their codewords $(\cm_x, \cm_y, \cm_z)$, and supplies the
+code-commitment backend material showing that these roots bind to the full
+encodings $\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$.
+The verifier then samples an ordered tuple
+$I=(j_1,\ldots,j_t) \sample [n]^t$ of column indices independently with
+replacement, and for each sampled $j \in I$ requests the $j$-th column of every
+committed codeword together with its Merkle authentication path.
 
 At each queried position $j$, the verifier checks four \emph{local consistency equations}:
 \begin{enumerate}[label=(\roman*)]
@@ -61,35 +67,43 @@ Hence the total verifier work per query is $\mathcal{O}(k)$, and for $t$ queries
 If any of the underlying vector relations fails---say $\vect{y} \neq \vect{z}$---then the codewords $\enc(\vect{y})$ and $\enc(\vect{z})$ are distinct.
 By the minimum-distance property of $\mathcal{C}$, they disagree in at least a $\delta$-fraction of positions.
 A uniformly random query lands on a disagreement with probability $\geq \delta$, so $t$ independent queries detect the inconsistency except with probability at most $(1 - \delta)^t$.
-Setting $t = \mathcal{O}(\lambda / \log(1/(1-\delta)))$ drives the soundness error below $2^{-\lambda}$.
 By a union bound over the four checked relations, the overall proximity-check failure probability is at most $4(1-\delta)^t$.
+Setting
+$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$ drives this union-bounded
+proximity term below $2^{-\lambda}$.
 
 \subsection{Putting It Together: The Full Protocol Pipeline}
 \label{sec:overview-pipeline}
 
 Combining the ingredients above, our protocol $\protocol$ proceeds as follows (see Figure~\ref{fig:protocol} for the formal description).
 
-\paragraph{Phase 1: Commit.}
-The prover encodes $\mat{A}, \mat{B}, \mat{C}$ row-wise using the linear code $\mathcal{C}$, commits to the resulting codeword matrices via Merkle trees, and sends roots $(\cm_A, \cm_B, \cm_C)$ to the verifier.
+\paragraph{Phase 1: Public input.}
+The verifier is given certified roots $(\cm_A, \cm_B, \cm_C)$ that bind to row-wise encodings of $\mat{A}, \mat{B}, \mat{C}$ under the linear code $\mathcal{C}$.
 
 \paragraph{Phase 2: Challenge.}
 The verifier samples a random field element $r \in \mathbb{F}$ and sends it to the prover.
 This induces the structured challenge vector $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
 
 \paragraph{Phase 3: Respond.}
-The prover computes the intermediate vectors $\vect{x} = \vect{r}\mat{A}$, $\vect{y} = \vect{x}\mat{B}$, $\vect{z} = \vect{r}\mat{C}$, encodes them, and commits to the encodings $(\cm_x, \cm_y, \cm_z)$.
+The prover computes the intermediate vectors $\vect{x} = \vect{r}\mat{A}$, $\vect{y} = \vect{x}\mat{B}$, $\vect{z} = \vect{r}\mat{C}$, encodes them, commits to the encodings $(\cm_x, \cm_y, \cm_z)$, and prepares the code-commitment backend proof material for these roots.
 
 \paragraph{Phase 4: Query.}
-The verifier samples random column indices $I \subset [n]$ and sends them to the prover.
+The verifier samples $I=(j_1,\ldots,j_t) \sample [n]^t$ and sends the sampled
+indices to the prover.
 The prover opens the corresponding columns of all six committed codewords along with their Merkle proofs.
 
 \paragraph{Phase 5: Verify (in SNARK).}
-The verifier checks Merkle path validity and the four local consistency equations at each queried index.
+The verifier checks the code-commitment backend relation, Merkle path validity, and the four local consistency equations at each queried index.
 Crucially, these checks are \emph{arithmetized} into a SNARK relation $\mathcal{R}_{\mathsf{SNARK}}$ (defined formally in Section~\ref{sec:construction}), and the prover produces a succinct proof $\pi$ attesting that all checks pass.
-The verifier only needs to verify $\pi$, reducing the total verifier cost to that of a single SNARK verification.
+The verifier only needs to verify $\pi$ and any backend-specific linking material, reducing the core verification cost to that of a single SNARK verification.
 
 \paragraph{Cost summary.}
-The \emph{SNARK circuit size}---the key metric governing prover cost---is $\mathcal{O}(t \cdot k)$, linear in $k$ and independent of $k^2$ or $k^3$.
+The \emph{SNARK circuit size}---the key metric governing prover cost---is
+$\mathcal{O}(t \cdot k + t\log n + E_{\mathsf{cc}}(k))$, where
+$E_{\mathsf{cc}}(k)$ is the cost of verifying the selected code-commitment
+backend relation for the intermediate vectors.
+With a linear-time code-commitment backend, this is linear in $k$ and
+independent of $k^2$ or $k^3$.
 The prover additionally performs the native matrix multiplication ($\mathcal{O}(k^3)$) and encoding ($\mathcal{O}(kn)$) outside the SNARK.
-The verifier checks only the SNARK proof: $\mathcal{O}(1)$ for pairing-based backends, or $\mathcal{O}(|\stmt|)$ for transparent ones.
+The verifier's core SNARK work is $\mathcal{O}(1)$ for pairing-based backends, or $\mathcal{O}(|\stmt|)$ for transparent ones; total verification additionally depends on the selected commitment/linking backend.
 A detailed cost breakdown appears in Table~\ref{tab:cost-summary} (Section~\ref{sec:complexity}).

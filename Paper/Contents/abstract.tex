@@ -1,10 +1,13 @@
-Verifiable machine learning inference requires proving that a claimed output was computed correctly, yet the dominant computational primitive---matrix multiplication---creates a severe bottleneck for SNARK-based approaches: na\"ive arithmetization of a $k \times k$ product incurs $\mathcal{O}(k^3)$ constraints, and even the classical Freivalds reduction yields $\mathcal{O}(k^2)$.
+Verifiable computation systems frequently need to prove large matrix multiplication statements, yet this primitive remains a severe bottleneck for SNARK-based approaches: na\"ive arithmetization of a $k \times k$ product incurs $\mathcal{O}(k^3)$ constraints, and even the classical Freivalds reduction yields $\mathcal{O}(k^2)$.
 
-We present $\protocol$, a verifiable computation protocol that reduces the SNARK circuit size for matrix multiplication to $\mathcal{O}(tk)$, where $t$ is a small security-parameter-dependent constant independent of~$k$.
+We present $\protocol$, a verifiable computation protocol that reduces the matrix-checking SNARK circuit size to $\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$, where $t$ is a small security-parameter-dependent constant and $E_{\mathsf{cc}}(k)$ is the cost of the selected code-commitment backend.
+With a linear-time code-commitment backend, this becomes $\mathcal{O}(tk)$.
 The protocol combines a structured variant of Freivalds' randomized check with \emph{proximity testing over linear error-correcting codes}: matrices are encoded row-wise and committed via Merkle trees; the verifier detects any inconsistency by querying $t$ random codeword positions and checking lightweight algebraic fold relations.
 The expensive $\mathcal{O}(k^3)$ matrix arithmetic is performed entirely outside the SNARK.
-We prove that the protocol achieves perfect completeness and computational soundness with error $\epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$, where $\delta$ is the relative distance of the underlying code.
+We prove that the protocol achieves perfect completeness and computational soundness, relative to certified encoded input commitments and the code-commitment backend, with error $\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}} + \epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$, where $\delta$ is the relative distance of the underlying code.
+The Fiat--Shamir non-interactive variant incurs the standard additional random-oracle loss $\epsilon_{\mathsf{FS}}(q_H)$.
 
-We implement $\protocol$ in Rust and evaluate it against a direct Freivalds SNARK baseline.
-Experiments show a $7.5\times$ constraint reduction at $k = 1{,}024$ and up to $23.9\times$ proving-time speedup, while the baseline runs out of memory at $k = 2{,}048$ and $\protocol$ continues to scale.
-The proving-time advantage materializes for $k \geq 256$---the regime relevant to Transformer attention layers and feed-forward projections in modern large language models.
+We implement the multiplication-checking layer of $\protocol$ in Rust and evaluate it against a direct Freivalds SNARK baseline under the linear-time backend model.
+Experiments show a $7.5\times$ constraint reduction at $k = 1{,}024$ and a $15.1\times$ reduction at $k = 2{,}048$ for this layer.
+At the largest dimension where both systems complete, $\protocol$ achieves up to a $2.95\times$ proving-time speedup; beyond this point the Freivalds baseline exhausts available memory in our benchmark environment, while $\protocol$ continues to $k = 4{,}096$.
+The proving-time advantage materializes for $k \geq 256$, making the protocol most attractive for large square and near-square matrix multiplication workloads.

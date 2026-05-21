@@ -1,20 +1,55 @@
 \section{Security Analysis}
 \label{sec:security}
 
-We prove that the protocol $\protocol$ (Figure~\ref{fig:protocol}) constitutes a secure interactive argument for the matrix multiplication relation $\mathcal{R}_{\mathsf{orig}}$.
+We prove that the protocol $\protocol$ (Figure~\ref{fig:protocol}) constitutes a secure interactive argument for the matrix multiplication relation $\mathcal{R}_{\mathsf{orig}}$ relative to a code-commitment backend and certified encoded input commitments.
 Soundness and completeness are established in Theorem~\ref{thm:security} below; knowledge soundness is discussed separately in Remark~\ref{rem:aok}.
+As discussed in Section~\ref{sec:relation-chain}, the public input commitments $\cm_A,\cm_B,\cm_C$ are assumed to bind to row-wise encodings of fixed matrices $\mat{A},\mat{B},\mat{C}$.
+This is the committed-input model used by code-based proof systems such as Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion}; $\protocol$ verifies the multiplication relation among these committed objects.
+For the intermediate vectors, the SNARK relation invokes the selected
+code-commitment backend relation $\codeComV(\cm_v,v,\sigma_v)$, ensuring that the commitments
+$\cm_x,\cm_y,\cm_z$ bind to full codewords $\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$
+before the query tuple is sampled.
+
+\paragraph{Soundness-critical ordering.}
+The proof uses the following timing invariants.
+First, the certified input roots $\cm_A,\cm_B,\cm_C$ are fixed before the
+Freivalds challenge $r$ is sampled.
+Second, the intermediate roots $\cm_x,\cm_y,\cm_z$ are fixed before the query
+tuple $I=(j_1,\ldots,j_t) \sample [n]^t$ is sampled; conditioned on an
+accepting backend proof, each such root is globally linked to one full vector
+codeword independently of the sampled positions.
+Third, the entries of $I$ are sampled independently with replacement, as
+defined in Section~\ref{sec:notation}.
+If an implementation samples without replacement, the proximity failure
+probability only decreases; the theorem states the simpler with-replacement
+bound.
 
 \begin{theorem}[Security of $\protocol$]\label{thm:security}
 The protocol $\protocol$ satisfies the following properties:
 \begin{enumerate}[label=(\roman*)]
   \item \textbf{Perfect completeness.} If $\mat{A}\mat{B} = \mat{C}$, an honest prover always makes the verifier accept.
-  \item \textbf{Computational soundness.} For any $\ppt$ adversary $\mathcal{P}^*$, the probability that the verifier accepts a false statement $\mat{A}\mat{B} \neq \mat{C}$ satisfies:
+  \item \textbf{Interactive computational soundness.} For any $\ppt$ adversary $\mathcal{P}^*$ given certified public input commitments to $\mat{A},\mat{B},\mat{C}$, the probability that the verifier accepts a false committed matrix statement $\mat{A}\mat{B} \neq \mat{C}$ satisfies:
 \[
 \Pr[\mathcal{V} \text{ accepts} \mid \mat{A}\mat{B} \neq \mat{C}]
 \;\le\;
-\epsilon_{\mathsf{bind}}(\lambda) + \frac{k-1}{|\mathbb{F}|} + 4(1 - \delta)^{t},
+\epsilon_{\mathsf{SNARK}}(\lambda)
++ \epsilon_{\mathsf{cc}}(\lambda)
++ \epsilon_{\mathsf{bind}}(\lambda)
++ \frac{k-1}{|\mathbb{F}|}
++ 4(1 - \delta)^{t},
 \]
-where $t = |I|$ is the query complexity, $\delta$ is the relative minimum distance of $\mathcal{C}$, and $\epsilon_{\mathsf{bind}}(\lambda) = \mathsf{negl}(\lambda)$ under collision-resistant hashing.
+Here $t = |I|$ is the query complexity and $\delta$ is the relative minimum
+distance of $\mathcal{C}$.
+The terms $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and
+$\epsilon_{\mathsf{bind}}$ denote, respectively, the soundness error of the
+SNARK backend, the global codeword-binding error of the selected
+code-commitment backend, and the union-bounded position-binding error of the
+opening layer over all roots and openings used in the protocol.
+  \item \textbf{Fiat--Shamir soundness.} In the random oracle model, the
+  non-interactive variant described in Section~\ref{sec:protocol-desc}
+  satisfies the same bound with an additional Fiat--Shamir loss term
+  $\epsilon_{\mathsf{FS}}(q_H)$, where $q_H$ is the adversary's number of
+  random-oracle queries.
 \end{enumerate}
 \end{theorem}
 
@@ -28,40 +63,82 @@ For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D} = \vect{0}$, so th
 \[
 \vect{y} = \vect{x}\mat{B} = (\vect{r}\mat{A})\mat{B} = \vect{r}(\mat{A}\mat{B}) = \vect{r}\mat{C} = \vect{z}.
 \]
-The encoding constraints hold by construction: the honest prover sets $\enc_v = \enc(v)$ for each $v \in \mathcal{W}$.
+The code-commitment backend checks hold by construction: for each $v \in \mathcal{W}$, the honest prover commits to $\enc(v)$ and provides backend proof material $\sigma_v$ accepted by $\codeComV$.
 For the fold checks at any index $j \in [n]$, the linearity of $\mathcal{C}$ (Definition~\ref{def:fold}) gives:
 \[
 \fold(\enc(\mat{A})^{(j)}, \vect{r}) = \enc(\vect{r}\mat{A})_j = \enc_{x,j},
 \]
 and likewise for $\mat{B}$ and $\mat{C}$.
 Since $\vect{y} = \vect{z}$, we also have $\enc_{y,j} = \enc_{z,j}$ for all $j$.
-All Merkle paths are valid by honest commitment.
+All opening or linking checks are valid by honest commitment.
 Therefore every check passes with probability $1$, establishing perfect completeness.
 
 \paragraph{Soundness decomposition.}
 Let $\mathsf{Acc}$ denote the event that the verifier accepts, and suppose $\mat{A}\mat{B} \neq \mat{C}$.
-We decompose the adversary's success probability via three bad events:
+We decompose the adversary's success probability via five bad events:
 \begin{align*}
 &\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}] \\
-&\;\le\; \Pr[\mathsf{Bad}_{\mathsf{bind}}]
+&\;\le\; \Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
+  + \Pr[\mathsf{Bad}_{\mathsf{cc}}]
+  + \Pr[\mathsf{Bad}_{\mathsf{bind}}] \\
+&\qquad
   + \Pr\!\bigl[\mathsf{Bad}_{\mathsf{rand}}
-      \mid \overline{\mathsf{Bad}_{\mathsf{bind}}}\bigr] \\
+      \mid \overline{\mathsf{Bad}_{\mathsf{SNARK}}}
+           \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
+           \land \overline{\mathsf{Bad}_{\mathsf{bind}}}\bigr] \\
 &\qquad + \Pr\!\bigl[\mathsf{Bad}_{\mathsf{prox}}
-      \mid \overline{\mathsf{Bad}_{\mathsf{bind}}}
+      \mid \overline{\mathsf{Bad}_{\mathsf{SNARK}}}
+           \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
+           \land \overline{\mathsf{Bad}_{\mathsf{bind}}}
            \land \overline{\mathsf{Bad}_{\mathsf{rand}}}\bigr].
 \end{align*}
 
-\paragraph{Step 1: Commitment binding.}
-Define $\mathsf{Bad}_{\mathsf{bind}}$ as the event that $\mathcal{P}^*$ produces a valid Merkle opening for some index $j$ inconsistent with the committed root---equivalently, finding a hash collision.
-Under collision resistance of the hash function:
+\paragraph{Step 1: SNARK soundness.}
+Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as the event that the verifier accepts a SNARK proof for a false instance of $\mathcal{R}_{\mathsf{SNARK}}$.
+By soundness of the underlying SNARK,
+\[
+\Pr[\mathsf{Bad}_{\mathsf{SNARK}}] \le \epsilon_{\mathsf{SNARK}}(\lambda).
+\]
+Conditioned on $\overline{\mathsf{Bad}_{\mathsf{SNARK}}}$, every accepting proof has a witness satisfying the relation in Section~\ref{sec:relation-chain}.
+
+\paragraph{Step 2: Code-commitment backend binding.}
+Define $\mathsf{Bad}_{\mathsf{cc}}$ as the event that, for some intermediate
+root $\cm_v$ and witness vector $v \in \{\vect{x},\vect{y},\vect{z}\}$, the
+SNARK accepts $\codeComV(\cm_v,v,\sigma_v)=1$ even though $\cm_v$ is not
+globally linked to the full codeword $\enc(v)$ under the selected
+code-commitment backend.
+Equivalently, there exists a coordinate at which the adversary can produce an
+accepting opening of $\cm_v$ whose value differs from $\enc(v)$ at that
+coordinate.
+By the codeword-binding property of the backend,
+\[
+\Pr[\mathsf{Bad}_{\mathsf{cc}}] \le \epsilon_{\mathsf{cc}}(\lambda).
+\]
+Conditioned on $\overline{\mathsf{Bad}_{\mathsf{cc}}}$, any accepting proof for
+the roots $\cm_x,\cm_y,\cm_z$ sent before the query phase can only link those
+roots to full codewords
+$\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$ that are independent of the
+sampled coordinates.
+In particular, the prover cannot wait for $I$ and then choose vector witnesses
+whose encodings agree only on the sampled positions.
+
+\paragraph{Step 3: Commitment binding.}
+Define $\mathsf{Bad}_{\mathsf{bind}}$ as the event that $\mathcal{P}^*$ produces two inconsistent accepting openings for the same root and position under the selected opening layer.
+For Merkle commitments this is implied by collision resistance of the hash function:
 \[
 \Pr[\mathsf{Bad}_{\mathsf{bind}}] \le \epsilon_{\mathsf{bind}}(\lambda) = \mathsf{negl}(\lambda).
 \]
-Conditioned on $\overline{\mathsf{Bad}_{\mathsf{bind}}}$, every opened value is uniquely determined by the committed root.
-Hence the adversary commits to fixed matrices $\mat{A}, \mat{B}, \mat{C}$ and vectors $\vect{x}, \vect{y}, \vect{z}$ before seeing the verifier's challenge.
+Conditioned on $\overline{\mathsf{Bad}_{\mathsf{bind}}}$, every accepted opening value is uniquely determined by the committed root and queried position.
+The certified input commitments $\cm_A,\cm_B,\cm_C$ are fixed before the challenge $r$ and determine fixed matrices $\mat{A},\mat{B},\mat{C}$ before $r$ is sampled.
+Together with the global backend-binding condition above, the intermediate
+vector roots determine full committed vector codewords for any accepting proof,
+rather than only values at the sampled positions.
 
-\paragraph{Step 2: Randomized reduction.}
-Condition on $\overline{\mathsf{Bad}_{\mathsf{bind}}}$.
+\paragraph{Step 4: Randomized reduction.}
+Condition on
+$\overline{\mathsf{Bad}_{\mathsf{SNARK}}}
+ \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
+ \land \overline{\mathsf{Bad}_{\mathsf{bind}}}$.
 The adversary has committed to fixed matrices with $\mat{A}\mat{B} \neq \mat{C}$.
 Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} \neq \mat{0}$.
 Since $\mat{D} \neq \mat{0}$, there exists at least one column $\vect{d}_j$ of $\mat{D}$ with $\vect{d}_j \neq \vect{0}$.
@@ -75,17 +152,23 @@ Since $r$ is chosen after the adversary commits, by the Schwartz--Zippel lemma (
 \le \frac{k-1}{|\mathbb{F}|}.
 \]
 
-\paragraph{Step 3: Proximity check.}
-Condition on $\overline{\mathsf{Bad}_{\mathsf{bind}}} \land \overline{\mathsf{Bad}_{\mathsf{rand}}}$.
-The second condition implies that the committed vectors violate at least one of:
+\paragraph{Step 5: Proximity check.}
+Condition on
+$\overline{\mathsf{Bad}_{\mathsf{SNARK}}}
+ \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
+ \land \overline{\mathsf{Bad}_{\mathsf{bind}}}
+ \land \overline{\mathsf{Bad}_{\mathsf{rand}}}$.
+Once $r$ is fixed and $\vect{r}\mat{D} \neq \vect{0}$, no choice of intermediate vectors can satisfy all four global relations simultaneously.
+Therefore the committed vectors violate at least one of:
 \begin{enumerate}[label=(\alph*)]
-  \item $\vect{x} \neq \vect{r}\mat{A}$, \quad or \quad
-        (b) $\vect{y} \neq \vect{x}\mat{B}$, \quad or \quad
-        (c) $\vect{z} \neq \vect{r}\mat{C}$, \quad or \quad
-        (d) $\vect{y} \neq \vect{z}$.
+  \item $\vect{x} \neq \vect{r}\mat{A}$;
+  \item $\vect{y} \neq \vect{x}\mat{B}$;
+  \item $\vect{z} \neq \vect{r}\mat{C}$;
+  \item $\vect{y} \neq \vect{z}$.
 \end{enumerate}
-The SNARK relation $\mathcal{R}_{\mathsf{SNARK}}$ (Section~\ref{sec:relation-chain}) includes the constraints $\enc(v) = \enc_v$ for each $v \in \mathcal{W}$, verified within the SNARK circuit.
-Conditioned on binding, the committed codeword $\enc_v$ is therefore a genuine codeword of $\mathcal{C}$.
+The SNARK relation $\mathcal{R}_{\mathsf{SNARK}}$ (Section~\ref{sec:relation-chain}) includes the backend checks $\codeComV(\cm_v,v,\sigma_v)=1$ for each $v \in \mathcal{W}$.
+Conditioned on the SNARK, code-commitment, and Merkle binding events above, the opened values under $\cm_v$ are therefore coordinates of the genuine codeword $\enc(v)$.
+The input matrix commitments are genuine row-wise codewords by the certified input-commitment interface.
 
 Consider case (a): $\vect{x} \neq \vect{r}\mat{A}$.
 Since $\mathcal{C}$ is injective, the codewords $\enc(\vect{x})$ and $\enc(\vect{r}\mat{A})$ are distinct.
@@ -108,27 +191,59 @@ If the adversary commits to vectors satisfying cases (a)--(c) honestly (i.e., $\
 In general, an adversary deviating on multiple relations is detected by any one of the corresponding checks, so the bound $4(1-\delta)^t$ covers all strategies without further case analysis.
 
 \paragraph{Combining the bounds.}
-Summing the three error terms:
+Summing the five error terms:
 \[
 \Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}]
 \;\le\;
-\epsilon_{\mathsf{bind}}(\lambda) + \frac{k-1}{|\mathbb{F}|} + 4(1-\delta)^{t}.
+\epsilon_{\mathsf{SNARK}}(\lambda)
++ \epsilon_{\mathsf{cc}}(\lambda)
++ \epsilon_{\mathsf{bind}}(\lambda)
++ \frac{k-1}{|\mathbb{F}|}
++ 4(1-\delta)^{t}.
 \]
+This proves the interactive soundness bound.
 
 \paragraph{Concrete parameters for $\lambda = 128$ bits.}
 Set $|\mathbb{F}| \ge 2^{256}$ so that $(k-1)/|\mathbb{F}| \le 2^{-128}$ for all practical $k$.
-Set $t = \lceil 128 / \log_2(1/(1-\delta)) \rceil$ so that $4(1-\delta)^t \le 4 \cdot 2^{-128} < 2^{-126}$.
-Under standard collision-resistance assumptions, $\epsilon_{\mathsf{bind}} \le 2^{-128}$.
-The total soundness error is therefore at most $3 \cdot 2^{-126} < 2^{-124}$, which is negligible in $\lambda = 128$.
+For a $\lambda$-bit proximity term, set
+\[
+  t = \left\lceil \frac{\lambda+2}{\log_2(1/(1-\delta))} \right\rceil,
+\]
+which ensures $4(1-\delta)^t \le 2^{-\lambda}$.
+For example, if the selected backend certifies $\delta=1/2$, then strict
+128-bit proximity soundness uses $t=130$.
+The reported experiments use $t=128$ for implementation scaling; under
+$\delta=1/2$ this gives the slightly weaker proximity term $2^{-126}$.
+For a strict aggregate 128-bit bound over the five interactive error terms, one
+should allocate the error budget across terms, for example by targeting each
+term at $2^{-131}$ and setting
+$t=\lceil 133/\log_2(1/(1-\delta))\rceil$.
+Under standard assumptions, $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and $\epsilon_{\mathsf{bind}}$ are negligible and can be parameterized to the same budget.
+For the Fiat--Shamir variant, the transcript hashes bind the public input roots,
+the intermediate roots, the challenge, and the sampled query tuple as described in
+Section~\ref{sec:protocol-desc}.
+The standard random-oracle analysis adds the term
+$\epsilon_{\mathsf{FS}}(q_H)$ stated above.
 This completes the proof of Theorem~\ref{thm:security}.
 \end{proof}
 
+\begin{remark}[Fiat--Shamir soundness]\label{rem:fs-soundness}
+The proof of the main bound in Theorem~\ref{thm:security} is for the
+public-coin interactive protocol.
+The non-interactive variant in Section~\ref{sec:protocol-desc} derives both
+$r$ and $I$ from domain-separated hashes of the full transcript prefix.
+In the random oracle model, the same proof applies with the standard
+Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$, where $q_H$ is the adversary's
+number of random-oracle queries.
+This term accounts for grinding over transcript prefixes and is negligible for
+polynomial $q_H$ when the challenge and query hashes have $\lambda$-bit
+security.
+\end{remark}
+
 \begin{remark}[Knowledge Soundness]\label{rem:aok}
-The protocol $\protocol$ can be extended to a full \emph{argument of knowledge}, meaning one can efficiently extract a valid witness $(\mat{A}, \mat{B}, \mat{C})$ with $\mat{A}\mat{B} = \mat{C}$ from any $\ppt$ prover $\mathcal{P}^*$ that makes the verifier accept with non-negligible probability.
-The extraction proceeds in two stages.
-First, the knowledge extractor of the underlying SNARK (invoked via black-box rewind on the inner proof $\pi$) yields the SNARK witness $(\vect{x}, \vect{y}, \vect{z}, \{\enc_{\chi}^{(j)}, \pi_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}})$.
-Second, by rewinding $\mathcal{P}^*$ on $k$ distinct Freivalds challenges $r_1, \ldots, r_k \in \mathbb{F}$ while keeping the initial commitment phase fixed, the extractor collects $k$ evaluations $\vect{x}_{r_i} = \vect{r}_i\mat{A}$ of the polynomial-in-$r$ determined by the committed $\mat{A}$.
-Solving the resulting Vandermonde system over $\mathbb{F}$ recovers $\mat{A}$ exactly; an analogous argument recovers $\mat{B}$ and $\mat{C}$.
-Since the Merkle tree is computationally binding, the extracted matrices are consistent with the committed roots.
-The full formal proof follows standard rewinding techniques and is deferred to the full version of this work.
+The theorem above is a statement-soundness result relative to certified public input commitments.
+A full \emph{argument of knowledge} can be obtained by composing $\protocol$ with an extractable input-commitment interface and a knowledge-sound SNARK.
+In that setting, the input-commitment extractor yields openings of $\cm_A,\cm_B,\cm_C$ to row-wise encoded matrices, while the SNARK extractor yields the intermediate vectors and queried openings used in $\mathcal{R}_{\mathsf{SNARK}}$.
+The same soundness argument then implies that any prover accepted with non-negligible probability is bound, except with the stated error, to matrices satisfying $\mat{A}\mat{B}=\mat{C}$.
+We treat this as an orthogonal composition issue and focus the main theorem on the multiplication-checking protocol.
 \end{remark}

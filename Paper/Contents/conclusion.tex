@@ -2,8 +2,11 @@
 \label{sec:conclusion}
 
 We have presented $\protocol$, a verifiable computation protocol for matrix
-multiplication that achieves a SNARK circuit size of $\mathcal{O}(tk)$, where
-$t$ is a small constant determined by the security parameter and $k$ is the
+multiplication whose matrix-checking circuit has size
+$\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$, where $t$ is a small
+constant determined by the security parameter and $E_{\mathsf{cc}}(k)$ is the
+cost of the selected code-commitment backend relation.
+With a linear-time code-commitment backend, this is $\mathcal{O}(tk)$ in the
 matrix dimension.
 The protocol combines Freivalds' randomized reduction with proximity testing
 over linear error-correcting codes, cleanly decoupling the expensive matrix
@@ -11,17 +14,37 @@ arithmetic (performed outside the SNARK by the prover) from the lightweight
 algebraic checks (arithmetized inside the SNARK).
 We proved that $\protocol$ achieves perfect completeness and computational
 soundness with error
-$\epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$.
+$\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}}
++ \epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$ for the
+interactive protocol, with the standard additional
+$\epsilon_{\mathsf{FS}}(q_H)$ loss for the Fiat--Shamir variant in the random
+oracle model.
 
-Our experimental evaluation demonstrates that the theoretical advantages
-translate into concrete gains: $\protocol$ reduces the constraint count
-by up to $7.5\times$ at $k = 1{,}024$ relative to a direct Freivalds SNARK
-baseline, achieves up to $23.9\times$ proving-time speedup for
-$k \geq 256$, and continues to scale at $k = 4{,}096$ where the baseline
-exhausts memory.
+Our experimental evaluation demonstrates that the checking-layer advantages
+translate into concrete gains under the conditional linear-time backend model:
+$\protocol$ reduces the constraint count by $7.5\times$ at $k = 1{,}024$ and
+$15.1\times$ at $k = 2{,}048$ relative to a direct Freivalds SNARK baseline.
+At the largest dimension where both systems complete, $\protocol$ achieves
+up to a $2.95\times$ proving-time speedup, and it continues to scale at
+$k = 4{,}096$ where the baseline exhausts available memory in our benchmark
+environment.
 The off-circuit encoding cost is negligible (under $1\,\text{s}$ at
 $k = 2^{20}$), confirming that the code-based approach does not introduce
 a new bottleneck.
+
+\paragraph{Limitations.}
+The current construction is intentionally stated relative to certified encoded
+input commitments and a code-commitment backend; it is not an end-to-end system
+for producing those commitments from raw inputs, nor does the current artifact
+isolate an independently measured $\codeComV$ component.
+The evaluated Merkle/CPLink-style backends have proof sizes in the megabyte
+range because sampled-column opening and linking material is explicit.
+The current artifact does not log peak memory or repeated-run variance, so the
+out-of-memory baseline result is reported as an observed benchmark outcome
+rather than a memory-scaling model.
+The protocol as presented is verifiable computation rather than a full
+zero-knowledge construction, and the experimental comparison is currently
+limited to an optimized Freivalds SNARK baseline.
 
 \paragraph{Future directions.}
 Several avenues remain.
@@ -31,9 +54,10 @@ interleaved with non-linear activations.
 Extending $\protocol$ to handle layered computations---by chaining the
 commitment outputs of one layer as inputs to the next---is a natural step
 toward fully verifiable neural network inference.
-Second, the encoding constraints, which contribute $\mathcal{O}(k^2)$ under
-general constant-rate codes, could potentially be deferred to a separate
-proximity test (e.g., FRI~\cite{ben2018fast}), further reducing the circuit.
+Second, dense backend codeword-validity checks, which contribute
+$\mathcal{O}(k^2)$ under dense general constant-rate codes, could potentially
+be replaced by a separate proximity test (e.g., FRI~\cite{ben2018fast}) or a
+linear-time code-commitment backend, further reducing the circuit.
 Third, replacing the Merkle-based commitment with an algebraic vector
 commitment (e.g., KZG) would reduce proof sizes from megabytes to kilobytes
 at the cost of a structured setup; evaluating this trade-off in practice is

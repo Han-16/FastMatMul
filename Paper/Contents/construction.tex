@@ -34,14 +34,16 @@ $\fold(\vect{c}, \vect{r})$         & Inner product $\langle \vect{r}, \vect{c} 
 $\merkle(\cdot)$                     & Merkle tree commitment \\
 $\merkleO(\cm, j)$                   & Merkle tree opening at index $j$ \\
 $\merkleV(\pi, v, \cm)$             & Merkle tree verification \\
+$\openV(\pi, v, \cm, j)$            & Position-opening verifier of selected backend \\
 $\cm_\chi$                          & Merkle root for committed object $\chi$ \\
 $\pi_{\chi,j}$                      & Merkle authentication path for $\chi$ at position $j$ \\
+$\sigma_v$                          & Code-commitment backend proof/witness for $\cm_v$ \\
 \midrule
-\multicolumn{2}{@{}l}{\emph{Sets}} \\
+\multicolumn{2}{@{}l}{\emph{Sets and tuples}} \\
 $\mathcal{M}$                        & Matrix set $\{\mat{A}, \mat{B}, \mat{C}\}$ \\
 $\mathcal{W}$                        & Vector set $\{\vect{x}, \vect{y}, \vect{z}\}$ \\
 $\mathcal{S}$                        & Full committed-object set $\mathcal{M} \cup \mathcal{W}$ \\
-$I$                                  & Set of queried column indices ($I \subset [n]$) \\
+$I$                                  & Ordered tuple of queried column indices ($I \in [n]^t$) \\
 \midrule
 \multicolumn{2}{@{}l}{\emph{SNARK}} \\
 $\stmt$                              & SNARK public statement (instance) \\
@@ -61,13 +63,114 @@ $\para$                              & Public parameters \\
 Our construction proceeds through two successive reductions.
 Each reduction preserves completeness exactly and introduces a bounded soundness error that we analyze in Section~\ref{sec:security}.
 
+\paragraph{Input-commitment model.}
+Following the committed-oracle viewpoint common in code-based proof systems
+such as Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion},
+we take the input matrix commitments as certified public inputs.
+Concretely, $\cm_A,\cm_B,\cm_C$ are assumed to bind to row-wise encodings
+$\enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C})$ of some matrices
+$\mat{A},\mat{B},\mat{C} \in \mathbb{F}^{k \times k}$.
+Certification means that every accepting opening of $\cm_M$, for
+$M \in \{\mat{A},\mat{B},\mat{C}\}$, is a coordinate or column of
+$\enc(M)$ for a fixed matrix $M$ determined before the verifier samples the
+Freivalds challenge.
+This certification may be supplied by the surrounding committed-codeword
+system, by a public generation process, or by a separate input-opening proof.
+It is a precondition of the multiplication-checking protocol rather than an
+online cost charged to $\protocol$.
+The goal of $\protocol$ is to verify the multiplication relation among these
+committed matrices without arithmetizing the full matrix product.
+Throughout this section, $\merkle(\enc(\mat{M}))$ for an encoded matrix means
+the Merkle root over the length-$n$ sequence of encoded columns
+$(\enc(\mat{M})^{(1)},\ldots,\enc(\mat{M})^{(n)})$.
+For an encoded vector, $\merkle(\enc(v))$ commits to the length-$n$ sequence of
+coordinates.
+
+\begin{definition}[Code-commitment backend]\label{def:codecom-backend}
+Fix a systematic linear code $\mathcal{C}: \mathbb{F}^{k}\to\mathbb{F}^{n}$
+and a position-opening layer whose verification predicate is written
+$\openV(\pi_j,a,\cm,j)$.
+For the Merkle instantiation, $\openV$ is exactly $\merkleV$ with the queried
+index included in the leaf domain; for KZG or CPLink-style instantiations it is
+the corresponding opening or linking verifier.
+A code-commitment backend $\codeCom$ provides a prover relation $\codeComP$ and
+a verifier relation $\codeComV$ for vector commitments.
+It must satisfy the following two properties.
+
+\emph{Completeness.}
+For every $v \in \mathbb{F}^{k}$, if
+$\cm_v$ commits to $\enc(v)=\mathcal{C}(v)$ under the chosen opening layer, then
+an honest prover can produce proof material
+$\sigma_v \gets \codeComP(\cm_v,v,\enc(v))$ accepted by
+$\codeComV(\cm_v,v,\sigma_v)$.
+
+\emph{Global codeword binding.}
+The backend is codeword-binding with error
+$\epsilon_{\mathsf{cc}}(\lambda)$ if, for every $\ppt$ adversary
+$\mathcal{A}$,
+\[
+\Pr[\mathsf{Bad}^{\mathcal{A}}_{\mathsf{cc}}(\lambda)=1]
+\le \epsilon_{\mathsf{cc}}(\lambda).
+\]
+The event $\mathsf{Bad}^{\mathcal{A}}_{\mathsf{cc}}$ occurs if
+$\mathcal{A}$ outputs $(\cm_v,v,\sigma_v,j,a,\pi_j)$ such that
+$\codeComV(\cm_v,v,\sigma_v)=1$, $\openV(\pi_j,a,\cm_v,j)=1$, and
+$a \neq \enc(v)_j$.
+Thus, except with probability $\epsilon_{\mathsf{cc}}$, any vector commitment
+accepted by $\codeComV$ is globally linked to the full codeword $\enc(v)$:
+every accepting opening at every coordinate is forced to equal the
+corresponding coordinate of $\enc(v)$, not merely the sampled coordinates.
+The separate position-binding error of the opening layer is accounted for by
+$\epsilon_{\mathsf{bind}}$ in Theorem~\ref{thm:security}.
+The cost of verifying $\codeComV(\cm_v,v,\sigma_v)$ is denoted
+$E_{\mathsf{cc}}(k)$.
+\end{definition}
+
+Rather than introducing a new commitment primitive, $\protocol$ is stated
+relative to this committed-codeword interface, which matches the role played by
+encoded committed oracles in Brakedown~\cite{golovnev2023brakedown} and
+Orion~\cite{xie2022orion}.
+Operationally, the backend can be instantiated by a Brakedown/Orion-style
+code-commitment layer, an in-circuit encoder check tied to the committed root,
+or a commitment-to-codeword linking proof supplied by the chosen backend.
+
+\paragraph{Backend contract used by the theorem.}
+Theorem~\ref{thm:security} uses only the following backend facts:
+(i)~the input matrix roots are certified commitments to fixed row-wise
+codewords before $r$ is sampled;
+(ii)~the intermediate vector roots are sent before $I$ is sampled;
+(iii)~an accepting $\codeComV(\cm_v,v,\sigma_v)$ globally links $\cm_v$ to
+$\enc(v)$ as in Definition~\ref{def:codecom-backend}; and
+(iv)~the opening layer is position-binding for every queried coordinate.
+No part of the proof relies on a new algebraic assumption specific to
+$\protocol$ beyond this committed-codeword interface.
+
+\paragraph{Backend instantiation boundary.}
+The security theorem is compositional: it proves the multiplication-checking
+protocol relative to any backend satisfying Definition~\ref{def:codecom-backend}.
+An end-to-end system must choose one concrete backend and specify its algorithms,
+the contents of $\sigma_v$, and the constraint/proof-size contribution of
+$\codeComV$.
+Our implementation evaluates the local fold/opening/linking layer under a
+linear-time $E_{\mathsf{cc}}(k)=\mathcal{O}(k)$ backend model; it does not yet
+implement or measure $\codeComV$ independently.
+
 \paragraph{The original relation $\mathcal{R}_{\mathsf{orig}}$.}
-The starting point is the straightforward statement that the prover knows matrices whose committed values satisfy the multiplication relation.
-The instance is $(\cm_A, \cm_B, \cm_C)$ and the witness is $(\mat{A}, \mat{B}, \mat{C})$; the relation $\mathcal{R}_{\mathsf{orig}}$ requires:
+The starting point is the statement that the prover knows matrices whose
+\emph{encoded} commitments satisfy the multiplication relation.
+The public instance is $(\cm_A, \cm_B, \cm_C)$ and the witness is
+$(\mat{A}, \mat{B}, \mat{C})$; the relation $\mathcal{R}_{\mathsf{orig}}$
+requires:
 \begin{align*}
-  &\cm_A = \merkle(\mat{A}) \;\land\; \cm_B = \merkle(\mat{B}) \; \land\; \cm_C = \merkle(\mat{C}), \\
+  &\cm_A = \merkle(\enc(\mat{A})) \;\land\;
+    \cm_B = \merkle(\enc(\mat{B})) \;\land\;
+    \cm_C = \merkle(\enc(\mat{C})), \\
   &\mat{A}\mat{B} = \mat{C}.
 \end{align*}
+Thus a matrix commitment binds the verifier to the row-wise codeword matrix
+rather than to the raw matrix alone.
+Since $\mathcal{C}$ is systematic, the raw matrix is also determined by the
+first $k$ coordinates of each committed row.
 Proving membership in $\mathcal{R}_{\mathsf{orig}}$ directly inside a SNARK would require $\mathcal{O}(k^3)$ multiplication constraints, which is exactly what we aim to avoid.
 
 \paragraph{Reduction 1: Freivalds' randomization ($\mathcal{R}_{\mathsf{orig}} \rightsquigarrow \mathcal{R}_{\mathsf{Freivalds}}$).}
@@ -76,7 +179,7 @@ Let $\mathcal{S} = \{\mat{A}, \mat{B}, \mat{C}, \vect{x}, \vect{y}, \vect{z}\}$ 
 The instance is $(\{\cm_{\chi}\}_{\chi \in \mathcal{S}}, r)$ and the witness is $\{\chi\}_{\chi \in \mathcal{S}}$;
 the relation $\mathcal{R}_{\mathsf{Freivalds}}$ requires:
 \begin{align*}
-  &\textstyle\bigwedge_{\chi \in \mathcal{S}}\; \cm_{\chi} = \merkle(\chi), \\
+  &\textstyle\bigwedge_{\chi \in \mathcal{S}}\; \cm_{\chi} = \merkle(\enc(\chi)), \\
   &\vect{r}\mat{A} = \vect{x} \;\land\; \vect{x}\mat{B} = \vect{y}, \\
   &\vect{r}\mat{C} = \vect{z} \;\land\; \vect{y} = \vect{z}.
 \end{align*}
@@ -85,19 +188,26 @@ Note that while this relation eliminates the $\mathcal{O}(k^3)$ matrix product, 
 
 \paragraph{Reduction 2: Proximity lifting ($\mathcal{R}_{\mathsf{Freivalds}} \rightsquigarrow \mathcal{R}_{\mathsf{SNARK}}$).}
 We now encode all matrices and vectors using a systematic $\mathbb{F}$-linear code $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ with relative distance $\delta$, and replace the global vector-matrix checks with \emph{local} consistency checks at random positions.
-Let $I \subset [n]$ be the set of queried column indices, and let $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$, $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ denote the matrix set and vector set respectively.
+Let $I=(j_1,\ldots,j_t) \sample [n]^t$ be the ordered tuple of queried column
+indices sampled independently with replacement, and let
+$\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$,
+$\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ denote the matrix set and
+vector set respectively.
 
 The \emph{public instance} is
 $\stmt = \bigl(\{\cm_{\chi}\}_{\chi \in \mathcal{S}},\; r,\; I\bigr)$
 and the \emph{witness} is
 \[
   \wit = \Bigl(\vect{x},\, \vect{y},\, \vect{z},\;
+    \sigma_x,\,\sigma_y,\,\sigma_z,\;
     \bigl\{\enc_{\chi}^{(j)},\, \pi_{\chi,j}\bigr\}_{j \in I,\, \chi \in \mathcal{S}}\Bigr).
 \]
 The relation $\mathcal{R}_{\mathsf{SNARK}}$ requires $(\stmt, \wit)$ to satisfy all of:
 \begin{align}
-  &\enc(\vect{x}) = \enc_x \;\land\; \enc(\vect{y}) = \enc_y \notag\\
-  &\quad\;\land\; \enc(\vect{z}) = \enc_z, \tag{ENC} \label{eq:enc-cw}\\
+  &\codeComV(\cm_x,\vect{x},\sigma_x)=1
+    \;\land\; \codeComV(\cm_y,\vect{y},\sigma_y)=1 \notag\\
+  &\quad\;\land\; \codeComV(\cm_z,\vect{z},\sigma_z)=1,
+    \tag{CODECOM}\label{eq:codecom-check}\\
   &\forall j \in I{:}\quad
     \enc_{x,j} = \fold\!\bigl(\enc_{A}^{(j)},\,\vect{r}\bigr), \tag{FOLD-A}\label{eq:fold-A}\\
   &\forall j \in I{:}\quad
@@ -110,15 +220,41 @@ The relation $\mathcal{R}_{\mathsf{SNARK}}$ requires $(\stmt, \wit)$ to satisfy 
     \merkleV\!\bigl(\pi_{\chi,j},\,\enc_{\chi}^{(j)},\,\cm_{\chi}\bigr) = 1.
     \tag{PATH}\label{eq:path-check}
 \end{align}
+Here $\forall j \in I$ ranges over every sampled position in the ordered tuple,
+including repetitions.
+For a matrix commitment, $\enc_{\chi}^{(j)}$ denotes the full $j$-th encoded
+column; for a vector commitment, it denotes the scalar coordinate
+$\enc(\chi)_j$.
+Equation~\eqref{eq:path-check} is written for the Merkle instantiation used in
+the transparent variant.
+In KZG or CPLink-style variants, the same slot is occupied by the selected
+opening or linking verifier; the security proof uses only position binding of
+the opening layer and the codeword-binding property of
+Definition~\ref{def:codecom-backend}.
 
-The critical property is that $\mathcal{R}_{\mathsf{SNARK}}$ involves only $\mathcal{O}(|I| \cdot k)$ constraints for the fold operations, plus $\mathcal{O}(|I| \cdot \log n)$ hash checks for the Merkle paths.
+The critical property is that $\mathcal{R}_{\mathsf{SNARK}}$ involves only $\mathcal{O}(|I| \cdot k)$ constraints for the fold operations, plus $\mathcal{O}(|I| \cdot \log n)$ hash checks for the Merkle paths and the backend code-commitment cost $E_{\mathsf{cc}}(k)$.
 Since $|I|$ is a security-parameter-sized constant independent of $k$, the circuit size is \emph{linear in $k$}.
 
-\paragraph{Encoding constraints.}
-The constraints $\enc(v) = \enc_v$ for $v \in \mathcal{W}$ force the prover to commit to \emph{valid codewords}.
-Without them, a cheating prover could commit to arbitrary strings that happen to satisfy the fold checks at queried positions without corresponding to any genuine encoding, defeating the distance-based soundness argument.
-We note that for a linear code with generator matrix $G \in \mathbb{F}^{k \times n}$, the constraint $\enc_v = v \cdot G$ requires $\mathcal{O}(k(n-k))$ inner-product checks.
-For codes with linear-time encoding (e.g., expander-based codes~\cite{golovnev2023brakedown}), this is $\mathcal{O}(kn)$ with small constants; for constant-rate codes $n = \mathcal{O}(k)$, the encoding constraints contribute $\mathcal{O}(k^2)$ total.
+\paragraph{Codeword-validity cost.}
+The backend checks in~\eqref{eq:codecom-check} force the prover to commit to
+\emph{full} valid vector codewords before the query tuple is sampled.
+Without this binding step, a cheating prover could choose sampled openings that
+satisfy the fold checks without committing to any genuine encoding of a fixed
+vector, defeating the distance-based soundness argument.
+Analogously, the input matrix commitments $\cm_A,\cm_B,\cm_C$ must be
+well-formed commitments to row-wise encodings of $\mat{A},\mat{B},\mat{C}$.
+In our model this is part of the public input-commitment interface, not a
+property re-proved by the multiplication protocol itself.
+For a general linear code represented by a dense generator matrix
+$G \in \mathbb{F}^{k \times n}$, the constraint $\enc_v = v \cdot G$
+requires $\mathcal{O}(k(n-k))$ inner-product work.
+For linear-time encodable codes (e.g., expander-based codes~\cite{golovnev2023brakedown})
+and a code-commitment backend whose verifier follows the encoder circuit, the
+same validity check can be arithmetized with $\mathcal{O}(n)$
+constraints, which is $\mathcal{O}(k)$ at constant rate.
+Thus the backend codeword-validity term is linear for the code family used in
+Table~\ref{tab:meow-vs-freivalds}, but becomes $\mathcal{O}(k^2)$ for dense
+general constant-rate codes.
 We discuss the trade-off in Section~\ref{sec:complexity}.
 
 \subsection{Protocol Description}
@@ -127,20 +263,20 @@ We discuss the trade-off in Section~\ref{sec:complexity}.
 We now give the full specification of $\protocol$.
 Let $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ be a systematic linear code with relative distance $\delta$ and $\merkle$ denote the Merkle tree commitment.
 Let $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$ be the matrix set, $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ the vector set, and $\mathcal{S} = \mathcal{M} \cup \mathcal{W}$.
+The verifier is given certified input commitments
+$(\cm_A,\cm_B,\cm_C)$ to $\enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C})$.
 The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\mathcal{V}$ as shown in Figure~\ref{fig:protocol}.
 
 \begin{figure*}[ht!]
 \centering
-\scalebox{0.95}{%
+\scalebox{0.85}{%
     \fbox{%
     \procedure[]{\protocol}{%
     \mathcal{P} \< \< \mathcal{V} \\[4pt]
     %% Phase 1
-    \textbf{Phase 1: Commit} \< \< \\
-    \mat{A}, \mat{B} \gets \textsf{Mat}_{k \times k}(\FF);\ \mat{C} \gets \mat{A}\mat{B} \< \< \\
-    \text{For } M \in \mathcal{M}: \< \< \\
-    \quad \enc_M \gets \enc(M) \quad\text{// row-wise encoding} \< \< \\
-    \quad \cm_M \gets \merkle(\enc_M) \< \sendmessageright*[2.5cm]{\cm_A,\cm_B,\cm_C} \< \\[4pt]
+    \textbf{Phase 1: Public input} \< \< \\
+    \text{Certified roots } \cm_A,\cm_B,\cm_C
+      \text{ bind to } \enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C}) \< \< \\[4pt]
     %% Phase 2
     \< \< \textbf{Phase 2: Challenge} \\
     \< \sendmessageleft*[2.5cm]{r} \< r \sample \FF \\[4pt]
@@ -149,16 +285,19 @@ The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\
     \vect{r} \gets (1, r, r^2, \dots, r^{k-1}) \< \< \\
     \vect{x} \gets \vect{r}\mat{A},\quad \vect{y} \gets \vect{x}\mat{B},\quad \vect{z} \gets \vect{r}\mat{C} \< \< \\
     \text{For } v \in \mathcal{W}: \< \< \\
-    \quad \enc_v \gets \enc(v),\quad \cm_v \gets \merkle(\enc_v) \< \sendmessageright*[2.5cm]{\cm_x,\cm_y,\cm_z} \< \\[4pt]
+    \quad \enc_v \gets \enc(v),\quad \cm_v \gets \merkle(\enc_v) \< \< \\
+    \quad \sigma_v \gets \codeComP(\cm_v,v,\enc_v)
+      \< \sendmessageright*[2.5cm]{\cm_x,\cm_y,\cm_z} \< \\[4pt]
     %% Phase 4
     \< \< \textbf{Phase 4: Query} \\
-    \< \sendmessageleft*[2.5cm]{I} \< I \sample [n]^{t} \\[4pt]
+    \< \sendmessageleft*[2.5cm]{I} \< I=(j_1,\ldots,j_t) \sample [n]^{t} \\[4pt]
     %% Phase 5
     \textbf{Phase 5: Open \& Prove} \< \< \\
     \text{For } j \in I,\ \chi \in \mathcal{S}: \< \< \\
     \quad (\enc_\chi^{(j)}, \pi_{\chi,j}) \gets \merkleO(\cm_\chi, j) \< \< \\
     \stmt \gets \Big( \{\cm_{\chi}\}_{\chi \in \mathcal{S}},\, r,\, I \Big) \< \< \\
-    \wit \gets \Big( \vect{x}, \vect{y}, \vect{z},\, \{\enc_{\chi}^{(j)}, \pi_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}} \Big) \< \< \\
+    \wit \gets \Big( \vect{x}, \vect{y}, \vect{z},\, \sigma_x,\sigma_y,\sigma_z,\,
+      \{\enc_{\chi}^{(j)}, \pi_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}} \Big) \< \< \\
     \pi \gets \snarkP(\para, \stmt, \wit) \< \sendmessageright*[2.5cm]{\pi} \< \\[4pt]
     %% Phase 6
     \< \< \textbf{Phase 6: Verify} \\
@@ -174,24 +313,41 @@ $\mathcal{S} = \mathcal{M} \cup \mathcal{W}$ is the full set of committed object
 
 \paragraph{Remark on the SNARK relation.}
 The SNARK proof $\pi$ attests to the validity of the relation $\mathcal{R}_{\mathsf{SNARK}}$ defined in Section~\ref{sec:relation-chain}.
-The SNARK circuit verifies: (1)~constraint~\eqref{eq:enc-cw}, ensuring $\vect{x}, \vect{y}, \vect{z}$ are valid codewords of~$\mathcal{C}$; (2)~constraints~\eqref{eq:fold-A}--\eqref{eq:eq-check}, the four fold/equality checks at each $j \in I$; and (3)~constraint~\eqref{eq:path-check}, consistency of all Merkle opening proofs with the committed roots.
-The public statement $\stmt$ consists of the commitment roots $\{\cm_\chi\}_{\chi \in \mathcal{S}}$, the challenge $r$, and the query set $I$.
-The witness $\wit$ consists of the intermediate vectors and the opened codeword columns with their authentication paths.
+The SNARK circuit verifies: (1)~constraint~\eqref{eq:codecom-check}, ensuring $\cm_x,\cm_y,\cm_z$ bind, via the selected code-commitment backend, to the full encodings of the same $\vect{x},\vect{y},\vect{z}$ used in the fold checks; (2)~constraints~\eqref{eq:fold-A}--\eqref{eq:eq-check}, the four fold/equality checks at each $j \in I$; and (3)~constraint~\eqref{eq:path-check}, consistency of all Merkle opening proofs with the committed roots.
+The public statement $\stmt$ consists of the commitment roots $\{\cm_\chi\}_{\chi \in \mathcal{S}}$, the challenge $r$, and the query tuple $I$.
+The witness $\wit$ consists of the intermediate vectors, the backend proofs/witnesses for their codeword commitments, and the opened codeword columns with their authentication paths.
 
 \paragraph{Non-interactive variant.}
 The protocol as described is a three-round public-coin interactive protocol.
-By applying the Fiat--Shamir heuristic~\cite{fiat1987prove} in the random oracle model, it can be made non-interactive: set $r \gets \Hash(\cm_A, \cm_B, \cm_C)$ and $I \gets \Hash(\cm_x, \cm_y, \cm_z)$.
-The resulting non-interactive proof consists of the six commitment roots together with the SNARK proof $\pi$.
+By applying the Fiat--Shamir heuristic~\cite{fiat1987prove} in the random oracle model, it can be made non-interactive using domain-separated transcript hashes:
+\[
+  r \gets \Hash(\textsf{FMM-r},\para,\cm_A,\cm_B,\cm_C),
+\]
+and
+\[
+  I \gets \textsf{Sample}_{t}\!\left(
+    \Hash(\textsf{FMM-I},\para,\cm_A,\cm_B,\cm_C,r,\cm_x,\cm_y,\cm_z)
+  \right).
+\]
+The resulting non-interactive proof consists of the commitment roots, the
+transcript-derived challenges, and the SNARK proof $\pi$; backend-specific
+opening, linking, or backend code-commitment material is either carried as part of $\pi$ or
+as auxiliary proof data verified by the corresponding backend.
 
 \paragraph{Security of the non-interactive variant.}
-A potential concern with the Fiat--Shamir transform for proximity-based protocols is a \emph{grinding attack}: a malicious prover could try many different tuples $(\cm_x, \cm_y, \cm_z)$ until the resulting query set $I = \Hash(\cm_x, \cm_y, \cm_z)$ happens to avoid all positions where the committed codewords are inconsistent.
-We argue that this attack is infeasible in the random oracle model.
-Suppose the adversary has committed to $(\cm_A, \cm_B, \cm_C)$ (and hence to fixed encoded matrices) and is searching for $(\cm_x, \cm_y, \cm_z)$ such that $I$ avoids the disagreement set $D$ of some fold or equality check.
+A potential concern with the Fiat--Shamir transform for proximity-based protocols is a \emph{grinding attack}: a malicious prover could try many transcript prefixes until the derived challenge $r$ or query tuple $I$ is favorable.
+The random-oracle theorem accounts for this by the standard
+$\epsilon_{\mathsf{FS}}(q_H)$ loss in Theorem~\ref{thm:security}.
+For intuition, consider grinding only the intermediate roots after $r$ is fixed.
+Suppose the adversary has committed to $(\cm_A, \cm_B, \cm_C)$ (and hence to fixed encoded matrices) and, after receiving $r$, is searching for $(\cm_x, \cm_y, \cm_z)$ such that the transcript-derived query tuple $I$ avoids the disagreement set $D$ of some fold or equality check.
 If any of the four checks fails globally, then $|D| \ge \delta n$ by the minimum-distance property.
-For a single random query $j \in [n]$, the probability of $j \notin D$ is at most $1 - \delta$; for $t$ independent queries it is $(1-\delta)^t \le 2^{-\lambda}$.
-Each trial of the grinding attack produces an independently random $I$ in the random oracle model, so the probability that $q$ grinding attempts all yield a favorable $I$ is at most $q \cdot 2^{-\lambda}$.
+For a single random query $j \in [n]$, the probability of $j \notin D$ is at most $1 - \delta$; for $t$ independent queries it is $(1-\delta)^t$.
+Choosing $t$ as in Section~\ref{sec:security} makes the union-bounded proximity term $4(1-\delta)^t$ at most $2^{-\lambda}$.
+Each trial of the grinding attack produces an independently random $I$ in the random oracle model because the query hash binds the full transcript, so the probability that $q$ grinding attempts yield a favorable $I$ is at most $q \cdot 4(1-\delta)^t$.
 For any $\ppt$ adversary, $q$ is polynomially bounded in $\lambda$, giving a total success probability of $\mathsf{negl}(\lambda)$.
-Hence the non-interactive protocol retains the soundness bound of Theorem~\ref{thm:security} in the random oracle model.
+Hence the non-interactive protocol retains the soundness bound of
+Theorem~\ref{thm:security} in the random oracle model, plus the stated
+Fiat--Shamir loss.
 
 \paragraph{Zero-knowledge extension.}
 The protocol as stated is a \emph{verifiable computation} protocol and does not conceal the inputs $\mat{A}, \mat{B}, \mat{C}$ from the verifier.
@@ -199,7 +355,9 @@ Zero-knowledge can be achieved straightforwardly by two modifications:
 (i) replace the Merkle tree commitments with a \emph{hiding} commitment scheme (e.g., salted hashes or Pedersen vector commitments~\cite{pedersen1991non}) so that the committed encoded matrices reveal no information about $\mat{A}, \mat{B}, \mat{C}$; and
 (ii) employ a zero-knowledge SNARK backend for the inner proof $\pi$.
 Masking the intermediate vectors $\vect{x}, \vect{y}, \vect{z}$ requires adding fresh random blinding vectors in Phase~3 and including the corresponding decommitment randomness in the SNARK witness.
-We omit the full ZK treatment here for clarity of presentation; the construction carries over to the ZK setting without structural changes to the protocol.
+We omit a full ZK construction and proof here; hiding the sampled openings,
+the backend code-commitment material, and any linking material requires a separate
+simulation argument.
 
 
 \subsection{Complexity Analysis}
@@ -213,22 +371,49 @@ The prover's dominant costs are:
   \item \emph{Matrix multiplication}: Computing $\mat{C} = \mat{A}\mat{B}$ requires $\mathcal{O}(k^3)$ field operations (or $\mathcal{O}(k^\omega)$ with fast algorithms). This is performed natively outside the SNARK circuit and is amenable to GPU acceleration.
   \item \emph{Encoding}: $3k$ rows (one per matrix row, three matrices) each encoded into length-$n$ codewords costs $\mathcal{O}(kn)$ per matrix with linear-time codes.
   \item \emph{Vector computation}: Computing $\vect{x}, \vect{y}, \vect{z}$ costs $\mathcal{O}(k^2)$ in total.
-  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + t \cdot \log n)$ for the fold and Merkle checks, plus encoding constraints (see below). The SNARK prover time scales with the circuit size.
+  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + t \cdot \log n)$ for the fold and Merkle checks, plus the backend codeword-validity term $E_{\mathsf{cc}}(k)$ (see below). The SNARK prover time scales with the circuit size.
 \end{enumerate}
 
 \paragraph{Verifier computation.}
-The verifier performs only SNARK verification: $\mathcal{O}(1)$ for pairing-based SNARKs, or $\mathcal{O}(|\stmt|)$ for transparent SNARKs, both independent of the matrix dimension~$k$.
+The verifier performs SNARK verification together with any commitment/linking
+checks required by the chosen backend.
+For a pairing-based SNARK whose public input consists only of the roots,
+challenge, and query indices, the core SNARK verification is $\mathcal{O}(1)$.
+For transparent or linking-heavy backends, verification may scale with the
+public input or linking proof size; the concrete behavior is reported in
+Section~\ref{sec:implementation}.
 
 \paragraph{Communication.}
-The proof consists of six Merkle roots ($\mathcal{O}(\lambda)$ bits) plus the SNARK proof $\pi$ ($\mathcal{O}(\lambda)$ bits for succinct schemes), giving total communication $\mathcal{O}(\lambda)$.
+The communication depends on the commitment layer.
+With a fully succinct vector-commitment backend, the proof consists of a
+constant number of commitment digests plus the SNARK proof, giving
+$\mathcal{O}(\lambda)$ communication.
+With the Merkle/CPLink implementation evaluated in this paper, the proof also
+contains authentication, linking, and code-commitment backend material for the
+queried encoded columns.
+The sampled-column material scales as $\mathcal{O}(tk + t\log n)$ field/hash
+elements for fixed security parameter; any additional backend material is
+backend dependent and accounted for in the concrete proof sizes.
+This trade-off explains the megabyte-scale proof sizes observed in
+Section~\ref{sec:eval-verify}.
 
 \paragraph{Circuit size comparison.}
 Table~\ref{tab:cost-summary} summarizes the asymptotic costs.
 Na\"ive arithmetization of $\mat{A}\mat{B} = \mat{C}$ requires $\mathcal{O}(k^3)$ constraints.
 Freivalds' algorithm alone reduces this to $\mathcal{O}(k^2)$.
-Our approach achieves $\mathcal{O}(tk + k(n-k))$: the first term covers the fold and proximity checks; the second covers the encoding constraints.
-For constant-rate codes ($n = \Theta(k)$), the encoding constraints contribute $\mathcal{O}(k^2)$, which can be comparable to the direct Freivalds cost---but with a much smaller constant factor and, crucially, no dependence on the prover's matrix output.
-With linear-time encodable codes of rate $\rho$ and distance $\delta$, setting $t = \lceil\lambda / \log_2(1/(1-\delta))\rceil$ gives a circuit size of $\mathcal{O}(k)$ (up to the encoding constraint term), with concrete sizes discussed in Section~\ref{sec:implementation}.
+Our approach achieves $\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$:
+the first two terms cover the fold and Merkle checks, while
+$E_{\mathsf{cc}}(k)$ denotes the cost of verifying the code-commitment backend
+relation for the intermediate vector commitments.
+For dense general codes, $E_{\mathsf{cc}}(k)=\mathcal{O}(k(n-k))$, which is
+$\mathcal{O}(k^2)$ at constant rate.
+For linear-time encodable codes of rate $\rho$ and distance $\delta$,
+$E_{\mathsf{cc}}(k)=\mathcal{O}(k)$ when the selected code-commitment backend
+has a linear-time verifier,
+and setting
+$t = \lceil(\lambda+2) / \log_2(1/(1-\delta))\rceil$ gives a total circuit size
+of $\mathcal{O}(k)$ for fixed security parameter, with concrete sizes
+discussed in Section~\ref{sec:implementation}.
 
 \begin{table}[t]
 \centering
@@ -238,13 +423,13 @@ With linear-time encodable codes of rate $\rho$ and distance $\delta$, setting $
 \midrule
 Matrix multiplication & $\mathcal{O}(k^3)$ & --- \\
 Encoding (row-wise) & $\mathcal{O}(kn)$ & --- \\
-Merkle commitment & $\mathcal{O}(n \log n)$ & --- \\
-SNARK circuit size & $\mathcal{O}(tk + k(n-k))$ & --- \\
-SNARK verification & --- & $\mathcal{O}(1)$ \\
+Merkle commitment & $\mathcal{O}(kn)$ & --- \\
+SNARK circuit size & $\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$ & --- \\
+Core SNARK verification & --- & $\mathcal{O}(1)$ \\
 \midrule
-\textbf{Total} & $\mathcal{O}(k^3 + kn)$ & $\mathcal{O}(1)$ \\
+\textbf{Total} & $\mathcal{O}(k^3 + kn)$ & backend-dependent \\
 \bottomrule
 \end{tabular}
-\caption{Asymptotic cost comparison. $k$: matrix dimension; $n$: codeword length; $t$: query count; $\lambda$: security parameter.}
+\caption{Asymptotic cost comparison. $k$: matrix dimension; $n$: codeword length; $t$: query count; $E_{\mathsf{cc}}(k)$: cost of the selected code-commitment backend relation.}
 \label{tab:cost-summary}
 \end{table}

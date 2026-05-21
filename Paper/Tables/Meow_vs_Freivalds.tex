@@ -1,30 +1,39 @@
 \begin{table*}[t]
 \centering
+\setlength{\tabcolsep}{4pt}
 \footnotesize
-\begin{tabular}{c rrr rrr rrr rrr}
+\begin{tabular}{c rrrr rrrr rrrr}
 \toprule
 \multirow{2}{*}{$\log k$}
-  & \multicolumn{3}{c}{\textbf{Constraints}}
-  & \multicolumn{3}{c}{\textbf{Prove Time (s)}}
-  & \multicolumn{3}{c}{\textbf{Verify Time (s)}}
-  & \multicolumn{3}{c}{\textbf{Proof Size (MB)}} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
-  & \textsf{Ped} & \textsf{KZG} & \textsf{Freivalds}
-  & \textsf{Ped} & \textsf{KZG} & \textsf{Freivalds}
-  & \textsf{Ped} & \textsf{KZG} & \textsf{Freivalds}
-  & \textsf{Ped} & \textsf{KZG} & \textsf{Freivalds} \\
+  & \multicolumn{4}{c}{\textbf{Constraints}}
+  & \multicolumn{4}{c}{\textbf{Prove Time (s)}}
+  & \multicolumn{4}{c}{\textbf{Verify Time (s)}} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(lr){10-13}
+  & \textsf{Merkle} & \textsf{KZG} & \textsf{CPLink} & \textsf{Freivalds}
+  & \textsf{Merkle} & \textsf{KZG} & \textsf{CPLink} & \textsf{Freivalds}
+  & \textsf{Merkle} & \textsf{KZG} & \textsf{CPLink} & \textsf{Freivalds} \\
 \midrule
-7  & 53{,}727    & 55{,}828    & 49{,}151      & 1.07   & 2.74   & 0.67    & 0.06  & 0.23  & 0.001 & 1.70  & 1.76  & $<$0.01 \\
-8  & 106{,}081   & 107{,}546   & 196{,}607     & 2.32   & 4.61   & 3.02    & 0.10  & 0.27  & 0.001 & 3.24  & 3.28  & $<$0.01 \\
-9  & 210{,}787   & 211{,}370   & 786{,}431     & 5.84   & 8.53   & 16.28   & 0.19  & 0.35  & 0.001 & 6.29  & 6.30  & $<$0.01 \\
-10 & 420{,}197   & 419{,}012   & 3{,}145{,}727 & 17.48  & 17.95  & 417.76  & 0.33  & 0.49  & 0.001 & 12.37 & 12.32 & $<$0.01 \\
-11 & 839{,}015   & 833{,}914   & ---           & 57.18  & 45.47  & ---     & 0.64  & 0.78  & ---   & 24.51 & 24.34 & --- \\
-12 & 1{,}676{,}649 & 1{,}664{,}106 & ---       & 193.50 & 117.39 & ---     & 1.38  & 1.37  & ---   & 48.79 & 48.36 & --- \\
+7  & 53{,}727    & 55{,}828    & 55{,}059    & 49{,}610        & 1.07   & 2.74   & 1.98   & 0.66    & 0.06  & 0.23  & 0.49  & 0.01  \\
+8  & 106{,}081   & 107{,}546   & 106{,}905   & 197{,}194       & 2.32   & 4.61   & 4.47   & 2.36    & 0.10  & 0.27  & 1.70  & 0.04  \\
+9  & 210{,}787   & 211{,}370   & 210{,}985   & 788{,}810       & 5.84   & 8.53   & 11.26  & 7.99    & 0.19  & 0.35  & 2.43  & 0.14  \\
+10 & 420{,}197   & 419{,}012   & 419{,}139   & 3{,}156{,}298   & 17.48  & 17.95  & 23.67  & 29.89   & 0.33  & 0.49  & 1.14  & 0.60  \\
+11 & 839{,}015   & 833{,}914   & 835{,}065   & 12{,}622{,}154  & 57.18  & 45.47  & 40.03  & 117.89  & 0.64  & 0.78  & 1.83  & 2.36  \\
+12 & 1{,}676{,}649 & 1{,}664{,}106 & 1{,}667{,}305 & ---       & 193.50 & 117.39 & 200.19 & ---     & 1.38  & 1.37  & 2.83  & ---   \\
 \bottomrule
 \end{tabular}
-\caption{Performance comparison of $\protocol$ (Pedersen-based and KZG-based variants) and the SNARK-in-circuit Freivalds baseline.
-Constraint counts confirm $\mathcal{O}(k)$ vs.\ $\mathcal{O}(k^2)$ scaling.
-``---'' indicates the experiment could not be completed (out of memory).
-$\protocol$(Ped) uses a transparent SNARK backend; $\protocol$(KZG) and Freivalds use a pairing-based backend.}
+\caption{Performance comparison of $\protocol$ variants and the Freivalds baseline.
+All three $\protocol$ variants exhibit $\mathcal{O}(k)$ checking-layer
+constraint growth under the conditional linear-time code-commitment backend
+model, versus $\mathcal{O}(k^2)$ for Freivalds.
+$\fmMerkle$ uses a transparent SNARK backend with Merkle-tree commitments implemented with Pedersen hashes;
+$\fmKZG$ uses a pairing-based (Groth16) backend with KZG commitments;
+$\fmCPLink$ uses a Groth16 circuit backend with Merkle-tree commitments and CP-SNARK linking.
+The table does not isolate or independently measure a standalone
+$\codeComV$ component.
+Freivalds uses an optimized implementation.
+``---'' indicates the experiment did not complete in the benchmark environment
+because it exhausted available memory; peak memory was not logged by the
+current artifact.
+Proof sizes for $\protocol$ variants range from $1.70$--$48.79$\,MB (see Section~\ref{sec:eval-verify}).}
 \label{tab:meow-vs-freivalds}
 \end{table*}

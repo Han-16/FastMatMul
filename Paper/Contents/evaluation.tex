@@ -3,39 +3,125 @@
 
 \subsection{Implementation Setup}
 
-We implement $\protocol$ in Rust.
-We evaluate two backend configurations for $\protocol$:
+We implement the multiplication-checking layer of $\protocol$ in Rust.
+We evaluate three commitment and circuit-backend configurations for this layer:
 \begin{itemize}[nosep]
-  \item \textbf{$\protocol$(Ped)}: a transparent SNARK backend using Merkle-tree-based (Pedersen) commitments.
-    The large proof sizes observed in Table~\ref{tab:meow-vs-freivalds} ($\approx 1.70$--$48.79$\,MB) are characteristic of such schemes, which trade proof size for transparent setup and avoid a structured reference string.
-  \item \textbf{$\protocol$(KZG)}: a pairing-based SNARK backend using KZG commitments.
-    This variant requires a structured setup but achieves comparable proving times with the same $\mathcal{O}(k)$ circuit scaling.
+  \item \textbf{$\fmMerkle$}: a transparent SNARK backend using Merkle-tree commitments implemented with Pedersen hashes.
+    This variant avoids a structured reference string and trades proof size for transparent setup.
+  \item \textbf{$\fmKZG$}: a pairing-based SNARK backend (Groth16) using KZG commitments.
+    This variant requires a structured setup but achieves fast proving at larger circuit sizes due to the efficiency of the pairing-based backend.
+  \item \textbf{$\fmCPLink$}: a hybrid configuration using a Groth16 circuit backend with Merkle-tree commitments and an explicit CP-SNARK linking mechanism.
+    The Groth16 proof component is constant-sized ($260$ bytes), while the CP-SNARK link and Merkle opening paths constitute the bulk of the proof.
 \end{itemize}
 For encoding, we evaluate two configurations:
 \begin{itemize}[nosep]
-  \item \textbf{Linear-time encodable code} (used in Table~\ref{tab:meow-vs-freivalds}).
+  \item \textbf{Conditional linear-time backend model} (used in Table~\ref{tab:meow-vs-freivalds}).
     We instantiate $\mathcal{C}$ with an expander-based code~\cite{golovnev2023brakedown} of constant rate and relative distance $\delta$.
-    The encoding constraints inside the SNARK circuit are $\mathcal{O}(k)$, yielding a total circuit size of $\mathcal{O}(tk)$.
+    Table~\ref{tab:meow-vs-freivalds} should be read as a conditional
+    linear-time backend configuration: the reported constraint counts cover the
+    implemented fold, opening, and linking circuit terms of the
+    multiplication-checking layer, while the asymptotic claim assumes that the
+    selected $\codeComV$ contributes $E_{\mathsf{cc}}(k)=\mathcal{O}(k)$.
+    The artifact does not yet isolate or independently measure
+    $\codeComV$ as a standalone component.
+    Dense generator-matrix codeword-validity checks are not included in these
+    rows; Table~\ref{tab:precompute-encoding} reports that additional cost for
+    general dense-code instantiations.
   \item \textbf{Constant-rate code} (used in Table~\ref{tab:precompute-encoding}).
-    We sweep over code rates $\rho \in \{1/2, 1/4\}$ to characterize the encoding constraint overhead $\mathcal{O}(k(n-k)) = \mathcal{O}(k^2/\rho)$, which dominates for large $k$ under general codes.
+    We sweep over code rates $\rho \in \{1/2, 1/4\}$ to characterize the
+    dense backend codeword-validity overhead
+    $\mathcal{O}(k(n-k)) = \mathcal{O}(k^2/\rho)$, which dominates for large
+    $k$ under general dense-code instantiations.
 \end{itemize}
-We compare both variants against a direct SNARK-in-circuit implementation of Freivalds' algorithm~\cite{freivalds1977probabilistic}, where the vector-matrix products $\vect{r}\mat{A}$, $\vect{x}\mat{B}$, and $\vect{r}\mat{C}$ are fully arithmetized, incurring $\mathcal{O}(k^2)$ R1CS constraints.
-The Freivalds baseline uses a pairing-based SNARK backend (consistent with its constant $0.001\,\text{s}$ verification time).
+We compare all three variants against an optimized SNARK-in-circuit implementation of Freivalds' algorithm~\cite{freivalds1977probabilistic}, where the vector-matrix products $\vect{r}\mat{A}$, $\vect{x}\mat{B}$, and $\vect{r}\mat{C}$ are fully arithmetized, incurring $\mathcal{O}(k^2)$ R1CS constraints.
+The optimized Freivalds implementation extends the feasible range to $\log k = 11$ ($k = 2{,}048$), compared to the earlier implementation which was limited to $\log k = 10$.
 All experiments use matrices over a 256-bit prime field with $k$ ranging from $2^7$ to $2^{12}$.
+
+\paragraph{Security and code parameters.}
+Table~\ref{tab:eval-parameters} summarizes the parameters recorded by the
+benchmark artifacts.
+The main matrix-multiplication experiments use rate $\rho=1/2$, codeword length
+$n=2k$, and $t=128$ sampled positions.
+These rows are scaling measurements for the implemented checking layer, not a
+complete deployment parameter certificate.
+The security theorem in Section~\ref{sec:security} uses
+$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$ so that the four-way proximity
+union bound is at most $2^{-\lambda}$.
+For an ideal rate-$1/2$ distance calculation with $\delta=1/2$, the reported
+$t=128$ rows give a proximity term $4(1/2)^{128}=2^{-126}$; a strict
+128-bit proximity term would use $t=130$.
+If the selected expander-code backend certifies a smaller $\delta$, then $t$
+must be increased according to the displayed formula.
+Moving from $t=128$ to $t=130$ changes the $t$-linear fold/opening terms by
+$1.6\%$, so it does not change the observed scaling trend.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Parameter} & \textbf{Value in main experiments} \\
+\midrule
+Field size & 256-bit prime field \\
+Matrix dimensions & $k \in \{2^7,\ldots,2^{12}\}$ \\
+Code rate & $\rho=1/2$ \\
+Codeword length & $n=2k$ \\
+Sampled positions in reported runs & $t=128$ \\
+Backend model & Conditional linear-time code-commitment backend \\
+Certified distance used by theorem & Backend-specific $\delta$ \\
+Strict 128-bit proximity target & $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; $t=130$ when $\delta=1/2$ \\
+\bottomrule
+\end{tabularx}
+\caption{Concrete parameters used in the main experiments. The reported rows
+use $t=128$ to compare implementation scaling. A deployment should choose $t$
+from the theorem using the certified distance $\delta$ of the selected
+code-commitment backend.}
+\label{tab:eval-parameters}
+\end{table}
+
+\paragraph{Timing scope.}
+The proving-time columns in Table~\ref{tab:meow-vs-freivalds} report online
+proving time and exclude one-time setup/key-generation time.
+For the $\protocol$ artifact, total proving time includes matrix commitment,
+vector commitment, circuit proving, and CPLink/KZG-style linking when present;
+native matrix multiplication and setup are recorded separately.
+For the Freivalds baseline, proving time likewise excludes native matrix
+computation and setup.
+The experiment logs record setup separately: for example, the CPLink
+configuration ranges from $7.27\,\text{s}$ at $\log k=7$ to
+$171.40\,\text{s}$ at $\log k=12$, while the Freivalds setup ranges from
+$5.45\,\text{s}$ at $\log k=7$ to $1303.91\,\text{s}$ at $\log k=11$.
+Native matrix computation, matrix commitment, vector commitment, circuit
+proving, linking, and verification are recorded as separate columns in the
+artifact CSVs, but the current artifact does not yet log peak memory or timing
+variance.
+
+\paragraph{Artifact limitations.}
+The current benchmark artifact is sufficient to support the scaling claims for
+the implemented multiplication-checking layer in
+Table~\ref{tab:meow-vs-freivalds}, but it does not yet provide a standalone
+$\codeComV$ implementation, a per-component constraint breakdown, peak resident
+memory, or repeated-run statistics.
+Accordingly, we report Freivalds' $\log k=12$ failure as an observed
+out-of-memory outcome in the benchmark environment, not as a fitted memory
+scaling law.
+These missing measurements are orthogonal to the soundness theorem but are
+important for a complete systems evaluation.
 
 \subsection{Constraint Count Comparison}
 \label{sec:eval-constraints}
 
-Table~\ref{tab:meow-vs-freivalds} and Figure~\ref{fig:constraints} report constraint counts for all three configurations.
+Table~\ref{tab:meow-vs-freivalds} and Figure~\ref{fig:constraints} report constraint counts for all four configurations.
 The asymptotic gap between the two approaches is clearly visible.
-For Freivalds, constraints grow by a factor of approximately $4\times$ with each doubling of $k$---a signature of $\mathcal{O}(k^2)$ scaling---while both $\protocol$ variants grow by approximately $2\times$, confirming $\mathcal{O}(k)$ scaling under the linear-time encodable code.
+For Freivalds, constraints grow by a factor of approximately $4\times$ with each doubling of $k$---a signature of $\mathcal{O}(k^2)$ scaling---while all three $\protocol$ variants grow by approximately $2\times$, confirming $\mathcal{O}(k)$ scaling of the implemented checking layer under the conditional linear-time backend model.
 
 The crossover in absolute constraint count occurs at $k = 256$ ($\log k = 8$):
-below this threshold, Freivalds' $\mathcal{O}(k^2)$ constant is sufficiently small that its circuit is marginally smaller ($49{,}151$ vs.\ $53{,}727$ for $\protocol$(Ped) at $\log k = 7$);
-above it, $\protocol$ is consistently more compact.
-At $k = 1{,}024$ ($\log k = 10$), $\protocol$(Ped) uses $420{,}197$ constraints versus $3{,}145{,}727$ for Freivalds---a $7.5\times$ reduction.
-At $k = 2{,}048$ ($\log k = 11$), Freivalds exhausts available memory and cannot be run, while both $\protocol$ variants scale to at least $k = 4{,}096$ ($\log k = 12$) with under $1.68$\,M constraints.
-This demonstrates that $\protocol$ extends the practical range of SNARK-based matrix multiplication verification by at least one order of magnitude in matrix dimension.
+below this threshold, Freivalds' $\mathcal{O}(k^2)$ constant is sufficiently small that its circuit is marginally smaller ($49{,}610$ vs.\ $53{,}727$ for $\fmMerkle$ at $\log k = 7$);
+above it, all $\protocol$ variants are consistently more compact.
+At $k = 1{,}024$ ($\log k = 10$), $\fmMerkle$ uses $420{,}197$ constraints versus $3{,}156{,}298$ for Freivalds---a $7.5\times$ reduction.
+At $k = 2{,}048$ ($\log k = 11$), the gap widens to $15.1\times$: $\fmCPLink$ requires only $835{,}065$ constraints versus $12{,}622{,}154$ for Freivalds.
+Beyond $\log k = 11$, Freivalds exhausts available memory in the benchmark environment, while all $\protocol$ variants scale to at least $k = 4{,}096$ ($\log k = 12$) with under $1.68$\,M constraints.
+This confirms that $\protocol$ extends the practical range of SNARK-based matrix multiplication verification by at least one order of magnitude in matrix dimension.
 
 \begin{figure}[t]
 \centering
@@ -48,7 +134,7 @@ This demonstrates that $\protocol$ extends the practical range of SNARK-based ma
   ymode=log,
   log basis y={10},
   xmin=6.5, xmax=12.5,
-  ymin=1e4, ymax=1e7,
+  ymin=1e4, ymax=2e7,
   legend pos=north west,
   legend style={font=\small},
   grid=major,
@@ -59,22 +145,30 @@ This demonstrates that $\protocol$ extends the practical range of SNARK-based ma
   (7, 53727) (8, 106081) (9, 210787) (10, 420197)
   (11, 839015) (12, 1676649)
 };
-\addlegendentry{$\protocol$(Ped)}
+\addlegendentry{$\fmMerkle$}
 \addplot[color=teal, mark=diamond*] coordinates {
   (7, 55828) (8, 107546) (9, 211370) (10, 419012)
   (11, 833914) (12, 1664106)
 };
-\addlegendentry{$\protocol$(KZG)}
+\addlegendentry{$\fmKZG$}
+\addplot[color=orange, mark=pentagon*] coordinates {
+  (7, 55059) (8, 106905) (9, 210985) (10, 419139)
+  (11, 835065) (12, 1667305)
+};
+\addlegendentry{$\fmCPLink$}
 \addplot[color=red, mark=triangle*, dashed] coordinates {
-  (7, 49151) (8, 196607) (9, 786431) (10, 3145727)
+  (7, 49610) (8, 197194) (9, 788810) (10, 3156298)
+  (11, 12622154)
 };
 \addlegendentry{Freivalds}
 \end{axis}
 \end{tikzpicture}
 \caption{Constraint count comparison on a log scale.
-Both $\protocol$ variants exhibit $\mathcal{O}(k)$ growth (slope $\approx 1$), while Freivalds
+All three $\protocol$ variants exhibit $\mathcal{O}(k)$ checking-layer growth
+under the conditional linear-time code-commitment backend model
+(slope $\approx 1$), while Freivalds
 exhibits $\mathcal{O}(k^2)$ (slope $\approx 2$).
-Freivalds exceeds memory at $\log k = 11$.}
+Freivalds does not complete at $\log k = 12$ in the benchmark environment.}
 \label{fig:constraints}
 \end{figure}
 
@@ -83,12 +177,15 @@ Freivalds exceeds memory at $\log k = 11$.}
 \subsection{Proving Time}
 \label{sec:eval-proving}
 
-Figure~\ref{fig:provetime} and Table~\ref{tab:meow-vs-freivalds} show the prove-time crossover between $\log k = 7$ ($k = 128$) and $\log k = 8$ ($k = 256$).
-At $\log k = 7$, Freivalds is still faster ($0.67\,\text{s}$ vs.\ $1.07\,\text{s}$ for $\protocol$(Ped) and $2.74\,\text{s}$ for $\protocol$(KZG)).
-At $\log k = 8$, $\protocol$(Ped) is already faster ($2.32\,\text{s}$ vs.\ $3.02\,\text{s}$ for Freivalds), and the advantage compounds rapidly as $k$ grows:
-at $\log k = 9$, the speedup reaches $2.8\times$ ($5.84\,\text{s}$ vs.\ $16.28\,\text{s}$);
-at $\log k = 10$, it reaches $23.9\times$ ($17.48\,\text{s}$ vs.\ $417.76\,\text{s}$).
-Beyond $\log k = 10$, Freivalds is infeasible, while $\protocol$(Ped) completes $\log k = 12$ in $193.50\,\text{s}$ and $\protocol$(KZG) in $117.39\,\text{s}$.
+Figure~\ref{fig:provetime} and Table~\ref{tab:meow-vs-freivalds} show the prove-time comparison across all four configurations.
+The crossover point---at which $\protocol$ variants begin to outperform Freivalds---varies by variant.
+$\fmMerkle$ achieves crossover at $\log k = 8$ ($2.32\,\text{s}$ vs.\ $2.36\,\text{s}$), while $\fmKZG$ and $\fmCPLink$ cross over between $\log k = 9$ and $\log k = 10$.
+
+At $\log k = 7$, Freivalds is faster than all $\protocol$ variants ($0.66\,\text{s}$ vs.\ $1.07\,\text{s}$ for $\fmMerkle$, $2.74\,\text{s}$ for $\fmKZG$, and $1.98\,\text{s}$ for $\fmCPLink$).
+As $k$ grows, the $\mathcal{O}(k^2)$ circuit cost of Freivalds dominates:
+at $\log k = 10$, $\fmMerkle$ achieves $1.71\times$ speedup ($17.48\,\text{s}$ vs.\ $29.89\,\text{s}$);
+at $\log k = 11$, the speedup reaches $2.06\times$ for $\fmMerkle$ ($57.18\,\text{s}$ vs.\ $117.89\,\text{s}$), $2.59\times$ for $\fmKZG$ ($45.47\,\text{s}$), and $2.95\times$ for $\fmCPLink$ ($40.03\,\text{s}$).
+Beyond $\log k = 11$, Freivalds is infeasible in the benchmark environment due to memory exhaustion, while all $\protocol$ variants complete $\log k = 12$: $\fmKZG$ in $117.39\,\text{s}$, $\fmMerkle$ in $193.50\,\text{s}$, and $\fmCPLink$ in $200.19\,\text{s}$.
 
 \begin{figure}[t]
 \centering
@@ -112,43 +209,102 @@ Beyond $\log k = 10$, Freivalds is infeasible, while $\protocol$(Ped) completes 
   (7, 1.07) (8, 2.32) (9, 5.84) (10, 17.48)
   (11, 57.18) (12, 193.50)
 };
-\addlegendentry{$\protocol$(Ped)}
+\addlegendentry{$\fmMerkle$}
 \addplot[color=teal, mark=diamond*] coordinates {
   (7, 2.74) (8, 4.61) (9, 8.53) (10, 17.95)
   (11, 45.47) (12, 117.39)
 };
-\addlegendentry{$\protocol$(KZG)}
+\addlegendentry{$\fmKZG$}
+\addplot[color=orange, mark=pentagon*] coordinates {
+  (7, 1.98) (8, 4.47) (9, 11.26) (10, 23.67)
+  (11, 40.03) (12, 200.19)
+};
+\addlegendentry{$\fmCPLink$}
 \addplot[color=red, mark=triangle*, dashed] coordinates {
-  (7, 0.67) (8, 3.02) (9, 16.28) (10, 417.76)
+  (7, 0.66) (8, 2.36) (9, 7.99) (10, 29.89)
+  (11, 117.89)
 };
 \addlegendentry{Freivalds}
 \end{axis}
 \end{tikzpicture}
 \caption{Proving time comparison on a log scale.
-Both $\protocol$ variants become faster than Freivalds at $\log k = 8$ ($k = 256$),
-with the gap widening to $23.9\times$ (Ped) and $23.3\times$ (KZG) at $\log k = 10$.}
+$\fmMerkle$ becomes faster than Freivalds at $\log k = 8$;
+$\fmKZG$ and $\fmCPLink$ cross over between $\log k = 9$ and $\log k = 10$.
+At $\log k = 11$, the speedup reaches $2.06\times$--$2.95\times$.
+Freivalds does not complete at $\log k = 12$ in the benchmark environment.}
 \label{fig:provetime}
 \end{figure}
 
-We note that at $\log k = 7$, Freivalds proves faster due to two factors:
-(i)~the per-constraint overhead of $\protocol$ includes Merkle-path hashing, which contributes fixed overhead per query;
+We note that at small $k$ ($\log k = 7$), Freivalds proves faster due to two factors:
+(i)~the per-constraint overhead of $\protocol$ includes Merkle-path hashing and CP-SNARK linking, which contribute fixed overhead per query;
 and (ii)~the $\mathcal{O}(k^2)$ constant in Freivalds' circuit is sufficiently small at this scale.
-For $k \geq 256$, these constants are dominated by the circuit size difference, and both $\protocol$ variants become decisively faster.
-Notably, $\protocol$(KZG) achieves faster proving than $\protocol$(Ped) at larger $k$ ($45.47\,\text{s}$ vs.\ $57.18\,\text{s}$ at $\log k = 11$; $117.39\,\text{s}$ vs.\ $193.50\,\text{s}$ at $\log k = 12$), reflecting the efficiency of the pairing-based backend for larger circuits.
+For $k \geq 256$, these constants are progressively dominated by the circuit size difference.
+Among the $\protocol$ variants, $\fmKZG$ achieves the fastest proving at larger $k$ ($45.47\,\text{s}$ vs.\ $57.18\,\text{s}$ for $\fmMerkle$ and $40.03\,\text{s}$ for $\fmCPLink$ at $\log k = 11$; $117.39\,\text{s}$ vs.\ $193.50\,\text{s}$ and $200.19\,\text{s}$ at $\log k = 12$), reflecting the efficiency of the pairing-based backend for larger circuits.
+$\fmCPLink$ achieves competitive circuit-level proving (its Groth16 circuit proof time is as low as $0.81$--$16.15\,\text{s}$), but its total prove time at $\log k = 12$ is dominated by the matrix commitment phase ($174.45\,\text{s}$ out of $200.19\,\text{s}$).
 
 \subsection{Verification Time and Proof Size}
 \label{sec:eval-verify}
 
-A trade-off of both $\protocol$ variants is that verification time and proof size are larger than the pairing-based Freivalds baseline.
-Freivalds verification is constant at $0.001\,\text{s}$ for all tested~$k$---consistent with constant-time pairing-based SNARK verification---with a proof size of only $168$ bytes.
-$\protocol$(Ped)'s verification time grows from $0.06\,\text{s}$ at $\log k = 7$ to $1.38\,\text{s}$ at $\log k = 12$,
-approximately doubling with each doubling of $k$.
-$\protocol$(KZG) exhibits a similar trend, growing from $0.23\,\text{s}$ to $1.37\,\text{s}$ over the same range.
-This growth reflects the increase in public input size: the public statement $\stmt$ includes the $t$ queried column openings, whose total size scales as $\mathcal{O}(tk)$.
+Table~\ref{tab:meow-vs-freivalds} reports verification times for all four configurations.
+$\fmMerkle$ achieves the fastest verification among the $\protocol$ variants, growing from $0.06\,\text{s}$ at $\log k = 7$ to $1.38\,\text{s}$ at $\log k = 12$, approximately doubling with each doubling of $k$.
+$\fmKZG$ exhibits a similar trend ($0.23$--$1.37\,\text{s}$).
+$\fmCPLink$ incurs higher verification overhead ($0.49$--$2.83\,\text{s}$), dominated by its CP-SNARK link verification component ($0.47$--$2.52\,\text{s}$).
+This growth reflects the cost of linking the $t$ queried encoded columns to the
+committed objects; the linked column material scales as $\mathcal{O}(tk)$ for
+fixed security parameter.
 
-Proof sizes for $\protocol$(Ped) grow from $1.70\,\text{MB}$ ($\log k = 7$) to $48.79\,\text{MB}$ ($\log k = 12$),
-roughly doubling with each unit increase in $\log k$---consistent with the $\mathcal{O}(k)$ witness size dominated by the opened codeword columns and their Merkle authentication paths.
-$\protocol$(KZG) exhibits comparable proof sizes ($1.76$--$48.36\,\text{MB}$), as the dominant contribution comes from the commitment opening paths rather than the SNARK backend.
+The optimized Freivalds baseline exhibits verification times that grow from $0.01\,\text{s}$ at $\log k = 7$ to $2.36\,\text{s}$ at $\log k = 11$, scaling roughly as $\mathcal{O}(k^2)$ with the circuit size.
+At $\log k = 11$, $\fmMerkle$ verification ($0.64\,\text{s}$) is $3.7\times$ faster than Freivalds ($2.36\,\text{s}$), demonstrating that the $\mathcal{O}(k)$ circuit structure of $\protocol$ yields a verification advantage at sufficiently large $k$.
+
+Proof sizes for all $\protocol$ variants are comparable:
+$\fmMerkle$ grows from $1.70\,\text{MB}$ ($\log k = 7$) to $48.79\,\text{MB}$ ($\log k = 12$),
+$\fmKZG$ from $1.76$ to $48.36\,\text{MB}$,
+and $\fmCPLink$ from $1.72$ to $48.32\,\text{MB}$---all roughly doubling with each unit increase in $\log k$, consistent with the $\mathcal{O}(k)$ witness size dominated by the opened codeword columns and their Merkle authentication paths.
+For $\fmCPLink$, the proof comprises a constant-sized Groth16 component ($260$ bytes), Merkle opening paths ($160$--$260\,\text{KB}$), and a CP-SNARK link proof ($1.57$--$48.07\,\text{MB}$); the CP-SNARK link constitutes over $90\%$ of the total proof size.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{crrr}
+\toprule
+$\log k$ & Merkle paths (KB) & CPLink proof (MB) & Total (MB) \\
+\midrule
+7  & 160 & 1.57 & 1.72 \\
+8  & 180 & 3.07 & 3.24 \\
+9  & 200 & 6.07 & 6.26 \\
+10 & 220 & 12.07 & 12.28 \\
+11 & 240 & 24.07 & 24.30 \\
+12 & 260 & 48.07 & 48.32 \\
+\bottomrule
+\end{tabular}
+\caption{$\fmCPLink$ proof-size breakdown from the benchmark artifact.
+The Groth16 component is $260$ bytes in every row and is omitted from the
+table because it is negligible relative to the linking material.}
+\label{tab:cplink-proof-size}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{p{0.22\columnwidth}p{0.68\columnwidth}}
+\toprule
+\textbf{Variant} & \textbf{Proof object} \\
+\midrule
+$\fmMerkle$ & Commitment roots, sampled encoded columns, Merkle authentication
+paths, code-commitment backend material, and the transparent SNARK proof. \\
+$\fmKZG$ & Commitment roots, sampled encoded columns, KZG/Groth16 proof
+material, code-commitment backend material, and openings required by the
+backend. \\
+$\fmCPLink$ & Commitment roots, sampled encoded columns, Merkle authentication
+paths, a constant-sized Groth16 proof, and a CP-SNARK link proof tying the
+opened columns to the committed objects. \\
+\bottomrule
+\end{tabular}
+\caption{Proof-object components by backend. The measured proof size is
+dominated by sampled-column opening and linking material in the evaluated
+Merkle/CPLink-style configurations.}
+\label{tab:proof-object}
+\end{table}
 
 We remark that the proof size and verification time of $\protocol$ can be further improved by replacing the Merkle-based commitment with a fully algebraic vector commitment scheme (e.g., KZG~\cite{kate2010constant} applied directly to the commitment layer), which could reduce proof size to $\mathcal{O}(\lambda)$ and verification to $\mathcal{O}(1)$ at the cost of a structured setup.
 We leave this optimization as future engineering work.
@@ -164,11 +320,11 @@ Even at $\log k = 20$ ($k = 2^{20} \approx 10^6$), encoding completes in $0.623\
 These costs are negligible relative to the native $\mathcal{O}(k^3)$ matrix multiplication, confirming that encoding does not introduce a new bottleneck in the prover's pipeline.
 
 \paragraph{Rate vs.\ constraint trade-off.}
-The encoding constraints---which contribute $\mathcal{O}(k(n-k)) = \mathcal{O}(k^2(1-\rho)/\rho)$ to the circuit---grow roughly as $2\times$ when the rate is halved, as expected.
-At $\log k = 16$, rate $1/2$ yields $328{,}558$ encoding constraints while rate $1/4$ yields $591{,}578$ constraints ($1.8\times$ more).
-For the Merkle-hash component (fold and path checks), the constraint count is $\mathcal{O}(tk)$ and appears in the $\protocol$ columns of Table~\ref{tab:meow-vs-freivalds}; the encoding constraints in Table~\ref{tab:precompute-encoding} represent an \emph{additional} overhead incurred when using general codes instead of linear-time encodable codes.
+The dense codeword-validity constraints---which contribute $\mathcal{O}(k(n-k)) = \mathcal{O}(k^2(1-\rho)/\rho)$ to the circuit under dense generator-matrix checks---grow roughly as $2\times$ when the rate is halved, as expected.
+At $\log k = 16$, rate $1/2$ yields $328{,}558$ backend constraints while rate $1/4$ yields $591{,}578$ constraints ($1.8\times$ more).
+For the Merkle-hash component (fold and path checks), the constraint count is $\mathcal{O}(tk)$ and appears in the $\protocol$ columns of Table~\ref{tab:meow-vs-freivalds}; the constraints in Table~\ref{tab:precompute-encoding} represent an \emph{additional} backend codeword-validity overhead incurred when using general dense codes instead of linear-time code-commitment backends.
 
-When the encoding constraint cost is acceptable (i.e., when $k^2$ fits within the SNARK's capacity), rate $1/2$ represents a good default, offering a balanced trade-off between code distance $\delta$ (which determines the soundness error per query) and encoding constraint overhead.
+When the backend codeword-validity cost is acceptable (i.e., when $k^2$ fits within the SNARK's capacity), rate $1/2$ represents a good default, offering a balanced trade-off between code distance $\delta$ (which determines the soundness error per query) and backend overhead.
 For applications demanding a higher soundness level per query (larger $\delta$), a lower rate with more queries may be preferable.
 
 \input{Tables/Precompute_and_Encoding}
@@ -179,20 +335,42 @@ For applications demanding a higher soundness level per query (larger $\delta$),
 Table~\ref{tab:meow-vs-freivalds} and Table~\ref{tab:precompute-encoding} together establish the following conclusions about $\protocol$.
 
 \paragraph{Constraint efficiency.}
-Both $\protocol$ variants achieve $\mathcal{O}(k)$ circuit growth (under linear-time encodable codes), versus $\mathcal{O}(k^2)$ for Freivalds-based SNARK arithmetization.
-The constraint advantage reaches $7.5\times$ at $k = 1{,}024$ and grows without bound.
-Freivalds is infeasible beyond $k = 1{,}024$ under the tested configuration; both $\protocol$ variants scale to at least $k = 4{,}096$.
+All three $\protocol$ variants achieve $\mathcal{O}(k)$ checking-layer circuit
+growth under the conditional linear-time code-commitment backend model, versus
+$\mathcal{O}(k^2)$ for Freivalds-based SNARK arithmetization.
+The measured checking-layer constraint advantage reaches $7.5\times$ at
+$k = 1{,}024$ ($\log k = 10$) and $15.1\times$ at $k = 2{,}048$
+($\log k = 11$).
+Even with an optimized Freivalds implementation that extends to $\log k = 11$,
+the baseline does not complete at $\log k = 12$ in our benchmark environment,
+while all $\protocol$ variants scale to at least $k = 4{,}096$.
 
 \paragraph{Proving time.}
-Both $\protocol$ variants outperform Freivalds in prove time for $k \geq 256$ ($\log k = 8$), with speedups reaching $23.9\times$ for $\protocol$(Ped) and $23.3\times$ for $\protocol$(KZG) at $k = 1{,}024$.
+$\fmMerkle$ outperforms Freivalds from $\log k = 8$ onward ($2.32\,\text{s}$ vs.\ $2.36\,\text{s}$);
+$\fmKZG$ and $\fmCPLink$ cross over between $\log k = 9$ and $\log k = 10$.
+At $\log k = 11$, speedups reach $2.06\times$ ($\fmMerkle$), $2.59\times$ ($\fmKZG$), and $2.95\times$ ($\fmCPLink$).
 For $k = 128$ ($\log k = 7$), Freivalds proves faster due to its lower per-constraint overhead at small circuit sizes.
-Between the two $\protocol$ variants, $\protocol$(KZG) achieves faster proving at larger $k$, reaching $1.65\times$ speedup over $\protocol$(Ped) at $\log k = 12$.
+Among the $\protocol$ variants, $\fmKZG$ achieves the fastest proving at larger $k$, reaching $1.65\times$ speedup over $\fmMerkle$ at $\log k = 12$.
 
 \paragraph{Verification and proof size.}
-$\protocol$'s verification is slower ($0.06$--$1.38\,\text{s}$ for Ped; $0.23$--$1.37\,\text{s}$ for KZG) and proofs are larger ($1.70$--$48.79\,\text{MB}$) than Freivalds ($0.001\,\text{s}$, $168$ bytes).
-These costs reflect the commitment opening overhead and can be further improved by applying algebraic commitment schemes directly to the commitment layer.
+$\fmMerkle$ achieves the lowest verification overhead among $\protocol$ variants ($0.06$--$1.38\,\text{s}$), followed by $\fmKZG$ ($0.23$--$1.37\,\text{s}$) and $\fmCPLink$ ($0.49$--$2.83\,\text{s}$).
+Freivalds verification grows from $0.01\,\text{s}$ ($\log k = 7$) to $2.36\,\text{s}$ ($\log k = 11$), scaling with its $\mathcal{O}(k^2)$ circuit size.
+At $\log k = 11$, $\fmMerkle$ verification ($0.64\,\text{s}$) is $3.7\times$ faster than Freivalds.
+Proof sizes for all $\protocol$ variants range from $1.70$--$48.79\,\text{MB}$ and can be further improved by applying algebraic commitment schemes directly to the commitment layer.
+
+\paragraph{Deployment regime.}
+The crossover occurs at dimensions already common in large linear-algebra workloads:
+$\fmMerkle$ becomes faster than Freivalds at $k = 256$, and all
+$\protocol$ variants provide a large constraint advantage by $k = 1{,}024$.
+This makes the protocol most attractive for large square or near-square matrix
+products when the application can supply the required code-commitment backend
+and tolerate the measured opening/linking material.
 
 \paragraph{Practical recommendation.}
-For verifiable ML inference tasks involving matrices with $k \geq 256$---the regime of practical interest for modern Transformer layers---$\protocol$ is the preferred choice.
-$\protocol$(KZG) offers the best proving time, while $\protocol$(Ped) provides a transparent setup without a structured reference string.
-Their combination of linear circuit growth, competitive proving time, and manageable verifier work makes $\protocol$ well-suited for deployment scenarios where the prover (inference server) bears the computation cost and the verifier (client) requires only a succinct check.
+For verifiable matrix-multiplication workloads with $k \geq 256$, $\protocol$
+is attractive under the certified-input and linear-time-backend assumptions.
+$\fmKZG$ offers the best proving time, $\fmMerkle$ provides a transparent setup without a structured reference string, and $\fmCPLink$ achieves the highest speedup over Freivalds at the largest jointly feasible dimension ($2.95\times$ at $\log k = 11$) with a compact Groth16 circuit proof.
+Their combination of linear circuit growth and competitive proving time makes
+$\protocol$ most attractive in settings where the prover bears the native
+matrix-arithmetic cost and the application can tolerate backend-dependent
+opening and linking material.

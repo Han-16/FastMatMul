@@ -20,7 +20,9 @@ Transformer architectures.
 In all of these systems, matrix multiplication is the dominant cost center.
 Our protocol is complementary: it provides a drop-in replacement for the
 matrix multiplication verification subroutine that reduces the SNARK circuit
-size from $\mathcal{O}(k^2)$ to $\mathcal{O}(tk)$.
+size from $\mathcal{O}(k^2)$ to
+$\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$, and to
+$\mathcal{O}(tk)$ when the code-commitment backend verifier is linear.
 Composing $\protocol$ across the layers of a neural network is a natural
 extension that we outline in Section~\ref{sec:conclusion}.
 
@@ -41,13 +43,14 @@ establishing theoretical connections between code distance and verification
 complexity.
 Our work shares the coding-theoretic perspective
 of~\cite{bennett2023matrix} but differs in two key respects:
-(i)~we operate in the computational setting with Merkle commitments and
-SNARKs, yielding a \emph{non-interactive} protocol with succinct proofs;
+(i)~we operate in the computational setting with committed-codeword openings
+and SNARKs, yielding a \emph{non-interactive} protocol with succinct proofs;
 and (ii)~we provide a concrete implementation with experimental evaluation,
 demonstrating practical gains over the Freivalds baseline.
-Relative to zkMatrix, DualMatrix, and zkVC, our approach avoids
-polynomial commitment machinery entirely, relying instead on
-hash-based commitments that require no trusted setup.
+Relative to zkMatrix, DualMatrix, and zkVC, our construction is modular in the
+commitment layer: the transparent instantiation uses hash-based openings, while
+the KZG and CPLink configurations expose the trade-off between algebraic
+commitments, linking material, and setup assumptions.
 
 \paragraph{Code-based proof systems.}
 Ligero~\cite{ames2017ligero} pioneered the use of interleaved Reed--Solomon
@@ -73,7 +76,8 @@ $\mathcal{O}(k^2)$ prover.
 $\protocol$'s contribution is to \emph{restructure the problem itself}---via
 the relation chain
 $\mathcal{R}_{\mathsf{orig}} \to \mathcal{R}_{\mathsf{Freivalds}} \to \mathcal{R}_{\mathsf{SNARK}}$---so
-that the circuit presented to the SNARK is only $\mathcal{O}(tk)$.
+that the circuit presented to the SNARK is only
+$\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$.
 
 \paragraph{Sumcheck-based approaches.}
 The sumcheck protocol~\cite{goldwasser2015delegating} is a powerful
