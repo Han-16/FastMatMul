@@ -30,16 +30,20 @@ The key property we exploit is \emph{linearity}: for any coefficients $r_0, \ldo
 \sum_{i=0}^{k-1} r_i \cdot \enc(\mat{M}_{i,\star}) = \enc\!\left(\sum_{i=0}^{k-1} r_i \cdot \mat{M}_{i,\star}\right).
 \end{equation}
 
-\begin{definition}[Fold operation]\label{def:fold}
-For a column vector $\vect{c} = (c_0, \ldots, c_{k-1})^\top \in \mathbb{F}^k$ and a coefficient vector $\vect{r} = (r_0, \ldots, r_{k-1}) \in \mathbb{F}^k$, we define
+\begin{definition}[Fold]\label{def:fold}
+For vectors $\vect{c},\vect{r}\in \mathbb{F}^k$ with
+$\vect{c}=(c_0,\ldots,c_{k-1})^\top$ and
+$\vect{r}=(r_0,\ldots,r_{k-1})$, define
 \[
 \fold(\vect{c}, \vect{r}) \coloneqq \langle \vect{r}, \vect{c} \rangle = \sum_{i=0}^{k-1} r_i \cdot c_i.
 \]
-Equivalently, for the $j$-th column of a row-wise encoded matrix, $\fold(\enc(\mat{M})^{(j)}, \vect{r})$ equals the $j$-th coordinate of $\enc(\vect{r}\mat{M})$.
+Equivalently, for the $j$-th column of a row-wise encoded matrix,
+$\fold(\enc(\mat{M})^{(j)}, \vect{r})$ equals the $j$-th coordinate of
+$\enc(\vect{r}\mat{M})$.
 This follows directly from the linearity of the code (Equation~\ref{eq:code-linearity}).
 \end{definition}
 
-\paragraph{Concrete instantiations.}
+\paragraph{Concrete instantiations}
 Our protocol is compatible with any linear code.
 Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
 We discuss the trade-offs in Section~\ref{sec:complexity}.

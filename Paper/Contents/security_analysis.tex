@@ -10,7 +10,7 @@ code-commitment backend relation $\codeComV(\cm_v,v,\sigma_v)$, ensuring that th
 $\cm_x,\cm_y,\cm_z$ bind to full codewords $\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$
 before the query tuple is sampled.
 
-\paragraph{Soundness-critical ordering.}
+\paragraph{Soundness-critical ordering}
 The proof uses the following timing invariants.
 First, the certified input roots $\cm_A,\cm_B,\cm_C$ are fixed before the
 Freivalds challenge $r$ is sampled.
@@ -24,19 +24,25 @@ If an implementation samples without replacement, the proximity failure
 probability only decreases; the theorem states the simpler with-replacement
 bound.
 
-\begin{theorem}[Security of $\protocol$]\label{thm:security}
+\begin{theorem}[Security]\label{thm:security}
 The protocol $\protocol$ satisfies the following properties:
 \begin{enumerate}[label=(\roman*)]
   \item \textbf{Perfect completeness.} If $\mat{A}\mat{B} = \mat{C}$, an honest prover always makes the verifier accept.
-  \item \textbf{Interactive computational soundness.} For any $\ppt$ adversary $\mathcal{P}^*$ given certified public input commitments to $\mat{A},\mat{B},\mat{C}$, the probability that the verifier accepts a false committed matrix statement $\mat{A}\mat{B} \neq \mat{C}$ satisfies:
+  \item \textbf{Interactive computational soundness.}
+  For any $\ppt$ adversary $\mathcal{P}^*$ given certified public input
+  commitments to $\mat{A},\mat{B},\mat{C}$, let $\mathsf{Acc}$ be the event
+  that the verifier accepts a false committed matrix statement.
+  Then:
 \[
-\Pr[\mathcal{V} \text{ accepts} \mid \mat{A}\mat{B} \neq \mat{C}]
-\;\le\;
+\begin{aligned}
+\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}]
+&\le
 \epsilon_{\mathsf{SNARK}}(\lambda)
 + \epsilon_{\mathsf{cc}}(\lambda)
-+ \epsilon_{\mathsf{bind}}(\lambda)
-+ \frac{k-1}{|\mathbb{F}|}
++ \epsilon_{\mathsf{bind}}(\lambda) \\
+&\quad + \frac{k-1}{|\mathbb{F}|}
 + 4(1 - \delta)^{t},
+\end{aligned}
 \]
 Here $t = |I|$ is the query complexity and $\delta$ is the relative minimum
 distance of $\mathcal{C}$.
@@ -53,178 +59,69 @@ opening layer over all roots and openings used in the protocol.
 \end{enumerate}
 \end{theorem}
 
-\begin{proof}
-We establish the two properties in turn.
+Table~\ref{tab:soundness-budget} spells out the concrete interpretation of the
+bound.
+The table separates the reported scaling experiments, which use $t=128$, from
+a strict 128-bit deployment certificate.
+The latter requires a concrete backend instantiation that certifies $\delta$,
+the global codeword-binding error, and the position-opening binding error.
 
-\paragraph{Perfect completeness.}
-Suppose the prover is honest and $\mat{A}\mat{B} = \mat{C}$.
-Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} = \mat{0}$.
-For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D} = \vect{0}$, so the intermediate vectors satisfy:
-\[
-\vect{y} = \vect{x}\mat{B} = (\vect{r}\mat{A})\mat{B} = \vect{r}(\mat{A}\mat{B}) = \vect{r}\mat{C} = \vect{z}.
-\]
-The code-commitment backend checks hold by construction: for each $v \in \mathcal{W}$, the honest prover commits to $\enc(v)$ and provides backend proof material $\sigma_v$ accepted by $\codeComV$.
-For the fold checks at any index $j \in [n]$, the linearity of $\mathcal{C}$ (Definition~\ref{def:fold}) gives:
-\[
-\fold(\enc(\mat{A})^{(j)}, \vect{r}) = \enc(\vect{r}\mat{A})_j = \enc_{x,j},
-\]
-and likewise for $\mat{B}$ and $\mat{C}$.
-Since $\vect{y} = \vect{z}$, we also have $\enc_{y,j} = \enc_{z,j}$ for all $j$.
-All opening or linking checks are valid by honest commitment.
-Therefore every check passes with probability $1$, establishing perfect completeness.
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}p{0.18\textwidth}p{0.19\textwidth}X X@{}}
+\toprule
+\textbf{Term} & \textbf{Expression} & \textbf{Status in current artifact} & \textbf{Strict 128-bit deployment target} \\
+\midrule
+Freivalds randomization & $(k-1)/|\mathbb{F}|$ & Uses a 256-bit prime field; for the largest reported row $k=2^{13}$, this term is below $2^{-243}$. & Choose $|\mathbb{F}|$ so that the term fits the aggregate budget for the largest supported $k$. \\
+Proximity sampling & $4(1-\delta)^t$ & Reported scaling rows use $t=128$. If a backend certifies $\delta=1/2$, this term is $2^{-126}$. & Use $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$ for proximity-only $2^{-\lambda}$; for a conservative per-term $2^{-131}$ budget at $\delta=1/2$, use $t=133$. \\
+SNARK soundness & $\epsilon_{\mathsf{SNARK}}(\lambda)$ & Determined by the chosen SNARK backend; the CSV artifacts do not constitute a security certificate. & Instantiate the SNARK so this term is at most the allocated budget, e.g., $2^{-131}$. \\
+Codeword binding & $\epsilon_{\mathsf{cc}}(\lambda)$ & Modeled by Definition~\ref{def:codecom-backend}; standalone $\codeComV$ is not independently implemented or measured. & Choose a concrete code-commitment backend proving global codeword binding and certified distance $\delta$. \\
+Opening binding & $\epsilon_{\mathsf{bind}}(\lambda)$ & Covered by Merkle/opening and QA-NIZK linking assumptions, union-bounded over all accepted openings. & Size hash/linking parameters so the union-bounded position-binding error is within the allocated budget. \\
+Fiat--Shamir loss & $\epsilon_{\mathsf{FS}}(q_H)$ & Random-oracle-model loss for the non-interactive transcript. & Use domain-separated hashes and a query bound $q_H$ such that the ROM loss remains within the aggregate budget. \\
+\bottomrule
+\end{tabularx}
+\caption{Concrete soundness-budget checklist for Theorem~\ref{thm:security}.
+The current experiments are scaling measurements for the checking layer; a
+deployment certificate must fill in the backend-specific entries.}
+\label{tab:soundness-budget}
+\end{table*}
 
-\paragraph{Soundness decomposition.}
-Let $\mathsf{Acc}$ denote the event that the verifier accepts, and suppose $\mat{A}\mat{B} \neq \mat{C}$.
-We decompose the adversary's success probability via five bad events:
-\begin{align*}
-&\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}] \\
-&\;\le\; \Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
-  + \Pr[\mathsf{Bad}_{\mathsf{cc}}]
-  + \Pr[\mathsf{Bad}_{\mathsf{bind}}] \\
-&\qquad
-  + \Pr\!\bigl[\mathsf{Bad}_{\mathsf{rand}}
-      \mid \overline{\mathsf{Bad}_{\mathsf{SNARK}}}
-           \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
-           \land \overline{\mathsf{Bad}_{\mathsf{bind}}}\bigr] \\
-&\qquad + \Pr\!\bigl[\mathsf{Bad}_{\mathsf{prox}}
-      \mid \overline{\mathsf{Bad}_{\mathsf{SNARK}}}
-           \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
-           \land \overline{\mathsf{Bad}_{\mathsf{bind}}}
-           \land \overline{\mathsf{Bad}_{\mathsf{rand}}}\bigr].
-\end{align*}
+\begin{proof}[Proof sketch]
+Completeness is immediate from linearity: if $\mat{A}\mat{B}=\mat{C}$, then
+for every Freivalds challenge $\vect{r}$ the honest vectors satisfy
+$\vect{x}=\vect{r}\mat{A}$, $\vect{y}=\vect{x}\mat{B}$,
+$\vect{z}=\vect{r}\mat{C}$, and hence $\vect{y}=\vect{z}$.
+Linearity of the code makes every sampled fold identity hold, and the honest
+commitment/opening proofs verify.
 
-\paragraph{Step 1: SNARK soundness.}
-Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as the event that the verifier accepts a SNARK proof for a false instance of $\mathcal{R}_{\mathsf{SNARK}}$.
-By soundness of the underlying SNARK,
-\[
-\Pr[\mathsf{Bad}_{\mathsf{SNARK}}] \le \epsilon_{\mathsf{SNARK}}(\lambda).
-\]
-Conditioned on $\overline{\mathsf{Bad}_{\mathsf{SNARK}}}$, every accepting proof has a witness satisfying the relation in Section~\ref{sec:relation-chain}.
-
-\paragraph{Step 2: Code-commitment backend binding.}
-Define $\mathsf{Bad}_{\mathsf{cc}}$ as the event that, for some intermediate
-root $\cm_v$ and witness vector $v \in \{\vect{x},\vect{y},\vect{z}\}$, the
-SNARK accepts $\codeComV(\cm_v,v,\sigma_v)=1$ even though $\cm_v$ is not
-globally linked to the full codeword $\enc(v)$ under the selected
-code-commitment backend.
-Equivalently, there exists a coordinate at which the adversary can produce an
-accepting opening of $\cm_v$ whose value differs from $\enc(v)$ at that
-coordinate.
-By the codeword-binding property of the backend,
-\[
-\Pr[\mathsf{Bad}_{\mathsf{cc}}] \le \epsilon_{\mathsf{cc}}(\lambda).
-\]
-Conditioned on $\overline{\mathsf{Bad}_{\mathsf{cc}}}$, any accepting proof for
-the roots $\cm_x,\cm_y,\cm_z$ sent before the query phase can only link those
-roots to full codewords
-$\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$ that are independent of the
-sampled coordinates.
-In particular, the prover cannot wait for $I$ and then choose vector witnesses
-whose encodings agree only on the sampled positions.
-
-\paragraph{Step 3: Commitment binding.}
-Define $\mathsf{Bad}_{\mathsf{bind}}$ as the event that $\mathcal{P}^*$ produces two inconsistent accepting openings for the same root and position under the selected opening layer.
-For Merkle commitments this is implied by collision resistance of the hash function:
-\[
-\Pr[\mathsf{Bad}_{\mathsf{bind}}] \le \epsilon_{\mathsf{bind}}(\lambda) = \mathsf{negl}(\lambda).
-\]
-Conditioned on $\overline{\mathsf{Bad}_{\mathsf{bind}}}$, every accepted opening value is uniquely determined by the committed root and queried position.
-The certified input commitments $\cm_A,\cm_B,\cm_C$ are fixed before the challenge $r$ and determine fixed matrices $\mat{A},\mat{B},\mat{C}$ before $r$ is sampled.
-Together with the global backend-binding condition above, the intermediate
-vector roots determine full committed vector codewords for any accepting proof,
-rather than only values at the sampled positions.
-
-\paragraph{Step 4: Randomized reduction.}
-Condition on
-$\overline{\mathsf{Bad}_{\mathsf{SNARK}}}
- \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
- \land \overline{\mathsf{Bad}_{\mathsf{bind}}}$.
-The adversary has committed to fixed matrices with $\mat{A}\mat{B} \neq \mat{C}$.
-Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} \neq \mat{0}$.
-Since $\mat{D} \neq \mat{0}$, there exists at least one column $\vect{d}_j$ of $\mat{D}$ with $\vect{d}_j \neq \vect{0}$.
-
-The protocol requires $\vect{y} = \vect{z}$, i.e., $\vect{r}\mat{D} = \vect{0}$.
-The inner product $\langle \vect{r}, \vect{d}_j \rangle = \sum_{i=0}^{k-1} (\mat{D})_{i,j} \cdot r^i$ defines a non-zero univariate polynomial $P_j(r)$ of degree at most $k-1$ in the random variable $r$.
-Since $r$ is chosen after the adversary commits, by the Schwartz--Zippel lemma (Lemma~\ref{lem:sz}):
-\[
-\Pr[\mathsf{Bad}_{\mathsf{rand}}] = \Pr_{r \sample \mathbb{F}}[\vect{r}\mat{D} = \vect{0}]
-\le \Pr_{r \sample \mathbb{F}}[P_j(r) = 0]
-\le \frac{k-1}{|\mathbb{F}|}.
-\]
-
-\paragraph{Step 5: Proximity check.}
-Condition on
-$\overline{\mathsf{Bad}_{\mathsf{SNARK}}}
- \land \overline{\mathsf{Bad}_{\mathsf{cc}}}
- \land \overline{\mathsf{Bad}_{\mathsf{bind}}}
- \land \overline{\mathsf{Bad}_{\mathsf{rand}}}$.
-Once $r$ is fixed and $\vect{r}\mat{D} \neq \vect{0}$, no choice of intermediate vectors can satisfy all four global relations simultaneously.
-Therefore the committed vectors violate at least one of:
-\begin{enumerate}[label=(\alph*)]
-  \item $\vect{x} \neq \vect{r}\mat{A}$;
-  \item $\vect{y} \neq \vect{x}\mat{B}$;
-  \item $\vect{z} \neq \vect{r}\mat{C}$;
-  \item $\vect{y} \neq \vect{z}$.
-\end{enumerate}
-The SNARK relation $\mathcal{R}_{\mathsf{SNARK}}$ (Section~\ref{sec:relation-chain}) includes the backend checks $\codeComV(\cm_v,v,\sigma_v)=1$ for each $v \in \mathcal{W}$.
-Conditioned on the SNARK, code-commitment, and Merkle binding events above, the opened values under $\cm_v$ are therefore coordinates of the genuine codeword $\enc(v)$.
-The input matrix commitments are genuine row-wise codewords by the certified input-commitment interface.
-
-Consider case (a): $\vect{x} \neq \vect{r}\mat{A}$.
-Since $\mathcal{C}$ is injective, the codewords $\enc(\vect{x})$ and $\enc(\vect{r}\mat{A})$ are distinct.
-By the minimum distance property of $\mathcal{C}$:
-\[
-\big|\{j \in [n] : \enc(\vect{x})_j \neq \enc(\vect{r}\mat{A})_j\}\big| \ge \delta \cdot n.
-\]
-By the linearity of $\mathcal{C}$ (Definition~\ref{def:fold}), $\fold(\enc(\mat{A})^{(j)}, \vect{r}) = \enc(\vect{r}\mat{A})_j$.
-The fold check $\enc_{x,j} = \fold(\enc_A^{(j)}, \vect{r})$ fails whenever $j$ falls into the disagreement set, which has size at least $\delta n$.
-A uniformly random query $j$ avoids all disagreements with probability at most $1 - \delta$, so $t$ independent queries all pass with probability at most $(1-\delta)^t$.
-The same argument applies symmetrically to cases (b), (c), and (d).
-Applying the union bound over all four cases:
-\[
-\Pr[\mathsf{Bad}_{\mathsf{prox}}] \le 4(1 - \delta)^{t}.
-\]
-
-\paragraph{Remark on the union bound factor.}
-The factor of $4$ is conservative.
-If the adversary commits to vectors satisfying cases (a)--(c) honestly (i.e., $\vect{x} = \vect{r}\mat{A}$, etc.), then $\mat{A}\mat{B} \neq \mat{C}$ forces $\vect{y} \neq \vect{z}$, and only case (d) is active, giving $(1-\delta)^t$.
-In general, an adversary deviating on multiple relations is detected by any one of the corresponding checks, so the bound $4(1-\delta)^t$ covers all strategies without further case analysis.
-
-\paragraph{Combining the bounds.}
-Summing the five error terms:
-\[
-\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}]
-\;\le\;
-\epsilon_{\mathsf{SNARK}}(\lambda)
-+ \epsilon_{\mathsf{cc}}(\lambda)
-+ \epsilon_{\mathsf{bind}}(\lambda)
-+ \frac{k-1}{|\mathbb{F}|}
-+ 4(1-\delta)^{t}.
-\]
-This proves the interactive soundness bound.
-
-\paragraph{Concrete parameters for $\lambda = 128$ bits.}
-Set $|\mathbb{F}| \ge 2^{256}$ so that $(k-1)/|\mathbb{F}| \le 2^{-128}$ for all practical $k$.
-For a $\lambda$-bit proximity term, set
-\[
-  t = \left\lceil \frac{\lambda+2}{\log_2(1/(1-\delta))} \right\rceil,
-\]
-which ensures $4(1-\delta)^t \le 2^{-\lambda}$.
-For example, if the selected backend certifies $\delta=1/2$, then strict
-128-bit proximity soundness uses $t=130$.
-The reported experiments use $t=128$ for implementation scaling; under
-$\delta=1/2$ this gives the slightly weaker proximity term $2^{-126}$.
-For a strict aggregate 128-bit bound over the five interactive error terms, one
-should allocate the error budget across terms, for example by targeting each
-term at $2^{-131}$ and setting
-$t=\lceil 133/\log_2(1/(1-\delta))\rceil$.
-Under standard assumptions, $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and $\epsilon_{\mathsf{bind}}$ are negligible and can be parameterized to the same budget.
-For the Fiat--Shamir variant, the transcript hashes bind the public input roots,
-the intermediate roots, the challenge, and the sampled query tuple as described in
-Section~\ref{sec:protocol-desc}.
-The standard random-oracle analysis adds the term
-$\epsilon_{\mathsf{FS}}(q_H)$ stated above.
-This completes the proof of Theorem~\ref{thm:security}.
+For soundness, condition on the complement of three backend failures:
+SNARK soundness, global codeword binding for the intermediate roots, and
+position-binding for accepted openings.
+These contribute
+$\epsilon_{\mathsf{SNARK}}(\lambda)+\epsilon_{\mathsf{cc}}(\lambda)+
+\epsilon_{\mathsf{bind}}(\lambda)$.
+Under this conditioning, the certified input roots determine fixed matrices
+before $r$ is sampled, and each accepting intermediate root determines one full
+codeword before the sampled query tuple $I$ is sampled.
+If $\mat{A}\mat{B}\neq\mat{C}$, then for
+$\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0$ the equation
+$\vect{r}\mat{D}=0$ is a nonzero univariate polynomial test of degree at most
+$k-1$, so Schwartz--Zippel bounds the Freivalds failure by
+$(k-1)/|\mathbb{F}|$.
+Conditioned further on $\vect{r}\mat{D}\neq 0$, no vectors can satisfy all four
+global equalities $\vect{x}=\vect{r}\mat{A}$,
+$\vect{y}=\vect{x}\mat{B}$, $\vect{z}=\vect{r}\mat{C}$, and
+$\vect{y}=\vect{z}$.
+At least one corresponding pair of codewords is therefore distinct, and the
+relative distance $\delta$ makes a random queried coordinate reject with
+probability at least $\delta$.
+Taking $t$ independent sampled coordinates and union-bounding over the four
+relations gives $4(1-\delta)^t$.
+The Fiat--Shamir statement follows by the standard random-oracle loss for the
+transcript-derived challenge and query tuple.
+Appendix~\ref{app:security-proof} gives the detailed proof.
 \end{proof}
 
 \begin{remark}[Fiat--Shamir soundness]\label{rem:fs-soundness}

@@ -14,7 +14,7 @@ Na\"ive SNARK arithmetization of a single $k \times k$ matrix multiplication
 generates $\mathcal{O}(k^3)$ arithmetic constraints, a cost that is impractical
 even for moderate~$k$.
 
-\paragraph{The $\mathcal{O}(k^2)$ barrier.}
+\paragraph{The $\mathcal{O}(k^2)$ barrier}
 Freivalds' classical randomized check~\cite{freivalds1977probabilistic}
 reduces the problem from $\mathcal{O}(k^3)$ to $\mathcal{O}(k^2)$: given
 matrices $\mat{A}, \mat{B}, \mat{C}$ and a random vector $\vect{r}$,
@@ -26,13 +26,12 @@ Freivalds-based baseline in~\cite{ghodsi2017safetynets}, adopt this strategy,
 encoding the vector-matrix products directly as SNARK constraints.
 The resulting $\mathcal{O}(k^2)$ circuit is an improvement, yet it remains
 expensive: in our optimized baseline, Freivalds already requires
-	$12.6$ million R1CS constraints and $117.89\,\text{s}$ of proving time at
-	$k = 2{,}048$, and exhausts available memory in our benchmark environment at
+	$50.5$ million R1CS constraints and $405.04\,\text{s}$ of proving time at
 	$k = 4{,}096$.
 Thus the gap between the $\mathcal{O}(k^2)$ SNARK cost and practical
 large-matrix verification remains wide.
 
-\paragraph{Our insight: from computing to checking.}
+\paragraph{Our insight: from computing to checking}
 We observe that the $\mathcal{O}(k^2)$ barrier is \emph{not} inherent to
 the verification problem---it arises because existing approaches
 \emph{compute} the vector-matrix products inside the SNARK circuit.
@@ -61,10 +60,13 @@ The resulting matrix-checking circuit size is
 $\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$, which is \emph{linear} in
 the matrix dimension when $t$ is a small security-parameter-dependent constant
 and the selected backend provides $E_{\mathsf{cc}}(k)=\mathcal{O}(k)$.
+This is a checking-layer result: the input commitments and the
+code-commitment backend are explicit components of the statement, and an
+end-to-end verifiable-computation system must instantiate them.
 
-\paragraph{Contributions.}
-We present $\protocol$, a verifiable computation protocol for matrix
-multiplication that realizes this approach.
+\paragraph{Contributions}
+We present $\protocol$, a matrix-multiplication checking layer for verifiable
+computation that realizes this approach.
 Our contributions are as follows.
 
 \begin{itemize}
@@ -82,8 +84,9 @@ Our contributions are as follows.
 	    additional $\mathcal{O}(k^2)$ term; we analyze this trade-off in
 	    Section~\ref{sec:complexity}.
 	    The theorem and the main asymptotic claim are therefore conditional on
-	    the chosen code-commitment backend satisfying the stated binding and cost
-	    assumptions.
+	    the chosen code-commitment backend satisfying the stated binding,
+	    distance, and cost assumptions; the construction should not be read as
+	    an end-to-end commitment-generation system.
     The protocol is made non-interactive via the Fiat--Shamir
     heuristic~\cite{fiat1987prove}.
 
@@ -104,6 +107,8 @@ Our contributions are as follows.
     matching the committed-input viewpoint used in code-based proof systems
     such as Brakedown~\cite{golovnev2023brakedown} and
     Orion~\cite{xie2022orion}.
+    We also give a concrete security-budget table that separates the reported
+    scaling rows from a strict 128-bit deployment target.
     The analysis decomposes the adversary's strategy into SNARK failure,
     code-commitment failure, commitment forgery, algebraic evasion, and proximity
     evasion, and shows each is negligible for standard parameter choices
@@ -112,7 +117,7 @@ Our contributions are as follows.
     \item \textbf{Concrete efficiency gains.}
 	    We implement the multiplication-checking layer of $\protocol$ in Rust
 	    and evaluate it against a direct Freivalds SNARK baseline across matrix
-	    dimensions $k \in [2^7, 2^{12}]$ under the linear-time backend model.
+	    dimensions up to $k=2^{13}$ under the conditional linear-time backend model.
     Key findings (Section~\ref{sec:implementation}):
     \begin{itemize}[nosep]
         \item \emph{Constraint reduction.}
@@ -120,20 +125,25 @@ Our contributions are as follows.
 	        $\mathcal{O}(k)$ under the linear-time backend model, versus
 	        $\mathcal{O}(k^2)$ for Freivalds.
         The gap reaches $7.5\times$ at $k = 1{,}024$
-        ($420{,}197$ vs.\ $3{,}156{,}298$ constraints) and
-        $15.1\times$ at $k = 2{,}048$
-        ($835{,}065$ vs.\ $12{,}622{,}154$ constraints);
-	        Freivalds becomes infeasible beyond $k = 2{,}048$ in our benchmark
-	        environment while the checking-layer implementation scales to at
-	        least $k = 4{,}096$.
+        ($419{,}139$ vs.\ $3{,}156{,}298$ constraints) and
+        $30.3\times$ at $k = 4{,}096$
+        ($1{,}667{,}305$ vs.\ $50{,}495{,}818$ constraints);
+	        the checking-layer implementation also scales to $k = 8{,}192$ with
+	        $3{,}331{,}779$ constraints.
 
         \item \emph{Proving-time speedup.}
-        $\fmMerkle$ outperforms Freivalds from $k = 256$ onward, and
-        at the largest jointly feasible dimension ($k = 2{,}048$) the speedup
-        reaches $2.06\times$ for $\fmMerkle$, $2.59\times$ for
-        $\fmKZG$, and $2.95\times$ for $\fmCPLink$.
-        Beyond $k = 2{,}048$, Freivalds is infeasible; $\fmKZG$ proves
-        $k = 4{,}096$ in $117\,\text{s}$.
+        The current QA-NIZK implementation $\fmQA$ outperforms Freivalds from
+        $k = 256$ onward.
+        At $k = 4{,}096$, prove times are $56.44\,\text{s}$ for $\fmQA$ and
+        $405.04\,\text{s}$ for Freivalds, a $7.18\times$ speedup.
+        Proof sizes are $104$\,KB at $k=4{,}096$ and $126$\,KB at $k=8{,}192$.
+
+        \item \emph{GPT-2 workload case study.}
+        For a GPT-2 workload with $36$ matrix-multiplication claims at sequence
+        length $1{,}024$, $\fmQA$ reduces constraints by $2.30\times$ and
+        proving time by $1.77\times$ relative to Freivalds, while verification
+        is slower because the current QA-NIZK implementation checks sampled
+        opening and linking material.
 
         \item \emph{Negligible encoding overhead.}
         The prover's off-circuit encoding step takes less than
@@ -142,7 +152,7 @@ Our contributions are as follows.
     \end{itemize}
 \end{itemize}
 
-\paragraph{Paper organization.}
+\paragraph{Paper organization}
 Section~\ref{sec:tech-overview} gives a high-level technical overview.
 Section~\ref{sec:prelim} recalls the necessary background.
 Section~\ref{sec:construction} presents the formal construction and complexity

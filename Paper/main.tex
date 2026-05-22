@@ -1,37 +1,23 @@
-\documentclass[sigconf]{acmart}
+\documentclass[conference,compsoc]{IEEEtran}
 \input{Styles/packages}
 \input{Styles/commands}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\settopmatter{printfolios=true} %% 제출 전에 삭제
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\AtBeginDocument{%
-  \providecommand\BibTeX{{Bib\TeX}}%
-  %% acmart sets up the 'theorem' counter inside \begin{document}.
-  %% Define extra theorem-like environments here, after the counter exists.
-  \newtheorem{claim}[theorem]{Claim}%
-}
-
-\setcopyright{acmlicensed}           %% CCS: DO NOT REMOVE
-\copyrightyear{2025}                  %% CCS: DO NOT REMOVE
-\acmYear{2025}                        %% CCS: DO NOT REMOVE
-\acmDOI{XXXXXXX.XXXXXXX}             %% CCS: DO NOT REMOVE
-\acmConference[CCS '25]{ACM Conference on Computer and Communications Security}{October 13--17, 2025}{Salt Lake City, UT, USA}
-\acmISBN{978-1-4503-XXXX-X/2025/10}  %% CCS: DO NOT REMOVE
-
 \begin{document}
 
-\title{FastMatMul: Efficient Verifiable Matrix Multiplication\\via Linear Error-Correcting Codes}
+\title{FastMatMul: A Code-Based Matrix-Multiplication Checking Layer\\for Verifiable Computation}
 
-\author{}
+\author{\IEEEauthorblockN{Anonymous Submission}}
 
-%% In acmart sigconf, the abstract MUST come before \maketitle.
+\maketitle
+
 \begin{abstract}
 \input{Contents/abstract}
 \end{abstract}
 
-\maketitle
+\begin{IEEEkeywords}
+verifiable computation, matrix multiplication, SNARKs, code commitments,
+proximity testing
+\end{IEEEkeywords}
 
 %% Section 1: Introduction
 \input{Contents/introduction}
@@ -57,10 +43,18 @@
 %% Section 8: Conclusion
 \input{Contents/conclusion}
 
-\bibliographystyle{ACM-Reference-Format}
+\section*{Ethics considerations}
+None.
+
+\section*{LLM usage considerations}
+LLMs were used for editorial assistance in preparing this manuscript. All
+technical claims, proofs, experiments, and citations were checked by the
+authors, who are responsible for the content.
+
+\bibliographystyle{IEEEtran}
 \bibliography{Styles/bibliography}
 
-\appendix
+\appendices
 \input{Contents/appendix}
 
 \end{document}

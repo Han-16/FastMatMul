@@ -30,9 +30,14 @@ Because $\mathcal{C}$ is $\mathbb{F}$-linear, taking a linear combination of cod
 In other words, the ``fold'' operation $\fold(\enc(\mat{M}), \vect{r}) \coloneqq \sum_i r_i \cdot \enc(\mat{M})_{i,\star}$ equals $\enc(\vect{r}\mat{M})$ exactly.
 This identity is the engine that allows us to \emph{check vector-matrix products column-by-column in the encoded domain} without materializing the full vectors.
 
-\paragraph{Commitment via Merkle trees.}
-Each encoded matrix $\enc(\mat{M})$ is committed column-by-column using a Merkle tree: $\cm_M \gets \textsf{M.CM}(\enc(\mat{M}))$.
-The verifier starts from certified public roots $(\cm_A, \cm_B, \cm_C)$ that bind the computation inputs and output at the cost of $\mathcal{O}(1)$ hash values.
+\paragraph{Commitment via Merkle trees}
+Each encoded matrix $\enc(\mat{M})$ is committed column-by-column using a Merkle
+tree:
+\[
+  \cm_M \gets \textsf{M.CM}(\enc(\mat{M})).
+\]
+The verifier starts from certified public roots $(\cm_A,\cm_B,\cm_C)$ that bind
+the computation inputs and output at the cost of $\mathcal{O}(1)$ hash values.
 
 \subsection{Proximity-Based Verification via Random Sampling}
 \label{sec:overview-proximity}
@@ -77,27 +82,32 @@ proximity term below $2^{-\lambda}$.
 
 Combining the ingredients above, our protocol $\protocol$ proceeds as follows (see Figure~\ref{fig:protocol} for the formal description).
 
-\paragraph{Phase 1: Public input.}
-The verifier is given certified roots $(\cm_A, \cm_B, \cm_C)$ that bind to row-wise encodings of $\mat{A}, \mat{B}, \mat{C}$ under the linear code $\mathcal{C}$.
+\paragraph{Public input}
+The verifier is given certified roots $(\cm_A,\cm_B,\cm_C)$.
+They bind to row-wise encodings of $\mat{A},\mat{B},\mat{C}$ under the linear
+code $\mathcal{C}$.
 
-\paragraph{Phase 2: Challenge.}
+\paragraph{Challenge}
 The verifier samples a random field element $r \in \mathbb{F}$ and sends it to the prover.
 This induces the structured challenge vector $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
 
-\paragraph{Phase 3: Respond.}
+\paragraph{Respond}
 The prover computes the intermediate vectors $\vect{x} = \vect{r}\mat{A}$, $\vect{y} = \vect{x}\mat{B}$, $\vect{z} = \vect{r}\mat{C}$, encodes them, commits to the encodings $(\cm_x, \cm_y, \cm_z)$, and prepares the code-commitment backend proof material for these roots.
 
-\paragraph{Phase 4: Query.}
+\paragraph{Query}
 The verifier samples $I=(j_1,\ldots,j_t) \sample [n]^t$ and sends the sampled
 indices to the prover.
 The prover opens the corresponding columns of all six committed codewords along with their Merkle proofs.
 
-\paragraph{Phase 5: Verify (in SNARK).}
-The verifier checks the code-commitment backend relation, Merkle path validity, and the four local consistency equations at each queried index.
-Crucially, these checks are \emph{arithmetized} into a SNARK relation $\mathcal{R}_{\mathsf{SNARK}}$ (defined formally in Section~\ref{sec:construction}), and the prover produces a succinct proof $\pi$ attesting that all checks pass.
-The verifier only needs to verify $\pi$ and any backend-specific linking material, reducing the core verification cost to that of a single SNARK verification.
+\paragraph{SNARK verification}
+The verifier checks the code-commitment backend relation, Merkle path validity,
+and the four local consistency equations at each queried index.
+These checks are arithmetized into the SNARK relation
+$\mathcal{R}_{\mathsf{SNARK}}$ defined in Section~\ref{sec:construction}.
+The prover then produces a succinct proof $\pi$ attesting that all checks pass.
+The verifier only verifies $\pi$ and any backend-specific linking material.
 
-\paragraph{Cost summary.}
+\paragraph{Cost summary}
 The \emph{SNARK circuit size}---the key metric governing prover cost---is
 $\mathcal{O}(t \cdot k + t\log n + E_{\mathsf{cc}}(k))$, where
 $E_{\mathsf{cc}}(k)$ is the cost of verifying the selected code-commitment

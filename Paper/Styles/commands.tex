@@ -34,9 +34,22 @@
 \newcommand{\fmMerkle}{\protocol_{\mathsf{Merkle}}}
 \newcommand{\fmKZG}{\protocol_{\mathsf{KZG}}}
 \newcommand{\fmCPLink}{\protocol_{\mathsf{CPLink}}}
+\newcommand{\fmQA}{\protocol_{\mathsf{QA}}}
 
 %% ── Sets of objects (avoid \mathcal{V} collision with verifier) ──────────────
 %% Vector set is written explicitly in text to avoid notation collision.
 
+%% ── Theorem environments ─────────────────────────────────────────────────────
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
 
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
 \newtheorem{remark}{Remark}
+
+%% acmart provides \Description for accessibility metadata; IEEEtran does not.
+\providecommand{\Description}[1]{}

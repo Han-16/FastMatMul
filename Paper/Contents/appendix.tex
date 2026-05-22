@@ -1,3 +1,141 @@
+\section{Detailed Proof of Theorem~\ref{thm:security}}
+\label{app:security-proof}
+
+\begin{proof}
+We establish completeness and soundness for the interactive protocol, and then
+explain the Fiat--Shamir variant.
+
+\paragraph{Perfect completeness}
+Suppose the prover is honest and $\mat{A}\mat{B} = \mat{C}$.
+Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} = \mat{0}$.
+For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D}=\vect{0}$, so
+\[
+  \vect{y}
+  = \vect{x}\mat{B}
+  = (\vect{r}\mat{A})\mat{B}
+  = \vect{r}(\mat{A}\mat{B})
+  = \vect{r}\mat{C}
+  = \vect{z}.
+\]
+For each intermediate vector $v\in\{\vect{x},\vect{y},\vect{z}\}$, the honest
+prover commits to $\enc(v)$ and supplies backend proof material $\sigma_v$
+accepted by $\codeComV$.
+For any queried index $j\in[n]$, linearity of $\mathcal{C}$ gives
+\[
+  \fold(\enc(\mat{A})^{(j)},\vect{r})
+  = \enc(\vect{r}\mat{A})_j
+  = \enc(\vect{x})_j,
+\]
+and analogously for the $\mat{B}$ and $\mat{C}$ folds.
+Since $\vect{y}=\vect{z}$, the equality check between their encoded openings
+also holds at every coordinate.
+All authenticated openings and backend checks are honest, so the verifier
+accepts with probability one.
+
+\paragraph{Bad-event decomposition}
+Let $\mathsf{Acc}$ be the event that the verifier accepts a false committed
+matrix statement, and assume $\mat{A}\mat{B}\neq\mat{C}$.
+Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false
+$\mathcal{R}_{\mathsf{SNARK}}$ instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a
+failure of the global codeword-binding property for an accepted intermediate
+root, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted openings
+for the same root and position.
+By the assumed backend properties,
+\begin{align*}
+\Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
+  &\le \epsilon_{\mathsf{SNARK}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{cc}}]
+  &\le \epsilon_{\mathsf{cc}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{bind}}]
+  &\le \epsilon_{\mathsf{bind}}(\lambda).
+\end{align*}
+Conditioned on the complement of these events, every accepting transcript has a
+valid SNARK witness, every accepted intermediate root is globally bound to the
+full codeword $\enc(v)$ for its witness vector $v$, and every accepted opening
+value is uniquely determined by its root and queried coordinate.
+The certified input roots are fixed before the Freivalds challenge is sampled,
+and the intermediate roots are fixed before the sampled query tuple is sampled.
+
+\paragraph{Freivalds randomization}
+Under the same conditioning, the matrices bound to
+$\cm_A,\cm_B,\cm_C$ are fixed and satisfy
+$\mat{A}\mat{B}\neq\mat{C}$.
+Let $\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0$.
+There exists a column $\vect{d}_j$ of $\mat{D}$ with $\vect{d}_j\neq 0$.
+The condition $\vect{r}\mat{D}=0$ implies
+\[
+  P_j(r) \coloneqq
+  \langle \vect{r},\vect{d}_j\rangle
+  = \sum_{i=0}^{k-1}(\mat{D})_{i,j} r^i
+  = 0 .
+\]
+Since $P_j$ is a nonzero polynomial of degree at most $k-1$ and $r$ is sampled
+after the input commitments are fixed, Lemma~\ref{lem:sz} gives
+\[
+  \Pr_{r\sample\mathbb{F}}[\vect{r}\mat{D}=0]
+  \le \Pr_{r\sample\mathbb{F}}[P_j(r)=0]
+  \le \frac{k-1}{|\mathbb{F}|}.
+\]
+
+\paragraph{Proximity sampling}
+Now condition further on $\vect{r}\mat{D}\neq 0$.
+No vectors can simultaneously satisfy all four global relations:
+\[
+  \vect{x}=\vect{r}\mat{A},\quad
+  \vect{y}=\vect{x}\mat{B},\quad
+  \vect{z}=\vect{r}\mat{C},\quad
+  \vect{y}=\vect{z}.
+\]
+Otherwise the four equalities would imply
+$\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}$, contradicting
+$\vect{r}\mat{D}\neq 0$.
+Thus at least one relation is false.
+Consider $\vect{x}\neq\vect{r}\mat{A}$; the other cases are identical.
+Injectivity and distance of the code imply that the two codewords
+$\enc(\vect{x})$ and $\enc(\vect{r}\mat{A})$ disagree on at least
+$\delta n$ coordinates.
+By code linearity, the sampled fold value from the committed rows of
+$\mat{A}$ equals $\enc(\vect{r}\mat{A})_j$ at coordinate $j$.
+Since accepted openings are bound to the committed codeword
+$\enc(\vect{x})$, the fold check rejects whenever $j$ is in the disagreement
+set.
+A single uniformly sampled coordinate misses this disagreement set with
+probability at most $1-\delta$, and $t$ independent sampled coordinates all
+miss it with probability at most $(1-\delta)^t$.
+Union-bounding over the four possible violated relations yields
+$4(1-\delta)^t$.
+
+\paragraph{Combining the bounds and parameters}
+Summing the backend, Freivalds, and proximity errors gives
+\[
+\begin{aligned}
+\Pr[\mathsf{Acc}\mid\mat{A}\mat{B}\neq\mat{C}]
+&\le
+\epsilon_{\mathsf{SNARK}}(\lambda)
++\epsilon_{\mathsf{cc}}(\lambda)
++\epsilon_{\mathsf{bind}}(\lambda)\\
+&\quad+\frac{k-1}{|\mathbb{F}|}+4(1-\delta)^t .
+\end{aligned}
+\]
+For $\lambda=128$, a 256-bit field makes $(k-1)/|\mathbb{F}|$ negligible for
+the reported dimensions.
+The proximity term is at most $2^{-\lambda}$ when
+$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; for example, if the backend
+certifies $\delta=1/2$, then $t=130$ suffices for the proximity term alone.
+For a conservative aggregate 128-bit budget over all terms, one should allocate
+the budget across terms, e.g., by targeting each term at $2^{-131}$.
+
+\paragraph{Fiat--Shamir variant}
+The non-interactive transcript derives both $r$ and $I$ from
+domain-separated hashes of the transcript prefix, including the public input
+roots and intermediate roots.
+In the random oracle model, the preceding public-coin proof applies with the
+standard Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$ for an adversary that
+makes $q_H$ random-oracle queries.
+This proves Theorem~\ref{thm:security}.
+\end{proof}
+
+\clearpage
 \section{Probabilistic Verification of Reed--Solomon Codewords}
 \label{app:rs-verify}
 
@@ -29,3 +167,133 @@ By Schwartz--Zippel,
   \Pr_{z\sample\mathbb{F}}[f(z)=g(z)] \le \frac{n-1}{|\mathbb{F}|},
 \]
 which is negligible when $|\mathbb{F}|$ is sufficiently large.
+
+\clearpage
+\section{Additional Evaluation Details}
+\label{app:eval-details}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Parameter} & \textbf{Value in main experiments} \\
+\midrule
+Field size & 256-bit prime field \\
+Server & AMD EPYC 7B13, 32 cores, 254\,GB RAM, Linux \\
+Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
+Code rate & $\rho=1/2$ \\
+Codeword length & $n=2k$ \\
+Sampled positions & $t=128$ \\
+Primary linking layer & QA-NIZK with multi-column Merkle openings \\
+Backend model & Conditional linear-time $\codeComV$ backend \\
+Strict 128-bit proximity target & $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; $t=130$ when $\delta=1/2$ \\
+\bottomrule
+\end{tabularx}
+\caption{Concrete parameters used in the main experiments.}
+\label{tab:eval-parameters}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\columnwidth}{@{}p{0.31\columnwidth}p{0.17\columnwidth}X@{}}
+\toprule
+\textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
+\midrule
+Constraint count & Yes & Checking-layer circuit size under the conditional backend model. \\
+Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
+Verification time & Yes & Includes current QA-NIZK/opening verification overhead. \\
+Proof size & Yes & Includes Groth16, sampled openings, and QA-NIZK material. \\
+Setup time & Partial & Recorded for the GPT-2 workload; setup/key sizes are not reported. \\
+Standalone $\codeComV$ & No & Required to close the end-to-end backend gap. \\
+Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
+\bottomrule
+\end{tabularx}
+\caption{Measurement coverage in the current artifact.}
+\label{tab:metric-coverage}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=1 by 2, vertical sep=0.9cm},
+  width=\columnwidth,
+  height=3.4cm,
+  xlabel={$\log k$},
+  xmin=9.5, xmax=20.5,
+  xtick={10,12,14,16,18,20},
+  grid=major,
+  every axis plot/.append style={thick, mark size=1.6pt},
+  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west},
+]
+\nextgroupplot[
+  ylabel={Encoding (s)},
+  ymode=log,
+  log basis y={10},
+  ymin=0.0008, ymax=1,
+]
+\addplot[color=blue, mark=square*] coordinates {
+  (10,0.001) (12,0.002) (14,0.008) (16,0.035) (18,0.126) (20,0.623)
+};
+\addplot[color=teal, mark=diamond*] coordinates {
+  (10,0.001) (12,0.003) (14,0.010) (16,0.040) (18,0.152) (20,0.680)
+};
+\legend{$\rho=1/2$, $\rho=1/4$}
+\nextgroupplot[
+  ylabel={Dense constraints},
+  ymode=log,
+  log basis y={10},
+  ymin=4e3, ymax=1e7,
+]
+\addplot[color=blue, mark=square*] coordinates {
+  (10,5134) (12,20536) (14,82140) (16,328558) (18,1314228) (20,5256908)
+};
+\addplot[color=teal, mark=diamond*] coordinates {
+  (10,9244) (12,36974) (14,147896) (16,591578) (18,2366310) (20,9465240)
+};
+\end{groupplot}
+\end{tikzpicture}
+\caption{Encoding time and dense codeword-validity constraints for general
+constant-rate codes. Encoding stays below one second up to $\log k=20$, while
+dense backend checks grow quadratically.}
+\Description{Two line plots showing encoding time and dense codeword-validity
+constraints for rates one half and one quarter.}
+\label{fig:encoding-cost}
+\end{figure}
+
+\clearpage
+\section{Extended Related Work}
+\label{app:extended-related}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{}p{0.27\columnwidth}p{0.28\columnwidth}X@{}}
+\toprule
+\textbf{Approach} & \textbf{Main checked work} & \textbf{Relation to $\protocol$} \\
+\midrule
+Freivalds in SNARK & Vector-matrix products inside the circuit & Baseline measured in this paper; circuit cost is $\mathcal{O}(k^2)$. \\
+Sumcheck/GKR systems & Multilinear-extension evaluations and rounds & Powerful for layered arithmetic circuits; usually needs a specialized verifier or compiler. \\
+Dedicated matrix VC & Polynomial commitments or inner-product arguments & Often gives short proofs; assumptions and batching model differ from our SNARK-checking layer. \\
+Code-based SNARKs & General circuit proving over committed codewords & Supplies the committed-codeword viewpoint; na\"ively proving Freivalds still leaves an $\mathcal{O}(k^2)$ circuit. \\
+$\protocol$ & Local codeword folds plus backend binding & Reduces the checked matrix relation to $\mathcal{O}(tk+t\log n+E_{\mathsf{cc}}(k))$ constraints. \\
+\bottomrule
+\end{tabularx}
+\caption{Qualitative positioning against related matrix-verification
+approaches.}
+\label{tab:qualitative-related}
+\end{table}
+
+The sumcheck protocol~\cite{goldwasser2015delegating} is a powerful
+interactive proof technique for verifying evaluations of multivariate
+polynomials.
+SafetyNets~\cite{ghodsi2017safetynets} and zkCNN~\cite{liu2021zkcnn} use this
+approach for neural-network verification.
+Unlike sumcheck-based methods, our proximity-based checks compare codeword
+coordinates through inner products rather than evaluating polynomial extensions.
+The resulting relation is directly expressible as R1CS or PlonK constraints,
+while sumcheck-based systems typically require a specialized verifier or a
+dedicated GKR-to-SNARK compilation step.
