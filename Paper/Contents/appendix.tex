@@ -55,6 +55,11 @@ full codeword $\enc(v)$ for its witness vector $v$, and every accepted opening
 value is uniquely determined by its root and queried coordinate.
 The certified input roots are fixed before the Freivalds challenge is sampled,
 and the intermediate roots are fixed before the sampled query tuple is sampled.
+For the QA-linked instantiation, the corresponding conditioning is that the
+intermediate message commitments and encoded-view roots are fixed before the
+query tuple is derived, and every opened sampled coordinate is CP-linked to the
+in-circuit coordinate of $\enc(v)$ for the fixed message vector $v$.
+These are exactly the coordinates used by the fold and equality checks.
 
 \paragraph{Freivalds randomization}
 Under the same conditioning, the matrices bound to
@@ -186,7 +191,7 @@ Code rate & $\rho=1/2$ \\
 Codeword length & $n=2k$ \\
 Sampled positions & $t=128$ \\
 Primary linking layer & QA-NIZK with multi-column Merkle openings \\
-Backend model & Conditional linear-time $\codeComV$ backend \\
+Backend model & QA-linked intermediate-vector $\codeComV$ backend \\
 Strict 128-bit proximity target & $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; $t=130$ when $\delta=1/2$ \\
 \bottomrule
 \end{tabularx}
@@ -199,18 +204,19 @@ Strict 128-bit proximity target & $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rcei
 \small
 \begin{tabularx}{\columnwidth}{@{}p{0.31\columnwidth}p{0.17\columnwidth}X@{}}
 \toprule
-\textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
+\textbf{Metric} & \textbf{Scope} & \textbf{Interpretation} \\
 \midrule
-Constraint count & Yes & Checking-layer circuit size under the conditional backend model. \\
-Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
-Verification time & Yes & Includes current QA-NIZK/opening verification overhead. \\
-Proof size & Yes & Includes Groth16, sampled openings, and QA-NIZK material. \\
-Setup time & Partial & Recorded for the GPT-2 workload; setup/key sizes are not reported. \\
-Standalone $\codeComV$ & No & Required to close the end-to-end backend gap. \\
-Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
+Constraint count & Measured & Checking-layer circuit size with the QA-linked intermediate-vector backend. \\
+Online proving time & Measured & Excludes native matrix multiplication and one-time setup. \\
+Verification time & Measured & Includes QA-NIZK/opening verification overhead. \\
+Proof size & Measured & Includes Groth16, sampled openings, and QA-NIZK material. \\
+Setup time & Case study & Recorded for the GPT-2 workload. \\
+Intermediate-vector $\codeComV$ & Measured & Implemented by pre-query commitments, in-circuit RS checks, sampled Merkle openings, and QA-NIZK/CP-linking. \\
+Input certification & Interface & Treated as the certified public-input interface to the online checker. \\
+Peak memory and variance & Diagnostic & Environment-dependent artifact diagnostics, orthogonal to the circuit-scaling claim. \\
 \bottomrule
 \end{tabularx}
-\caption{Measurement coverage in the current artifact.}
+\caption{Measurement scope for the implementation.}
 \label{tab:metric-coverage}
 \end{table}
 

@@ -139,22 +139,47 @@ Theorem~\ref{thm:security} uses only the following backend facts:
 (i)~the input matrix roots are certified commitments to fixed row-wise
 codewords before $r$ is sampled;
 (ii)~the intermediate vector roots are sent before $I$ is sampled;
-(iii)~an accepting $\codeComV(\cm_v,v,\sigma_v)$ globally links $\cm_v$ to
-$\enc(v)$ as in Definition~\ref{def:codecom-backend}; and
+(iii)~an accepting $\codeComV(\cm_v,v,\sigma_v)$ either globally links
+$\cm_v$ to $\enc(v)$ as in Definition~\ref{def:codecom-backend}, or, in the
+transcript-bound QA instantiation below, fixes $v$ before $I$ and links every
+opened coordinate in $I$ to the corresponding coordinate of $\enc(v)$; and
 (iv)~the opening layer is position-binding for every queried coordinate.
 No part of the proof relies on a new algebraic assumption specific to
 $\protocol$ beyond this committed-codeword interface.
 
+\paragraph{QA-linked instantiation}
+The implementation used in Section~\ref{sec:implementation} realizes
+$\codeComV$ for the intermediate vectors with a transcript-timed QA-linked
+backend.  The Fiat--Shamir transcript first derives the Freivalds challenge
+from the certified input commitments.  After computing
+$\vect{x}=\vect{r}\mat{A}$, $\vect{y}=\vect{x}\mat{B}$, and
+$\vect{z}=\vect{r}\mat{C}$, the prover commits to the intermediate-vector
+messages and their encoded views, aggregates these commitments into a transcript
+digest, and only then derives the query tuple $I$.  Thus the message vectors
+$\vect{x},\vect{y},\vect{z}$ and the external Merkle roots used for their
+encoded leaves are fixed before the sampled positions are known.
+
+For this backend, $\sigma_v$ consists of the material needed to verify:
+(i)~the pre-query message commitment binding the vector $v$;
+(ii)~the in-circuit Reed--Solomon encoding check for $\enc(v)$;
+(iii)~Merkle membership for the sampled external leaves; and
+(iv)~a QA-NIZK/CP-link proof linking the circuit-internal sampled encoded
+values to the Pedersen commitments used as Merkle leaves.  Conditioned on the
+binding of the message commitments, Merkle roots, and CP-linking layer, every
+sampled value used in the fold checks is the corresponding coordinate
+$\enc(v)_j$ of the vector fixed before $I$ was derived.  This is the
+codeword-binding property required by the soundness proof for the coordinates
+that the protocol ever opens.
+
 \paragraph{Backend boundary}
-The security theorem is compositional: it proves the multiplication-checking
-protocol relative to any backend satisfying Definition~\ref{def:codecom-backend}.
-An end-to-end system must choose one concrete backend and specify its algorithms,
-the contents of $\sigma_v$, and the constraint/proof-size contribution of
-$\codeComV$.
-Our implementation evaluates the local fold/opening/linking layer under a
-linear-time $E_{\mathsf{cc}}(k)=\mathcal{O}(k)$ backend model; it does not yet
-implement or measure $\codeComV$ independently.
-Table~\ref{tab:backend-boundary} makes this boundary explicit.
+The security theorem remains compositional: it proves the multiplication
+checking protocol relative to any backend satisfying the committed-codeword
+interface above.  Our QA-linked implementation instantiates this interface for
+the intermediate vectors using the backend just described.  The input
+matrix commitments $\cm_A,\cm_B,\cm_C$ are still assumed to be certified by the
+surrounding committed-input system; their certification cost is not charged to
+the online multiplication-checking layer.  Table~\ref{tab:backend-boundary}
+separates these roles.
 
 \begin{table*}[t]
 \centering
@@ -169,14 +194,15 @@ Table~\ref{tab:backend-boundary} makes this boundary explicit.
 \textbf{Backend choice} & \textbf{Setup / assumption} & \textbf{$E_{\mathsf{cc}}(k)$} & \textbf{Role in this paper} \\
 \midrule
 Dense encoder check & Transparent opening binding; explicit generator matrix & $\mathcal{O}(k(n-k))$ & Sound but quadratic at constant rate; analyzed as a fallback backend cost, not used for the primary asymptotic claim. \\
-Linear-time committed-codeword backend & Backend certifies distance $\delta$ and global codeword binding & $\mathcal{O}(k)$ at constant rate & Target model for the $\mathcal{O}(tk)$ theorem; an end-to-end artifact must instantiate and measure it. \\
+Linear-time committed-codeword backend & Backend certifies distance $\delta$ and codeword binding & $\mathcal{O}(k)$ at constant rate & Target model for the $\mathcal{O}(tk)$ theorem. \\
 Algebraic linking backend & Backend-specific setup and binding assumption & Backend dependent & Compatible with the relation, but its proof size and verifier cost must be analyzed separately. \\
-Current QA artifact & Merkle openings plus QA-NIZK linking for sampled columns & Measures local layer only & Reports fold/opening/linking costs; standalone $\codeComV$ cost is not independently implemented or measured. \\
+QA-linked implementation & Pre-query vector commitments, in-circuit RS encoding checks, Merkle openings, and QA-NIZK/CP-linking for sampled leaves & $\mathcal{O}(k)$ in the measured rows & Instantiates $\codeComV$ for the intermediate vectors in the committed-input setting. \\
 \bottomrule
 \end{tabularx}
-\caption{Backend boundary for $\protocol$. The security theorem is relative to
-a backend satisfying Definition~\ref{def:codecom-backend}; the current artifact
-measures the multiplication-checking layer and not a closed end-to-end backend.}
+\caption{Backend boundary for $\protocol$. The QA-linked implementation
+instantiates the intermediate-vector code-commitment interface used by the
+theorem; certification of the input matrix roots is the committed-input
+precondition for the online multiplication-checking layer.}
 \label{tab:backend-boundary}
 \end{table*}
 
@@ -273,6 +299,9 @@ The backend checks in~\eqref{eq:codecom-check} force the prover to commit to
 Without this binding step, a cheating prover could choose sampled openings that
 satisfy the fold checks without committing to any genuine encoding of a fixed
 vector, defeating the distance-based soundness argument.
+In the QA-linked implementation, this role is played by the pre-query
+intermediate-vector commitments together with the in-circuit
+Reed--Solomon encoding checks and the CP-link proofs for the sampled leaves.
 Analogously, the input matrix commitments $\cm_A,\cm_B,\cm_C$ must be
 well-formed commitments to row-wise encodings of $\mat{A},\mat{B},\mat{C}$.
 In our model this is part of the public input-commitment interface, not a
@@ -365,15 +394,24 @@ The witness $\wit$ consists of the intermediate vectors, the backend proofs/witn
 The protocol as described is a three-round public-coin interactive protocol.
 By applying the Fiat--Shamir heuristic~\cite{fiat1987prove} in the random oracle model, it can be made non-interactive using domain-separated transcript hashes:
 \[
-  r \gets \Hash(\textsf{FMM-r},\para,\cm_A,\cm_B,\cm_C),
+\begin{aligned}
+  C_{\mathsf{ABC}} &\gets
+    \Hash(\textsf{FMM-ABC},\para,\cm_A,\cm_B,\cm_C),\\
+  r &\gets \Hash(\textsf{FMM-r},C_{\mathsf{ABC}}),
+\end{aligned}
 \]
 and
 \[
 \begin{gathered}
-  T_I \gets (\para,\cm_A,\cm_B,\cm_C,r,\cm_x,\cm_y,\cm_z),\\
+  C_{\mathsf{XYZ}} \gets
+  \Hash(\textsf{FMM-XYZ},\cm_x,\cm_y,\cm_z,\textsf{aux}_{\mathsf{QA}}),\\
+  T_I \gets (C_{\mathsf{ABC}},r,C_{\mathsf{XYZ}}),\\
   I \gets \textsf{Sample}_{t}\!\left(\Hash(\textsf{FMM-I},T_I)\right).
 \end{gathered}
 \]
+Here $\textsf{aux}_{\mathsf{QA}}$ denotes the implementation-specific
+commitments that bind the intermediate message vectors and their encoded views
+before the query tuple is derived.
 The resulting non-interactive proof consists of the commitment roots, the
 transcript-derived challenges, and the SNARK proof $\pi$; backend-specific
 opening, linking, or backend code-commitment material is either carried as part of $\pi$ or
@@ -430,7 +468,7 @@ Section~\ref{sec:implementation}.
 
 \paragraph{Communication}
 The communication depends on the commitment layer.
-With a fully succinct vector-commitment backend, the proof consists of a
+With a fully succinct vector-commitment backend, the proof would consist of a
 constant number of commitment digests plus the SNARK proof, giving
 $\mathcal{O}(\lambda)$ communication.
 With the QA-NIZK/Merkle implementation evaluated in this paper, the proof also

@@ -60,9 +60,15 @@ The resulting matrix-checking circuit size is
 $\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$, which is \emph{linear} in
 the matrix dimension when $t$ is a small security-parameter-dependent constant
 and the selected backend provides $E_{\mathsf{cc}}(k)=\mathcal{O}(k)$.
-This is a checking-layer result: the input commitments and the
-code-commitment backend are explicit components of the statement, and an
-end-to-end verifiable-computation system must instantiate them.
+FastMatMul is an online checking layer for the committed-input setting: the
+verifier starts from certified commitments to encoded input matrices, and the
+protocol checks the multiplication relation among those committed objects.
+The input-commitment interface and the intermediate-vector code-commitment
+interface are explicit components of the statement rather than hidden costs.
+Our implementation realizes the intermediate-vector backend using pre-query
+commitments, in-circuit Reed--Solomon encoding checks, Merkle membership, and
+QA-NIZK/CP-linking for the sampled leaves; certified input commitments are the
+handoff supplied by the surrounding committed-input system.
 
 \paragraph{Contributions}
 We present $\protocol$, a matrix-multiplication checking layer for verifiable
@@ -70,7 +76,7 @@ computation that realizes this approach.
 Our contributions are as follows.
 
 \begin{itemize}
-    \item \textbf{A novel code-based verification protocol.}
+    \item \textbf{A code-based checking protocol with an explicit backend interface.}
     We design a three-round public-coin protocol that combines a structured
     variant of Freivalds' randomized reduction with proximity testing over
     linear codes and Merkle-tree commitments.
@@ -83,10 +89,12 @@ Our contributions are as follows.
 	    For general constant-rate codes, backend codeword-validity checks contribute an
 	    additional $\mathcal{O}(k^2)$ term; we analyze this trade-off in
 	    Section~\ref{sec:complexity}.
-	    The theorem and the main asymptotic claim are therefore conditional on
-	    the chosen code-commitment backend satisfying the stated binding,
-	    distance, and cost assumptions; the construction should not be read as
-	    an end-to-end commitment-generation system.
+	    The theorem and the main asymptotic claim require the chosen
+	    code-commitment backend to satisfy the stated binding, distance, and
+	    cost assumptions.  We give the abstract interface and show how our
+	    QA-linked implementation realizes it for the intermediate vectors,
+	    while treating certified input commitments as the public-input
+	    interface consumed by the online checker.
     The protocol is made non-interactive via the Fiat--Shamir
     heuristic~\cite{fiat1987prove}.
 
@@ -107,8 +115,8 @@ Our contributions are as follows.
     matching the committed-input viewpoint used in code-based proof systems
     such as Brakedown~\cite{golovnev2023brakedown} and
     Orion~\cite{xie2022orion}.
-    We also give a concrete security-budget table that separates the reported
-    scaling rows from a strict 128-bit deployment target.
+    We also give a concrete security-budget table explaining how the fixed
+    $t=128$ benchmark configuration relates to stricter 128-bit query counts.
     The analysis decomposes the adversary's strategy into SNARK failure,
     code-commitment failure, commitment forgery, algebraic evasion, and proximity
     evasion, and shows each is negligible for standard parameter choices
@@ -116,13 +124,14 @@ Our contributions are as follows.
 
     \item \textbf{Concrete efficiency gains.}
 	    We implement the multiplication-checking layer of $\protocol$ in Rust
-	    and evaluate it against a direct Freivalds SNARK baseline across matrix
-	    dimensions up to $k=2^{13}$ under the conditional linear-time backend model.
+	    and evaluate the QA-linked instantiation against a direct Freivalds
+	    SNARK baseline across matrix dimensions up to $k=2^{13}$.
     Key findings (Section~\ref{sec:implementation}):
     \begin{itemize}[nosep]
         \item \emph{Constraint reduction.}
-	        The implemented checking-layer constraints grow as
-	        $\mathcal{O}(k)$ under the linear-time backend model, versus
+	        The implemented checking-layer constraints, including the sampled
+	        QA linking and in-circuit encoding checks for intermediate vectors,
+	        grow as $\mathcal{O}(k)$ under the measured instantiation, versus
 	        $\mathcal{O}(k^2)$ for Freivalds.
         The gap reaches $7.5\times$ at $k = 1{,}024$
         ($419{,}139$ vs.\ $3{,}156{,}298$ constraints) and
@@ -132,7 +141,7 @@ Our contributions are as follows.
 	        $3{,}331{,}779$ constraints.
 
         \item \emph{Proving-time speedup.}
-        The current QA-NIZK implementation $\fmQA$ outperforms Freivalds from
+        Our QA-NIZK implementation $\fmQA$ outperforms Freivalds from
         $k = 256$ onward.
         At $k = 4{,}096$, prove times are $56.44\,\text{s}$ for $\fmQA$ and
         $405.04\,\text{s}$ for Freivalds, a $7.18\times$ speedup.
@@ -142,7 +151,7 @@ Our contributions are as follows.
         For a GPT-2 workload with $36$ matrix-multiplication claims at sequence
         length $1{,}024$, $\fmQA$ reduces constraints by $2.30\times$ and
         proving time by $1.77\times$ relative to Freivalds, while verification
-        is slower because the current QA-NIZK implementation checks sampled
+        is slower because the QA-NIZK implementation checks sampled
         opening and linking material.
 
         \item \emph{Negligible encoding overhead.}
@@ -160,4 +169,4 @@ analysis.
 Section~\ref{sec:security} provides the security proof.
 Section~\ref{sec:implementation} reports our implementation and evaluation.
 Section~\ref{sec:related} surveys related work, and
-Section~\ref{sec:conclusion} concludes with future directions.
+Section~\ref{sec:conclusion} concludes.

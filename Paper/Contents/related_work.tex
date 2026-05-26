@@ -13,14 +13,17 @@ multiplication component, reducing the checked relation to
 $\mathcal{O}(tk+t\log n+E_{\mathsf{cc}}(k))$ constraints under certified
 encoded commitments.
 
-Dedicated matrix-verification protocols, including zkMatrix~\cite{cong2024zkmatrix},
-DualMatrix~\cite{cong2026dualmatrix}, zkVC~\cite{zhang2025zkvc}, and the
-coding-theoretic line of Bennett et al.~\cite{bennett2023matrix}, explore
-different trade-offs among polynomial commitments, batching, prover work, and
-proof size.
-Our construction differs by exposing a SNARK-friendly local relation over
-committed codewords rather than committing to a particular polynomial-commitment
-backend.
+Dedicated matrix-verification protocols, including
+zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
+zkVC~\cite{zhang2025zkvc}, and the coding-theoretic line of Bennett et
+al.~\cite{bennett2023matrix}, explore different trade-offs among polynomial
+commitments, batching, prover work, sparsity assumptions, and proof size.
+These works often package the input-commitment and matrix-verification layers
+inside a single committed-matrix system.  Our construction instead exposes a
+SNARK-friendly local relation over certified committed codewords and states the
+backend requirements explicitly.  This makes the checking layer portable across
+commitment backends: systems that already maintain encoded committed inputs can
+use $\protocol$ as their online matrix-multiplication checker.
 Relative to code-based proof systems such as Ligero~\cite{ames2017ligero},
 Brakedown~\cite{golovnev2023brakedown}, Orion~\cite{xie2022orion}, and
 FRI~\cite{ben2018fast}, the contribution is not a new general-purpose proof

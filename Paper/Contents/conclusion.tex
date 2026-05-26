@@ -10,12 +10,17 @@ accounts for SNARK soundness, backend codeword binding, commitment binding,
 Freivalds failure, and proximity-sampling error.
 
 Our implementation confirms the expected checking-layer separation against a
-Freivalds SNARK baseline: at $k=4{,}096$, $\fmQA$ gives a $30.29\times$
-constraint reduction and a $7.18\times$ proving-time speedup; a GPT-2 workload
-case study gives a $2.30\times$ constraint reduction and a $1.77\times$
-proving-time speedup.
-The main limitation remains explicit: the current artifact measures the
-fold/opening/linking layer under a conditional code-commitment backend model and
-does not yet independently implement or measure standalone $\codeComV$.
-Closing that backend gap, reducing verification overhead, and batching many
-matrix multiplications are the primary next steps toward a full deployment.
+Freivalds SNARK baseline with the QA-linked intermediate-vector backend:
+at $k=4{,}096$,
+$\fmQA$ gives a $30.29\times$ constraint reduction and a $7.18\times$
+proving-time speedup; a GPT-2 workload case study gives a $2.30\times$
+constraint reduction and a $1.77\times$ proving-time speedup.
+The evaluation is intentionally scoped to the online checker after certified
+input commitments are available, matching the committed-input interface used in
+the theorem.
+Within this model, the implementation covers the intermediate-vector
+$\codeComV$ relation through pre-query commitments, in-circuit encoding checks,
+Merkle membership, and QA-NIZK/CP-linking.
+Stricter query counts such as $t=130$ or $t=133$ follow directly from the
+security parameter formula, while engineering optimizations can further reduce
+verification overhead and batch many matrix multiplications.

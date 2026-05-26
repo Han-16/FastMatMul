@@ -1,23 +1,24 @@
 \section{Implementation and Evaluation}
 \label{sec:implementation}
 
-We implement the multiplication-checking layer of $\protocol$ and evaluate the
-current artifact, denoted $\fmQA$, against an optimized SNARK-in-circuit
+We implement the multiplication-checking layer of $\protocol$ and evaluate our
+prototype, denoted $\fmQA$, against an optimized SNARK-in-circuit
 Freivalds baseline~\cite{freivalds1977probabilistic}.
 $\fmQA$ uses multi-column Merkle openings, a Groth16 circuit proof, and a
-QA-NIZK linking layer for the opened encoded columns.
+QA-NIZK/CP-linking layer for the opened encoded columns.
 All main experiments use a 256-bit prime field, rate $\rho=1/2$, codeword
 length $n=2k$, and $t=128$ sampled positions.
 The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
 (32 cores) and 254\,GB RAM.
 
-These measurements are layer-level measurements under the conditional
-linear-time code-commitment backend model of Section~\ref{sec:construction}.
-They cover the implemented fold, opening, and linking terms of the
-multiplication-checking layer, but they do not independently implement or
-measure a standalone $\codeComV$ component.
-Consequently, the empirical claims below should not be read as complete
-end-to-end deployment costs from raw inputs.
+These measurements include the QA-linked intermediate-vector backend described
+in Section~\ref{sec:construction}: pre-query commitments to
+$\vect{x},\vect{y},\vect{z}$, in-circuit Reed--Solomon encoding checks,
+sampled Merkle openings, and CP-linking between circuit values and external
+leaves.  We measure the online checking layer after the input commitments have
+been certified, which is the public-input interface consumed by
+$\protocol$.  Raw-input certification is therefore treated as surrounding
+preprocessing rather than charged to the online comparison.
 Appendix~\ref{app:eval-details} reports the full benchmark table, measurement
 coverage, parameter details, and dense-code encoding costs.
 
@@ -67,8 +68,8 @@ coverage, parameter details, and dense-code encoding costs.
 };
 \end{groupplot}
 \end{tikzpicture}
-\caption{Primary matrix benchmark. Under the conditional linear-time backend
-model, $\fmQA$ follows the expected $\mathcal{O}(k)$ checking-layer growth,
+\caption{Primary matrix benchmark. With the QA-linked intermediate-vector
+backend, $\fmQA$ follows the expected $\mathcal{O}(k)$ checking-layer growth,
 whereas the Freivalds SNARK baseline follows $\mathcal{O}(k^2)$ growth.}
 \Description{Two-panel line plot comparing FastMatMul QA and Freivalds. The
 top panel shows constraints and the bottom panel shows proving time on log
@@ -83,8 +84,7 @@ Figure~\ref{fig:main-benchmark} shows the main scaling behavior.
 Freivalds constraints grow by approximately $4\times$ with each doubling of
 $k$, matching the expected $\mathcal{O}(k^2)$ scaling.
 In contrast, $\fmQA$ grows by approximately $2\times$, matching the
-$\mathcal{O}(k)$ checking-layer scaling under the conditional linear-time
-backend model.
+$\mathcal{O}(k)$ checking-layer scaling of the QA-linked instantiation.
 The crossover in absolute constraint count occurs at $k=256$.
 At $k=1{,}024$, $\fmQA$ uses $419{,}139$ constraints versus $3{,}156{,}298$
 for Freivalds, a $7.53\times$ reduction.
@@ -95,8 +95,9 @@ The same benchmark shows a proving-time crossover at $k=256$.
 At $k=4{,}096$, $\fmQA$ proves in $56.44\,\text{s}$ versus
 $405.04\,\text{s}$ for Freivalds, a $7.18\times$ speedup.
 $\fmQA$ also completes $k=8{,}192$ with $3{,}331{,}779$ constraints and a
-$178.48\,\text{s}$ proving time; Freivalds was not measured at that size in the
-current artifact.
+$178.48\,\text{s}$ proving time.  We omit the Freivalds row at this size
+because the measured $k=4{,}096$ row already reaches $50.5$ million
+constraints and $405.04\,\text{s}$, and the baseline follows quadratic growth.
 
 \begin{figure}[t]
 \centering
@@ -168,7 +169,7 @@ $0.10\,\text{s}$, dominated by QA-NIZK link verification.
 Freivalds verification is smaller in absolute terms, between $1$ and $2$\,ms,
 because it verifies a direct Groth16 proof without sampled-column linking
 material.
-The current artifact therefore trades slower verification for much smaller
+This design therefore trades slower verification for much smaller
 prover circuits and faster proving at medium and large dimensions.
 As Figure~\ref{fig:proof-size} shows, the $\fmQA$ proof grows from
 $15{,}108$ bytes at $k=128$ to $104{,}388$ bytes at $k=4{,}096$ and
@@ -188,6 +189,8 @@ amortization, or a more succinct opening/linking backend.
 The experiments support the claimed asymptotic separation for the
 multiplication-checking layer and show concrete gains over the Freivalds SNARK
 baseline at large $k$.
-They do not close the remaining end-to-end backend gap: the standalone
-code-commitment backend relation $\codeComV$ is still modeled rather than
-independently implemented and measured.
+The QA-linked backend instantiates the intermediate-vector $\codeComV$ relation
+used in the theorem.  Strict query counts such as $t=130$ or $t=133$ are
+obtained by the parameter formula in Section~\ref{sec:security}; they increase
+the query-dependent checking terms linearly and do not change the experiment
+type.

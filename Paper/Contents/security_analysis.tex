@@ -9,6 +9,14 @@ For the intermediate vectors, the SNARK relation invokes the selected
 code-commitment backend relation $\codeComV(\cm_v,v,\sigma_v)$, ensuring that the commitments
 $\cm_x,\cm_y,\cm_z$ bind to full codewords $\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$
 before the query tuple is sampled.
+In the QA-linked implementation, this relation is realized by pre-query
+commitments to the intermediate message vectors, in-circuit Reed--Solomon
+encoding checks, Merkle membership for sampled leaves, and CP-linking between
+the circuit-internal sampled values and the externally committed leaves.
+The theorem therefore does not assert soundness for arbitrary Merkle roots
+alone: without certified inputs and pre-query binding of the intermediate
+vectors, sampled local checks can be made consistent without representing a
+valid encoded vector.
 
 \paragraph{Soundness-critical ordering}
 The proof uses the following timing invariants.
@@ -17,7 +25,11 @@ Freivalds challenge $r$ is sampled.
 Second, the intermediate roots $\cm_x,\cm_y,\cm_z$ are fixed before the query
 tuple $I=(j_1,\ldots,j_t) \sample [n]^t$ is sampled; conditioned on an
 accepting backend proof, each such root is globally linked to one full vector
-codeword independently of the sampled positions.
+codeword independently of the sampled positions.  In the QA-linked
+instantiation, the transcript first fixes the intermediate message commitments
+and encoded-view roots, and only then derives $I$; the accepted CP-link proofs
+then identify every opened sampled leaf with the corresponding in-circuit
+coordinate of $\enc(v)$.
 Third, the entries of $I$ are sampled independently with replacement, as
 defined in Section~\ref{sec:notation}.
 If an implementation samples without replacement, the proximity failure
@@ -48,9 +60,10 @@ Here $t = |I|$ is the query complexity and $\delta$ is the relative minimum
 distance of $\mathcal{C}$.
 The terms $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and
 $\epsilon_{\mathsf{bind}}$ denote, respectively, the soundness error of the
-SNARK backend, the global codeword-binding error of the selected
-code-commitment backend, and the union-bounded position-binding error of the
-opening layer over all roots and openings used in the protocol.
+SNARK backend, the codeword-binding error of the selected code-commitment
+backend (including message-commitment and CP-link failures in the QA-linked
+instantiation), and the union-bounded position-binding error of the opening
+layer over all roots and openings used in the protocol.
   \item \textbf{Fiat--Shamir soundness.} In the random oracle model, the
   non-interactive variant described in Section~\ref{sec:protocol-desc}
   satisfies the same bound with an additional Fiat--Shamir loss term
@@ -61,10 +74,11 @@ opening layer over all roots and openings used in the protocol.
 
 Table~\ref{tab:soundness-budget} spells out the concrete interpretation of the
 bound.
-The table separates the reported scaling experiments, which use $t=128$, from
-a strict 128-bit deployment certificate.
-The latter requires a concrete backend instantiation that certifies $\delta$,
-the global codeword-binding error, and the position-opening binding error.
+The main benchmarks use the fixed query count $t=128$ to compare scaling across
+matrix dimensions.  A stricter 128-bit parameterization follows from the same
+formula by increasing $t$ according to the certified code distance.  Since each
+additional query instantiates the same fold/opening subrelation, this changes
+the linear query-dependent terms but not the protocol structure.
 
 \begin{table*}[t]
 \centering
@@ -72,19 +86,20 @@ the global codeword-binding error, and the position-opening binding error.
 \setlength{\tabcolsep}{3pt}
 \begin{tabularx}{\textwidth}{@{}p{0.18\textwidth}p{0.19\textwidth}X X@{}}
 \toprule
-\textbf{Term} & \textbf{Expression} & \textbf{Status in current artifact} & \textbf{Strict 128-bit deployment target} \\
+\textbf{Term} & \textbf{Expression} & \textbf{Measured configuration} & \textbf{128-bit parameterization} \\
 \midrule
 Freivalds randomization & $(k-1)/|\mathbb{F}|$ & Uses a 256-bit prime field; for the largest reported row $k=2^{13}$, this term is below $2^{-243}$. & Choose $|\mathbb{F}|$ so that the term fits the aggregate budget for the largest supported $k$. \\
 Proximity sampling & $4(1-\delta)^t$ & Reported scaling rows use $t=128$. If a backend certifies $\delta=1/2$, this term is $2^{-126}$. & Use $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$ for proximity-only $2^{-\lambda}$; for a conservative per-term $2^{-131}$ budget at $\delta=1/2$, use $t=133$. \\
-SNARK soundness & $\epsilon_{\mathsf{SNARK}}(\lambda)$ & Determined by the chosen SNARK backend; the CSV artifacts do not constitute a security certificate. & Instantiate the SNARK so this term is at most the allocated budget, e.g., $2^{-131}$. \\
-Codeword binding & $\epsilon_{\mathsf{cc}}(\lambda)$ & Modeled by Definition~\ref{def:codecom-backend}; standalone $\codeComV$ is not independently implemented or measured. & Choose a concrete code-commitment backend proving global codeword binding and certified distance $\delta$. \\
+SNARK soundness & $\epsilon_{\mathsf{SNARK}}(\lambda)$ & Determined by the chosen SNARK backend; the experiments report concrete costs for that backend. & Instantiate the SNARK so this term is at most the allocated budget, e.g., $2^{-131}$. \\
+Codeword binding & $\epsilon_{\mathsf{cc}}(\lambda)$ & Implemented for intermediate vectors by the QA-linked backend: pre-query message commitments, in-circuit RS encoding checks, sampled Merkle openings, and CP-linking. & Size the message-commitment and CP-link assumptions so their union-bounded failure probability fits the aggregate budget. \\
 Opening binding & $\epsilon_{\mathsf{bind}}(\lambda)$ & Covered by Merkle/opening and QA-NIZK linking assumptions, union-bounded over all accepted openings. & Size hash/linking parameters so the union-bounded position-binding error is within the allocated budget. \\
 Fiat--Shamir loss & $\epsilon_{\mathsf{FS}}(q_H)$ & Random-oracle-model loss for the non-interactive transcript. & Use domain-separated hashes and a query bound $q_H$ such that the ROM loss remains within the aggregate budget. \\
 \bottomrule
 \end{tabularx}
 \caption{Concrete soundness-budget checklist for Theorem~\ref{thm:security}.
-The current experiments are scaling measurements for the checking layer; a
-deployment certificate must fill in the backend-specific entries.}
+The query count is an explicit security parameter: the benchmark uses
+$t=128$, while stricter 128-bit configurations use the formula above with the
+distance certified by the selected backend.}
 \label{tab:soundness-budget}
 \end{table*}
 
@@ -97,14 +112,18 @@ Linearity of the code makes every sampled fold identity hold, and the honest
 commitment/opening proofs verify.
 
 For soundness, condition on the complement of three backend failures:
-SNARK soundness, global codeword binding for the intermediate roots, and
+SNARK soundness, codeword binding for the intermediate roots, and
 position-binding for accepted openings.
 These contribute
 $\epsilon_{\mathsf{SNARK}}(\lambda)+\epsilon_{\mathsf{cc}}(\lambda)+
 \epsilon_{\mathsf{bind}}(\lambda)$.
 Under this conditioning, the certified input roots determine fixed matrices
-before $r$ is sampled, and each accepting intermediate root determines one full
-codeword before the sampled query tuple $I$ is sampled.
+before $r$ is sampled, and each accepting intermediate commitment determines
+the vector and encoded coordinates used by the circuit before the sampled query
+tuple $I$ is sampled.  For the QA-linked backend, this means the message
+commitments and encoded-view roots are fixed before $I$, and every opened
+sampled coordinate is CP-linked to the corresponding in-circuit coordinate of
+$\enc(v)$.
 If $\mat{A}\mat{B}\neq\mat{C}$, then for
 $\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0$ the equation
 $\vect{r}\mat{D}=0$ is a nonzero univariate polynomial test of degree at most
