@@ -1,15 +1,31 @@
-Verifiable computation systems frequently need to prove large matrix multiplication statements, yet this primitive remains a severe bottleneck for SNARK-based approaches: na\"ive arithmetization of a $k \times k$ product incurs $\mathcal{O}(k^3)$ constraints, and even the classical Freivalds reduction yields $\mathcal{O}(k^2)$.
+Verifiable computation systems frequently need to prove large matrix
+multiplication statements, but na\"ive SNARK arithmetization of a
+$k \times k$ product costs $\mathcal{O}(k^3)$ constraints and even Freivalds'
+classical reduction leaves $\mathcal{O}(k^2)$ circuit work.
+We present $\protocol$, a matrix-multiplication checking layer that reduces the
+SNARK relation to $\mathcal{O}(tk+E_{\mathsf{msg}}(k))$ constraints plus
+$\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work,
+where $t$ is a security-parameter-sized constant.
+The protocol combines Freivalds' randomized check with proximity testing over
+row-wise encoded matrix commitments; in our CP-linked instantiation, message
+commitments fix intermediate vectors before sampling and public wire handles
+link Groth16 witness values to compact Merkle leaf handles.
 
-We present $\protocol$, a matrix-multiplication checking layer for verifiable computation that reduces the matrix-checking SNARK circuit size to $\mathcal{O}(tk + t\log n + E_{\mathsf{cc}}(k))$, where $t$ is a security-parameter-dependent query count and $E_{\mathsf{cc}}(k)$ is the verification cost of a selected code-commitment backend.
-If that backend has a linear-time verifier, the checked relation becomes $\mathcal{O}(tk)$.
-The protocol combines a structured variant of Freivalds' randomized check with \emph{proximity testing over linear error-correcting codes}: matrices are encoded row-wise and committed via Merkle trees; the verifier detects any inconsistency by querying $t$ random codeword positions and checking lightweight algebraic fold relations.
-The expensive $\mathcal{O}(k^3)$ matrix arithmetic is performed entirely outside the SNARK.
-We prove that this checking layer achieves perfect completeness and computational soundness, relative to certified encoded input commitments and the selected code-commitment backend, with error $\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}} + \epsilon_{\mathsf{bind}} + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$, where $\delta$ is the relative distance of the underlying code.
-The Fiat--Shamir non-interactive variant incurs the standard additional random-oracle loss $\epsilon_{\mathsf{FS}}(q_H)$.
-This gives a complete online checking protocol for the standard committed-input setting: the verifier starts from certified encoded commitments to the input matrices, and the checker proves the multiplication relation among those committed objects.
+We prove perfect completeness and computational soundness relative to certified
+encoded input commitments and the intermediate binding/linking backend, with
+error
+$\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}} + \epsilon_{\mathsf{bind}}
++ (k-1)/|\mathbb{F}| + 4(1-\delta)^t$.
+The Fiat--Shamir variant adds the standard random-oracle loss
+$\epsilon_{\mathsf{FS}}(q_H)$.
+The checker is modular: it verifies multiplication over certified roots, while
+raw-input certification is supplied by the surrounding system.
 
-We implement the multiplication-checking layer of $\protocol$ in Rust with a QA-linked code-commitment instantiation: the prover commits to the intermediate vectors before the query set is derived, checks Reed--Solomon encoding consistency in the circuit, proves Merkle membership for sampled leaves, and CP-links the circuit values to the externally committed leaves.
-We evaluate this implementation against a direct Freivalds SNARK baseline.
-In our QA-NIZK implementation, experiments show a $7.5\times$ constraint reduction at $k = 1{,}024$ and a $30.3\times$ reduction at $k = 4{,}096$ for this layer.
-At $k = 4{,}096$, $\fmQA$ achieves a $7.18\times$ proving-time speedup and produces a $104$\,KB proof; it continues to $k = 8{,}192$ with a $126$\,KB proof.
-A GPT-2 workload case study with $36$ matrix-multiplication claims shows a $2.30\times$ constraint reduction and a $1.77\times$ proving-time speedup.
+We implement the checking layer in Rust and compare it with a direct Freivalds
+SNARK baseline.
+At $k = 4{,}096$, $\fmQA$ gives a $30.3\times$ constraint reduction, a
+$7.18\times$ proving-time speedup, and a $104$\,KB online proof excluding
+setup/key/CRS material; it continues to $k = 8{,}192$ with a $126$\,KB online
+proof under the same convention.
+A GPT-2 checking-layer case study with $36$ claims over certified roots shows a
+$2.30\times$ constraint reduction and a $1.77\times$ proving-time speedup.

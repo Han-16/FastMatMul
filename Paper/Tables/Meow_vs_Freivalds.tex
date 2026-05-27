@@ -25,10 +25,12 @@
 \bottomrule
 \end{tabular}
 \caption{Primary matrix-multiplication benchmark for $\fmQA$ and the optimized
-Freivalds SNARK baseline. $\fmQA$ is our implementation using
-multi-column Merkle openings, in-circuit encoding checks, and QA-NIZK/CP-linking
-for sampled encoded columns. Proving time excludes native
-matrix multiplication and setup.  The table measures the online
-multiplication-checking layer after certified input commitments are available.}
+Freivalds SNARK baseline. $\fmQA$ is the current implementation using
+multi-column Merkle openings and QA-NIZK linking. Proving time excludes native
+matrix multiplication and setup; these are recorded separately in the artifact.
+The table measures the online multiplication-checking layer, including
+wire-handle openings, sampled RS evaluations, Merkle openings, and
+QA-NIZK/CP-link checks; proof sizes exclude raw sampled matrix-column witness
+values and exclude raw input certification for $\cm_A,\cm_B,\cm_C$.}
 \label{tab:meow-vs-freivalds}
 \end{table*}

@@ -1,26 +1,30 @@
 \section{Implementation and Evaluation}
 \label{sec:implementation}
 
-We implement the multiplication-checking layer of $\protocol$ and evaluate our
-prototype, denoted $\fmQA$, against an optimized SNARK-in-circuit
+We implement the multiplication-checking layer of $\protocol$ and evaluate the
+current artifact, denoted $\fmQA$, against an optimized SNARK-in-circuit
 Freivalds baseline~\cite{freivalds1977probabilistic}.
 $\fmQA$ uses multi-column Merkle openings, a Groth16 circuit proof, and a
-QA-NIZK/CP-linking layer for the opened encoded columns.
+QA-NIZK/CP-link layer that connects public Groth16 wire handles to opened
+external Merkle leaf handles.
 All main experiments use a 256-bit prime field, rate $\rho=1/2$, codeword
 length $n=2k$, and $t=128$ sampled positions.
 The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
 (32 cores) and 254\,GB RAM.
 
-These measurements include the QA-linked intermediate-vector backend described
-in Section~\ref{sec:construction}: pre-query commitments to
-$\vect{x},\vect{y},\vect{z}$, in-circuit Reed--Solomon encoding checks,
-sampled Merkle openings, and CP-linking between circuit values and external
-leaves.  We measure the online checking layer after the input commitments have
-been certified, which is the public-input interface consumed by
-$\protocol$.  Raw-input certification is therefore treated as surrounding
-preprocessing rather than charged to the online comparison.
-Appendix~\ref{app:eval-details} reports the full benchmark table, measurement
-coverage, parameter details, and dense-code encoding costs.
+These measurements include the online sampled-handle path described in
+Section~\ref{sec:construction}: message commitments fix
+$\vect{x},\vect{y},\vect{z}$ before $I$, the circuit binds every sampled
+matrix column or vector leaf to a public wire handle, Merkle openings
+authenticate compact external leaf handles, and QA-NIZK/CP-link checks connect
+the two views.
+The raw sampled matrix columns are SNARK witness data, not serialized auxiliary
+proof bytes.
+They do not include raw input certification for
+$\cm_A,\cm_B,\cm_C$ and should not be read as complete end-to-end deployment
+costs from raw matrices.
+Appendix~\ref{app:eval-details} records parameter and measurement coverage
+details.
 
 \begin{figure}[t]
 \centering
@@ -68,8 +72,8 @@ coverage, parameter details, and dense-code encoding costs.
 };
 \end{groupplot}
 \end{tikzpicture}
-\caption{Primary matrix benchmark. With the QA-linked intermediate-vector
-backend, $\fmQA$ follows the expected $\mathcal{O}(k)$ checking-layer growth,
+\caption{Primary matrix benchmark. With the CP-linked sampled-opening backend,
+$\fmQA$ follows the expected $\mathcal{O}(k)$ checking-layer growth,
 whereas the Freivalds SNARK baseline follows $\mathcal{O}(k^2)$ growth.}
 \Description{Two-panel line plot comparing FastMatMul QA and Freivalds. The
 top panel shows constraints and the bottom panel shows proving time on log
@@ -84,7 +88,8 @@ Figure~\ref{fig:main-benchmark} shows the main scaling behavior.
 Freivalds constraints grow by approximately $4\times$ with each doubling of
 $k$, matching the expected $\mathcal{O}(k^2)$ scaling.
 In contrast, $\fmQA$ grows by approximately $2\times$, matching the
-$\mathcal{O}(k)$ checking-layer scaling of the QA-linked instantiation.
+$\mathcal{O}(k)$ checking-layer scaling of the CP-linked sampled-opening
+backend.
 The crossover in absolute constraint count occurs at $k=256$.
 At $k=1{,}024$, $\fmQA$ uses $419{,}139$ constraints versus $3{,}156{,}298$
 for Freivalds, a $7.53\times$ reduction.
@@ -95,37 +100,8 @@ The same benchmark shows a proving-time crossover at $k=256$.
 At $k=4{,}096$, $\fmQA$ proves in $56.44\,\text{s}$ versus
 $405.04\,\text{s}$ for Freivalds, a $7.18\times$ speedup.
 $\fmQA$ also completes $k=8{,}192$ with $3{,}331{,}779$ constraints and a
-$178.48\,\text{s}$ proving time.  We omit the Freivalds row at this size
-because the measured $k=4{,}096$ row already reaches $50.5$ million
-constraints and $405.04\,\text{s}$, and the baseline follows quadratic growth.
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}
-\begin{axis}[
-  width=\columnwidth,
-  height=4.2cm,
-  xlabel={$\log k$},
-  ylabel={Proof size (KiB)},
-  xmin=6.5, xmax=13.5,
-  ymin=0, ymax=135,
-  xtick={7,8,9,10,11,12,13},
-  grid=major,
-  mark size=2pt,
-  every axis plot/.append style={thick},
-]
-\addplot[color=orange, mark=pentagon*] coordinates {
-  (7, 14.75) (8, 28.35) (9, 49.29) (10, 64.91)
-  (11, 84.29) (12, 101.94) (13, 122.57)
-};
-\end{axis}
-\end{tikzpicture}
-\caption{$\fmQA$ proof size in the primary benchmark. The Groth16 proof
-component is constant-sized and the QA-NIZK link proof is $128$ bytes; growth is
-dominated by sampled encoded columns and Merkle authentication material.}
-\Description{Line plot of FastMatMul QA proof size from log k equals 7 to 13.}
-\label{fig:proof-size}
-\end{figure}
+$178.48\,\text{s}$ proving time; Freivalds was not measured at that size in the
+current artifact.
 
 \begin{figure}[t]
 \centering
@@ -157,40 +133,59 @@ dominated by sampled encoded columns and Merkle authentication material.}
 \addlegendentry{$\fmQA$}
 \end{axis}
 \end{tikzpicture}
-\caption{GPT-2 workload case study at sequence length $1{,}024$ with $36$
-matrix-multiplication claims. Costs are normalized to the Freivalds baseline.}
+\caption{GPT-2 checking-layer case study at sequence length $1{,}024$ with
+$36$ matrix-multiplication claims over certified roots. Costs are normalized to
+the Freivalds baseline.}
 \Description{Ratio plot comparing GPT-2 relative cost.}
 \label{fig:gpt2-case-study}
 \end{figure}
 
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Metric} & \textbf{$\fmQA$} & \textbf{Freivalds} & \textbf{Ratio} \\
+\midrule
+Constraints & $33.5$M & $76.8$M & $0.44\times$ \\
+Setup time & $2{,}144.47$\,s & $4{,}173.32$\,s & $0.51\times$ \\
+Prove time & $230.33$\,s & $408.69$\,s & $0.56\times$ \\
+Verify time & $4.94$\,s & $0.49$\,s & $10.08\times$ \\
+$\fmQA$ proof & $1{,}475{,}844$\,B & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{Exact GPT-2 checking-layer metrics from the CSV artifact for sequence
+length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups.}
+\label{tab:gpt2-case-study}
+\end{table}
+
 \paragraph{Verification, proof size, and GPT-2 workload}
-$\fmQA$ verification is nearly constant in the matrix benchmark at about
-$0.10\,\text{s}$, dominated by QA-NIZK link verification.
-Freivalds verification is smaller in absolute terms, between $1$ and $2$\,ms,
-because it verifies a direct Groth16 proof without sampled-column linking
-material.
-This design therefore trades slower verification for much smaller
-prover circuits and faster proving at medium and large dimensions.
-As Figure~\ref{fig:proof-size} shows, the $\fmQA$ proof grows from
-$15{,}108$ bytes at $k=128$ to $104{,}388$ bytes at $k=4{,}096$ and
-$125{,}508$ bytes at $k=8{,}192$.
+$\fmQA$ verification is nearly constant at about $0.10\,\text{s}$ in the matrix
+benchmark, dominated by QA-NIZK link verification; Freivalds verification is
+faster because it checks only a direct Groth16 proof.
+The artifact therefore trades slower verification for smaller prover circuits
+and faster proving at medium and large dimensions.
+The $\fmQA$ online proof grows from $15{,}108$ bytes at $k=128$ to
+$104{,}388$ bytes at $k=4{,}096$ and $125{,}508$ bytes at $k=8{,}192$.
+At $k=4{,}096,t=128$, publishing the three sampled input-matrix columns alone
+would require about $3tk\cdot32\approx50$\,MB; Appendix~\ref{app:eval-details}
+gives detailed byte, setup, and constraint accounting.
 
-Figure~\ref{fig:gpt2-case-study} summarizes a GPT-2-style workload with
-sequence length $1{,}024$, $36$
-matrix-multiplication claims, and $5$ commitment groups, $\fmQA$ reduces
-constraints from $76.8$ million to $33.5$ million ($2.30\times$) and proving
-time from $408.69\,\text{s}$ to $230.33\,\text{s}$ ($1.77\times$).
-Setup time is also lower ($2{,}144.47\,\text{s}$ versus $4{,}173.32\,\text{s}$).
-Verification remains slower for $\fmQA$ ($4.94\,\text{s}$ versus
-$0.49\,\text{s}$), so latency-sensitive deployments still need batching,
-amortization, or a more succinct opening/linking backend.
+Figure~\ref{fig:gpt2-case-study} and Table~\ref{tab:gpt2-case-study} report the
+GPT-2-style workload over certified roots. $\fmQA$ reduces constraints by
+$2.30\times$ and proving time by $1.77\times$, with lower setup time in this
+experiment. Verification remains slower, so latency-sensitive deployments still
+need batching, amortization, or a more succinct opening/linking backend.
 
-\paragraph{Summary}
-The experiments support the claimed asymptotic separation for the
-multiplication-checking layer and show concrete gains over the Freivalds SNARK
-baseline at large $k$.
-The QA-linked backend instantiates the intermediate-vector $\codeComV$ relation
-used in the theorem.  Strict query counts such as $t=130$ or $t=133$ are
-obtained by the parameter formula in Section~\ref{sec:security}; they increase
-the query-dependent checking terms linearly and do not change the experiment
-type.
+\paragraph{Strict parameters and deployment scope}
+The measured rows use $t=128$ to study scaling. If $\delta=1/2$, a conservative
+per-term $2^{-131}$ proximity budget uses $t=133$, increasing sample-dependent
+work by only $1.0391\times$.
+At $k=4{,}096$, this extrapolates to at most $1.74$ million constraints,
+$58.65\,\text{s}$ proving time, and $109$\,KB online proof bytes.
+Proof-size figures exclude raw input certification, proving/verifying keys, and
+serialized CRS or generator material. End-to-end deployments preserve the
+measured prover-time win only if amortized root certification costs stay below
+the observed margins: $348.60\,\text{s}$ for $k=4{,}096$ and $178.36\,\text{s}$
+for the GPT-2 row.

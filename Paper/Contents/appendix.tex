@@ -18,8 +18,10 @@ For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D}=\vect{0}$, so
   = \vect{z}.
 \]
 For each intermediate vector $v\in\{\vect{x},\vect{y},\vect{z}\}$, the honest
-prover commits to $\enc(v)$ and supplies backend proof material $\sigma_v$
-accepted by $\codeComV$.
+prover commits to the message vector before $I$ is sampled, commits to the
+encoded leaf handles, opens public wire handles inside the Groth16 relation,
+and supplies accepted Merkle openings and CP-link proofs for the sampled
+coordinates.
 For any queried index $j\in[n]$, linearity of $\mathcal{C}$ gives
 \[
   \fold(\enc(\mat{A})^{(j)},\vect{r})
@@ -37,9 +39,37 @@ Let $\mathsf{Acc}$ be the event that the verifier accepts a false committed
 matrix statement, and assume $\mat{A}\mat{B}\neq\mat{C}$.
 Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false
 $\mathcal{R}_{\mathsf{SNARK}}$ instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a
-failure of the global codeword-binding property for an accepted intermediate
-root, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted openings
-for the same root and position.
+message-binding or witness-to-leaf linking failure for an accepted sampled
+object, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted
+leaf-handle openings for the same root and position.
+For the sampled-opening part of $\mathsf{Bad}_{\mathsf{cc}}$, condition on the
+Groth16 extractor for the in-circuit relation: for every accepted wire check it
+obtains $(a_{\chi,j},\rho_{\chi,j})$ such that
+$\wireV(\para,\Gamma_{\chi,j},a_{\chi,j},\rho_{\chi,j})=1$.
+The CP-link batch tag is
+$T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
+where $P_I=\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}$.
+Thus the auxiliary proof is tied to the same handle pairs that appear in the
+SNARK public statement and the Merkle openings.
+A sampled linking failure occurs if
+$\openV(\pi_{\chi,j},L_{\chi,j},\cm_\chi,j)=1$ and
+$\cpLinkV(\para,T_I,\{(\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j},\tau_I)=1$, but
+for some sampled pair there is no leaf-opening randomness $\eta_{\chi,j}$ such
+that $L_{\chi,j}$ opens to the same $a_{\chi,j}$ extracted from the Groth16
+witness.
+For the Pedersen handle instantiation this means there is no $\eta_{\chi,j}$
+with
+\begin{align*}
+  L_{\chi,j}
+  &= \eta_{\chi,j}H+
+  \sum_{\ell=1}^{d_\chi} (a_{\chi,j})_\ell G_\ell,\\
+  \Gamma_{\chi,j}-L_{\chi,j}
+  &= (\rho_{\chi,j}-\eta_{\chi,j})H .
+\end{align*}
+Merkle position binding is charged separately to
+$\mathsf{Bad}_{\mathsf{bind}}$; outside that event, the accepted
+$L_{\chi,j}$ is the unique handle at position $j$ under the pre-query root
+$\cm_\chi$.
 By the assumed backend properties,
 \begin{align*}
 \Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
@@ -50,16 +80,14 @@ By the assumed backend properties,
   &\le \epsilon_{\mathsf{bind}}(\lambda).
 \end{align*}
 Conditioned on the complement of these events, every accepting transcript has a
-valid SNARK witness, every accepted intermediate root is globally bound to the
-full codeword $\enc(v)$ for its witness vector $v$, and every accepted opening
-value is uniquely determined by its root and queried coordinate.
+valid SNARK witness, every accepted intermediate message commitment binds a
+single vector $v$ before $I$ is sampled, every sampled value used by the
+Groth16 fold relation opens a public wire handle, every accepted auxiliary
+opening is linked to that handle, and every accepted leaf handle is uniquely
+determined by its root and queried coordinate.
 The certified input roots are fixed before the Freivalds challenge is sampled,
-and the intermediate roots are fixed before the sampled query tuple is sampled.
-For the QA-linked instantiation, the corresponding conditioning is that the
-intermediate message commitments and encoded-view roots are fixed before the
-query tuple is derived, and every opened sampled coordinate is CP-linked to the
-in-circuit coordinate of $\enc(v)$ for the fixed message vector $v$.
-These are exactly the coordinates used by the fold and equality checks.
+and the intermediate commitments are fixed before the sampled query tuple is
+sampled.
 
 \paragraph{Freivalds randomization}
 Under the same conditioning, the matrices bound to
@@ -101,8 +129,10 @@ $\enc(\vect{x})$ and $\enc(\vect{r}\mat{A})$ disagree on at least
 $\delta n$ coordinates.
 By code linearity, the sampled fold value from the committed rows of
 $\mat{A}$ equals $\enc(\vect{r}\mat{A})_j$ at coordinate $j$.
-Since accepted openings are bound to the committed codeword
-$\enc(\vect{x})$, the fold check rejects whenever $j$ is in the disagreement
+Since the sampled column used by Groth16 is bound to the authenticated input
+leaf handle, and the sampled vector value is both bound to its authenticated
+leaf handle and checked to equal the circuit-computed codeword
+$\enc(\vect{x})_j$, the fold check rejects whenever $j$ is in the disagreement
 set.
 A single uniformly sampled coordinate misses this disagreement set with
 probability at most $1-\delta$, and $t$ independent sampled coordinates all
@@ -133,49 +163,67 @@ the budget across terms, e.g., by targeting each term at $2^{-131}$.
 \paragraph{Fiat--Shamir variant}
 The non-interactive transcript derives both $r$ and $I$ from
 domain-separated hashes of the transcript prefix, including the public input
-roots and intermediate roots.
+roots, intermediate message commitments, and encoded-vector roots.
 In the random oracle model, the preceding public-coin proof applies with the
 standard Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$ for an adversary that
 makes $q_H$ random-oracle queries.
 This proves Theorem~\ref{thm:security}.
 \end{proof}
 
-\clearpage
-\section{Probabilistic Verification of Reed--Solomon Codewords}
-\label{app:rs-verify}
+\section{CP-Link Backend Instantiation}
+\label{app:cplink-backend}
 
-Let $\mathbb{F}$ be a finite field, let
-$\vect{m}=(a_0,\ldots,a_{k-1}) \in \mathbb{F}^k$, and let
-$\vect{c}=(c_0,\ldots,c_{n-1}) \in \mathbb{F}^n$ for $n \ge k$.
-Let $S=\{w^0,w^1,\ldots,w^{n-1}\}\subseteq\mathbb{F}$ be the evaluation
-domain.  Define the message polynomial
-$f(X)=\sum_{i=0}^{k-1}a_iX^i$ and let $g(X)$ be the unique polynomial of
-degree less than $n$ satisfying $g(w^i)=c_i$ for every $i$.
-The goal is to test whether $f(X)\equiv g(X)$, i.e., whether $\vect{c}$ is
-the Reed--Solomon encoding of $\vect{m}$.
-
-The verifier samples $z\sample\mathbb{F}\setminus S$, computes
-$v_1=f(z)$ by Horner evaluation, and computes $v_2=g(z)$ by barycentric
-interpolation:
+The logical CP-link relation contains one equation per sampled object:
 \[
-  v_2 =
-    \frac{\sum_{i=0}^{n-1} \frac{\lambda_i}{z-w^i}c_i}
-         {\sum_{i=0}^{n-1} \frac{\lambda_i}{z-w^i}},
+  \Gamma_q-L_q=\Delta_qH,\qquad q\in[Q],
 \]
-where $\lambda_i$ are the barycentric weights for $S$.
-The verifier accepts iff $v_1=v_2$.
-
-If $f(X)\not\equiv g(X)$, then $h(X)=f(X)-g(X)$ is a nonzero polynomial of
-degree less than $n$.
-By Schwartz--Zippel,
+where $Q=|\mathcal{S}|t$ and $q$ indexes the pairs
+$(\chi,j)\in\mathcal{S}\times I$.
+The batch statement is
 \[
-  \Pr_{z\sample\mathbb{F}}[f(z)=g(z)] \le \frac{n-1}{|\mathbb{F}|},
+\begin{aligned}
+P_I&=\{(\chi_q,j_q,\Gamma_q,L_q)\}_{q=1}^{Q},\\
+T_I&=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I).
+\end{aligned}
 \]
-which is negligible when $|\mathbb{F}|$ is sufficiently large.
+The implementation batches these equations by deriving
+$\beta\gets\Hash(\textsf{FMM-link-rand},T_I,\{\Gamma_q,L_q\}_{q=1}^{Q})$ and
+checking a single randomized linear relation
+\[
+  \sum_{q=1}^{Q}\beta^q(\Gamma_q-L_q)=
+  \left(\sum_{q=1}^{Q}\beta^q\Delta_q\right)H .
+\]
+If any individual equality is false, the left-minus-right side is a nonzero
+degree-$Q$ polynomial in $\beta$, so the batch can pass with probability at
+most $Q/|\mathbb{F}|$ in the random-oracle model.
+Combining this with Pedersen binding and QA-NIZK soundness gives the bound in
+Theorem~\ref{thm:cp-link-backend}.
+The QA-NIZK statement is
+$(\para,T_I,\{\Gamma_q,L_q\}_{q=1}^{Q})$ and the witness is the aggregate
+difference opening $\sum_q\beta^q\Delta_q$.
+Its CRS fixes the handle generators and linear-relation verification
+parameters; if serialized, those bytes are setup/key/CRS material rather than
+online proof bytes.
+Thus the $128$-byte value reported in the experiments is one online batched
+QA-NIZK proof for all sampled links, not a per-link cost.
 
-\clearpage
 \section{Additional Evaluation Details}
 \label{app:eval-details}
+
+This appendix records the measurement boundary behind the main evaluation.
+Tables~\ref{tab:eval-parameters} and~\ref{tab:metric-coverage} first state the
+fixed experimental parameters and which costs are covered by the artifact.
+Tables~\ref{tab:proof-material-accounting}--\ref{tab:constraint-accounting}
+then separate serialized proof material from private Groth16 witness data and
+from costs that remain unmeasured, such as raw input certification and
+serialized key/CRS size.
+The intent is to make the main text's proof-size and speedup claims auditable
+without treating the checking-layer measurements as full end-to-end VC costs.
+
+Table~\ref{tab:eval-parameters} fixes the common parameter choices used by the
+reported rows. In particular, the measured rows use $t=128$ for scaling, while
+the table also records the nearby query counts needed for stricter
+proximity-only and per-term security budgets.
 
 \begin{table}[H]
 \centering
@@ -190,116 +238,135 @@ Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
 Code rate & $\rho=1/2$ \\
 Codeword length & $n=2k$ \\
 Sampled positions & $t=128$ \\
-Primary linking layer & QA-NIZK with multi-column Merkle openings \\
-Backend model & QA-linked intermediate-vector $\codeComV$ backend \\
-Strict 128-bit proximity target & $t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; $t=130$ when $\delta=1/2$ \\
+Primary linking layer & Message commitments, wire handles, QA-NIZK/CP-link, and multi-column Merkle openings \\
+Backend model & CP-linked sampled intermediate backend; certified input roots are assumed \\
+Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
 \bottomrule
 \end{tabularx}
 \caption{Concrete parameters used in the main experiments.}
 \label{tab:eval-parameters}
 \end{table}
 
+Table~\ref{tab:metric-coverage} is a measurement-scope checklist rather than a
+performance result. It distinguishes quantities measured directly by the CSV
+artifact from costs that remain deployment assumptions, most notably raw input
+certification and serialized key/CRS sizes.
+
 \begin{table}[H]
 \centering
 \small
 \begin{tabularx}{\columnwidth}{@{}p{0.31\columnwidth}p{0.17\columnwidth}X@{}}
 \toprule
-\textbf{Metric} & \textbf{Scope} & \textbf{Interpretation} \\
+\textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
 \midrule
-Constraint count & Measured & Checking-layer circuit size with the QA-linked intermediate-vector backend. \\
-Online proving time & Measured & Excludes native matrix multiplication and one-time setup. \\
-Verification time & Measured & Includes QA-NIZK/opening verification overhead. \\
-Proof size & Measured & Includes Groth16, sampled openings, and QA-NIZK material. \\
-Setup time & Case study & Recorded for the GPT-2 workload. \\
-Intermediate-vector $\codeComV$ & Measured & Implemented by pre-query commitments, in-circuit RS checks, sampled Merkle openings, and QA-NIZK/CP-linking. \\
-Input certification & Interface & Treated as the certified public-input interface to the online checker. \\
-Peak memory and variance & Diagnostic & Environment-dependent artifact diagnostics, orthogonal to the circuit-scaling claim. \\
+Constraint count & Yes, aggregate & Groth16 circuit size including message openings, wire-handle openings, sampled RS evaluations, and fold checks; per-gadget constraint counters are not reported, and auxiliary CP-link verification is measured in time/proof bytes rather than constraints. \\
+Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
+Verification time & Yes & Includes current QA-NIZK/CP-link and opening verification overhead. \\
+Proof size & Yes & Includes Groth16, compact sampled handles/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
+Setup time & Partial & Recorded for the GPT-2 workload; setup/key sizes are not reported. \\
+Raw input certification & No & Required to close the full raw-input-to-certified-commitment pipeline. \\
+Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
 \bottomrule
 \end{tabularx}
-\caption{Measurement scope for the implementation.}
+\caption{Measurement coverage in the current artifact.}
 \label{tab:metric-coverage}
 \end{table}
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\begin{groupplot}[
-  group style={group size=1 by 2, vertical sep=0.9cm},
-  width=\columnwidth,
-  height=3.4cm,
-  xlabel={$\log k$},
-  xmin=9.5, xmax=20.5,
-  xtick={10,12,14,16,18,20},
-  grid=major,
-  every axis plot/.append style={thick, mark size=1.6pt},
-  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west},
-]
-\nextgroupplot[
-  ylabel={Encoding (s)},
-  ymode=log,
-  log basis y={10},
-  ymin=0.0008, ymax=1,
-]
-\addplot[color=blue, mark=square*] coordinates {
-  (10,0.001) (12,0.002) (14,0.008) (16,0.035) (18,0.126) (20,0.623)
-};
-\addplot[color=teal, mark=diamond*] coordinates {
-  (10,0.001) (12,0.003) (14,0.010) (16,0.040) (18,0.152) (20,0.680)
-};
-\legend{$\rho=1/2$, $\rho=1/4$}
-\nextgroupplot[
-  ylabel={Dense constraints},
-  ymode=log,
-  log basis y={10},
-  ymin=4e3, ymax=1e7,
-]
-\addplot[color=blue, mark=square*] coordinates {
-  (10,5134) (12,20536) (14,82140) (16,328558) (18,1314228) (20,5256908)
-};
-\addplot[color=teal, mark=diamond*] coordinates {
-  (10,9244) (12,36974) (14,147896) (16,591578) (18,2366310) (20,9465240)
-};
-\end{groupplot}
-\end{tikzpicture}
-\caption{Encoding time and dense codeword-validity constraints for general
-constant-rate codes. Encoding stays below one second up to $\log k=20$, while
-dense backend checks grow quadratically.}
-\Description{Two line plots showing encoding time and dense codeword-validity
-constraints for rates one half and one quarter.}
-\label{fig:encoding-cost}
-\end{figure}
-
-\clearpage
-\section{Extended Related Work}
-\label{app:extended-related}
+Table~\ref{tab:proof-material-accounting} explains the proof-size convention
+used in the main text. The sampled matrix columns are large, but they are
+private Groth16 witness data; the serialized proof contains only compact
+handles, authentication paths, the Groth16 proof, and the batched CP-link
+material.
 
 \begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\columnwidth}{@{}p{0.27\columnwidth}p{0.28\columnwidth}X@{}}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabularx}{\columnwidth}{@{}p{0.30\columnwidth}p{0.15\columnwidth}X@{}}
 \toprule
-\textbf{Approach} & \textbf{Main checked work} & \textbf{Relation to $\protocol$} \\
+\textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
 \midrule
-Freivalds in SNARK & Vector-matrix products inside the circuit & Baseline measured in this paper; circuit cost is $\mathcal{O}(k^2)$. \\
-Sumcheck/GKR systems & Multilinear-extension evaluations and rounds & Powerful for layered arithmetic circuits; usually needs a specialized verifier or compiler. \\
-Dedicated matrix VC & Polynomial commitments or inner-product arguments & Often gives short proofs; assumptions and batching model differ from our SNARK-checking layer. \\
-Code-based SNARKs & General circuit proving over committed codewords & Supplies the committed-codeword viewpoint; na\"ively proving Freivalds still leaves an $\mathcal{O}(k^2)$ circuit. \\
-$\protocol$ & Local codeword folds plus backend binding & Reduces the checked matrix relation to $\mathcal{O}(tk+t\log n+E_{\mathsf{cc}}(k))$ constraints. \\
+Input column $a_{M,j}$ & No & $k$ field elements are Groth16 witness data; handles and paths are serialized. \\
+Vector leaf $a_{v,j}$ & No & One field element is checked by Groth16 via $\wireV$ and $a_{v,j}=\enc(v)_j$. \\
+Merkle path & Yes & Authenticates $L_{\chi,j}$ in $\mathsf{AuxV}$; charged to proof bytes and verify time. \\
+CP-link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all sampled handle pairs. \\
+Groth16 proof & Yes & Verifies message openings, wire openings, sampled RS evaluations, and fold/equality checks. \\
 \bottomrule
 \end{tabularx}
-\caption{Qualitative positioning against related matrix-verification
-approaches.}
-\label{tab:qualitative-related}
+\caption{Proof-material accounting for the CP-linked sampled-opening backend.}
+\label{tab:proof-material-accounting}
 \end{table}
 
-The sumcheck protocol~\cite{goldwasser2015delegating} is a powerful
-interactive proof technique for verifying evaluations of multivariate
-polynomials.
-SafetyNets~\cite{ghodsi2017safetynets} and zkCNN~\cite{liu2021zkcnn} use this
-approach for neural-network verification.
-Unlike sumcheck-based methods, our proximity-based checks compare codeword
-coordinates through inner products rather than evaluating polynomial extensions.
-The resulting relation is directly expressible as R1CS or PlonK constraints,
-while sumcheck-based systems typically require a specialized verifier or a
-dedicated GKR-to-SNARK compilation step.
+Table~\ref{tab:byte-accounting} instantiates the accounting for two
+representative matrix sizes. The reported totals are the serialized online
+proof bytes in the artifact; roots and message commitments are public inputs,
+and raw sampled columns are intentionally not serialized.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{}p{0.16\columnwidth}rrX@{}}
+\toprule
+\textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
+\midrule
+$k=1{,}024$ & $66{,}080$\,B & $66{,}468$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-link; roots/messages are public inputs. \\
+$k=4{,}096$ & $104{,}000$\,B & $104{,}388$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
+\bottomrule
+\end{tabularx}
+\caption{Representative byte-level accounting from
+\texttt{meow\_benchmark\_results.csv}.}
+\label{tab:byte-accounting}
+\end{table}
+
+Table~\ref{tab:setup-accounting} records setup time for representative rows and
+separates protocol, circuit, and CP-link setup components. The current artifact
+does not report serialized proving/verifying-key or CRS bytes; this is why the
+main text states proof size as online proof material excluding key/CRS data.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\columnwidth}{@{}p{0.19\columnwidth}rrrrX@{}}
+\toprule
+\textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-link} & \textbf{Key / CRS size} \\
+\midrule
+$k=1{,}024$ & $33.32$\,s & $0.06$\,s & $31.19$\,s & $2.07$\,s & Not reported by the current artifact. \\
+$k=4{,}096$ & $133.10$\,s & $0.23$\,s & $124.66$\,s & $8.21$\,s & Not reported by the current artifact. \\
+\bottomrule
+\end{tabularx}
+\caption{Setup accounting for representative rows.}
+\label{tab:setup-accounting}
+\end{table}
+
+Table~\ref{tab:constraint-accounting} separates the dominant deterministic
+$3tk$ fold terms from the remaining checked constraints. The residual includes
+sampled RS evaluations, wire/message openings, equality checks, and circuit
+glue, so the table is a structural audit of the aggregate constraint counts
+rather than a per-gadget profiler.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{}p{0.17\columnwidth}rrrr@{}}
+\toprule
+\textbf{Case} & \textbf{Total} & \textbf{$3tk$ folds} & \textbf{Residual} & \textbf{Raw cols.} \\
+\midrule
+$k=1{,}024$ & $419{,}139$ & $393{,}216$ & $25{,}923$ & $12.6$\,MB \\
+$k=4{,}096$ & $1{,}667{,}305$ & $1{,}572{,}864$ & $94{,}441$ & $50.3$\,MB \\
+\bottomrule
+\end{tabularx}
+\caption{Structural constraint and raw-column-size accounting for two
+representative rows.}
+\label{tab:constraint-accounting}
+\end{table}
+
+The accounting tables should be read as lower-level support for the main
+evaluation, not as additional benchmark claims.
+They justify three statements used throughout the paper: the large sampled
+columns remain private witness data, the serialized online proof is dominated
+by compact opening material rather than raw columns, and the current artifact
+still leaves key/CRS size and raw-input certification as unmeasured deployment
+costs.

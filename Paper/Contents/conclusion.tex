@@ -1,26 +1,27 @@
-\section{Conclusion}
+\section{Conclusion and Related Work}
 \label{sec:conclusion}
 
-We presented $\protocol$, a matrix-multiplication checking layer whose SNARK
-relation has size $\mathcal{O}(tk+t\log n+E_{\mathsf{cc}}(k))$ and becomes
-$\mathcal{O}(tk)$ with a linear-time code-commitment backend.
-The construction combines Freivalds' randomized reduction with local proximity
-checks over linear error-correcting codes, and its security theorem explicitly
-accounts for SNARK soundness, backend codeword binding, commitment binding,
-Freivalds failure, and proximity-sampling error.
+Our work complements verifiable ML systems such as
+SafetyNets~\cite{ghodsi2017safetynets}, Mystique~\cite{weng2021mystique},
+zkCNN~\cite{liu2021zkcnn}, vCNN~\cite{lee2024vcnn}, and
+zkML~\cite{chen2024zkml}; sumcheck/GKR-based VC~\cite{goldwasser2015delegating};
+dedicated matrix-verification protocols~\cite{cong2024zkmatrix,
+cong2026dualmatrix,zhang2025zkvc,bennett2023matrix}; and code-based
+SNARK/proximity systems~\cite{ames2017ligero,golovnev2023brakedown,
+xie2022orion,ben2018fast}.
+Unlike full-circuit ML systems or polynomial-commitment matrix
+arguments~\cite{kate2010constant}, $\protocol$ is a dedicated multiplication
+checking layer over certified encoded roots and is orthogonal to succinct
+backends, including universal/updatable-SRS and inner-product-style
+systems~\cite{maller2019sonic,chiesa2020marlin,bunz2018bulletproofs}.
+The security theorem accounts for SNARK soundness, message/leaf binding,
+CP-link consistency, Freivalds failure, and proximity-sampling error.
 
-Our implementation confirms the expected checking-layer separation against a
-Freivalds SNARK baseline with the QA-linked intermediate-vector backend:
-at $k=4{,}096$,
-$\fmQA$ gives a $30.29\times$ constraint reduction and a $7.18\times$
-proving-time speedup; a GPT-2 workload case study gives a $2.30\times$
-constraint reduction and a $1.77\times$ proving-time speedup.
-The evaluation is intentionally scoped to the online checker after certified
-input commitments are available, matching the committed-input interface used in
-the theorem.
-Within this model, the implementation covers the intermediate-vector
-$\codeComV$ relation through pre-query commitments, in-circuit encoding checks,
-Merkle membership, and QA-NIZK/CP-linking.
-Stricter query counts such as $t=130$ or $t=133$ follow directly from the
-security parameter formula, while engineering optimizations can further reduce
-verification overhead and batch many matrix multiplications.
+The artifact confirms the expected separation. At $k=4{,}096$, $\fmQA$ gives a
+$30.29\times$ constraint reduction and a $7.18\times$ proving-time speedup over
+Freivalds-in-SNARK; on the GPT-2 case study it gives a $2.30\times$ constraint
+reduction and a $1.77\times$ proving-time speedup over certified roots.
+The remaining limitation is explicit: the artifact measures the online checking
+layer but assumes certified encoded input roots for raw matrices. Closing that
+pipeline, reporting key/CRS sizes, reducing verification overhead, and batching
+many multiplications are the main deployment steps.

@@ -10,8 +10,9 @@ vector-matrix products directly or by using sumcheck/GKR-style machinery over
 layered arithmetic circuits.
 $\protocol$ is complementary: it is a dedicated checking layer for the matrix
 multiplication component, reducing the checked relation to
-$\mathcal{O}(tk+t\log n+E_{\mathsf{cc}}(k))$ constraints under certified
-encoded commitments.
+$\mathcal{O}(tk+E_{\mathsf{msg}}(k))$ in-circuit work plus
+$\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work
+under certified encoded commitments.
 
 Dedicated matrix-verification protocols, including
 zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
@@ -29,4 +30,17 @@ Brakedown~\cite{golovnev2023brakedown}, Orion~\cite{xie2022orion}, and
 FRI~\cite{ben2018fast}, the contribution is not a new general-purpose proof
 system; it is the problem-specific reduction that turns the matrix check into
 local codeword folds before arithmetization.
-Appendix~\ref{app:extended-related} gives a longer comparison table.
+The main trade-off is therefore different from both sumcheck/GKR systems and
+dedicated matrix-vector-commitment protocols: $\protocol$ verifies multiplication
+over certified encoded commitments, targets statement-sound checking rather
+than zero knowledge, and delegates codeword binding to the selected backend.
+
+We use Freivalds-in-SNARK as the primary experimental baseline because it
+checks the same committed matrix-multiplication statement in the same Groth16
+measurement stack and does not require reimplementing a different proof-system
+architecture.
+Sumcheck/GKR, dedicated matrix VC, and code-based SNARK systems provide
+important comparison points, but their costs depend on different input
+certification, batching, setup, and transcript models.
+We therefore avoid presenting non-normalized running times as direct
+head-to-head numbers.

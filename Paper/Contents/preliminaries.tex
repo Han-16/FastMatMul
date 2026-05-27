@@ -72,8 +72,22 @@ A \emph{SNARK} (Succinct Non-interactive Argument of Knowledge) for an NP relati
 
 A SNARK satisfies \emph{completeness} (an honest prover always convinces the verifier), \emph{knowledge soundness} (any $\ppt$ prover that makes the verifier accept can be used to extract a valid witness), and \emph{succinctness} (the proof size $|\pi|$ and verifier time are $\textsf{poly}(\lambda, |\stmt|)$, independent of the witness size and computation).
 
-Our protocol is modular with respect to the choice of SNARK backend.
+Our protocol is modular with respect to the choice of SNARK backend, including
+pairing-based systems such as Pinocchio~\cite{parno2013pinocchio} and
+Groth16~\cite{groth2016size}, as well as transparent or preprocessing systems
+such as Hyrax~\cite{wahby2018doubly}, Sonic~\cite{maller2019sonic},
+Marlin~\cite{chiesa2020marlin}, and Spartan~\cite{setty2020spartan}.
 The key metric is the \emph{circuit size} (number of R1CS constraints or PlonK gates) of the relation $\mathcal{R}_{\mathsf{SNARK}}$ that the backend must prove, as this dominates the prover's cost.
+
+\paragraph{Auxiliary QA-NIZK links}
+We use ``QA-NIZK'' only for the auxiliary proof that a batch of public
+Pedersen-style handles satisfies a linear difference-opening relation.
+The CRS fixes the handle generators and the verification parameters for that
+linear relation; if these parameters are serialized, their bytes are setup/CRS
+material rather than online proof bytes.
+The security of this auxiliary component is captured by
+$\epsilon_{\mathsf{QA}}$, and Section~\ref{sec:construction} states the exact
+batch relation used by the artifact.
 
 \subsection{Freivalds' Algorithm}
 \label{sec:prelim-freivalds}
