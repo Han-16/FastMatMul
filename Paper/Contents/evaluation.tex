@@ -10,7 +10,7 @@ external Merkle leaf handles.
 All main experiments use a 256-bit prime field, rate $\rho=1/2$, codeword
 length $n=2k$, and $t=128$ sampled positions.
 The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
-(32 cores) and 254\,GB RAM.
+(32 cores) and 251.69\,GiB RAM.
 
 These measurements include the online sampled-handle path described in
 Section~\ref{sec:construction}: message commitments fix
@@ -63,8 +63,8 @@ details.
   ymin=0.5, ymax=1000,
 ]
 \addplot[color=orange, mark=pentagon*] coordinates {
-  (7, 0.78) (8, 1.59) (9, 3.35) (10, 7.84)
-  (11, 21.16) (12, 56.44) (13, 178.48)
+  (7, 0.78) (8, 1.57) (9, 3.37) (10, 7.90)
+  (11, 20.91) (12, 55.92) (13, 181.29)
 };
 \addplot[color=red, mark=triangle*, dashed] coordinates {
   (7, 0.58) (8, 2.03) (9, 6.89) (10, 25.63)
@@ -97,10 +97,10 @@ At $k=4{,}096$, $\fmQA$ uses $1{,}667{,}305$ constraints versus
 $50{,}495{,}818$ for Freivalds, a $30.29\times$ reduction.
 
 The same benchmark shows a proving-time crossover at $k=256$.
-At $k=4{,}096$, $\fmQA$ proves in $56.44\,\text{s}$ versus
-$405.04\,\text{s}$ for Freivalds, a $7.18\times$ speedup.
+At $k=4{,}096$, $\fmQA$ proves in $55.92\,\text{s}$ versus
+$405.04\,\text{s}$ for Freivalds, a $7.24\times$ speedup.
 $\fmQA$ also completes $k=8{,}192$ with $3{,}331{,}779$ constraints and a
-$178.48\,\text{s}$ proving time; Freivalds was not measured at that size in the
+$181.29\,\text{s}$ proving time; Freivalds was not measured at that size in the
 current artifact.
 
 \begin{figure}[t]
@@ -111,12 +111,12 @@ current artifact.
   width=\columnwidth,
   height=4.3cm,
   ylabel={Relative cost (Freivalds = $1\times$)},
-  ymin=0.3, ymax=12,
+  ymin=0.35, ymax=2.5,
   symbolic x coords={Constraints,Setup,Prove,Verify},
   xtick=data,
   x tick label style={rotate=25, anchor=east, font=\scriptsize},
-  ytick={0.5,1,2,5,10},
-  yticklabels={$0.5\times$,$1\times$,$2\times$,$5\times$,$10\times$},
+  ytick={0.5,1,1.5,2},
+  yticklabels={$0.5\times$,$1\times$,$1.5\times$,$2\times$},
   legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west, fill=white},
   enlarge x limits=0.14,
   grid=major,
@@ -128,7 +128,7 @@ current artifact.
 };
 \addlegendentry{Freivalds baseline}
 \addplot[color=orange!90!black, mark=pentagon*] coordinates {
-  (Constraints,0.44) (Setup,0.51) (Prove,0.56) (Verify,10.08)
+  (Constraints,0.43) (Setup,0.50) (Prove,0.56) (Verify,1.39)
 };
 \addlegendentry{$\fmQA$}
 \end{axis}
@@ -148,11 +148,11 @@ the Freivalds baseline.}
 \toprule
 \textbf{Metric} & \textbf{$\fmQA$} & \textbf{Freivalds} & \textbf{Ratio} \\
 \midrule
-Constraints & $33.5$M & $76.8$M & $0.44\times$ \\
-Setup time & $2{,}144.47$\,s & $4{,}173.32$\,s & $0.51\times$ \\
-Prove time & $230.33$\,s & $408.69$\,s & $0.56\times$ \\
-Verify time & $4.94$\,s & $0.49$\,s & $10.08\times$ \\
-$\fmQA$ proof & $1{,}475{,}844$\,B & --- & --- \\
+Constraints & $33.4$M & $76.8$M & $0.43\times$ \\
+Setup time & $2{,}078.38$\,s & $4{,}173.32$\,s & $0.50\times$ \\
+Prove time & $230.14$\,s & $408.69$\,s & $0.56\times$ \\
+Verify time & $0.68$\,s & $0.49$\,s & $1.39\times$ \\
+$\fmQA$ proof & $3{,}355{,}428$\,B & --- & --- \\
 \bottomrule
 \end{tabular}
 \caption{Exact GPT-2 checking-layer metrics from the CSV artifact for sequence
@@ -161,31 +161,32 @@ length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups.}
 \end{table}
 
 \paragraph{Verification, proof size, and GPT-2 workload}
-$\fmQA$ verification is nearly constant at about $0.10\,\text{s}$ in the matrix
+$\fmQA$ verification is nearly constant at about $0.01\,\text{s}$ in the matrix
 benchmark, dominated by QA-NIZK link verification; Freivalds verification is
 faster because it checks only a direct Groth16 proof.
 The artifact therefore trades slower verification for smaller prover circuits
 and faster proving at medium and large dimensions.
-The $\fmQA$ online proof grows from $15{,}108$ bytes at $k=128$ to
-$104{,}388$ bytes at $k=4{,}096$ and $125{,}508$ bytes at $k=8{,}192$.
+The $\fmQA$ online proof grows from $56{,}388$ bytes at $k=128$ to
+$146{,}788$ bytes at $k=4{,}096$ and $167{,}748$ bytes at $k=8{,}192$.
 At $k=4{,}096,t=128$, publishing the three sampled input-matrix columns alone
 would require about $3tk\cdot32\approx50$\,MB; Appendix~\ref{app:eval-details}
 gives detailed byte, setup, and constraint accounting.
 
 Figure~\ref{fig:gpt2-case-study} and Table~\ref{tab:gpt2-case-study} report the
 GPT-2-style workload over certified roots. $\fmQA$ reduces constraints by
-$2.30\times$ and proving time by $1.77\times$, with lower setup time in this
-experiment. Verification remains slower, so latency-sensitive deployments still
-need batching, amortization, or a more succinct opening/linking backend.
+$2.30\times$ and proving time by $1.78\times$, with lower setup time in this
+experiment. Verification is $1.39\times$ slower, so latency-sensitive
+deployments still need batching, amortization, or a more succinct
+opening/linking backend.
 
 \paragraph{Strict parameters and deployment scope}
 The measured rows use $t=128$ to study scaling. If $\delta=1/2$, a conservative
 per-term $2^{-131}$ proximity budget uses $t=133$, increasing sample-dependent
 work by only $1.0391\times$.
 At $k=4{,}096$, this extrapolates to at most $1.74$ million constraints,
-$58.65\,\text{s}$ proving time, and $109$\,KB online proof bytes.
+$58.10\,\text{s}$ proving time, and $153$\,KB online proof bytes.
 Proof-size figures exclude raw input certification, proving/verifying keys, and
 serialized CRS or generator material. End-to-end deployments preserve the
 measured prover-time win only if amortized root certification costs stay below
-the observed margins: $348.60\,\text{s}$ for $k=4{,}096$ and $178.36\,\text{s}$
+the observed margins: $349.12\,\text{s}$ for $k=4{,}096$ and $178.55\,\text{s}$
 for the GPT-2 row.

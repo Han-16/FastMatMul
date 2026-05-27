@@ -136,17 +136,17 @@ Our contributions are as follows.
         \item \emph{Proving-time speedup.}
         The current QA-NIZK implementation $\fmQA$ outperforms Freivalds from
         $k = 256$ onward.
-        At $k = 4{,}096$, prove times are $56.44\,\text{s}$ for $\fmQA$ and
-        $405.04\,\text{s}$ for Freivalds, a $7.18\times$ speedup.
-        Online proof bytes, excluding setup/key/CRS material, are $104$\,KB at
-        $k=4{,}096$ and $126$\,KB at $k=8{,}192$.
+        At $k = 4{,}096$, prove times are $55.92\,\text{s}$ for $\fmQA$ and
+        $405.04\,\text{s}$ for Freivalds, a $7.24\times$ speedup.
+        Online proof bytes, excluding setup/key/CRS material, are $147$\,KB at
+        $k=4{,}096$ and $168$\,KB at $k=8{,}192$.
 
         \item \emph{GPT-2 workload case study.}
         For a GPT-2 workload with $36$ matrix-multiplication claims at sequence
         length $1{,}024$, $\fmQA$ reduces constraints by $2.30\times$ and
-        proving time by $1.77\times$ relative to Freivalds, while verification
-        is slower because the current QA-NIZK implementation checks sampled
-        opening and linking material.
+        proving time by $1.78\times$ relative to Freivalds, while verification
+        is $1.39\times$ slower because the current QA-NIZK implementation
+        checks sampled opening and linking material.
 
         \item \emph{Negligible encoding overhead.}
         The prover's off-circuit encoding step takes less than

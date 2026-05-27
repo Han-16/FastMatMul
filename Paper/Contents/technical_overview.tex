@@ -71,6 +71,13 @@ The crucial point is that each of these checks involves only a \emph{single colu
 Hence the total verifier work per query is $\mathcal{O}(k)$, and for $t$ queries the total is $\mathcal{O}(tk)$.
 
 \paragraph{Why does sampling suffice?}
+The intermediate vectors are fixed before the query tuple is sampled.
+At each sampled position, the SNARK relation recomputes
+$\enc(\vect{x})_j$, $\enc(\vect{y})_j$, and $\enc(\vect{z})_j$ from the
+committed message vectors and checks that these values match the opened encoded
+leaves.
+The verifier does not encode the full vectors; it verifies the SNARK proof and
+the sampled opening/linking material.
 If any of the underlying vector relations fails---say $\vect{y} \neq \vect{z}$---then the codewords $\enc(\vect{y})$ and $\enc(\vect{z})$ are distinct.
 By the minimum-distance property of $\mathcal{C}$, they disagree in at least a $\delta$-fraction of positions.
 A uniformly random query lands on a disagreement with probability $\geq \delta$, so $t$ independent queries detect the inconsistency except with probability at most $(1 - \delta)^t$.

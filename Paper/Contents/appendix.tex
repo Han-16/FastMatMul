@@ -37,8 +37,8 @@ accepts with probability one.
 \paragraph{Bad-event decomposition}
 Let $\mathsf{Acc}$ be the event that the verifier accepts a false committed
 matrix statement, and assume $\mat{A}\mat{B}\neq\mat{C}$.
-Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false
-$\mathcal{R}_{\mathsf{SNARK}}$ instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a
+Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false in-circuit
+SNARK instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a
 message-binding or witness-to-leaf linking failure for an accepted sampled
 object, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted
 leaf-handle openings for the same root and position.
@@ -233,7 +233,7 @@ proximity-only and per-term security budgets.
 \textbf{Parameter} & \textbf{Value in main experiments} \\
 \midrule
 Field size & 256-bit prime field \\
-Server & AMD EPYC 7B13, 32 cores, 254\,GB RAM, Linux \\
+Server & AMD EPYC 7B13, 32 cores, 251.69\,GiB RAM, Linux/amd64 \\
 Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
 Code rate & $\rho=1/2$ \\
 Codeword length & $n=2k$ \\
@@ -263,7 +263,7 @@ Constraint count & Yes, aggregate & Groth16 circuit size including message openi
 Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
 Verification time & Yes & Includes current QA-NIZK/CP-link and opening verification overhead. \\
 Proof size & Yes & Includes Groth16, compact sampled handles/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
-Setup time & Partial & Recorded for the GPT-2 workload; setup/key sizes are not reported. \\
+Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
 Raw input certification & No & Required to close the full raw-input-to-certified-commitment pipeline. \\
 Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
 \bottomrule
@@ -310,8 +310,8 @@ and raw sampled columns are intentionally not serialized.
 \toprule
 \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
 \midrule
-$k=1{,}024$ & $66{,}080$\,B & $66{,}468$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-link; roots/messages are public inputs. \\
-$k=4{,}096$ & $104{,}000$\,B & $104{,}388$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
+$k=1{,}024$ & $108{,}160$\,B & $108{,}548$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-link; roots/messages are public inputs. \\
+$k=4{,}096$ & $146{,}400$\,B & $146{,}788$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
 \bottomrule
 \end{tabularx}
 \caption{Representative byte-level accounting from
@@ -332,8 +332,8 @@ main text states proof size as online proof material excluding key/CRS data.
 \toprule
 \textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-link} & \textbf{Key / CRS size} \\
 \midrule
-$k=1{,}024$ & $33.32$\,s & $0.06$\,s & $31.19$\,s & $2.07$\,s & Not reported by the current artifact. \\
-$k=4{,}096$ & $133.10$\,s & $0.23$\,s & $124.66$\,s & $8.21$\,s & Not reported by the current artifact. \\
+$k=1{,}024$ & $32.99$\,s & $0.06$\,s & $31.81$\,s & $1.12$\,s & Not reported by the current artifact. \\
+$k=4{,}096$ & $128.21$\,s & $0.23$\,s & $123.64$\,s & $4.34$\,s & Not reported by the current artifact. \\
 \bottomrule
 \end{tabularx}
 \caption{Setup accounting for representative rows.}

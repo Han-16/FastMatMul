@@ -1,10 +1,2 @@
-SeqLog,SeqLen,Rho,NumQueries,NumClaims,NumCommitGroups,Constraints,MatrixComputeTime(s),SetupTime(s),CommitTime(s),CircuitProveTime(s),CPLinkProveTime(s),TotalProveTime(s),CircuitVerifyTime(s),MerkleVerifyTime(s),CPLinkVerifyTime(s),TotalVerifyTime(s),MerkleProofSize(B),Groth16ProofSize(B),CPLinkProofSize(B),TotalProofSize(B)
-1,2,1/2,128,36,5,8543238,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-2,4,1/2,128,36,5,8644302,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-3,8,1/2,128,36,5,8846430,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-4,16,1/2,128,36,5,9250686,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-5,32,1/2,128,36,5,10059198,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-6,64,1/2,128,36,5,11676222,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-7,128,1/2,128,36,5,14910270,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-8,256,1/2,128,36,5,21378462,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
-9,512,1/2,128,36,5,34346654,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0,0,0,0
+SeqLog,SeqLen,Rho,Linker,Merkle,NumQueries,NumClaims,NumCommitGroups,Constraints,MatrixComputeTime(s/ms),SetupTime(s/ms),ProtocolSetupTime(s/ms),CircuitSetupTime(s/ms),CPLinkSetupTime(s/ms),CommitTime(s/ms),MerkleProveTime(s/ms),CircuitProveTime(s/ms),CPLinkProveTime(s/ms),TotalProveTime(s/ms),CircuitVerifyTime(s/ms),MerkleVerifyTime(s/ms),CPLinkVerifyTime(s/ms),TotalVerifyTime(s/ms),MerkleProofSize(B),Groth16ProofSize(B),CPLinkProofSize(B),TotalProofSize(B)
+10,1024,1/2,qa_batch,multi,128,36,5,33396220,20.81s,2078.38s,0.36s,2032.20s,45.82s,69.40s,0.02s,156.17s,4.55s,230.14s,0.48s,0.12s,0.09s,0.68s,3354752,356,320,3355428

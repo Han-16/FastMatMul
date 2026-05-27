@@ -55,7 +55,8 @@ $(\mathsf{Cm}_{ABC},r,\mathsf{Cm}_{XYZ},I)$, the adversary must output Groth16
 wire handles, Merkle openings, and one batched CP-link proof that verifies under
 the same transcript tag
 $T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
-where $P_I=\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}$.
+where $P_I$ is the ordered list of all tuples
+$(\chi,j_q,\Gamma_{\chi,j_q},L_{\chi,j_q})$.
 Conditioned on Groth16 extraction, CP-link soundness, and Merkle position
 binding, the value used in the fold relation is the same value authenticated at
 the committed leaf position.
@@ -147,7 +148,7 @@ security.
 \begin{remark}[Knowledge Soundness]\label{rem:aok}
 The theorem above is a statement-soundness result relative to certified public input commitments.
 A full \emph{argument of knowledge} can be obtained by composing $\protocol$ with an extractable input-commitment interface and a knowledge-sound SNARK.
-In that setting, the input-commitment extractor yields openings of $\cm_A,\cm_B,\cm_C$ to row-wise encoded matrices, while the SNARK extractor yields the intermediate vectors and queried openings used in $\mathcal{R}_{\mathsf{SNARK}}$.
+In that setting, the input-commitment extractor yields openings of $\cm_A,\cm_B,\cm_C$ to row-wise encoded matrices, while the SNARK extractor yields the intermediate vectors and queried openings used in $\mathcal{R}_{\mathsf{Prox}}$.
 The same soundness argument then implies that any prover accepted with non-negligible probability is bound, except with the stated error, to matrices satisfying $\mat{A}\mat{B}=\mat{C}$.
 We treat this as an orthogonal composition issue and focus the main theorem on the multiplication-checking protocol.
 \end{remark}

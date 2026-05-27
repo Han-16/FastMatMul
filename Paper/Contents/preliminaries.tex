@@ -77,7 +77,7 @@ pairing-based systems such as Pinocchio~\cite{parno2013pinocchio} and
 Groth16~\cite{groth2016size}, as well as transparent or preprocessing systems
 such as Hyrax~\cite{wahby2018doubly}, Sonic~\cite{maller2019sonic},
 Marlin~\cite{chiesa2020marlin}, and Spartan~\cite{setty2020spartan}.
-The key metric is the \emph{circuit size} (number of R1CS constraints or PlonK gates) of the relation $\mathcal{R}_{\mathsf{SNARK}}$ that the backend must prove, as this dominates the prover's cost.
+The key metric is the \emph{circuit size} (number of R1CS constraints or PlonK gates) of the relation that the SNARK backend must prove, as this dominates the prover's cost.
 
 \paragraph{Auxiliary QA-NIZK links}
 We use ``QA-NIZK'' only for the auxiliary proof that a batch of public
@@ -104,11 +104,17 @@ Then for $r_1, \ldots, r_m \sample \mathbb{F}$ chosen uniformly and independentl
 \]
 \end{lemma}
 
-In our protocol, we use a structured variant: instead of sampling $\vect{r} \sample \mathbb{F}^k$ uniformly, we sample a single $r \sample \mathbb{F}$ and set $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
-If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero column $\vect{d}_j$ of $\mat{D}$, the inner product $\langle \vect{r}, \vect{d}_j \rangle = \sum_{i=0}^{k-1} (\mat{D})_{i,j} \cdot r^i$ is a non-zero univariate polynomial in $r$ of degree at most $k-1$.
-By Lemma~\ref{lem:sz}, this evaluates to zero with probability at most $(k-1)/|\mathbb{F}|$.
-
-The Vandermonde structure offers a concrete efficiency advantage beyond mere randomness reduction.
-The challenge $r$ appears in the SNARK public statement $\stmt$ (Section~\ref{sec:construction}); using a single scalar keeps $|\stmt| = \mathcal{O}(1)$ field elements, independent of $k$.
-Had we used a uniformly random $\vect{r} \in \mathbb{F}^k$, the statement size would grow to $\mathcal{O}(k)$, increasing verifier time for statement-size-sensitive SNARKs (e.g., transparent SNARKs where verifier time is $\mathcal{O}(|\stmt|)$) and defeating the goal of a $k$-independent verifier cost.
-The soundness bound $(k-1)/|\mathbb{F}|$ is slightly weaker than the $1/|\mathbb{F}|$ bound of a fully random $\vect{r}$, but remains negligible for any $|\mathbb{F}| \ge 2^{256}$ and practical $k$.
+In our protocol, we use a structured variant: instead of sampling
+$\vect{r} \sample \mathbb{F}^k$ uniformly, we sample one scalar
+$r \sample \mathbb{F}$ and set
+$\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
+This keeps the Freivalds challenge compact in the transcript and in the SNARK
+statement: the verifier records one field element rather than $k$ independent
+ones.
+If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero
+column $\vect{d}_j$ of $\mat{D}$, the value
+$\langle \vect{r}, \vect{d}_j \rangle$ is a non-zero univariate polynomial in
+$r$ of degree at most $k-1$.
+By Lemma~\ref{lem:sz}, it vanishes with probability at most
+$(k-1)/|\mathbb{F}|$, which is negligible over the 256-bit fields used in our
+experiments.
