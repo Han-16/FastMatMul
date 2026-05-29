@@ -55,8 +55,8 @@ the inconsistency with probability $\ge \delta$.
 Crucially, the SNARK circuit encodes the \emph{local algebraic checks}---fold
 computations, sampled RS evaluations, wire-handle openings, and
 message-opening checks at $t$ queried positions---while Merkle path
-verification and CP-link consistency over compact leaf handles are checked by
-auxiliary verifiers bound to the same transcript.
+verification and sampled-linking consistency over compact leaf handles are
+checked by auxiliary verifiers bound to the same transcript.
 The resulting in-circuit checking size is
 $\mathcal{O}(tk+E_{\mathsf{msg}}(k))$, with
 $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work.
@@ -78,11 +78,11 @@ Our contributions are as follows.
     We design a three-round public-coin protocol that combines a structured
     variant of Freivalds' randomized reduction with proximity testing over
     linear codes and Merkle-tree commitments.
-	    In our CP-linked instantiation, message commitments to
+	    In our sampled-opening backend, message commitments to
 	    $\vect{x},\vect{y},\vect{z}$ are fixed before the query set is derived,
 	    and the circuit opens public wire handles for the sampled values used in
-	    the fold checks; auxiliary Merkle and CP-link verifiers connect those
-	    handles to authenticated external leaves.
+	    the fold checks; auxiliary opening/linking verifiers connect those handles
+	    to authenticated external leaves.
 	    The resulting online SNARK relation has $\mathcal{O}(tk)$ sampled
 	    algebraic work for fixed security parameter, a significant reduction
 	    from the $\mathcal{O}(k^2)$ of Freivalds-based approaches.
@@ -104,8 +104,8 @@ Our contributions are as follows.
 	    and $\epsilon_{\mathsf{bind}}$ is the Merkle commitment's binding error.
 	    The Fiat--Shamir non-interactive variant adds the standard
 	    random-oracle loss $\epsilon_{\mathsf{FS}}(q_H)$.
-	    The theorem is stated relative to certified public input commitments to
-	    row-wise encoded matrices and to the CP-linked intermediate backend,
+		    The theorem is stated relative to certified public input commitments to
+		    row-wise encoded matrices and to the sampled-opening backend,
     matching the committed-input viewpoint used in code-based proof systems
     such as Brakedown~\cite{golovnev2023brakedown} and
     Orion~\cite{xie2022orion}.
@@ -117,9 +117,9 @@ Our contributions are as follows.
     (Section~\ref{sec:security}).
 
     \item \textbf{Concrete efficiency gains.}
-	    We implement the multiplication-checking layer of $\protocol$ in Rust
-	    and evaluate it against a direct Freivalds SNARK baseline across matrix
-	    dimensions up to $k=2^{13}$ with the CP-linked sampled-opening backend.
+		    We implement the multiplication-checking layer of $\protocol$ in Rust
+		    and evaluate it against a direct Freivalds SNARK baseline across matrix
+		    dimensions up to $k=2^{13}$ with the sampled-opening backend.
     Key findings (Section~\ref{sec:implementation}):
     \begin{itemize}[nosep]
         \item \emph{Constraint reduction.}
@@ -134,7 +134,7 @@ Our contributions are as follows.
 	        $3{,}331{,}779$ constraints.
 
         \item \emph{Proving-time speedup.}
-        The current QA-NIZK implementation $\fmQA$ outperforms Freivalds from
+	        The current implementation $\fmQA$ outperforms Freivalds from
         $k = 256$ onward.
         At $k = 4{,}096$, prove times are $55.92\,\text{s}$ for $\fmQA$ and
         $405.04\,\text{s}$ for Freivalds, a $7.24\times$ speedup.
@@ -143,10 +143,10 @@ Our contributions are as follows.
 
         \item \emph{GPT-2 workload case study.}
         For a GPT-2 workload with $36$ matrix-multiplication claims at sequence
-        length $1{,}024$, $\fmQA$ reduces constraints by $2.30\times$ and
-        proving time by $1.78\times$ relative to Freivalds, while verification
-        is $1.39\times$ slower because the current QA-NIZK implementation
-        checks sampled opening and linking material.
+	        length $1{,}024$, $\fmQA$ reduces constraints by $2.30\times$ and
+	        proving time by $1.78\times$ relative to Freivalds, while verification
+	        is $1.39\times$ slower because the current backend checks sampled
+	        opening and linking material.
 
         \item \emph{Negligible encoding overhead.}
         The prover's off-circuit encoding step takes less than

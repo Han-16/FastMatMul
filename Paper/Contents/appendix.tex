@@ -173,6 +173,31 @@ This proves Theorem~\ref{thm:security}.
 \section{CP-Link Backend Instantiation}
 \label{app:cplink-backend}
 
+The artifact uses Pedersen-style~\cite{pedersen1991non} handles
+\[
+  \Gamma=\rho_\Gamma H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
+  \qquad
+  L=\rho_L H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
+\]
+with $d_\chi=k$ for matrix columns and $d_\chi=1$ for vector coordinates.
+Leaf handles are authenticated by the Merkle tree, while Groth16 checks the
+wire-handle opening for the sampled witness value.
+The link proof shows that the public wire handle and the authenticated leaf
+handle open to the same sampled object.
+
+\begin{theorem}[Batched CP-link backend]\label{thm:cp-link-backend}
+Assume the Pedersen handle parameters are generated so that the handle
+commitment is binding, the QA-NIZK link proof for the linear batch relation is
+sound, and the batching challenge is sampled by the Fiat--Shamir random oracle
+after the batch statement is fixed.
+For $Q=|\mathcal{S}|t$ sampled objects, the batched CP-link verifier accepts a
+false batch with probability at most
+$\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$.
+The artifact serializes the $Q$ logical relations as one online batched proof;
+generator and CRS bytes are setup material and are not included in the online
+proof-size claim.
+\end{theorem}
+
 The logical CP-link relation contains one equation per sampled object:
 \[
   \Gamma_q-L_q=\Delta_qH,\qquad q\in[Q],

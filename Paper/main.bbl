@@ -111,11 +111,12 @@ R.~Zippel, ``Probabilistic algorithms for sparse polynomials,'' in
   \emph{Symbolic and Algebraic Computation (EUROSAM '79)}.\hskip 1em plus 0.5em
   minus 0.4em\relax Berlin, Heidelberg: Springer, 1979, pp. 216--226.
 
-\bibitem{pedersen1991non}
-T.~P. Pedersen, ``Non-interactive and information-theoretic secure verifiable
-  secret sharing,'' in \emph{Advances in Cryptology -- CRYPTO '91}.\hskip 1em
-  plus 0.5em minus 0.4em\relax Berlin, Heidelberg: Springer, 1991, pp.
-  129--140.
+\bibitem{jutla2013shorter}
+\BIBentryALTinterwordspacing
+C.~S. Jutla and A.~Roy, ``Shorter quasi-adaptive {NIZK} proofs for linear
+  subspaces,'' Cryptology ePrint Archive, Paper 2013/109, 2013. [Online].
+  Available: \url{https://eprint.iacr.org/2013/109}
+\BIBentrySTDinterwordspacing
 
 \bibitem{liu2021zkcnn}
 T.~Liu, X.~Xie, and Y.~Zhang, ``Zkcnn: Zero knowledge proofs for convolutional
@@ -179,5 +180,11 @@ B.~B{\"u}nz, J.~Bootle, D.~Boneh, A.~Poelstra, P.~Wuille, and G.~Maxwell,
   ``Bulletproofs: Short proofs for confidential transactions and more,'' in
   \emph{2018 IEEE Symposium on Security and Privacy}.\hskip 1em plus 0.5em
   minus 0.4em\relax New York, NY, USA: IEEE, 2018, pp. 315--334.
+
+\bibitem{pedersen1991non}
+T.~P. Pedersen, ``Non-interactive and information-theoretic secure verifiable
+  secret sharing,'' in \emph{Advances in Cryptology -- CRYPTO '91}.\hskip 1em
+  plus 0.5em minus 0.4em\relax Berlin, Heidelberg: Springer, 1991, pp.
+  129--140.
 
 \end{thebibliography}

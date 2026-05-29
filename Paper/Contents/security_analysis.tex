@@ -1,7 +1,7 @@
 \section{Security Analysis}
 \label{sec:security}
 
-We prove that the protocol $\protocol$ (Figure~\ref{fig:protocol}) constitutes a secure interactive argument for the matrix multiplication relation $\mathcal{R}_{\mathsf{orig}}$ relative to certified encoded input commitments and the CP-linked intermediate-commitment backend of Definition~\ref{def:codecom-backend}.
+We prove that the protocol $\protocol$ (Figure~\ref{fig:protocol}) constitutes a secure interactive argument for the matrix multiplication relation $\mathcal{R}_{\mathsf{orig}}$ relative to certified encoded input commitments and the sampled-opening backend of Definition~\ref{def:codecom-backend}.
 Soundness and completeness are established in Theorem~\ref{thm:security} below; knowledge soundness is discussed separately in Remark~\ref{rem:aok}.
 As discussed in Section~\ref{sec:relation-chain}, the public input commitments $\cm_A,\cm_B,\cm_C$ are assumed to bind to row-wise encodings of fixed matrices $\mat{A},\mat{B},\mat{C}$.
 This is the committed-input model used by code-based proof systems such as Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion}; $\protocol$ verifies the multiplication relation among these committed objects.
@@ -10,7 +10,7 @@ $\vect{x},\vect{y},\vect{z}$ before the query tuple is sampled.
 At each sampled coordinate, the SNARK binds the matrix column or vector leaf it
 uses to a public wire handle $\Gamma_{\chi,j}$.
 The auxiliary verifier authenticates a compact external Merkle leaf handle
-$L_{\chi,j}$ and a CP-link proof connects the two handles.
+$L_{\chi,j}$ and checks that it is linked to the SNARK-side handle.
 For intermediate vectors, the SNARK also computes $\enc(v)_j$ internally before
 opening the wire handle.
 
@@ -21,8 +21,8 @@ theorem.
 The public objects are the certified encoded input commitments and the
 transcript-derived challenges; the committed objects are the row-wise encodings
 of $\mat{A},\mat{B},\mat{C}$ and the intermediate encoded vectors.
-The backend supplies message binding before $I$ and sampled CP-link consistency
-between the Groth16 wire handles and the external Merkle openings.
+The backend supplies message binding before $I$ and sampled consistency between
+the Groth16 wire handles and the external Merkle openings.
 Witness extraction and hiding require the additional composition assumptions
 described in Remark~\ref{rem:aok} and are outside the main theorem.
 In short, $\cm_A,\cm_B,\cm_C$ are certified public roots fixed before $r$;
@@ -37,8 +37,8 @@ Second, the intermediate message commitments and encoded-vector roots are fixed
 before the query tuple $I=(j_1,\ldots,j_t) \sample [n]^t$ is sampled;
 conditioned on an accepting message-opening proof, each vector
 $\vect{x},\vect{y},\vect{z}$ is fixed independently of the sampled positions,
-and accepted CP-link proofs bind sampled external openings to the corresponding
-Groth16 wire handles.
+and accepted auxiliary linking proofs bind sampled external openings to the
+corresponding Groth16 wire handles.
 For intermediate vectors, the message openings and in-circuit RS checks bind
 those handles to the corresponding coordinates of
 $\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$.
@@ -52,16 +52,23 @@ bound.
 The backend bad event is the only non-standard composition point.
 After the transcript prefix fixes
 $(\mathsf{Cm}_{ABC},r,\mathsf{Cm}_{XYZ},I)$, the adversary must output Groth16
-wire handles, Merkle openings, and one batched CP-link proof that verifies under
-the same transcript tag
-$T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
-where $P_I$ is the ordered list of all tuples
-$(\chi,j_q,\Gamma_{\chi,j_q},L_{\chi,j_q})$.
-Conditioned on Groth16 extraction, CP-link soundness, and Merkle position
-binding, the value used in the fold relation is the same value authenticated at
-the committed leaf position.
-Appendix~\ref{app:security-proof} spells out this bad event and its Pedersen
-handle equations.
+handles, Merkle openings, and an auxiliary linking proof for the sampled
+objects.
+A backend failure occurs if all these checks accept while some value used in
+the Groth16 fold relation is not the value authenticated at the corresponding
+leaf position.
+Definition~\ref{def:codecom-backend} charges this event to
+$\epsilon_{\mathsf{cc}}$; Appendix~\ref{app:security-proof} expands the event
+for the concrete backend.
+For the artifact backend summarized in Section~\ref{sec:construction}, the
+sampled-linking component contributes
+$\epsilon_{\mathsf{link}}\le
+\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$, where
+$Q=|\mathcal{S}|t$ is the number of sampled handle pairs.
+Here $\epsilon_{\mathsf{ped}}$ is the binding error of the algebraic handle
+parameters, $\epsilon_{\mathsf{QA}}$ is the soundness error of the batched
+QA-NIZK relation, and the $Q/|\mathbb{F}|$ term is the standard randomized-batch
+failure probability after the batch statement is fixed.
 
 \begin{theorem}[Security]\label{thm:security}
 The protocol $\protocol$ satisfies the following properties:
@@ -87,21 +94,16 @@ Here $t = |I|$ is the query complexity and $\delta$ is the relative minimum
 distance of $\mathcal{C}$.
 The terms $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and
 $\epsilon_{\mathsf{bind}}$ denote, respectively, the soundness error of the
-SNARK backend, the message-binding/CP-link consistency error of the selected
+SNARK backend, the message-binding/linking consistency error of the selected
 intermediate backend, and the union-bounded position-binding error of the
 opening layer over all roots and openings used in the protocol.
-For the QA-NIZK/CP-link instantiation, we instantiate
-$\epsilon_{\mathsf{cc}}$ by
-$\epsilon_{\mathsf{cc}}\le
-\epsilon_{\mathsf{msg}}+\epsilon_{\mathsf{link}}$, where
-$\epsilon_{\mathsf{msg}}$ is the binding error of the message commitment and
-$\epsilon_{\mathsf{link}}$ is the binding/linking soundness error of the
-sampled handle backend in Definition~\ref{def:codecom-backend}.
-For the batched Pedersen/QA-NIZK backend of
-Theorem~\ref{thm:cp-link-backend},
-$\epsilon_{\mathsf{link}}\le
-\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$ with
-$Q=|\mathcal{S}|t$.
+  In the notation of Definition~\ref{def:codecom-backend},
+  $\epsilon_{\mathsf{cc}}\le
+  \epsilon_{\mathsf{msg}}+\epsilon_{\mathsf{link}}$.
+  For the artifact backend,
+  $\epsilon_{\mathsf{link}}\le
+  \epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+|\mathcal{S}|t/|\mathbb{F}|$;
+  Appendix~\ref{app:cplink-backend} gives the full batching equation.
   \item \textbf{Fiat--Shamir soundness.} In the random oracle model, the
   non-interactive variant described in Section~\ref{sec:protocol-desc}
   satisfies the same bound with an additional Fiat--Shamir loss term
@@ -110,11 +112,30 @@ $Q=|\mathcal{S}|t$.
 \end{enumerate}
 \end{theorem}
 
+\begin{corollary}[Evaluated backend]\label{cor:evaluated-backend}
+For the backend used in the artifact, Theorem~\ref{thm:security} applies with
+\[
+  \epsilon_{\mathsf{cc}}
+  \le
+  \epsilon_{\mathsf{msg}}
+  +\epsilon_{\mathsf{ped}}
+  +\epsilon_{\mathsf{QA}}
+  +|\mathcal{S}|t/|\mathbb{F}|.
+\]
+The bound assumes the message commitment is binding, the algebraic handle
+parameters are binding, the QA-NIZK is sound for the stated linear batch
+relation, and the batch randomizer is sampled after the handle-pair statement is
+fixed.
+In the non-interactive artifact, the Fiat--Shamir loss term
+$\epsilon_{\mathsf{FS}}(q_H)$ covers both the protocol challenges $(r,I)$ and
+the backend batch randomizer, using separate domain tags.
+\end{corollary}
+
 The reported scaling rows use $t=128$; if $\delta=1/2$, this gives proximity
 term $2^{-126}$, while a conservative per-term $2^{-131}$ target uses $t=133$.
 A strict deployment must also instantiate the SNARK, message commitment,
-CP-link, and hash parameters so their union-bounded errors fit the aggregate
-security budget.
+sampled-linking backend, and hash parameters so their union-bounded errors fit
+the aggregate security budget.
 
 \paragraph{Proof sketch}
 Completeness follows from linearity of the Freivalds reduction and of the
@@ -137,6 +158,8 @@ The proof of the main bound in Theorem~\ref{thm:security} is for the
 public-coin interactive protocol.
 The non-interactive variant in Section~\ref{sec:protocol-desc} derives both
 $r$ and $I$ from domain-separated hashes of the full transcript prefix.
+The artifact backend also derives its batch randomizer with a separate domain
+tag after the handle-pair batch statement is fixed.
 In the random oracle model, the same proof applies with the standard
 Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$, where $q_H$ is the adversary's
 number of random-oracle queries.

@@ -7,9 +7,9 @@ SNARK relation to $\mathcal{O}(tk+E_{\mathsf{msg}}(k))$ constraints plus
 $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work,
 where $t$ is a security-parameter-sized constant.
 The protocol combines Freivalds' randomized check with proximity testing over
-row-wise encoded matrix commitments; in our CP-linked instantiation, message
-commitments fix intermediate vectors before sampling and public wire handles
-link Groth16 witness values to small commitments authenticated by Merkle paths.
+row-wise encoded matrix commitments; a sampled-opening backend fixes
+intermediate vectors before sampling and links the circuit's sampled values to
+small commitments authenticated by Merkle paths.
 
 We prove perfect completeness and computational soundness assuming that another
 layer has already certified the encoded input commitments, and assuming the

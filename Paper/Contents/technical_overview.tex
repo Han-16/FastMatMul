@@ -57,7 +57,7 @@ $I=(j_1,\ldots,j_t) \sample [n]^t$ of column indices independently with
 replacement.
 For each sampled $j \in I$, the prover supplies the $j$-th column or coordinate
 as Groth16 witness data, opens a compact public wire handle for that witness,
-and provides auxiliary Merkle/CP-link material tying the wire handle to the
+and provides auxiliary opening/linking material tying the wire handle to the
 authenticated external leaf handle.
 
 At each queried position $j$, the verifier checks four \emph{local consistency equations}:
@@ -120,8 +120,8 @@ intermediate vectors, and the four local consistency equations at each queried
 index.
 These checks are arithmetized into the Groth16 relation defined in
 Section~\ref{sec:construction}.
-Merkle path validity and CP-link consistency over the public wire/leaf handles
-are auxiliary verifier checks bound to the same transcript.
+Merkle path validity and sampled-linking consistency over the public wire/leaf
+handles are auxiliary verifier checks bound to the same transcript.
 The prover then sends a succinct proof $\pi$ plus the sampled opening/linking
 material, and the verifier accepts only if every component verifies.
 
@@ -130,10 +130,10 @@ The \emph{SNARK circuit size}---the key metric governing prover cost---is
 $\mathcal{O}(t \cdot k + E_{\mathsf{msg}}(k))$, where the first term includes
 sampled folds, RS evaluations, and wire-handle openings, and $E_{\mathsf{msg}}$
 is the message-opening cost.
-Merkle authentication and CP-link verification add
+Merkle authentication and sampled-linking verification add
 $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary online work.
-For the CP-linked instantiation evaluated in this paper, the in-circuit checker
-is linear in $k$ for fixed $t$ and independent of $k^2$ or $k^3$.
+For the sampled-opening backend evaluated in this paper, the in-circuit checker
+is linear in $k$ for fixed $t$ and avoids the $k^2$ or $k^3$ circuit costs.
 The prover additionally performs the native matrix multiplication ($\mathcal{O}(k^3)$) and encoding ($\mathcal{O}(kn)$) outside the SNARK.
 The verifier's core SNARK work is $\mathcal{O}(1)$ for pairing-based backends, or $\mathcal{O}(|\stmt|)$ for transparent ones; total verification additionally depends on the selected commitment/linking backend.
 A detailed cost breakdown appears in Table~\ref{tab:cost-summary} (Section~\ref{sec:complexity}).
