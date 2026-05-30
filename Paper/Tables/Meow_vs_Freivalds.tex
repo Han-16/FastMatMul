@@ -29,9 +29,9 @@ Freivalds SNARK baseline. $\fmQA$ is the current implementation of the
 sampled-opening backend with multi-column Merkle openings. Proving time excludes
 native matrix multiplication and setup; these are recorded separately in the
 artifact. The table measures the online multiplication-checking layer, including
-wire-handle openings, sampled RS evaluations, Merkle openings, and auxiliary
-opening/linking checks; online proof bytes exclude raw sampled matrix-column
-witness values, raw input certification for $\cm_A,\cm_B,\cm_C$, and
-setup/key/CRS material.}
+sampled RS evaluations, Merkle openings, SNARK-side witness commitments, and
+auxiliary opening/linking checks; online proof bytes exclude raw sampled
+matrix-column witness values, raw-matrix encoding and input-root construction
+for $\cm_A,\cm_B,\cm_C$, and setup/key/CRS material.}
 \label{tab:meow-vs-freivalds}
 \end{table*}

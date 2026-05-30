@@ -16,12 +16,12 @@ The expression $r \sample \mathbb{F}$ denotes uniform random sampling from $\mat
 \subsection{Linear Error-Correcting Codes}
 \label{sec:prelim-codes}
 
-A \emph{linear code} over $\mathbb{F}$ is an $\mathbb{F}$-linear map $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ defined by a generator matrix $G \in \mathbb{F}^{k \times n}$, so that $\mathcal{C}(\vect{m}) = \vect{m} \cdot G$ for any message $\vect{m} \in \mathbb{F}^k$.
+A \emph{linear code} over $\mathbb{F}$ is an $\mathbb{F}$-linear map $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ defined by a generator matrix $G \in \mathbb{F}^{k \times n}$, so that $\mathcal{C}(\vect{m}) = \vect{m} \cdot G$ for any input vector $\vect{m} \in \mathbb{F}^k$.
 The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\vect{c} \neq \vect{c}'} \Delta(\vect{c}, \vect{c}')$ over distinct codewords $\vect{c}, \vect{c}' \in \mathcal{C}$, where $\Delta$ denotes the Hamming distance.
 The \emph{relative distance} is $\delta = d/n$.
 A code is \emph{systematic} if the first $k$ coordinates of $\mathcal{C}(\vect{m})$ equal $\vect{m}$ itself.
 
-We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of a message vector.
+We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
 For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the \emph{row-wise encoding} $\enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}_{i,\star})$.
 The $j$-th column of $\enc(\mat{M})$ is denoted $\enc(\mat{M})^{(j)} \in \mathbb{F}^k$.
 

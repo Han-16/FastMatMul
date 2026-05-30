@@ -10,9 +10,9 @@ vector-matrix products directly or by using sumcheck/GKR-style machinery over
 layered arithmetic circuits.
 $\protocol$ is complementary: it is a dedicated checking layer for the matrix
 multiplication component, reducing the checked relation to
-$\mathcal{O}(tk+E_{\mathsf{msg}}(k))$ in-circuit work plus
+$\mathcal{O}(tk+E_{\mathsf{vec}}(k))$ in-circuit work plus
 $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work
-under certified encoded commitments.
+over encoded input commitments.
 
 Dedicated matrix-verification protocols, including
 zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
@@ -21,7 +21,7 @@ al.~\cite{bennett2023matrix}, explore different trade-offs among polynomial
 commitments, batching, prover work, sparsity assumptions, and proof size.
 These works often package the input-commitment and matrix-verification layers
 inside a single committed-matrix system.  Our construction instead exposes a
-SNARK-friendly local relation over certified committed codewords and states the
+SNARK-friendly local relation over committed codewords and states the
 backend requirements explicitly.  This makes the checking layer portable across
 commitment backends: systems that already maintain encoded committed inputs can
 use $\protocol$ as their online matrix-multiplication checker.
@@ -32,7 +32,7 @@ system; it is the problem-specific reduction that turns the matrix check into
 local codeword folds before arithmetization.
 The main trade-off is therefore different from both sumcheck/GKR systems and
 dedicated matrix-vector-commitment protocols: $\protocol$ verifies multiplication
-over certified encoded commitments, targets statement-sound checking rather
+over encoded input commitments, targets statement-sound checking rather
 than zero knowledge, and delegates codeword binding to the selected backend.
 
 We use Freivalds-in-SNARK as the primary experimental baseline because it
@@ -41,6 +41,6 @@ measurement stack and does not require reimplementing a different proof-system
 architecture.
 Sumcheck/GKR, dedicated matrix VC, and code-based SNARK systems provide
 important comparison points, but their costs depend on different input
-certification, batching, setup, and transcript models.
+input-root generation, batching, setup, and transcript models.
 We therefore avoid presenting non-normalized running times as direct
 head-to-head numbers.

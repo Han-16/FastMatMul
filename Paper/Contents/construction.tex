@@ -18,13 +18,13 @@ $\mathcal{M},\mathcal{W}$            & Matrix objects $\{\mat{A},\mat{B},\mat{C}
 $\mathcal{S}$                        & Sampled-object set $\mathcal{M}\cup\mathcal{W}$ \\
 $I=(j_1,\ldots,j_t)$                & Ordered tuple of sampled positions \\
 $\cm_\chi$                          & Merkle root for committed object $\chi\in\mathcal{S}$ \\
-$\mu_v,\omega_v$                    & Message commitment to intermediate vector $v$ and its opening data \\
+$\mu_v,\omega_v$                    & Pre-query commitment to intermediate vector $v$ and its opening data \\
 $a_{\chi,j}$                        & Sampled object value used by the SNARK at position $j$ \\
 $L_{\chi,j},\pi_{\chi,j}$           & Authenticated leaf handle and opening path for object $\chi$ at position $j$ \\
-$\Gamma_{\chi,j},\rho_{\chi,j}$     & Public SNARK-side handle for $a_{\chi,j}$ and its opening randomness \\
+$\Gamma_{\chi,j},\rho_{\chi,j}$     & SNARK-side witness commitment to $a_{\chi,j}$ and its opening randomness \\
 $\sigma_I$                          & Auxiliary proof for sampled opening/linking checks \\
 $\stmt,\wit$                        & Public instance and private witness for the SNARK relation \\
-$E_{\mathsf{msg}}(k),E_{\mathsf{link}}(k)$ & Costs for message-opening and auxiliary linking checks \\
+$E_{\mathsf{vec}}(k),E_{\mathsf{link}}(k)$ & Costs for vector-binding and auxiliary linking checks \\
 \bottomrule
 \end{tabularx}
 \caption{Protocol-specific notation used in Section~\ref{sec:construction}.}
@@ -37,30 +37,22 @@ $E_{\mathsf{msg}}(k),E_{\mathsf{link}}(k)$ & Costs for message-opening and auxil
 Our construction proceeds through two successive reductions.
 Each reduction preserves completeness exactly and introduces a bounded soundness error that we analyze in Section~\ref{sec:security}.
 
-\paragraph{Input-commitment model}
-Following the committed-oracle viewpoint common in code-based proof systems
-such as Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion},
-we take the input matrix commitments as certified public inputs.
-Concretely, $\cm_A,\cm_B,\cm_C$ are assumed to bind to row-wise encodings
-$\enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C})$ of some matrices
+\paragraph{Input-commit phase}
+The protocol starts by committing to the input and output matrices.
+The prover row-wise encodes $\mat{A},\mat{B},\mat{C}$ and publishes Merkle roots
+$\cm_A,\cm_B,\cm_C$ before the Freivalds challenge is sampled.
+The input-root binding condition is that each root binds to
+$\enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C})$ for fixed matrices
 $\mat{A},\mat{B},\mat{C} \in \mathbb{F}^{k \times k}$.
-Certification means that every accepting opening of $\cm_M$, for
-$M \in \{\mat{A},\mat{B},\mat{C}\}$, is a coordinate or column of
-$\enc(M)$ for a fixed matrix $M$ determined before the verifier samples the
-Freivalds challenge.
-This certification may be supplied by the surrounding committed-codeword
-system, by a public generation process, or by a separate input-opening proof.
-It is a precondition of the multiplication-checking protocol rather than an
-online cost charged to $\protocol$.
-The goal of $\protocol$ is to verify the multiplication relation among these
-committed matrices without arithmetizing the full matrix product.
-The concrete deployment interface used for our claims is therefore:
-an offline certification layer publishes $(\cm_A,\cm_B,\cm_C)$ together with
-the assertion that they are binding commitments to row-wise encoded matrices;
-the online checker receives only these certified roots and proves the
-multiplication relation over them.
-If the deployment starts from raw matrices or ML tensors, the cost of producing
-and certifying those roots must be added separately.
+This is the same committed-oracle viewpoint used in code-based proof systems
+such as Brakedown~\cite{golovnev2023brakedown} and
+Orion~\cite{xie2022orion}: once a root is fixed, any accepted opening must be
+the corresponding coordinate or column of the committed row-wise codeword.
+The multiplication checker then proves the relation among these input roots
+without arithmetizing the full matrix product.
+Our artifact reports the online checking cost after the roots are available;
+the raw cost of encoding matrices and building their roots is reported
+separately when measured and is not included in the online proof-byte claims.
 Throughout this section, $\merkle(\enc(\mat{M}))$ is shorthand for the Merkle
 root over compact leaf handles
 $(L_{M,1},\ldots,L_{M,n})$, where each handle is binding to the corresponding
@@ -72,9 +64,9 @@ witness data; the auxiliary verifier sees handles and authentication paths.
 
 \begin{definition}[Sampled-opening backend]\label{def:codecom-backend}
 The online checker uses a black-box backend for sampled openings.
-For each sampled object $\chi$ and query $j$, the Groth16 circuit uses a
-private value $a_{\chi,j}$ and publishes a handle $\Gamma_{\chi,j}$ to that
-value.
+For each sampled object $\chi$ and query $j$, the Groth16 relation uses a
+private value $a_{\chi,j}$ and the committed-witness SNARK backend publishes a
+SNARK-side commitment $\Gamma_{\chi,j}$ to that value.
 The auxiliary verifier sees the committed root $\cm_\chi$, a leaf handle
 $L_{\chi,j}$, an opening path $\pi_{\chi,j}$, and an aggregate auxiliary proof
 $\sigma_I$.
@@ -82,21 +74,24 @@ We write $\mathsf{AuxV}$ for the combined auxiliary verifier and
 $\mathsf{LinkV}$ for its sampled-linking check after path verification.
 The backend must provide three guarantees:
 
-\emph{Circuit binding.}
-If the Groth16 relation accepts, every sampled value used in the fold equations
-is bound to its public handle $\Gamma_{\chi,j}$.
+\emph{SNARK-side binding.}
+If the Groth16 verifier accepts, every sampled value used in the fold equations
+is bound by the committed-witness SNARK backend to its public commitment
+$\Gamma_{\chi,j}$.
+This property is part of the selected SNARK backend and is charged to
+$\epsilon_{\mathsf{SNARK}}$.
 
 \emph{Position opening.}
 If the auxiliary verifier accepts, each $L_{\chi,j}$ is authenticated as the
 leaf at position $j$ under the pre-query root $\cm_\chi$.
 
 \emph{Sampled linking.}
-If both verifiers accept, the value bound to $\Gamma_{\chi,j}$ is the same value
+If both verifiers accept, the value bound by $\Gamma_{\chi,j}$ is the same value
 authenticated by $L_{\chi,j}$, except with probability
 $\epsilon_{\mathsf{link}}(\lambda)$ over the backend security experiment.
-The message commitments to the intermediate vectors have independent binding
-error $\epsilon_{\mathsf{msg}}$, so the theorem charges
-$\epsilon_{\mathsf{cc}}\le\epsilon_{\mathsf{msg}}+\epsilon_{\mathsf{link}}$.
+The pre-query vector commitments have independent binding
+error $\epsilon_{\mathsf{vec}}$, so the theorem charges
+$\epsilon_{\mathsf{cc}}\le\epsilon_{\mathsf{vec}}+\epsilon_{\mathsf{link}}$.
 \end{definition}
 
 \begin{table}[t]
@@ -108,9 +103,9 @@ $\epsilon_{\mathsf{cc}}\le\epsilon_{\mathsf{msg}}+\epsilon_{\mathsf{link}}$.
 \textbf{Contract item} & \textbf{What the main proof assumes} \\
 \midrule
 Input roots & $\cm_A,\cm_B,\cm_C$ bind to fixed row-wise codewords before $r$. \\
-Intermediate commitments & $\mu_x,\mu_y,\mu_z$ and $\cm_x,\cm_y,\cm_z$ are fixed before $I$. \\
-Circuit binding & Each sampled value used by Groth16 is bound to a public handle. \\
-Opening/linking & Accepted auxiliary checks bind each handle to the opened leaf under the pre-query root. \\
+Intermediate roots & $\mu_x,\mu_y,\mu_z$ and $\cm_x,\cm_y,\cm_z$ are fixed before $I$. \\
+SNARK-side binding & Each sampled value used by Groth16 is bound to a public SNARK-side commitment. \\
+Opening/linking & Accepted auxiliary checks bind each SNARK-side commitment to the opened leaf under the pre-query root. \\
 Concrete backend & The artifact uses one batched linking proof with $\epsilon_{\mathsf{link}}\le\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$ for $Q=|\mathcal{S}|t$. \\
 \bottomrule
 \end{tabularx}
@@ -123,7 +118,8 @@ We do not require a new global code-commitment primitive.
 Instead, $\protocol$ is stated relative to the committed-codeword viewpoint of
 Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion}, plus the
 sampled-opening interface above.
-The concrete artifact instantiates the interface with message commitments,
+The concrete artifact instantiates the interface with pre-query vector
+commitments,
 Merkle openings, and a batched auxiliary linking proof; Appendix~\ref{app:cplink-backend}
 gives the algebraic relation, batching argument, and online-byte accounting.
 The main construction and theorem use only the contract in
@@ -131,14 +127,15 @@ Table~\ref{tab:backend-contract}.
 
 \paragraph{Artifact backend in one paragraph}
 For the implementation evaluated in Section~\ref{sec:implementation}, each
-sampled SNARK-side handle and each authenticated leaf handle is a
-Pedersen-style algebraic handle to the same object.
+sampled SNARK-side commitment and each authenticated leaf handle is a
+Pedersen-style algebraic commitment to the same object.
 The auxiliary proof is one batched quasi-adaptive NIZK (QA-NIZK) proof for a
 linear relation~\cite{jutla2013shorter} linking all $Q=|\mathcal{S}|t$ sampled
-handle pairs.
-Assuming binding of the handle parameters, soundness of the QA-NIZK for the
-linear batch relation, and a domain-separated batch challenge sampled after the
-batch statement is fixed, the linking error is
+SNARK-side/leaf commitment pairs.
+Assuming committed-witness binding of the Groth16 backend, binding of the handle
+parameters, soundness of the QA-NIZK for the linear batch relation, and a
+domain-separated batch challenge sampled after the batch statement is fixed, the
+linking error is
 $\epsilon_{\mathsf{link}}\le
 \epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$.
 The CRS, handle generators, and proving/verifying keys are setup material; the
@@ -159,33 +156,16 @@ serialized size of these setup objects.
 \paragraph{Backend boundary}
 The security theorem is compositional: it proves the multiplication-checking
 protocol relative to any backend satisfying Definition~\ref{def:codecom-backend}.
-An end-to-end system must choose one concrete input-certification interface and
-specify its contribution to preprocessing, public input size, and setup.
-Our implementation instantiates the intermediate-vector backend with message
-commitments, Merkle openings, and auxiliary sampled-linking checks; it does not
-certify raw input matrices by itself.
-For the GPT-2 case study, static model-weight roots can be certified once and
-reused, while per-request activation/output roots must be certified by the
-surrounding computation pipeline.
-Thus the GPT-2 experiment is a checking-layer case study over certified roots,
-not an end-to-end raw-tensor VC measurement.
-
-\paragraph{Concrete deployment model for certified roots}
-The intended deployment is a two-layer pipeline.
-An offline or upstream certification layer encodes each raw matrix or tensor,
-forms the compact leaf handles, and publishes the Merkle root together with the
-claim that the root binds to the encoded object.
-The online multiplication checker then proves only the multiplication relation
-among these certified roots.
-For a $k\times k$ matrix with codeword length $n$, this certification layer
-performs $\Omega(kn)$ field work to produce the row-wise codeword and
-$\Omega(n)$ handle/hash work to form the root; a vector root costs
-$\Omega(n)$ plus the selected message-commitment cost.
-Static model-weight roots can amortize this cost over many inference requests.
-Per-request activation and output roots require an upstream tensor-commitment
-step; the measurements in Section~\ref{sec:implementation} remain end-to-end
-beneficial only when the amortized certification cost is below the online
-checking-layer savings reported there.
+The input-commit phase may be run inside the same application protocol or by an
+upstream data pipeline, but the roots must be fixed before $r$ is derived.
+For a $k\times k$ matrix with codeword length $n$, producing an input root costs
+$\Omega(kn)$ field work to encode rows and $\Omega(n)$ handle/hash work to form
+the Merkle tree.
+Static model-weight roots can amortize this cost over many inference requests;
+per-request activation and output roots cannot.
+The measurements in Section~\ref{sec:implementation} therefore report the
+online multiplication-checking layer separately from raw-matrix encoding and
+root construction.
 
 \paragraph{The original relation $\mathcal{R}_{\mathsf{orig}}$}
 The starting point is the statement that the prover knows matrices whose
@@ -243,13 +223,18 @@ $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$ denote the matrix set and
 $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ the intermediate-vector set.
 Let $\mathcal{S}=\mathcal{M}\cup\mathcal{W}$ be the set of objects opened at
 the sampled positions.
-The matrix roots $\cm_A,\cm_B,\cm_C$ are certified before $r$ is sampled.
+The matrix roots $\cm_A,\cm_B,\cm_C$ are fixed before $r$ is sampled.
 After seeing $r$ but before seeing $I$, the prover commits to
-$\vect{x},\vect{y},\vect{z}$ by sending message commitments
+$\vect{x},\vect{y},\vect{z}$ by sending pre-query vector commitments
 $\mu_x,\mu_y,\mu_z$ and encoded-vector roots $\cm_x,\cm_y,\cm_z$.
-This timing is necessary: without a pre-query commitment, a malicious prover
-could choose intermediate vectors after seeing $I$ and make them agree only at
-the sampled coordinates.
+The roots $\cm_x,\cm_y,\cm_z$ fix the encoded leaves that will later be opened,
+but by themselves they do not force the Groth16 witness vectors
+$\vect{x},\vect{y},\vect{z}$ to be chosen before $I$.
+The commitments $\mu_x,\mu_y,\mu_z$ close this gap: the SNARK checks that its
+vector witnesses open these pre-query commitments and then computes the
+sampled code evaluations from the same vectors.
+Without this vector binding, a malicious prover could wait for $I$ and choose
+vectors that interpolate only the sampled coordinates.
 
 The \emph{public instance} is
 \[
@@ -258,12 +243,12 @@ The \emph{public instance} is
   \mu_x,\mu_y,\mu_z,\; r,\; I,\;
   \{\Gamma_{\chi,j}\}_{\chi\in\mathcal{S},\,j\in I}\bigr)
 \]
-and the private data used for the circuit checks is
+and the private arithmetic-relation witness is
 \[
   \begin{aligned}
   \wit = (&\vect{x},\, \vect{y},\, \vect{z},\,
     \{\omega_v\}_{v\in\mathcal{W}},\\
-  &\bigl\{a_{\chi,j},\rho_{\chi,j}\bigr\}_{j \in I,\, \chi \in \mathcal{S}}).
+  &\bigl\{a_{\chi,j}\bigr\}_{j \in I,\, \chi \in \mathcal{S}}).
   \end{aligned}
 \]
 The auxiliary opening/linking proof data is
@@ -276,21 +261,21 @@ For a matrix commitment, $a_{\chi,j}\in\mathbb{F}^{k}$ is the sampled encoded
 column $\enc(\chi)^{(j)}$ used by the fold equation.
 For a vector commitment, $a_{\chi,j}\in\mathbb{F}$ is the sampled encoded
 coordinate.
+The opening randomness $\rho_{\chi,j}$ belongs to the SNARK-side witness
+commitment and to the auxiliary linking witness; it is not an R1CS witness
+variable checked by an in-circuit opening constraint.
 The resulting proximity-checking relation, denoted
 $\mathcal{R}_{\mathsf{Prox}}$, requires
 $(\stmt,\wit,\mathsf{aux}_I)$ to satisfy all of the following clauses.
-In our implementation, clauses~\eqref{eq:msg-check}--\eqref{eq:eq-check} are checked by Groth16;
+In our implementation, clauses~\eqref{eq:vec-bind}--\eqref{eq:eq-check} are checked by Groth16;
 clauses~\eqref{eq:path-check} and~\eqref{eq:link-check} are checked by
-$\mathsf{AuxV}$ over the same transcript and public handles.
+$\mathsf{AuxV}$ over the same transcript and SNARK-side commitments.
 \begingroup
 \scriptsize
 \begin{align}
   &\forall v\in\mathcal{W}{:}\quad
-    \msgV(\mu_v,v,\omega_v)=1,
-    \tag{MSG}\label{eq:msg-check}\\
-  &\forall \chi\in\mathcal{S},\,j\in I{:}\quad
-    \wireV(\para,\Gamma_{\chi,j},a_{\chi,j},\rho_{\chi,j})=1,
-    \tag{WIRE}\label{eq:wire-check}\\
+    \vecBindV(\mu_v,v,\omega_v)=1,
+    \tag{VEC}\label{eq:vec-bind}\\
   &\forall v\in\mathcal{W},\,j\in I{:}\quad
     a_{v,j}=\enc(v)_j,
     \tag{RS}\label{eq:rs-check}\\
@@ -314,54 +299,53 @@ $\mathsf{AuxV}$ over the same transcript and public handles.
 \endgroup
 Here $\forall j \in I$ ranges over every sampled position in the ordered tuple,
 including repetitions.
-Equation~\eqref{eq:wire-check} is the critical bridge between the private
-Groth16 witness and the auxiliary opening world: the fold equations use
-$a_{\chi,j}$, and the circuit simultaneously proves that this same value opens
-the public handle $\Gamma_{\chi,j}$.
+The committed-witness Groth16 backend is the bridge between the private Groth16
+witness and the auxiliary opening world: the fold equations use $a_{\chi,j}$,
+and SNARK verification binds that same witness slot to the public commitment
+$\Gamma_{\chi,j}$.
 Equation~\eqref{eq:path-check} uses the selected position-opening verifier on
 the compact leaf handle $L_{\chi,j}$.
 For the transparent Merkle instantiation, this is $\merkleV$ with the queried
 index included in the leaf domain.
 Equation~\eqref{eq:link-check} is the backend check that links the SNARK-side
-handle $\Gamma_{\chi,j}$ to the authenticated leaf handle $L_{\chi,j}$.
-Equation~\eqref{eq:msg-check} is what ties the vectors used by the circuit to
-the message commitments that were fixed before $I$ was sampled.
+commitment $\Gamma_{\chi,j}$ to the authenticated leaf handle $L_{\chi,j}$.
+Equation~\eqref{eq:vec-bind} is what ties the vectors used by the circuit to
+the pre-query vector commitments that were fixed before $I$ was sampled.
 Sending $\mu_x,\mu_y,\mu_z$ alone would not force the circuit witness to use the
 committed vectors.
 Equation~\eqref{eq:rs-check} computes the sampled RS/code evaluation for each
 intermediate vector inside the circuit.
-In the $\fmQA$ artifact, the message opening, wire-handle openings, sampled RS
-evaluations, and fold equations are included in the Groth16 relation, while
-Merkle path verification and sampled linking are auxiliary checks bound to the
-same transcript.
-The security proof uses only message-commitment binding, sampled witness-to-leaf
+In the $\fmQA$ artifact, vector-binding openings, sampled RS evaluations, and fold
+equations are included in the Groth16 relation, while Merkle path verification
+and sampled linking are auxiliary checks bound to the same transcript and to the
+SNARK-side commitments.
+The security proof uses only vector-commitment binding, sampled witness-to-leaf
 link consistency, and position binding of the opening layer.
 
 The critical property is that the Groth16 relation involves only
 $\mathcal{O}(|I| \cdot k)$ constraints for the fold operations, sampled RS
-evaluations, wire-handle openings, and message-opening checks.
+evaluations, and vector-binding checks.
 Merkle authentication and sampled-linking verification are auxiliary online
 checks whose cost is reported separately.
 Since $|I|$ is a security-parameter-sized constant independent of $k$, the
 in-circuit checking relation is \emph{linear in $k$}.
 
 \paragraph{Intermediate-binding cost}
-The message checks in~\eqref{eq:msg-check} force the prover to commit to fixed
+The vector-binding checks in~\eqref{eq:vec-bind} force the prover to commit to fixed
 vectors $\vect{x},\vect{y},\vect{z}$ before the query tuple is sampled.
-The wire and link checks in~\eqref{eq:wire-check} and~\eqref{eq:link-check}
-then force each sampled external opening to equal the value used by the
-in-circuit fold relation; for intermediate vectors,
+The committed-witness binding of $\Gamma_{\chi,j}$ and the link check in
+\eqref{eq:link-check} then force each sampled external opening to equal the
+value used by the in-circuit fold relation; for intermediate vectors,
 \eqref{eq:rs-check} also forces this value to be the corresponding code
 evaluation $\enc(v)_j$.
-Without the pre-query message commitment, a cheating prover could choose
+Without the pre-query vector commitments, a cheating prover could choose
 sampled openings first and then interpolate a vector that matches only those
 positions, defeating the distance-based soundness argument.
-Analogously, the input matrix commitments $\cm_A,\cm_B,\cm_C$ must be
-well-formed commitments to row-wise encodings of $\mat{A},\mat{B},\mat{C}$.
-In our model this is part of the public input-commitment interface, not a
-property re-proved by the multiplication protocol itself.
+Analogously, the input matrix roots $\cm_A,\cm_B,\cm_C$ must be fixed
+commitments to row-wise encodings of $\mat{A},\mat{B},\mat{C}$ before the
+Freivalds challenge.
 For Reed--Solomon-style encodings, a sampled coordinate $\enc(v)_j$ can be
-computed by evaluating the degree-$(k-1)$ message polynomial at the queried
+computed by evaluating the degree-$(k-1)$ interpolation polynomial at the queried
 domain point, costing $\mathcal{O}(k)$ constraints per sampled coordinate.
 Thus the sampled intermediate checks contribute $\mathcal{O}(tk)$ constraints.
 A fallback backend that proves full dense codeword validity inside the circuit
@@ -377,8 +361,8 @@ Let $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$ be the matrix set,
 $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ the intermediate-vector set,
 and $\mathcal{S} = \mathcal{M} \cup \mathcal{W}$ the objects opened at sampled
 positions.
-The verifier is given certified input commitments
-$(\cm_A,\cm_B,\cm_C)$ to $\enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C})$.
+The prover first commits to $\enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C})$ and
+sends the input roots $(\cm_A,\cm_B,\cm_C)$ before the challenge is derived.
 The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\mathcal{V}$ as shown in Figure~\ref{fig:protocol}.
 
 \begin{figure*}[ht!]
@@ -390,9 +374,11 @@ The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\
     \procedure[]{\protocol}{%
     \mathcal{P} \< \< \mathcal{V} \\[4pt]
     %% Phase 1
-    \textbf{Phase 1: Public input} \< \< \\
-    \text{Certified roots } \cm_A,\cm_B,\cm_C
-      \text{ bind to } \enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C}) \< \< \\[4pt]
+    \textbf{Phase 1: Commit inputs} \< \< \\
+    \cm_A\gets\merkle(\enc(\mat{A})),\quad
+      \cm_B\gets\merkle(\enc(\mat{B})),\quad
+      \cm_C\gets\merkle(\enc(\mat{C}))
+      \< \sendmessageright*[2.5cm]{\cm_A,\cm_B,\cm_C} \< \\[4pt]
     \mathsf{Cm}_{ABC}\gets\Hash(\para,\cm_A,\cm_B,\cm_C) \< \< \\[4pt]
     %% Phase 2
     \< \< \textbf{Phase 2: Challenge} \\
@@ -415,17 +401,17 @@ The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\
     \textbf{Phase 5: Open \& Prove} \< \< \\
     \text{For } j \in I,\ \chi \in \mathcal{S}: \< \< \\
     \quad (a_{\chi,j}, L_{\chi,j}, \pi_{\chi,j}) \gets \merkleO(\cm_\chi, j) \< \< \\
-    \quad \rho_{\chi,j}\sample\{0,1\}^{\lambda},\quad
-      \Gamma_{\chi,j}\gets\wireCom(\para,a_{\chi,j};\rho_{\chi,j}) \< \< \\
+    \quad (\Gamma_{\chi,j},\rho_{\chi,j})\gets
+      \mathsf{CW.Commit}(\para,a_{\chi,j}) \< \< \\
     \stmt \gets \Big( \{\cm_{\chi}\}_{\chi \in \mathcal{S}},\,
       \mu_x,\mu_y,\mu_z,\, r,\, I,\,
       \{\Gamma_{\chi,j}\}_{j \in I,\chi\in\mathcal{S}} \Big) \< \< \\
     \sigma_I\gets\mathsf{AuxP}\!\left(\stmt,
       \{(L_{\chi,j},\pi_{\chi,j},\Gamma_{\chi,j})\}_{j\in I,\chi\in\mathcal{S}}\right) \< \< \\
     \wit \gets \Big( \vect{x}, \vect{y}, \vect{z},\, \{\omega_v\}_{v\in\mathcal{W}},\,
-      \{a_{\chi,j},\rho_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}} \Big) \< \< \\
+      \{a_{\chi,j}\}_{j \in I, \chi \in \mathcal{S}} \Big) \< \< \\
     \mathsf{aux}_I \gets \Big(\{L_{\chi,j}, \pi_{\chi,j}\}_{j \in I,\chi\in\mathcal{S}},\sigma_I\Big) \< \< \\
-    \pi \gets \snarkP(\para, \stmt, \wit)
+    \pi \gets \snarkP(\para, \stmt, \wit;\{\rho_{\chi,j}\})
       \< \sendmessageright*[2.5cm]{\pi,\{\Gamma_{\chi,j}\},\mathsf{aux}_I} \< \\[4pt]
     %% Phase 6
     \< \< \textbf{Phase 6: Verify} \\
@@ -440,7 +426,7 @@ The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\
 $\mathcal{S} = \mathcal{M} \cup \mathcal{W}$ is the set of objects opened at
 sampled positions, $t = |I|$ is the query complexity, and $\stmt, \wit$ denote
 the public statement and witness for the inner SNARK.}
-\Description{Protocol flow showing certified input roots, the Freivalds challenge, intermediate commitments, sampled query indices, wire handles, auxiliary openings, and the final SNARK proof.}
+\Description{Protocol flow showing input-root commitments, the Freivalds challenge, intermediate commitments, sampled query indices, SNARK-side commitments, auxiliary openings, and the final SNARK proof.}
 \label{fig:protocol}
 \end{figure*}
 
@@ -451,25 +437,28 @@ full transcript acceptance additionally requires the auxiliary opening and
 linking verifiers to accept.
 The implemented verifier checks three groups of conditions, split between the
 Groth16 circuit and auxiliary verifiers.
-First, constraint~\eqref{eq:msg-check} ties the message commitments
+First, constraint~\eqref{eq:vec-bind} ties the pre-query vector commitments
 $\mu_x,\mu_y,\mu_z$ to the same $\vect{x},\vect{y},\vect{z}$ used in the fold
 checks.
-Constraint~\eqref{eq:wire-check} makes each sampled value used by the circuit
-open the public wire handle $\Gamma_{\chi,j}$, and
-constraints~\eqref{eq:rs-check}--\eqref{eq:eq-check} verify the sampled RS,
+The committed-witness SNARK backend binds each sampled value used by the
+circuit to the public commitment $\Gamma_{\chi,j}$ through the Groth16
+verification equation; this is not a separate arithmetic constraint.
+Constraints~\eqref{eq:rs-check}--\eqref{eq:eq-check} verify the sampled RS,
 fold, and equality checks at each $j \in I$ inside the Groth16 circuit.
 Second, the auxiliary backend checks~\eqref{eq:link-check}, linking each public
-wire handle $\Gamma_{\chi,j}$ to the authenticated external leaf handle
+SNARK-side commitment $\Gamma_{\chi,j}$ to the authenticated external leaf handle
 $L_{\chi,j}$.
 Third, the auxiliary opening verifier checks~\eqref{eq:path-check} for all
 Merkle opening proofs over the leaf handles.
 The public statement $\stmt$ consists of the commitment roots
-$\{\cm_\chi\}_{\chi \in \mathcal{S}}$, the intermediate message commitments
+$\{\cm_\chi\}_{\chi \in \mathcal{S}}$, the intermediate vector commitments
 $\mu_x,\mu_y,\mu_z$, the challenge $r$, the query tuple $I$, and the sampled
-wire handles $\{\Gamma_{\chi,j}\}$.
-The witness $\wit$ consists of the intermediate vectors, openings of their
-message commitments, the sampled matrix columns or vector leaves used by the
-fold equations, and the wire-handle opening randomness.
+SNARK-side commitments $\{\Gamma_{\chi,j}\}$.
+The relation witness $\wit$ consists of the intermediate vectors, openings of
+their vector commitments, and the sampled matrix columns or vector leaves used
+by the fold equations.
+The randomness $\{\rho_{\chi,j}\}$ is consumed by the committed-witness/linking
+backend, not by an in-circuit opening check.
 
 \paragraph{Non-interactive variant}
 The protocol as described is a three-round public-coin interactive protocol.
@@ -490,19 +479,19 @@ and
 \end{gathered}
 \]
 The resulting non-interactive proof consists of the commitment roots, the
-intermediate message commitments, the transcript-derived challenges, the
-sampled wire handles $\{\Gamma_{\chi,j}\}$, and the SNARK proof $\pi$.
+intermediate vector commitments, the transcript-derived challenges, the
+sampled SNARK-side commitments $\{\Gamma_{\chi,j}\}$, and the SNARK proof $\pi$.
 Merkle leaf handles, authentication paths, and sampled-linking material are
 auxiliary proof data verified by the corresponding backend.
 Raw sampled matrix columns are not serialized as proof data; they remain
-private Groth16 witness values bound to the public wire handles.
+private Groth16 witness values bound to the public SNARK-side commitments.
 
 \paragraph{Security of the non-interactive variant}
 A potential concern with the Fiat--Shamir transform for proximity-based protocols is a \emph{grinding attack}: a malicious prover could try many transcript prefixes until the derived challenge $r$ or query tuple $I$ is favorable.
 The random-oracle theorem accounts for this by the standard
 $\epsilon_{\mathsf{FS}}(q_H)$ loss in Theorem~\ref{thm:security}.
 For intuition, consider grinding only the intermediate commitments after $r$ is fixed.
-Suppose the adversary has committed to $(\cm_A, \cm_B, \cm_C)$ (and hence to fixed encoded matrices) and, after receiving $r$, is searching for intermediate message commitments and encoded-vector roots such that the transcript-derived query tuple $I$ avoids the disagreement set $D$ of some fold or equality check.
+Suppose the adversary has committed to $(\cm_A, \cm_B, \cm_C)$ (and hence to fixed encoded matrices) and, after receiving $r$, is searching for intermediate vector commitments and encoded-vector roots such that the transcript-derived query tuple $I$ avoids the disagreement set $D$ of some fold or equality check.
 If any of the four checks fails globally, then $|D| \ge \delta n$ by the minimum-distance property.
 For a single random query $j \in [n]$, the probability of $j \notin D$ is at most $1 - \delta$; for $t$ independent queries it is $(1-\delta)^t$.
 Choosing $t$ as in Section~\ref{sec:security} makes the union-bounded proximity term $4(1-\delta)^t$ at most $2^{-\lambda}$.
@@ -531,11 +520,11 @@ the construction analyzed in this paper.
 We analyze the costs of $\protocol$.
 
 \paragraph{Prover computation}
-We separate the cost of producing the claimed output matrix and certified input
-roots from the cost of proving that the certified roots satisfy the claim.
+We separate the cost of producing the claimed output matrix and input roots from
+the cost of proving that the roots satisfy the multiplication claim.
 Computing $\mat{C}=\mat{A}\mat{B}$ is application work shared by all approaches
 and is not part of the checking-layer comparison.
-Likewise, producing certified roots for raw input matrices is an upstream cost:
+Likewise, producing input roots for raw matrices is an input-commitment cost:
 with linear-time codes it takes $\mathcal{O}(kn)$ field work for a
 $k\times k$ matrix, plus handle and hash work to form the root.
 After those roots are fixed, the prover's dominant online checking-layer costs
@@ -543,7 +532,7 @@ are:
 \begin{enumerate}[label=(\roman*)]
   \item \emph{Vector computation}: Computing $\vect{x}, \vect{y}, \vect{z}$ costs $\mathcal{O}(k^2)$ in total.
   \item \emph{Intermediate-vector roots}: Encoding $\vect{x},\vect{y},\vect{z}$ and forming their roots costs $\mathcal{O}(n)$ for constant-rate linear codes.
-  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + E_{\mathsf{msg}}(k))$ for the fold checks, sampled RS evaluations, wire-handle openings, and message-opening constraints. Merkle and sampled-linking work is auxiliary and is included in the reported proving, verification, and online-byte breakdowns.
+  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + E_{\mathsf{vec}}(k))$ for the fold checks, sampled RS evaluations, and vector-binding constraints. Merkle authentication, SNARK-side witness commitments, and sampled-linking work are backend costs included in the reported proving, verification, and online-byte breakdowns.
 \end{enumerate}
 
 \paragraph{Verifier computation}
@@ -558,13 +547,13 @@ Section~\ref{sec:implementation}.
 \paragraph{Communication}
 The communication depends on the commitment layer.
 With the sampled-opening backend evaluated in this paper, the proof
-contains the SNARK proof, message commitments, public wire handles,
+contains the SNARK proof, vector commitments, public SNARK-side commitments,
 authentication paths, and auxiliary linking material for the queried objects.
 The raw sampled matrix columns contain $\mathcal{O}(tk)$ field elements, but
 they are Groth16 witness values rather than serialized proof bytes.
-The serialized auxiliary material is compact: wire/leaf handles, Merkle paths,
-and link proofs scale as $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ for fixed
-security parameter.
+The serialized auxiliary material is compact: SNARK-side commitments, leaf
+handles, Merkle paths, and link proofs scale as
+$\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ for fixed security parameter.
 This accounting explains the sub-megabyte online proof sizes reported in
 Section~\ref{sec:implementation} and Appendix~\ref{app:eval-details}; making
 the sampled columns public would instead add $\Theta(tk)$ field elements.
@@ -575,18 +564,18 @@ Na\"ive arithmetization uses $\mathcal{O}(k^3)$ constraints.
 Freivalds' algorithm alone uses $\mathcal{O}(k^2)$.
 The online checker achieves
 \[
-  \mathcal{O}\bigl(tk + E_{\mathsf{msg}}(k)\bigr)
+  \mathcal{O}\bigl(tk + E_{\mathsf{vec}}(k)\bigr)
   \text{ in-circuit work}
 \]
 plus $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking
 work.
 The in-circuit term covers the fold checks, sampled RS evaluations, and
-message-opening checks.
+vector-binding checks.
 The auxiliary term covers Merkle authentication and sampled-linking
-verification over compact sampled handles.
+verification over compact sampled commitments and leaf handles.
 The older notation $E_{\mathsf{cc}}(k)$ denotes the combined
-message-binding/linking cost, with
-$E_{\mathsf{cc}}(k)=E_{\mathsf{msg}}(k)+E_{\mathsf{link}}(k)$ for the current
+vector-binding/linking cost, with
+$E_{\mathsf{cc}}(k)=E_{\mathsf{vec}}(k)+E_{\mathsf{link}}(k)$ for the current
 artifact.
 For dense general codes, a full in-circuit codeword-validity fallback gives
 $E_{\mathsf{cc}}(k)=\mathcal{O}(k(n-k))$, which is $\mathcal{O}(k^2)$ at
@@ -611,20 +600,20 @@ concrete sizes discussed in Section~\ref{sec:implementation}.
 \toprule
 \textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
 \midrule
-Certified input roots & upstream $\mathcal{O}(kn)$ & certified public input \\
+Input roots & $\mathcal{O}(kn)$ root generation & fixed before $r$ \\
 Intermediate vectors & $\mathcal{O}(k^2)$ & --- \\
 Vector roots & $\mathcal{O}(n)$ & --- \\
-SNARK circuit size & $\mathcal{O}(tk + E_{\mathsf{msg}}(k))$ & --- \\
+SNARK circuit size & $\mathcal{O}(tk + E_{\mathsf{vec}}(k))$ & --- \\
 Auxiliary opening/linking & $\mathcal{O}(t\log n + E_{\mathsf{link}}(k))$ & backend-dependent \\
 Core SNARK verification & --- & $\mathcal{O}(1)$ \\
 \midrule
-\textbf{Online checking total} & $\mathcal{O}(k^2+n+tk+E_{\mathsf{msg}}+E_{\mathsf{link}})$ & backend-dependent \\
+\textbf{Online checking total} & $\mathcal{O}(k^2+n+tk+E_{\mathsf{vec}}+E_{\mathsf{link}})$ & backend-dependent \\
 \bottomrule
 \end{tabularx}
-\caption{Asymptotic costs after separating upstream input-root certification
-from online multiplication checking. The online total excludes native
-computation of $\mat{C}=\mat{A}\mat{B}$ and raw input certification. $k$: matrix
-dimension; $n$: codeword length; $t$: query count; $E_{\mathsf{msg}}$ and
+\caption{Asymptotic costs after separating input-root generation from online
+multiplication checking. The online total excludes native computation of
+$\mat{C}=\mat{A}\mat{B}$ and raw matrix encoding/root construction. $k$: matrix
+dimension; $n$: codeword length; $t$: query count; $E_{\mathsf{vec}}$ and
 $E_{\mathsf{link}}$ are backend costs.}
 \label{tab:cost-summary}
 \end{table}

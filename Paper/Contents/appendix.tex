@@ -18,8 +18,9 @@ For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D}=\vect{0}$, so
   = \vect{z}.
 \]
 For each intermediate vector $v\in\{\vect{x},\vect{y},\vect{z}\}$, the honest
-prover commits to the message vector before $I$ is sampled, commits to the
-encoded leaf handles, opens public wire handles inside the Groth16 relation,
+prover commits to the intermediate vector before $I$ is sampled, commits to the
+encoded leaf handles, publishes SNARK-side commitments through the
+committed-witness Groth16 backend,
 and supplies accepted Merkle openings and CP-link proofs for the sampled
 coordinates.
 For any queried index $j\in[n]$, linearity of $\mathcal{C}$ gives
@@ -39,17 +40,17 @@ Let $\mathsf{Acc}$ be the event that the verifier accepts a false committed
 matrix statement, and assume $\mat{A}\mat{B}\neq\mat{C}$.
 Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false in-circuit
 SNARK instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a
-message-binding or witness-to-leaf linking failure for an accepted sampled
+vector-binding or witness-to-leaf linking failure for an accepted sampled
 object, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted
 leaf-handle openings for the same root and position.
 For the sampled-opening part of $\mathsf{Bad}_{\mathsf{cc}}$, condition on the
-Groth16 extractor for the in-circuit relation: for every accepted wire check it
-obtains $(a_{\chi,j},\rho_{\chi,j})$ such that
-$\wireV(\para,\Gamma_{\chi,j},a_{\chi,j},\rho_{\chi,j})=1$.
+committed-witness Groth16 binding property: for every accepted SNARK-side
+commitment $\Gamma_{\chi,j}$ it obtains the sampled witness value
+$a_{\chi,j}$ and opening randomness $\rho_{\chi,j}$ bound to that commitment.
 The CP-link batch tag is
 $T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
 where $P_I=\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}$.
-Thus the auxiliary proof is tied to the same handle pairs that appear in the
+Thus the auxiliary proof is tied to the same SNARK-side/leaf commitment pairs that appear in the
 SNARK public statement and the Merkle openings.
 A sampled linking failure occurs if
 $\openV(\pi_{\chi,j},L_{\chi,j},\cm_\chi,j)=1$ and
@@ -80,12 +81,12 @@ By the assumed backend properties,
   &\le \epsilon_{\mathsf{bind}}(\lambda).
 \end{align*}
 Conditioned on the complement of these events, every accepting transcript has a
-valid SNARK witness, every accepted intermediate message commitment binds a
+valid SNARK witness, every accepted intermediate vector commitment binds a
 single vector $v$ before $I$ is sampled, every sampled value used by the
-Groth16 fold relation opens a public wire handle, every accepted auxiliary
-opening is linked to that handle, and every accepted leaf handle is uniquely
-determined by its root and queried coordinate.
-The certified input roots are fixed before the Freivalds challenge is sampled,
+Groth16 fold relation is bound to a SNARK-side commitment, every accepted
+auxiliary opening is linked to that commitment, and every accepted leaf handle is
+uniquely determined by its root and queried coordinate.
+The input roots are fixed before the Freivalds challenge is sampled,
 and the intermediate commitments are fixed before the sampled query tuple is
 sampled.
 
@@ -155,15 +156,15 @@ Summing the backend, Freivalds, and proximity errors gives
 For $\lambda=128$, a 256-bit field makes $(k-1)/|\mathbb{F}|$ negligible for
 the reported dimensions.
 The proximity term is at most $2^{-\lambda}$ when
-$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; for example, if the backend
-certifies $\delta=1/2$, then $t=130$ suffices for the proximity term alone.
+$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; for example, for a code with
+$\delta=1/2$, $t=130$ suffices for the proximity term alone.
 For a conservative aggregate 128-bit budget over all terms, one should allocate
 the budget across terms, e.g., by targeting each term at $2^{-131}$.
 
 \paragraph{Fiat--Shamir variant}
 The non-interactive transcript derives both $r$ and $I$ from
 domain-separated hashes of the transcript prefix, including the public input
-roots, intermediate message commitments, and encoded-vector roots.
+roots, intermediate vector commitments, and encoded-vector roots.
 In the random oracle model, the preceding public-coin proof applies with the
 standard Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$ for an adversary that
 makes $q_H$ random-oracle queries.
@@ -180,9 +181,9 @@ The artifact uses Pedersen-style~\cite{pedersen1991non} handles
   L=\rho_L H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
 \]
 with $d_\chi=k$ for matrix columns and $d_\chi=1$ for vector coordinates.
-Leaf handles are authenticated by the Merkle tree, while Groth16 checks the
-wire-handle opening for the sampled witness value.
-The link proof shows that the public wire handle and the authenticated leaf
+Leaf handles are authenticated by the Merkle tree, while the committed-witness
+Groth16 backend binds $\Gamma$ to the sampled witness value used by the circuit.
+The link proof shows that the SNARK-side commitment and the authenticated leaf
 handle open to the same sampled object.
 
 \begin{theorem}[Batched CP-link backend]\label{thm:cp-link-backend}
@@ -240,7 +241,7 @@ Tables~\ref{tab:eval-parameters} and~\ref{tab:metric-coverage} first state the
 fixed experimental parameters and which costs are covered by the artifact.
 Tables~\ref{tab:proof-material-accounting}--\ref{tab:constraint-accounting}
 then separate serialized proof material from private Groth16 witness data and
-from costs that remain unmeasured, such as raw input certification and
+from costs that remain unmeasured, such as raw-matrix encoding/root construction and
 serialized key/CRS size.
 The intent is to make the main text's proof-size and speedup claims auditable
 without treating the checking-layer measurements as full end-to-end VC costs.
@@ -263,8 +264,8 @@ Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
 Code rate & $\rho=1/2$ \\
 Codeword length & $n=2k$ \\
 Sampled positions & $t=128$ \\
-Primary linking layer & Message commitments, wire handles, QA-NIZK/CP-link, and multi-column Merkle openings \\
-Backend model & CP-linked sampled intermediate backend; certified input roots are assumed \\
+Primary linking layer & Pre-query vector commitments, SNARK-side commitments, QA-NIZK/CP-link, and multi-column Merkle openings \\
+Backend model & CP-linked sampled intermediate backend; input roots are fixed before $r$ \\
 Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
 \bottomrule
 \end{tabularx}
@@ -274,8 +275,8 @@ Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\
 
 Table~\ref{tab:metric-coverage} is a measurement-scope checklist rather than a
 performance result. It distinguishes quantities measured directly by the CSV
-artifact from costs that remain deployment assumptions, most notably raw input
-certification and serialized key/CRS sizes.
+artifact from costs that remain outside the online proof bytes, most notably
+raw-matrix encoding/root construction and serialized key/CRS sizes.
 
 \begin{table}[H]
 \centering
@@ -284,12 +285,12 @@ certification and serialized key/CRS sizes.
 \toprule
 \textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
 \midrule
-Constraint count & Yes, aggregate & Groth16 circuit size including message openings, wire-handle openings, sampled RS evaluations, and fold checks; per-gadget constraint counters are not reported, and auxiliary CP-link verification is measured in time/proof bytes rather than constraints. \\
+Constraint count & Yes, aggregate & Groth16 circuit size including vector openings, sampled RS evaluations, and fold checks; per-gadget constraint counters are not reported, and committed-witness/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
 Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
 Verification time & Yes & Includes current QA-NIZK/CP-link and opening verification overhead. \\
-Proof size & Yes & Includes Groth16, compact sampled handles/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
+Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
 Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
-Raw input certification & No & Required to close the full raw-input-to-certified-commitment pipeline. \\
+Input-root generation & Partial & Root construction is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
 Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
 \bottomrule
 \end{tabularx}
@@ -312,10 +313,10 @@ material.
 \textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
 \midrule
 Input column $a_{M,j}$ & No & $k$ field elements are Groth16 witness data; handles and paths are serialized. \\
-Vector leaf $a_{v,j}$ & No & One field element is checked by Groth16 via $\wireV$ and $a_{v,j}=\enc(v)_j$. \\
+Vector leaf $a_{v,j}$ & No & One field element is used as Groth16 witness data and checked by $a_{v,j}=\enc(v)_j$; the SNARK-side commitment is linked to the Merkle leaf handle. \\
 Merkle path & Yes & Authenticates $L_{\chi,j}$ in $\mathsf{AuxV}$; charged to proof bytes and verify time. \\
-CP-link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all sampled handle pairs. \\
-Groth16 proof & Yes & Verifies message openings, wire openings, sampled RS evaluations, and fold/equality checks. \\
+CP-link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all sampled SNARK-side/leaf commitment pairs. \\
+Groth16 proof & Yes & Verifies vector openings, sampled RS evaluations, and fold/equality checks, while its committed-witness interface binds sampled values to SNARK-side commitments. \\
 \bottomrule
 \end{tabularx}
 \caption{Proof-material accounting for the CP-linked sampled-opening backend.}
@@ -324,7 +325,7 @@ Groth16 proof & Yes & Verifies message openings, wire openings, sampled RS evalu
 
 Table~\ref{tab:byte-accounting} instantiates the accounting for two
 representative matrix sizes. The reported totals are the serialized online
-proof bytes in the artifact; roots and message commitments are public inputs,
+proof bytes in the artifact; roots and vector commitments are public inputs,
 and raw sampled columns are intentionally not serialized.
 
 \begin{table}[H]
@@ -335,7 +336,7 @@ and raw sampled columns are intentionally not serialized.
 \toprule
 \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
 \midrule
-$k=1{,}024$ & $108{,}160$\,B & $108{,}548$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-link; roots/messages are public inputs. \\
+$k=1{,}024$ & $108{,}160$\,B & $108{,}548$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-link; roots/vector commitments are public inputs. \\
 $k=4{,}096$ & $146{,}400$\,B & $146{,}788$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
 \bottomrule
 \end{tabularx}
@@ -367,7 +368,7 @@ $k=4{,}096$ & $128.21$\,s & $0.23$\,s & $123.64$\,s & $4.34$\,s & Not reported b
 
 Table~\ref{tab:constraint-accounting} separates the dominant deterministic
 $3tk$ fold terms from the remaining checked constraints. The residual includes
-sampled RS evaluations, wire/message openings, equality checks, and circuit
+sampled RS evaluations, vector openings, equality checks, and circuit
 glue, so the table is a structural audit of the aggregate constraint counts
 rather than a per-gadget profiler.
 
@@ -393,5 +394,5 @@ evaluation, not as additional benchmark claims.
 They justify three statements used throughout the paper: the large sampled
 columns remain private witness data, the serialized online proof is dominated
 by compact opening material rather than raw columns, and the current artifact
-still leaves key/CRS size and raw-input certification as unmeasured deployment
-costs.
+still leaves key/CRS size and raw-matrix encoding/root construction as
+deployment costs outside the online proof-byte measurements.

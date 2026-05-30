@@ -53,20 +53,19 @@ If the prover cheats on any relation, the committed codewords disagree
 in at least a $\delta$-fraction of positions, and a random query detects
 the inconsistency with probability $\ge \delta$.
 Crucially, the SNARK circuit encodes the \emph{local algebraic checks}---fold
-computations, sampled RS evaluations, wire-handle openings, and
-message-opening checks at $t$ queried positions---while Merkle path
+computations, sampled RS evaluations, and vector-binding checks at $t$ queried
+positions---while Merkle path
 verification and sampled-linking consistency over compact leaf handles are
 checked by auxiliary verifiers bound to the same transcript.
 The resulting in-circuit checking size is
-$\mathcal{O}(tk+E_{\mathsf{msg}}(k))$, with
+$\mathcal{O}(tk+E_{\mathsf{vec}}(k))$, with
 $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work.
 It is \emph{linear} in the matrix dimension when $t$ is a small
 security-parameter-dependent constant and no optional full-codeword backend is
 used.
-This is a checking-layer result: the input commitments and the
-intermediate message/linking backend are explicit components of the statement,
-and an end-to-end verifiable-computation system must instantiate the raw input
-certification path.
+This is a checking-layer result: the protocol commits to the encoded input
+matrices before sampling begins, and our measurements focus on the online
+checking work after these input roots are available.
 
 \paragraph{Contributions}
 We present $\protocol$, a matrix-multiplication checking layer for verifiable
@@ -78,17 +77,18 @@ Our contributions are as follows.
     We design a three-round public-coin protocol that combines a structured
     variant of Freivalds' randomized reduction with proximity testing over
     linear codes and Merkle-tree commitments.
-	    In our sampled-opening backend, message commitments to
+	    In our sampled-opening backend, pre-query vector commitments to
 	    $\vect{x},\vect{y},\vect{z}$ are fixed before the query set is derived,
-	    and the circuit opens public wire handles for the sampled values used in
-	    the fold checks; auxiliary opening/linking verifiers connect those handles
-	    to authenticated external leaves.
+	    and the committed-witness SNARK backend binds the sampled values used in
+	    the fold checks to public SNARK-side commitments; auxiliary
+	    opening/linking verifiers connect those commitments to authenticated
+	    external leaves.
 	    The resulting online SNARK relation has $\mathcal{O}(tk)$ sampled
 	    algebraic work for fixed security parameter, a significant reduction
 	    from the $\mathcal{O}(k^2)$ of Freivalds-based approaches.
-	    The construction should not be read as an end-to-end
-	    commitment-generation system: certified input commitments to
-	    $\mat{A},\mat{B},\mat{C}$ remain a deployment interface.
+	    Input-root generation for $\mat{A},\mat{B},\mat{C}$ is part of the
+	    protocol interface, but the artifact reports the online checking layer
+	    separately from raw-matrix encoding and root construction.
     The protocol is made non-interactive via the Fiat--Shamir
     heuristic~\cite{fiat1987prove}.
 
@@ -99,20 +99,21 @@ Our contributions are as follows.
     + \epsilon_{\mathsf{bind}} + (k\!-\!1)/|\mathbb{F}|
     + 4(1\!-\!\delta)^{t}$,
     where $\delta$ is the code's relative distance,
-    $\epsilon_{\mathsf{SNARK}}$ is the SNARK soundness error,
-	    $\epsilon_{\mathsf{cc}}$ is the message-binding and sampled handle-linking error,
+    $\epsilon_{\mathsf{SNARK}}$ is the SNARK soundness error including
+    committed-witness binding,
+	    $\epsilon_{\mathsf{cc}}$ is the vector-binding and sampled commitment-linking error,
 	    and $\epsilon_{\mathsf{bind}}$ is the Merkle commitment's binding error.
 	    The Fiat--Shamir non-interactive variant adds the standard
 	    random-oracle loss $\epsilon_{\mathsf{FS}}(q_H)$.
-		    The theorem is stated relative to certified public input commitments to
-		    row-wise encoded matrices and to the sampled-opening backend,
+			    The theorem is stated for input roots that bind to row-wise encoded
+			    matrices and for the sampled-opening backend,
     matching the committed-input viewpoint used in code-based proof systems
     such as Brakedown~\cite{golovnev2023brakedown} and
     Orion~\cite{xie2022orion}.
     We also give a concrete security-budget table that separates the reported
     scaling rows from a strict 128-bit deployment target.
     The analysis decomposes the adversary's strategy into SNARK failure,
-    message/linking failure, commitment forgery, algebraic evasion, and proximity
+    vector-binding/linking failure, commitment forgery, algebraic evasion, and proximity
     evasion, and shows each is negligible for standard parameter choices
     (Section~\ref{sec:security}).
 
