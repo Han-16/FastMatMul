@@ -41,35 +41,19 @@ arithmetic outside the SNARK and commits to the relevant intermediate values.
 The verifier then checks only a small number of lightweight algebraic relations
 that are sufficient to detect inconsistencies.
 
-The technical core of this shift is \emph{proximity testing over linear
-error-correcting codes}. By encoding each matrix row-wise using a systematic
-linear code \(\mathcal{C}\) with relative distance \(\delta\), the
-vector-matrix products
+The technical core of this shift is \emph{proximity testing over linear error-correcting codes}. By encoding each matrix row-wise using a systematic linear code \(\mathcal{C}\) with relative distance \(\delta\), the vector-matrix products
 \[
     \vect{x}=\vect{r}\mat{A}, \qquad
     \vect{y}=\vect{x}\mat{B}, \qquad
     \vect{z}=\vect{r}\mat{C}
 \]
-can be checked column by column in the encoded domain. The linearity of
-\(\mathcal{C}\) ensures that a single inner product, or ``fold,'' over one
-codeword column is sufficient to check one coordinate of the encoded product.
-If the prover cheats in any of these relations, the corresponding codewords
-disagree on at least a \(\delta\)-fraction of positions, and a random query
-detects the inconsistency with probability at least \(\delta\).
+can be checked column by column in the encoded domain. The linearity of \(\mathcal{C}\) ensures that a single inner product, or ``fold,'' over one codeword column is sufficient to check one coordinate of the encoded product.
+If the prover cheats in any of these relations, the corresponding codewords disagree on at least a \(\delta\)-fraction of positions, and a random query detects the inconsistency with probability at least \(\delta\).
 
-Crucially, the SNARK circuit does not take the full matrices as witnesses.
-Instead, it receives only \(t\) sampled columns and checks local algebraic
-relations on those columns, including fold computations and the codeword
-encoding consistency of the intermediate vectors \(\vect{x}, \vect{y}\), and
-\(\vect{z}\). We use a commit-and-prove SNARK to produce commitments to the
-sampled values used as witnesses inside the circuit. Together with the SNARK
-proof, the prover sends Merkle membership proofs for the queried indices in the
-previously committed Merkle trees, as well as CP-link proofs showing that the
-opened values and the SNARK witnesses correspond to the same underlying data.
-By verifying these proofs, the verifier is assured that the values used inside
-the circuit are consistent with the data committed before the SNARK proof was
-generated.
-
+The key point is that the SNARK circuit does not take the full matrices as witnesses. Instead, it receives only \(t\) sampled columns and checks local algebraic relations on those columns, including fold computations and the codeword encoding consistency of the intermediate vectors \(\vect{x}, \vect{y}\), and \(\vect{z}\). 
+We use a commit-and-prove SNARK to produce commitments to the
+sampled values used as witnesses inside the circuit. Together with the SNARK proof, the prover sends Merkle membership proofs for the queried indices in the previously committed Merkle trees, as well as CP-link proofs showing that the corresponding Merkle leaf values and the SNARK witnesses represent the same underlying data.
+By verifying these proofs, the verifier is assured that the values used inside the circuit are consistent with the data committed before the SNARK proof was generated.
 As a result, the in-circuit checking cost is \(\mathcal{O}(tk)\), while the
 additional opening and linking work is
 \(\mathcal{O}(t \log n) + E_{\mathsf{link}}(k)\). Since \(t\) is the number of
