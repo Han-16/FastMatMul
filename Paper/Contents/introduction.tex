@@ -1,0 +1,167 @@
+\section{Introduction}
+\label{sec:intro}
+
+Large matrix multiplication is a recurring bottleneck in verifiable
+computation.
+A prover may wish to convince a verifier that committed matrices
+$\mat{A},\mat{B},\mat{C}$ satisfy $\mat{A}\mat{B}=\mat{C}$ without forcing the
+verifier, or an underlying SNARK circuit, to recompute the full product.
+This problem appears across outsourced linear algebra, proof-carrying data
+pipelines, and verifiable inference for modern neural networks, where projection
+and attention layers routinely contain matrix products with dimensions
+$k \ge 1{,}000$.
+Na\"ive SNARK arithmetization of a single $k \times k$ matrix multiplication
+generates $\mathcal{O}(k^3)$ arithmetic constraints, a cost that is impractical
+even for moderate~$k$.
+
+\paragraph{The $\mathcal{O}(k^2)$ barrier}
+Freivalds' classical randomized check~\cite{freivalds1977probabilistic}
+reduces the problem from $\mathcal{O}(k^3)$ to $\mathcal{O}(k^2)$: given
+matrices $\mat{A}, \mat{B}, \mat{C}$ and a random vector $\vect{r}$,
+one verifies $\vect{r}\mat{A}\mat{B} = \vect{r}\mat{C}$ instead of
+recomputing the full product.
+Several recent systems, including verifiable ML pipelines such as
+Mystique~\cite{weng2021mystique}, zkML~\cite{chen2024zkml}, and the
+Freivalds-based baseline in~\cite{ghodsi2017safetynets}, adopt this strategy,
+encoding the vector-matrix products directly as SNARK constraints.
+The resulting $\mathcal{O}(k^2)$ circuit is an improvement, yet it remains
+expensive: in our optimized baseline, Freivalds already requires
+	$50.5$ million R1CS constraints and $405.04\,\text{s}$ of proving time at
+	$k = 4{,}096$.
+Thus the gap between the $\mathcal{O}(k^2)$ SNARK cost and practical
+large-matrix verification remains wide.
+
+\paragraph{Our insight: from computing to checking}
+We observe that the $\mathcal{O}(k^2)$ barrier is \emph{not} inherent to
+the verification problem---it arises because existing approaches
+\emph{compute} the vector-matrix products inside the SNARK circuit.
+Our key idea is to shift the paradigm from ``computing in the circuit'' to
+``\emph{checking} in the circuit'': the prover performs the expensive
+matrix arithmetic \emph{outside} the SNARK and commits to all intermediate
+results; the verifier then checks a small number of lightweight algebraic
+relations that suffice to detect any inconsistency.
+
+The technical engine behind this shift is \emph{proximity testing over
+linear error-correcting codes}.
+By encoding each matrix row-wise with a systematic linear code $\mathcal{C}$
+of relative distance $\delta$, the vector-matrix product
+$\vect{x} = \vect{r}\mat{A}$ can be verified \emph{column by column} in
+the encoded domain: the linearity of $\mathcal{C}$ ensures that a single
+inner product (``fold'') of one codeword column suffices to check one
+coordinate of the encoded product.
+If the prover cheats on any relation, the committed codewords disagree
+in at least a $\delta$-fraction of positions, and a random query detects
+the inconsistency with probability $\ge \delta$.
+Crucially, the SNARK circuit encodes the \emph{local algebraic checks}---fold
+computations, sampled RS evaluations, and vector-binding checks at $t$ queried
+positions---while Merkle path
+verification and sampled-linking consistency over compact leaf handles are
+checked by auxiliary verifiers bound to the same transcript.
+The resulting in-circuit checking size is
+$\mathcal{O}(tk+E_{\mathsf{vec}}(k))$, with
+$\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work.
+It is \emph{linear} in the matrix dimension when $t$ is a small
+security-parameter-dependent constant and no optional full-codeword backend is
+used.
+This is a checking-layer result: the protocol commits to the encoded input
+matrices before sampling begins, and our measurements focus on the online
+checking work after these input roots are available.
+
+\paragraph{Contributions}
+We present $\protocol$, a matrix-multiplication checking layer for verifiable
+computation that realizes this approach.
+Our contributions are as follows.
+
+\begin{itemize}
+    \item \textbf{A novel code-based verification protocol.}
+    We design a three-round public-coin protocol that combines a structured
+    variant of Freivalds' randomized reduction with proximity testing over
+    linear codes and Merkle-tree commitments.
+	    In our sampled-opening backend, pre-query vector commitments to
+	    $\vect{x},\vect{y},\vect{z}$ are fixed before the query set is derived,
+	    and the CC-SNARK backend binds the sampled values used in
+	    the fold checks to public SNARK-side commitments; auxiliary
+	    opening/linking verifiers connect those commitments to authenticated
+	    external leaves.
+	    The resulting online SNARK relation has $\mathcal{O}(tk)$ sampled
+	    algebraic work for fixed security parameter, a significant reduction
+	    from the $\mathcal{O}(k^2)$ of Freivalds-based approaches.
+	    Input-root generation for $\mat{A},\mat{B},\mat{C}$ is part of the
+	    protocol interface, but the artifact reports the online checking layer
+	    separately from raw-matrix encoding and root construction.
+    The protocol is made non-interactive via the Fiat--Shamir
+    heuristic~\cite{fiat1987prove}.
+
+    \item \textbf{Rigorous security analysis.}
+    We prove that $\protocol$ achieves perfect completeness and computational
+    soundness with error bounded by
+    $\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}}
+    + \epsilon_{\mathsf{bind}} + (k\!-\!1)/|\mathbb{F}|
+    + 4(1\!-\!\delta)^{t}$,
+    where $\delta$ is the code's relative distance,
+    $\epsilon_{\mathsf{SNARK}}$ is the SNARK soundness error including
+    CC-SNARK witness binding,
+	    $\epsilon_{\mathsf{cc}}$ is the vector-binding and sampled commitment-linking error,
+	    and $\epsilon_{\mathsf{bind}}$ is the Merkle commitment's binding error.
+	    The Fiat--Shamir non-interactive variant adds the standard
+	    random-oracle loss $\epsilon_{\mathsf{FS}}(q_H)$.
+			    The theorem is stated for input roots that bind to row-wise encoded
+			    matrices and for the sampled-opening backend,
+    matching the committed-input viewpoint used in code-based proof systems
+    such as Brakedown~\cite{golovnev2023brakedown} and
+    Orion~\cite{xie2022orion}.
+    We also give a concrete security-budget table that separates the reported
+    scaling rows from a strict 128-bit deployment target.
+    The analysis decomposes the adversary's strategy into SNARK failure,
+    vector-binding/linking failure, commitment forgery, algebraic evasion, and proximity
+    evasion, and shows each is negligible for standard parameter choices
+    (Section~\ref{sec:security}).
+
+    \item \textbf{Concrete efficiency gains.}
+		    We implement the multiplication-checking layer of $\protocol$ in Rust
+		    and evaluate it against a direct Freivalds SNARK baseline across matrix
+		    dimensions up to $k=2^{13}$ with the sampled-opening backend.
+    Key findings (Section~\ref{sec:implementation}):
+    \begin{itemize}[nosep]
+        \item \emph{Constraint reduction.}
+	        The implemented checking-layer constraints grow as
+	        $\mathcal{O}(k)$ for fixed $t$, versus
+	        $\mathcal{O}(k^2)$ for Freivalds.
+        The gap reaches $7.5\times$ at $k = 1{,}024$
+        ($419{,}139$ vs.\ $3{,}156{,}298$ constraints) and
+        $30.3\times$ at $k = 4{,}096$
+        ($1{,}667{,}305$ vs.\ $50{,}495{,}818$ constraints);
+	        the checking-layer implementation also scales to $k = 8{,}192$ with
+	        $3{,}331{,}779$ constraints.
+
+        \item \emph{Proving-time speedup.}
+	        The current implementation $\fmQA$ outperforms Freivalds from
+        $k = 256$ onward.
+        At $k = 4{,}096$, prove times are $55.92\,\text{s}$ for $\fmQA$ and
+        $405.04\,\text{s}$ for Freivalds, a $7.24\times$ speedup.
+        Online proof bytes, excluding setup/key/CRS material, are $147$\,KB at
+        $k=4{,}096$ and $168$\,KB at $k=8{,}192$.
+
+        \item \emph{GPT-2 workload case study.}
+        For a GPT-2 workload with $36$ matrix-multiplication claims at sequence
+	        length $1{,}024$, $\fmQA$ reduces constraints by $2.30\times$ and
+	        proving time by $1.78\times$ relative to Freivalds, while verification
+	        is $1.39\times$ slower because the current backend checks sampled
+	        opening and linking material.
+
+        \item \emph{Negligible encoding overhead.}
+        The prover's off-circuit encoding step takes less than
+        $1\,\text{s}$ even at $k = 2^{20}$, confirming that encoding
+        does not introduce a new bottleneck.
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Paper organization}
+Section~\ref{sec:prelim} recalls the necessary background.
+Section~\ref{sec:tech-overview} gives a high-level technical overview.
+Section~\ref{sec:construction} presents the formal construction and complexity
+analysis.
+Section~\ref{sec:security} provides the security proof.
+Section~\ref{sec:implementation} reports our implementation and evaluation.
+Section~\ref{sec:conclusion} concludes with related-work positioning,
+limitations, and future directions.

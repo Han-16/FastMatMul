@@ -1,0 +1,147 @@
+\section{Technical Overview}
+\label{sec:tech-overview}
+
+We provide a high-level description of our protocol for verifiable matrix multiplication before presenting the formal construction in Section~\ref{sec:construction}.
+The central challenge is to verify that a claimed product $\mat{C} = \mat{A}\mat{B}$ for matrices $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$ is correct, while keeping the verifier's work substantially below the $\mathcal{O}(k^3)$ cost of recomputing the multiplication.
+Our approach combines three classical ideas---\emph{randomized verification}, \emph{error-correcting codes}, and \emph{succinct commitment schemes}---in a way that decomposes the verification into components that are each efficient to check inside a SNARK circuit.
+
+\subsection{Starting Point: Freivalds' Algorithm and Its Limitations}
+\label{sec:overview-freivalds}
+
+The classical starting point for verifying matrix multiplication is Freivalds' algorithm~\cite{freivalds1977probabilistic}.
+Given matrices $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$ and a uniformly random vector $\vect{r} \in \mathbb{F}^k$, one checks whether $\vect{r}\mat{A}\mat{B} = \vect{r}\mat{C}$.
+If $\mat{A}\mat{B} \neq \mat{C}$, then $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, and the check $\vect{r}\mat{D} = \vect{0}$ fails with probability at least $1 - k/|\mathbb{F}|$ by the Schwartz--Zippel lemma.
+This reduces a matrix-matrix verification to a vector-matrix computation, collapsing the problem from $\mathcal{O}(k^3)$ to $\mathcal{O}(k^2)$.
+
+However, even the reduced $\mathcal{O}(k^2)$ cost is prohibitive when the check must be performed \emph{inside a SNARK circuit}.
+In an R1CS or Plonk arithmetization, each field multiplication corresponds to a constraint, so encoding the vector-matrix products $\vect{r}\mat{A}$, $\vect{r}\mat{B}$, and $\vect{r}\mat{C}$ directly would still produce $\mathcal{O}(k^2)$ constraints.
+For matrices arising in modern deep-learning inference (where $k$ can reach thousands), this SNARK circuit cost remains impractical.
+
+\subsection{From Vectors to Codewords: Leveraging Linear Codes}
+\label{sec:overview-encoding}
+
+Our key observation is that the \emph{linearity} of error-correcting codes can be exploited to push the bulk of the computation outside the circuit while retaining verifiability.
+Concretely, suppose we encode each row of a matrix $\mat{M} \in \mathbb{F}^{k \times k}$ using a systematic linear code $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ with relative minimum distance $\delta$.
+Write $\enc(\mat{M})$ for the matrix whose $i$-th row is $\mathcal{C}(\mat{M}_{i,\star})$.
+Because $\mathcal{C}$ is $\mathbb{F}$-linear, taking a linear combination of codewords yields the codeword of the corresponding linear combination of messages:
+\begin{equation}\label{eq:linearity}
+  \sum_{i} r_i \cdot \mathcal{C}(\mat{M}_{i,\star}) = \mathcal{C}\!\left(\sum_i r_i \cdot \mat{M}_{i,\star}\right).
+\end{equation}
+In other words, the ``fold'' operation $\fold(\enc(\mat{M}), \vect{r}) \coloneqq \sum_i r_i \cdot \enc(\mat{M})_{i,\star}$ equals $\enc(\vect{r}\mat{M})$ exactly.
+This identity is the engine that allows us to \emph{check vector-matrix products column-by-column in the encoded domain} without materializing the full vectors.
+
+\paragraph{Commitment via Merkle trees}
+Each encoded matrix $\enc(\mat{M})$ is committed column-by-column using a Merkle
+tree:
+\[
+  \cm_M \gets \textsf{M.CM}(\enc(\mat{M})).
+\]
+The prover sends input roots $(\cm_A,\cm_B,\cm_C)$ before the challenge is
+sampled; these roots bind the encoded computation inputs and output using
+$\mathcal{O}(1)$ hash values.
+
+\subsection{Proximity-Based Verification via Random Sampling}
+\label{sec:overview-proximity}
+
+After the Freivalds reduction, the verification task becomes: given committed encoded matrices $\enc(\mat{A}), \enc(\mat{B}), \enc(\mat{C})$ and a random challenge $r$, check that the intermediate vectors
+\[
+  \vect{x} = \vect{r}\mat{A}, \quad \vect{y} = \vect{x}\mat{B}, \quad \vect{z} = \vect{r}\mat{C}
+\]
+satisfy $\vect{y} = \vect{z}$.
+We now explain how to verify these relations in \emph{sub-linear} time using the encoding.
+
+The prover computes $\vect{x}, \vect{y}, \vect{z}$ outside the SNARK, encodes
+them, commits to the vectors and to their encoded leaves, and sends these
+commitments before the query tuple is sampled.
+The pre-query vector commitments are needed because the sampled Merkle openings
+alone only fix the queried coordinates; without a pre-query commitment to
+$\vect{x},\vect{y},\vect{z}$, the prover could choose vectors after seeing $I$
+that fit only those sampled positions.
+The verifier then samples an ordered tuple
+$I=(j_1,\ldots,j_t) \sample [n]^t$ of column indices independently with
+replacement.
+For each sampled $j \in I$, the prover supplies the $j$-th column or coordinate
+as Groth16 witness data, publishes a compact SNARK-side commitment bound to that
+witness by the CC-SNARK backend, and provides auxiliary
+opening/linking material tying that commitment to the authenticated external
+leaf handle.
+
+At each queried position $j$, the verifier checks four \emph{local consistency equations}:
+\begin{enumerate}[label=(\roman*)]
+  \item $\enc(\vect{x})_j = \fold\!\big(\enc(\mat{A})^{(j)},\, \vect{r}\big)$, \quad ensuring $\vect{x} = \vect{r}\mat{A}$;
+  \item $\enc(\vect{y})_j = \fold\!\big(\enc(\mat{B})^{(j)},\, \vect{x}\big)$, \quad ensuring $\vect{y} = \vect{x}\mat{B}$;
+  \item $\enc(\vect{z})_j = \fold\!\big(\enc(\mat{C})^{(j)},\, \vect{r}\big)$, \quad ensuring $\vect{z} = \vect{r}\mat{C}$;
+  \item $\enc(\vect{y})_j = \enc(\vect{z})_j$, \quad ensuring the Freivalds check $\vect{y} = \vect{z}$.
+\end{enumerate}
+The crucial point is that each of these checks involves only a \emph{single column} of the encoded matrices---an inner product of length $k$ (for the fold operations) plus a scalar comparison.
+Hence the total verifier work per query is $\mathcal{O}(k)$, and for $t$ queries the total is $\mathcal{O}(tk)$.
+
+\paragraph{Why does sampling suffice?}
+The intermediate vectors are fixed before the query tuple is sampled.
+At each sampled position, the SNARK relation verifies openings of the
+pre-query vector commitments, recomputes $\enc(\vect{x})_j$,
+$\enc(\vect{y})_j$, and $\enc(\vect{z})_j$ from the opened vectors, and checks
+that these values match the opened encoded leaves.
+The verifier does not encode the full vectors; it verifies the SNARK proof and
+the sampled opening/linking material.
+If any of the underlying vector relations fails---say $\vect{y} \neq \vect{z}$---then the codewords $\enc(\vect{y})$ and $\enc(\vect{z})$ are distinct.
+By the minimum-distance property of $\mathcal{C}$, they disagree in at least a $\delta$-fraction of positions.
+A uniformly random query lands on a disagreement with probability $\geq \delta$, so $t$ independent queries detect the inconsistency except with probability at most $(1 - \delta)^t$.
+By a union bound over the four checked relations, the overall proximity-check failure probability is at most $4(1-\delta)^t$.
+Setting
+$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$ drives this union-bounded
+proximity term below $2^{-\lambda}$.
+
+\subsection{Putting It Together: The Full Protocol Pipeline}
+\label{sec:overview-pipeline}
+
+Combining the ingredients above, our protocol $\protocol$ proceeds as follows (see Figure~\ref{fig:protocol} for the formal description).
+
+\paragraph{Commit inputs}
+The prover row-wise encodes $\mat{A},\mat{B},\mat{C}$ and sends roots
+$(\cm_A,\cm_B,\cm_C)$.
+The roots are fixed before the Freivalds challenge and bind to those row-wise
+encodings under the linear code $\mathcal{C}$.
+
+\paragraph{Challenge}
+The verifier samples a random field element $r \in \mathbb{F}$ and sends it to the prover.
+This induces the structured challenge vector $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
+
+\paragraph{Respond}
+The prover computes the intermediate vectors $\vect{x} = \vect{r}\mat{A}$,
+$\vect{y} = \vect{x}\mat{B}$, $\vect{z} = \vect{r}\mat{C}$, commits to the
+vectors, encodes them, and commits to the encoded leaves
+$(\cm_x,\cm_y,\cm_z)$.
+
+\paragraph{Query}
+The verifier samples $I=(j_1,\ldots,j_t) \sample [n]^t$ and sends the sampled
+indices to the prover.
+The prover supplies the corresponding sampled columns or vector leaves as
+Groth16 witness data, together with public SNARK-side commitments and auxiliary
+Merkle openings for compact leaf handles.
+
+\paragraph{SNARK verification}
+The verifier checks pre-query vector-commitment openings,
+sampled RS evaluations for intermediate vectors, and the four local consistency
+equations at each queried index.
+These checks are arithmetized into the Groth16 relation defined in
+Section~\ref{sec:construction}.
+The CC-SNARK interface binds sampled witness values to public
+SNARK-side commitments; Merkle path validity and sampled-linking consistency
+over those commitments and the public leaf handles are auxiliary verifier checks
+bound to the same transcript.
+The prover then sends a succinct proof $\pi$ plus the sampled opening/linking
+material, and the verifier accepts only if every component verifies.
+
+\paragraph{Cost summary}
+The \emph{SNARK circuit size}---the key metric governing prover cost---is
+$\mathcal{O}(t \cdot k + E_{\mathsf{vec}}(k))$, where the first term includes
+sampled folds and RS evaluations, and $E_{\mathsf{vec}}$ is the vector-binding
+cost.
+Merkle authentication and sampled-linking verification add
+$\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary online work.
+For the sampled-opening backend evaluated in this paper, the in-circuit checker
+is linear in $k$ for fixed $t$ and avoids the $k^2$ or $k^3$ circuit costs.
+The prover additionally performs the native matrix multiplication ($\mathcal{O}(k^3)$) and encoding ($\mathcal{O}(kn)$) outside the SNARK.
+The verifier's core SNARK work is $\mathcal{O}(1)$ for pairing-based backends, or $\mathcal{O}(|\stmt|)$ for transparent ones; total verification additionally depends on the selected commitment/linking backend.
+A detailed cost breakdown appears in Table~\ref{tab:cost-summary} (Section~\ref{sec:complexity}).

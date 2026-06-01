@@ -1,0 +1,164 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+We introduce notation and recall the building blocks used in our construction.
+Throughout, $\mathbb{F}$ denotes a finite field of size $|\mathbb{F}| = p$ for a prime $p$, and $\lambda$ denotes the security parameter.
+We write $\textsf{negl}(\lambda)$ for any function that is negligible in~$\lambda$, and $\ppt$ for probabilistic polynomial-time.
+
+\subsection{Notation}
+\label{sec:notation}
+
+Matrices are denoted by bold uppercase letters $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$ and vectors by bold lowercase letters $\vect{x}, \vect{y}, \vect{z} \in \mathbb{F}^k$.
+For a matrix $\mat{M}$, we write $\mat{M}_{i,\star}$ for its $i$-th row and $\mat{M}_{\star,j}$ for its $j$-th column, both viewed as elements of~$\mathbb{F}^k$.
+We write $[n] = \{1, 2, \ldots, n\}$ and $I \sample [n]^t$ to denote the uniform sampling of $t$ indices from $[n]$ (with replacement).
+The expression $r \sample \mathbb{F}$ denotes uniform random sampling from $\mathbb{F}$.
+
+\subsection{Linear Error-Correcting Codes}
+\label{sec:prelim-codes}
+
+A \emph{linear code} over $\mathbb{F}$ is an $\mathbb{F}$-linear map $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ defined by a generator matrix $G \in \mathbb{F}^{k \times n}$, so that $\mathcal{C}(\vect{m}) = \vect{m} \cdot G$ for any input vector $\vect{m} \in \mathbb{F}^k$.
+The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\vect{c} \neq \vect{c}'} \Delta(\vect{c}, \vect{c}')$ over distinct codewords $\vect{c}, \vect{c}' \in \mathcal{C}$, where $\Delta$ denotes the Hamming distance.
+The \emph{relative distance} is $\delta = d/n$.
+A code is \emph{systematic} if the first $k$ coordinates of $\mathcal{C}(\vect{m})$ equal $\vect{m}$ itself.
+
+We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
+For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the \emph{row-wise encoding} $\enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}_{i,\star})$.
+The $j$-th column of $\enc(\mat{M})$ is denoted $\enc(\mat{M})^{(j)} \in \mathbb{F}^k$.
+
+The key property we exploit is \emph{linearity}: for any coefficients $r_0, \ldots, r_{k-1} \in \mathbb{F}$,
+\begin{equation}\label{eq:code-linearity}
+\sum_{i=0}^{k-1} r_i \cdot \enc(\mat{M}_{i,\star}) = \enc\!\left(\sum_{i=0}^{k-1} r_i \cdot \mat{M}_{i,\star}\right).
+\end{equation}
+
+\begin{definition}[Fold]\label{def:fold}
+For vectors $\vect{c},\vect{r}\in \mathbb{F}^k$ with
+$\vect{c}=(c_0,\ldots,c_{k-1})^\top$ and
+$\vect{r}=(r_0,\ldots,r_{k-1})$, define
+\[
+\fold(\vect{c}, \vect{r}) \coloneqq \langle \vect{r}, \vect{c} \rangle = \sum_{i=0}^{k-1} r_i \cdot c_i.
+\]
+Equivalently, for the $j$-th column of a row-wise encoded matrix,
+$\fold(\enc(\mat{M})^{(j)}, \vect{r})$ equals the $j$-th coordinate of
+$\enc(\vect{r}\mat{M})$.
+This follows directly from the linearity of the code (Equation~\ref{eq:code-linearity}).
+\end{definition}
+
+\paragraph{Concrete instantiations}
+Our protocol is compatible with any linear code.
+Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
+We discuss the trade-offs in Section~\ref{sec:complexity}.
+
+\subsection{Commitment Schemes}
+\label{sec:prelim-commitments}
+
+A commitment scheme lets a prover fix a value and later open it. We use
+commitments only through the standard binding property: after a commitment is
+fixed, a polynomial-time prover cannot open it to two different values except
+with negligible probability.
+
+A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ provides a vector commitment scheme with the following algorithms:
+\begin{itemize}
+  \item $\cm \gets \merkle(\vect{v})$: Given a vector $\vect{v} = (v_1, \ldots, v_n)$, construct a binary hash tree with leaves $H(v_1), \ldots, H(v_n)$ and output the root hash $\cm$.
+  \item $(\vect{v}_j, \pi_j) \gets \merkleO(\cm, j)$: Open position $j$, returning the leaf value $v_j$ and the authentication path $\pi_j$ (the sequence of sibling hashes from the leaf to the root).
+  \item $b \gets \merkleV(\pi_j, v_j, \cm)$: Verify that $v_j$ is the $j$-th leaf consistent with root $\cm$; output $b \in \{0,1\}$.
+\end{itemize}
+
+The scheme is \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce $(j, v, \pi)$ and $(j, v', \pi')$ with $v \neq v'$ such that both verify against the same root $\cm$, except with probability $\epsilon_{\mathsf{bind}}(\lambda) = \textsf{negl}(\lambda)$.
+
+\subsection{SNARKs and Commit-and-Prove Proofs}
+\label{sec:prelim-snark}
+
+\paragraph{SNARKs}
+A \emph{SNARK} (Succinct Non-interactive Argument of Knowledge) for an NP relation $\mathcal{R}$ consists of algorithms $(\textsf{Setup}, \snarkP, \snarkV)$:
+\begin{itemize}
+  \item $\para \gets \textsf{Setup}(1^\lambda, \mathcal{R})$: Generate public parameters.
+  \item $\pi \gets \snarkP(\para, \stmt, \wit)$: Given a statement $\stmt$ and witness $\wit$ with $(\stmt, \wit) \in \mathcal{R}$, produce a proof $\pi$.
+  \item $b \gets \snarkV(\para, \stmt, \pi)$: Verify the proof and output $b \in \{0,1\}$.
+\end{itemize}
+
+A SNARK satisfies \emph{completeness} (an honest prover always convinces the verifier), \emph{knowledge soundness} (any $\ppt$ prover that makes the verifier accept can be used to extract a valid witness), and \emph{succinctness} (the proof size $|\pi|$ and verifier time are $\textsf{poly}(\lambda, |\stmt|)$, independent of the witness size and computation).
+
+Our protocol is modular with respect to the choice of SNARK backend, including
+pairing-based systems such as Pinocchio~\cite{parno2013pinocchio} and
+Groth16~\cite{groth2016size}, as well as transparent or preprocessing systems
+such as Hyrax~\cite{wahby2018doubly}, Sonic~\cite{maller2019sonic},
+Marlin~\cite{chiesa2020marlin}, and Spartan~\cite{setty2020spartan}.
+The key metric is the \emph{circuit size} (number of R1CS constraints or PlonK gates) of the relation that the SNARK backend must prove, as this dominates the prover's cost.
+
+\paragraph{Commitment-carrying SNARKs}
+A \emph{commitment-carrying SNARK} (CC-SNARK) is a SNARK backend that lets the
+prover publish commitments $\Gamma_i$ to selected private witness values
+$a_i$ while proving an arithmetic relation that uses the same values.
+The public statement contains the commitments $\Gamma_i$.
+Soundness requires that, except with the SNARK backend's binding error, an
+accepting proof fixes each committed witness value: the value used by the
+relation at the selected witness slot is the value opened by $\Gamma_i$.
+In this paper, the commitments $\Gamma_{\chi,j}$ are SNARK-side commitments to
+sampled matrix columns or vector coordinates.
+
+\paragraph{Commit-and-prove SNARKs}
+A \emph{commit-and-prove SNARK} (CP-SNARK) proves an NP relation while also
+proving that designated witness values open public commitments.
+For a commitment scheme $\mathsf{Com}$ and relation $\mathcal{R}$, the induced
+commit-and-prove relation is
+\[
+  \begin{aligned}
+  \mathcal{R}_{\mathsf{CP}}
+  =
+  \{\,((\stmt,C),(v,\rho,\wit')) :\;&
+  C=\mathsf{Com}(v;\rho)\\
+  &{}\land(\stmt,v,\wit')\in\mathcal{R}\,\}.
+  \end{aligned}
+\]
+Thus a CP-SNARK binds an external commitment $C$ to the private value used in
+the proven computation.
+
+\subsection{CP-Link}
+\label{sec:prelim-cplink}
+
+A \emph{CP-Link} proof is a lightweight commit-and-prove proof whose only
+purpose is to link two commitments to the same value.
+For a SNARK-side commitment $\Gamma$ and an external leaf handle $L$, the link
+relation is
+\[
+  \begin{aligned}
+  \mathcal{R}_{\mathsf{link}}
+  =
+  \{\,((\Gamma,L),(a,\rho_\Gamma,\rho_L)) :\;&
+  \Gamma=\mathsf{Com}_{\mathsf{snark}}(a;\rho_\Gamma)\\
+  &{}\land L=\mathsf{Com}_{\mathsf{leaf}}(a;\rho_L)\,\}.
+  \end{aligned}
+\]
+The verifier first authenticates $L$ under the relevant Merkle root and then
+checks the CP-Link proof. In our artifact, many such equal-opening claims are
+batched into one QA-NIZK proof.
+
+\subsection{Freivalds' Algorithm}
+\label{sec:prelim-freivalds}
+
+Freivalds' algorithm~\cite{freivalds1977probabilistic} is a classical randomized algorithm for verifying matrix multiplication.
+Given $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$, it samples $\vect{r} \sample \mathbb{F}^k$ and checks whether $\vect{r}(\mat{A}\mat{B}) = \vect{r}\mat{C}$.
+The correctness relies on the following:
+
+\begin{lemma}[Schwartz--Zippel~\cite{schwartz1980fast,zippel1979probabilistic}]\label{lem:sz}
+Let $P(X_1, \ldots, X_m)$ be a non-zero polynomial of total degree $d$ over a finite field $\mathbb{F}$.
+Then for $r_1, \ldots, r_m \sample \mathbb{F}$ chosen uniformly and independently,
+\[
+\Pr[P(r_1, \ldots, r_m) = 0] \le \frac{d}{|\mathbb{F}|}.
+\]
+\end{lemma}
+
+In our protocol, we use a structured variant: instead of sampling
+$\vect{r} \sample \mathbb{F}^k$ uniformly, we sample one scalar
+$r \sample \mathbb{F}$ and set
+$\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
+This keeps the Freivalds challenge compact in the transcript and in the SNARK
+statement: the verifier records one field element rather than $k$ independent
+ones.
+If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero
+column $\vect{d}_j$ of $\mat{D}$, the value
+$\langle \vect{r}, \vect{d}_j \rangle$ is a non-zero univariate polynomial in
+$r$ of degree at most $k-1$.
+By Lemma~\ref{lem:sz}, it vanishes with probability at most
+$(k-1)/|\mathbb{F}|$, which is negligible over the 256-bit fields used in our
+experiments.

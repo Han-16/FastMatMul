@@ -1,0 +1,57 @@
+\documentclass[conference,compsoc]{IEEEtran}
+\input{Styles/packages}
+\input{Styles/commands}
+
+\begin{document}
+
+\title{FastMatMul: A Code-Based Matrix-Multiplication Checking Layer\\for Verifiable Computation}
+
+\author{\IEEEauthorblockN{Anonymous Submission}}
+
+\maketitle
+
+\begin{abstract}
+\input{Contents/abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+verifiable computation, matrix multiplication, SNARKs, code commitments,
+proximity testing
+\end{IEEEkeywords}
+
+%% Section 1: Introduction
+\input{Contents/introduction}
+
+%% Section 2: Preliminaries
+\input{Contents/preliminaries}
+
+%% Section 3: Technical Overview
+\input{Contents/technical_overview}
+
+%% Section 4: Our Construction
+\input{Contents/construction}
+
+%% Section 5: Security Analysis
+\input{Contents/security_analysis}
+
+%% Section 6: Implementation and Evaluation 
+\input{Contents/evaluation}
+
+%% Section 7: Conclusion
+\input{Contents/conclusion}
+
+\section*{Ethics considerations}
+This work uses local benchmark data and involves no human subjects, live
+systems, or vulnerability disclosure.
+
+\section*{LLM usage considerations}
+LLMs were used only for editorial assistance; the authors checked all technical
+claims, proofs, experiments, and citations.
+
+\bibliographystyle{IEEEtran}
+\bibliography{Styles/bibliography}
+
+\appendices
+\input{Contents/appendix}
+
+\end{document}

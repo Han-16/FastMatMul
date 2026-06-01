@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{ccrrr}
+\toprule
+$\log k$ & $\rho$ & Precomp.\ (s) & Encoding (s) & Constraints \\
+\midrule
+10 & 1/2 & 0.000 & 0.001 & 5,134 \\
+10 & 1/4 & 0.000 & 0.001 & 9,244 \\
+\addlinespace
+12 & 1/2 & 0.000 & 0.002 & 20,536 \\
+12 & 1/4 & 0.001 & 0.003 & 36,974 \\
+\addlinespace
+14 & 1/2 & 0.002 & 0.008 & 82,140 \\
+14 & 1/4 & 0.005 & 0.010 & 147,896 \\
+\addlinespace
+16 & 1/2 & 0.007 & 0.035 & 328,558 \\
+16 & 1/4 & 0.012 & 0.040 & 591,578 \\
+\addlinespace
+18 & 1/2 & 0.024 & 0.126 & 1,314,228 \\
+18 & 1/4 & 0.049 & 0.152 & 2,366,310 \\
+\addlinespace
+20 & 1/2 & 0.104 & 0.623 & 5,256,908 \\
+20 & 1/4 & 0.220 & 0.680 & 9,465,240 \\
+\bottomrule
+\end{tabular}
+\caption{Precomputation and dense codeword-validity cost under general constant-rate codes.
+$\rho$: code rate; Constraint: number of dense backend codeword-validity R1CS constraints
+(additional to the fold/Merkle constraints in Table~\ref{tab:meow-vs-freivalds}).}
+\label{tab:precompute-encoding}
+\end{table}

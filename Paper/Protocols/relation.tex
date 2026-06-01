@@ -1,0 +1,66 @@
+\begin{align*}
+% 1. Original Arithmetic Relation
+\mathcal{R}_{\text{orig}} &= \left\{
+\left( 
+\begin{array}{l}
+(\cm_A,\cm_B,\cm_C \ ; \
+\mat{A}, \mat{B}, \mat{C}) 
+\end{array}
+\right)
+\ \middle\vert \
+\begin{array}{l}
+\cm_A = \merkle(\mat{A}) \\
+\land \ \cm_B = \merkle(\mat{B}) 
+\\
+\land \ \cm_C = \merkle(\mat{C}) 
+\\ 
+\land \ \mat{A}\mat{B}=\mat{C}
+\end{array}
+\right\}
+\\[1cm]
+% 2. Freivalds' Reduction (Randomized Vector)
+& \approx_{Freivalds'}
+\left\{
+\left( 
+\begin{array}{l}
+\{ \cm_{\chi} \}_{\chi \in \mathcal{S} = \{\mat{A}, \mat{B}, \mat{C}, \vect{x}, \vect{y}, \vect{z}\}}, r
+ \ ; \ \chi \in \mathcal{S}
+\end{array}
+\right)
+\ \middle\vert \
+\begin{array}{l}
+\bigwedge_{\chi \in \mathcal{S}} \left( \cm_{\chi} = \merkle(\chi) \right)
+\\
+\land \ \vect{r}\mat{A}=\vect{x} \\ 
+\land \ \vect{x}\mat{B}=\vect{y} \\
+\land \ \vect{r}\mat{C}=\vect{z} \\
+\land \ \vect{y}=\vect{z}
+\end{array}
+\right\}
+\\[1cm] 
+% 3. SNARK Reduction (Local Check / Encoding)
+& \approx_{Proximity}
+\left\{
+\left( 
+\begin{array}{l}
+\{ \cm_{\chi} \}_{\chi \in \mathcal{S}}, r, I \ ; \\ 
+\chi \in \mathcal{S}, 
+\{ \enc_{\chi}^{(j)}, \pi_{\chi,j} \}_{j \in I, \chi \in \mathcal{S}}
+\end{array}
+\right)
+\ \middle\vert \
+\begin{array}{l}
+\bigwedge_{\chi \in \mathcal{S}} \Big( \cm_{\chi} = \merkle(\enc(\chi)) \Big)
+\\
+\bigwedge_{j \in I} \left( \enc_{x,j} = \fold(\enc_A^{(j)},\vect{r}) \right)
+\\
+\bigwedge_{j \in I} \left( \enc_{y,j} = \fold(\enc_B^{(j)},\vect{x}) \right)
+\\
+\bigwedge_{j \in I} \left( \enc_{z,j} = \fold(\enc_C^{(j)},\vect{r}) \right)
+\\
+\bigwedge_{j \in I} \Big( \enc_{y,j} = \enc_{z,j} \Big)
+\\
+\bigwedge_{\chi \in \mathcal{S}, j \in I} \left(  \merkleV(\pi_{\chi,j},\enc_{\chi}^{(j)},\cm_{\chi}) \right)
+\end{array}
+\right\}
+\end{align*}
