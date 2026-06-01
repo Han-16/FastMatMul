@@ -13,7 +13,7 @@ The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
 
 These measurements include the online sampled-handle path described in
 Section~\ref{sec:construction}: pre-query vector commitments fix
-$\vect{x},\vect{y},\vect{z}$ before $I$, the committed-witness SNARK backend
+$\vect{x},\vect{y},\vect{z}$ before $I$, the CC-SNARK backend
 binds every sampled matrix column or vector leaf to a public SNARK-side
 commitment, Merkle openings
 authenticate compact external leaf handles, and auxiliary linking checks connect
@@ -84,6 +84,7 @@ scales.}
 \end{figure}
 
 \input{Tables/Meow_vs_Freivalds}
+\input{Tables/Meow_breakdown}
 
 \paragraph{Primary matrix benchmark}
 Figure~\ref{fig:main-benchmark} shows the main scaling behavior.
@@ -102,7 +103,8 @@ At $k=4{,}096$, $\fmQA$ proves in $55.92\,\text{s}$ versus
 $405.04\,\text{s}$ for Freivalds, a $7.24\times$ speedup.
 $\fmQA$ also completes $k=8{,}192$ with $3{,}331{,}779$ constraints and a
 $181.29\,\text{s}$ proving time; Freivalds was not measured at that size in the
-current artifact.
+current artifact. Table~\ref{tab:meow-breakdown} breaks down the $\fmQA$ rows
+into commitment, SNARK, Merkle, and CP-Link components.
 
 \begin{figure}[t]
 \centering

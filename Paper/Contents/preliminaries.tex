@@ -48,8 +48,13 @@ Our protocol is compatible with any linear code.
 Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
 We discuss the trade-offs in Section~\ref{sec:complexity}.
 
-\subsection{Merkle Tree Commitment}
-\label{sec:prelim-merkle}
+\subsection{Commitment Schemes}
+\label{sec:prelim-commitments}
+
+A commitment scheme lets a prover fix a value and later open it. We use
+commitments only through the standard binding property: after a commitment is
+fixed, a polynomial-time prover cannot open it to two different values except
+with negligible probability.
 
 A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ provides a vector commitment scheme with the following algorithms:
 \begin{itemize}
@@ -60,9 +65,10 @@ A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash 
 
 The scheme is \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce $(j, v, \pi)$ and $(j, v', \pi')$ with $v \neq v'$ such that both verify against the same root $\cm$, except with probability $\epsilon_{\mathsf{bind}}(\lambda) = \textsf{negl}(\lambda)$.
 
-\subsection{Succinct Non-Interactive Arguments of Knowledge}
+\subsection{SNARKs and Commit-and-Prove Proofs}
 \label{sec:prelim-snark}
 
+\paragraph{SNARKs}
 A \emph{SNARK} (Succinct Non-interactive Argument of Knowledge) for an NP relation $\mathcal{R}$ consists of algorithms $(\textsf{Setup}, \snarkP, \snarkV)$:
 \begin{itemize}
   \item $\para \gets \textsf{Setup}(1^\lambda, \mathcal{R})$: Generate public parameters.
@@ -78,6 +84,54 @@ Groth16~\cite{groth2016size}, as well as transparent or preprocessing systems
 such as Hyrax~\cite{wahby2018doubly}, Sonic~\cite{maller2019sonic},
 Marlin~\cite{chiesa2020marlin}, and Spartan~\cite{setty2020spartan}.
 The key metric is the \emph{circuit size} (number of R1CS constraints or PlonK gates) of the relation that the SNARK backend must prove, as this dominates the prover's cost.
+
+\paragraph{Commitment-carrying SNARKs}
+A \emph{commitment-carrying SNARK} (CC-SNARK) is a SNARK backend that lets the
+prover publish commitments $\Gamma_i$ to selected private witness values
+$a_i$ while proving an arithmetic relation that uses the same values.
+The public statement contains the commitments $\Gamma_i$.
+Soundness requires that, except with the SNARK backend's binding error, an
+accepting proof fixes each committed witness value: the value used by the
+relation at the selected witness slot is the value opened by $\Gamma_i$.
+In this paper, the commitments $\Gamma_{\chi,j}$ are SNARK-side commitments to
+sampled matrix columns or vector coordinates.
+
+\paragraph{Commit-and-prove SNARKs}
+A \emph{commit-and-prove SNARK} (CP-SNARK) proves an NP relation while also
+proving that designated witness values open public commitments.
+For a commitment scheme $\mathsf{Com}$ and relation $\mathcal{R}$, the induced
+commit-and-prove relation is
+\[
+  \begin{aligned}
+  \mathcal{R}_{\mathsf{CP}}
+  =
+  \{\,((\stmt,C),(v,\rho,\wit')) :\;&
+  C=\mathsf{Com}(v;\rho)\\
+  &{}\land(\stmt,v,\wit')\in\mathcal{R}\,\}.
+  \end{aligned}
+\]
+Thus a CP-SNARK binds an external commitment $C$ to the private value used in
+the proven computation.
+
+\subsection{CP-Link}
+\label{sec:prelim-cplink}
+
+A \emph{CP-Link} proof is a lightweight commit-and-prove proof whose only
+purpose is to link two commitments to the same value.
+For a SNARK-side commitment $\Gamma$ and an external leaf handle $L$, the link
+relation is
+\[
+  \begin{aligned}
+  \mathcal{R}_{\mathsf{link}}
+  =
+  \{\,((\Gamma,L),(a,\rho_\Gamma,\rho_L)) :\;&
+  \Gamma=\mathsf{Com}_{\mathsf{snark}}(a;\rho_\Gamma)\\
+  &{}\land L=\mathsf{Com}_{\mathsf{leaf}}(a;\rho_L)\,\}.
+  \end{aligned}
+\]
+The verifier first authenticates $L$ under the relevant Merkle root and then
+checks the CP-Link proof. In our artifact, many such equal-opening claims are
+batched into one QA-NIZK proof.
 
 \subsection{Freivalds' Algorithm}
 \label{sec:prelim-freivalds}

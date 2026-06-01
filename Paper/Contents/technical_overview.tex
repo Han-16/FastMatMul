@@ -62,7 +62,7 @@ $I=(j_1,\ldots,j_t) \sample [n]^t$ of column indices independently with
 replacement.
 For each sampled $j \in I$, the prover supplies the $j$-th column or coordinate
 as Groth16 witness data, publishes a compact SNARK-side commitment bound to that
-witness by the committed-witness Groth16 backend, and provides auxiliary
+witness by the CC-SNARK backend, and provides auxiliary
 opening/linking material tying that commitment to the authenticated external
 leaf handle.
 
@@ -126,7 +126,7 @@ sampled RS evaluations for intermediate vectors, and the four local consistency
 equations at each queried index.
 These checks are arithmetized into the Groth16 relation defined in
 Section~\ref{sec:construction}.
-The Groth16 committed-witness interface binds sampled witness values to public
+The CC-SNARK interface binds sampled witness values to public
 SNARK-side commitments; Merkle path validity and sampled-linking consistency
 over those commitments and the public leaf handles are auxiliary verifier checks
 bound to the same transcript.

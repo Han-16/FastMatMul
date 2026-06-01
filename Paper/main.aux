@@ -13,43 +13,16 @@
 \citation{fiat1987prove}
 \citation{golovnev2023brakedown}
 \citation{xie2022orion}
-\citation{freivalds1977probabilistic}
 \@writefile{toc}{\contentsline {paragraph}{\relax Contributions}{2}{section*.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\relax Paper organization}{2}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Technical Overview}{2}{section.2}\protected@file@percent }
-\newlabel{sec:tech-overview}{{2}{2}{Technical Overview}{section.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Starting Point: Freivalds' Algorithm and Its Limitations}{2}{subsection.2.1}\protected@file@percent }
-\newlabel{sec:overview-freivalds}{{2.1}{2}{Starting Point: Freivalds' Algorithm and Its Limitations}{subsection.2.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}From Vectors to Codewords: Leveraging Linear Codes}{3}{subsection.2.2}\protected@file@percent }
-\newlabel{sec:overview-encoding}{{2.2}{3}{From Vectors to Codewords: Leveraging Linear Codes}{subsection.2.2}{}}
-\newlabel{eq:linearity}{{1}{3}{From Vectors to Codewords: Leveraging Linear Codes}{equation.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Commitment via Merkle trees}{3}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Proximity-Based Verification via Random Sampling}{3}{subsection.2.3}\protected@file@percent }
-\newlabel{sec:overview-proximity}{{2.3}{3}{Proximity-Based Verification via Random Sampling}{subsection.2.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Why does sampling suffice?}{3}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Putting It Together: The Full Protocol Pipeline}{3}{subsection.2.4}\protected@file@percent }
-\newlabel{sec:overview-pipeline}{{2.4}{3}{Putting It Together: The Full Protocol Pipeline}{subsection.2.4}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Commit inputs}{3}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Challenge}{3}{section*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Respond}{3}{section*.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Query}{3}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Preliminaries}{2}{section.2}\protected@file@percent }
+\newlabel{sec:prelim}{{2}{2}{Preliminaries}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Notation}{2}{subsection.2.1}\protected@file@percent }
+\newlabel{sec:notation}{{2.1}{2}{Notation}{subsection.2.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Linear Error-Correcting Codes}{2}{subsection.2.2}\protected@file@percent }
+\newlabel{sec:prelim-codes}{{2.2}{2}{Linear Error-Correcting Codes}{subsection.2.2}{}}
 \citation{golovnev2023brakedown}
 \citation{merkle1989certified}
-\@writefile{toc}{\contentsline {paragraph}{\relax SNARK verification}{4}{section*.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Cost summary}{4}{section*.12}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Preliminaries}{4}{section.3}\protected@file@percent }
-\newlabel{sec:prelim}{{3}{4}{Preliminaries}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Notation}{4}{subsection.3.1}\protected@file@percent }
-\newlabel{sec:notation}{{3.1}{4}{Notation}{subsection.3.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Linear Error-Correcting Codes}{4}{subsection.3.2}\protected@file@percent }
-\newlabel{sec:prelim-codes}{{3.2}{4}{Linear Error-Correcting Codes}{subsection.3.2}{}}
-\newlabel{eq:code-linearity}{{2}{4}{Linear Error-Correcting Codes}{equation.2}{}}
-\newlabel{def:fold}{{3.1}{4}{Fold}{theorem.3.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Concrete instantiations}{4}{section*.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Merkle Tree Commitment}{4}{subsection.3.3}\protected@file@percent }
-\newlabel{sec:prelim-merkle}{{3.3}{4}{Merkle Tree Commitment}{subsection.3.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Succinct Non-Interactive Arguments of Knowledge}{4}{subsection.3.4}\protected@file@percent }
-\newlabel{sec:prelim-snark}{{3.4}{4}{Succinct Non-Interactive Arguments of Knowledge}{subsection.3.4}{}}
 \citation{parno2013pinocchio}
 \citation{groth2016size}
 \citation{wahby2018doubly}
@@ -57,88 +30,116 @@
 \citation{chiesa2020marlin}
 \citation{setty2020spartan}
 \citation{freivalds1977probabilistic}
+\newlabel{eq:code-linearity}{{1}{3}{Linear Error-Correcting Codes}{equation.1}{}}
+\newlabel{def:fold}{{2.1}{3}{Fold}{theorem.2.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Concrete instantiations}{3}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Commitment Schemes}{3}{subsection.2.3}\protected@file@percent }
+\newlabel{sec:prelim-commitments}{{2.3}{3}{Commitment Schemes}{subsection.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}SNARKs and Commit-and-Prove Proofs}{3}{subsection.2.4}\protected@file@percent }
+\newlabel{sec:prelim-snark}{{2.4}{3}{SNARKs and Commit-and-Prove Proofs}{subsection.2.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax SNARKs}{3}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Commitment-carrying SNARKs}{3}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Commit-and-prove SNARKs}{3}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}CP-Link}{3}{subsection.2.5}\protected@file@percent }
+\newlabel{sec:prelim-cplink}{{2.5}{3}{CP-Link}{subsection.2.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Freivalds' Algorithm}{3}{subsection.2.6}\protected@file@percent }
+\newlabel{sec:prelim-freivalds}{{2.6}{3}{Freivalds' Algorithm}{subsection.2.6}{}}
 \citation{schwartz1980fast,zippel1979probabilistic}
+\citation{freivalds1977probabilistic}
+\newlabel{lem:sz}{{2.2}{4}{Schwartz--Zippel~\cite {schwartz1980fast,zippel1979probabilistic}}{theorem.2.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Technical Overview}{4}{section.3}\protected@file@percent }
+\newlabel{sec:tech-overview}{{3}{4}{Technical Overview}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Starting Point: Freivalds' Algorithm and Its Limitations}{4}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:overview-freivalds}{{3.1}{4}{Starting Point: Freivalds' Algorithm and Its Limitations}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}From Vectors to Codewords: Leveraging Linear Codes}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:overview-encoding}{{3.2}{4}{From Vectors to Codewords: Leveraging Linear Codes}{subsection.3.2}{}}
+\newlabel{eq:linearity}{{2}{4}{From Vectors to Codewords: Leveraging Linear Codes}{equation.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Commitment via Merkle trees}{4}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Proximity-Based Verification via Random Sampling}{4}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:overview-proximity}{{3.3}{4}{Proximity-Based Verification via Random Sampling}{subsection.3.3}{}}
 \citation{golovnev2023brakedown}
 \citation{xie2022orion}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Freivalds' Algorithm}{5}{subsection.3.5}\protected@file@percent }
-\newlabel{sec:prelim-freivalds}{{3.5}{5}{Freivalds' Algorithm}{subsection.3.5}{}}
-\newlabel{lem:sz}{{3.2}{5}{Schwartz--Zippel~\cite {schwartz1980fast,zippel1979probabilistic}}{theorem.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Our Construction}{5}{section.4}\protected@file@percent }
-\newlabel{sec:construction}{{4}{5}{Our Construction}{section.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Why does sampling suffice?}{5}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Putting It Together: The Full Protocol Pipeline}{5}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:overview-pipeline}{{3.4}{5}{Putting It Together: The Full Protocol Pipeline}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Commit inputs}{5}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Challenge}{5}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Respond}{5}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Query}{5}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax SNARK verification}{5}{section*.15}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Protocol-specific notation used in Section~\ref {sec:construction}.}}{5}{table.1}\protected@file@percent }
 \newlabel{tab:notation}{{1}{5}{Protocol-specific notation used in Section~\ref {sec:construction}}{table.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Cost summary}{5}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Our Construction}{5}{section.4}\protected@file@percent }
+\newlabel{sec:construction}{{4}{5}{Our Construction}{section.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Relation Reduction Chain}{5}{subsection.4.1}\protected@file@percent }
 \newlabel{sec:relation-chain}{{4.1}{5}{Relation Reduction Chain}{subsection.4.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Input-commit phase}{5}{section*.14}\protected@file@percent }
-\newlabel{def:codecom-backend}{{4.1}{5}{Sampled-opening backend}{theorem.4.1}{}}
 \citation{golovnev2023brakedown}
 \citation{xie2022orion}
 \citation{jutla2013shorter}
+\@writefile{toc}{\contentsline {paragraph}{\relax Input-commit phase}{6}{section*.17}\protected@file@percent }
+\newlabel{def:codecom-backend}{{4.1}{6}{Sampled-opening backend}{theorem.4.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Black-box backend contract used by the construction and security proof.}}{6}{table.2}\protected@file@percent }
 \newlabel{tab:backend-contract}{{2}{6}{Black-box backend contract used by the construction and security proof}{table.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Artifact backend in one paragraph}{6}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax QA-NIZK, CRS, and generator model}{6}{section*.16}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Backend boundary}{6}{section*.17}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax The original relation $\mathcal  {R}_{\mathsf  {orig}}$}{6}{section*.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Reduction 1: Freivalds' randomization ($\mathcal  {R}_{\mathsf  {orig}} \rightsquigarrow \mathcal  {R}_{\mathsf  {Freivalds}}$)}{6}{section*.19}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Reduction 2: Proximity lifting ($\mathcal  {R}_{\mathsf  {Freivalds}} \rightsquigarrow \mathcal  {R}_{\mathsf  {Prox}}$)}{6}{section*.20}\protected@file@percent }
-\newlabel{eq:vec-bind}{{{VEC}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.29}{}}
-\newlabel{eq:rs-check}{{{RS}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.30}{}}
-\newlabel{eq:fold-A}{{{FOLD-A}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.31}{}}
-\newlabel{eq:fold-B}{{{FOLD-B}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.32}{}}
-\newlabel{eq:fold-C}{{{FOLD-C}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.33}{}}
-\newlabel{eq:eq-check}{{{EQ}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.34}{}}
-\newlabel{eq:path-check}{{{PATH}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.35}{}}
-\newlabel{eq:link-check}{{{LINK}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.36}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Intermediate-binding cost}{7}{section*.37}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Protocol Description}{7}{subsection.4.2}\protected@file@percent }
-\newlabel{sec:protocol-desc}{{4.2}{7}{Protocol Description}{subsection.4.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Remark on the SNARK relation}{7}{section*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Artifact backend in one paragraph}{6}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax QA-NIZK, CRS, and generator model}{6}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Backend boundary}{6}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax The original relation $\mathcal  {R}_{\mathsf  {orig}}$}{6}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Reduction 1: Freivalds' randomization ($\mathcal  {R}_{\mathsf  {orig}} \rightsquigarrow \mathcal  {R}_{\mathsf  {Freivalds}}$)}{7}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Reduction 2: Proximity lifting ($\mathcal  {R}_{\mathsf  {Freivalds}} \rightsquigarrow \mathcal  {R}_{\mathsf  {Prox}}$)}{7}{section*.23}\protected@file@percent }
+\newlabel{eq:vec-bind}{{{VEC}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.32}{}}
+\newlabel{eq:rs-check}{{{RS}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.33}{}}
+\newlabel{eq:fold-A}{{{FOLD-A}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.34}{}}
+\newlabel{eq:fold-B}{{{FOLD-B}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.35}{}}
+\newlabel{eq:fold-C}{{{FOLD-C}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.36}{}}
+\newlabel{eq:eq-check}{{{EQ}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.37}{}}
+\newlabel{eq:path-check}{{{PATH}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.38}{}}
+\newlabel{eq:link-check}{{{LINK}}{7}{Reduction 2: Proximity lifting ($\mathcal {R}_{\mathsf {Freivalds}} \rightsquigarrow \mathcal {R}_{\mathsf {Prox}}$)}{AMS.39}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Intermediate-binding cost}{7}{section*.40}\protected@file@percent }
 \citation{fiat1987prove}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Protocol Description}{8}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:protocol-desc}{{4.2}{8}{Protocol Description}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Remark on the SNARK relation}{8}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Non-interactive variant}{8}{section*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Security of the non-interactive variant}{8}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Zero-knowledge extension}{8}{section*.44}\protected@file@percent }
 \pgfsyspdfmark {pgfid16}{24085554}{43198677}
 \pgfsyspdfmark {pgfid17}{24085554}{39332870}
 \pgfsyspdfmark {pgfid18}{24835084}{32169331}
 \pgfsyspdfmark {pgfid19}{24085554}{29407673}
 \pgfsyspdfmark {pgfid20}{24085554}{19528413}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The $\textsf  {FastMatMul}$ protocol for verifiable matrix multiplication. $\mathcal  {S} = \mathcal  {M} \cup \mathcal  {W}$ is the set of objects opened at sampled positions, $t = |I|$ is the query complexity, and $\mathsf  {x}, \mathsf  {w}$ denote the public statement and witness for the inner SNARK.}}{8}{figure.1}\protected@file@percent }
-\newlabel{fig:protocol}{{1}{8}{The $\protocol $ protocol for verifiable matrix multiplication. $\mathcal {S} = \mathcal {M} \cup \mathcal {W}$ is the set of objects opened at sampled positions, $t = |I|$ is the query complexity, and $\stmt , \wit $ denote the public statement and witness for the inner SNARK}{figure.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Non-interactive variant}{8}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Security of the non-interactive variant}{9}{section*.40}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Zero-knowledge extension}{9}{section*.41}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The $\textsf  {FastMatMul}$ protocol for verifiable matrix multiplication. $\mathcal  {S} = \mathcal  {M} \cup \mathcal  {W}$ is the set of objects opened at sampled positions, $t = |I|$ is the query complexity, and $\mathsf  {x}, \mathsf  {w}$ denote the public statement and witness for the inner SNARK.}}{9}{figure.1}\protected@file@percent }
+\newlabel{fig:protocol}{{1}{9}{The $\protocol $ protocol for verifiable matrix multiplication. $\mathcal {S} = \mathcal {M} \cup \mathcal {W}$ is the set of objects opened at sampled positions, $t = |I|$ is the query complexity, and $\stmt , \wit $ denote the public statement and witness for the inner SNARK}{figure.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Complexity Analysis}{9}{subsection.4.3}\protected@file@percent }
 \newlabel{sec:complexity}{{4.3}{9}{Complexity Analysis}{subsection.4.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Prover computation}{9}{section*.42}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Verifier computation}{9}{section*.43}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Communication}{9}{section*.44}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Circuit size comparison}{9}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Prover computation}{9}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Verifier computation}{9}{section*.46}\protected@file@percent }
 \citation{golovnev2023brakedown}
 \citation{xie2022orion}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Asymptotic costs after separating input-root generation from online multiplication checking. The online total excludes native computation of $\mathbf  {C}=\mathbf  {A}\mathbf  {B}$ and raw matrix encoding/root construction. $k$: matrix dimension; $n$: codeword length; $t$: query count; $E_{\mathsf  {vec}}$ and $E_{\mathsf  {link}}$ are backend costs.}}{10}{table.3}\protected@file@percent }
-\newlabel{tab:cost-summary}{{3}{10}{Asymptotic costs after separating input-root generation from online multiplication checking. The online total excludes native computation of $\mat {C}=\mat {A}\mat {B}$ and raw matrix encoding/root construction. $k$: matrix dimension; $n$: codeword length; $t$: query count; $E_{\mathsf {vec}}$ and $E_{\mathsf {link}}$ are backend costs}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Communication}{10}{section*.47}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Circuit size comparison}{10}{section*.48}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Security Analysis}{10}{section.5}\protected@file@percent }
 \newlabel{sec:security}{{5}{10}{Security Analysis}{section.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Scope of the security claim}{10}{section*.46}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Soundness-critical ordering}{10}{section*.47}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Backend failure event}{10}{section*.48}\protected@file@percent }
-\newlabel{thm:security}{{5.1}{10}{Security}{theorem.5.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Asymptotic costs after separating input-root generation from online multiplication checking. The online total excludes native computation of $\mathbf  {C}=\mathbf  {A}\mathbf  {B}$ and raw matrix encoding/root construction. $k$: matrix dimension; $n$: codeword length; $t$: query count; $E_{\mathsf  {vec}}$ and $E_{\mathsf  {link}}$ are backend costs.}}{10}{table.3}\protected@file@percent }
+\newlabel{tab:cost-summary}{{3}{10}{Asymptotic costs after separating input-root generation from online multiplication checking. The online total excludes native computation of $\mat {C}=\mat {A}\mat {B}$ and raw matrix encoding/root construction. $k$: matrix dimension; $n$: codeword length; $t$: query count; $E_{\mathsf {vec}}$ and $E_{\mathsf {link}}$ are backend costs}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Scope of the security claim}{10}{section*.49}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Soundness-critical ordering}{10}{section*.50}\protected@file@percent }
 \citation{freivalds1977probabilistic}
+\@writefile{toc}{\contentsline {paragraph}{\relax Backend failure event}{11}{section*.51}\protected@file@percent }
+\newlabel{thm:security}{{5.1}{11}{Security}{theorem.5.1}{}}
 \newlabel{cor:evaluated-backend}{{5.2}{11}{Evaluated backend}{theorem.5.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Proof sketch}{11}{section*.49}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Proof sketch}{11}{section*.52}\protected@file@percent }
 \newlabel{rem:fs-soundness}{{1}{11}{Fiat--Shamir soundness}{remark.1}{}}
 \newlabel{rem:aok}{{2}{11}{Knowledge Soundness}{remark.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Implementation and Evaluation}{11}{section.6}\protected@file@percent }
 \newlabel{sec:implementation}{{6}{11}{Implementation and Evaluation}{section.6}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Primary matrix benchmark}{11}{section*.50}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Primary matrix-multiplication benchmark for $\textsf  {FastMatMul}_{\mathsf  {QA}}$ and the optimized Freivalds SNARK baseline. $\textsf  {FastMatMul}_{\mathsf  {QA}}$ is the current implementation of the sampled-opening backend with multi-column Merkle openings. Proving time excludes native matrix multiplication and setup; these are recorded separately in the artifact. The table measures the online multiplication-checking layer, including sampled RS evaluations, Merkle openings, SNARK-side witness commitments, and auxiliary opening/linking checks; online proof bytes exclude raw sampled matrix-column witness values, raw-matrix encoding and input-root construction for $\textsf  {cm}_A,\textsf  {cm}_B,\textsf  {cm}_C$, and setup/key/CRS material.}}{12}{table.4}\protected@file@percent }
-\newlabel{tab:meow-vs-freivalds}{{4}{12}{Primary matrix-multiplication benchmark for $\fmQA $ and the optimized Freivalds SNARK baseline. $\fmQA $ is the current implementation of the sampled-opening backend with multi-column Merkle openings. Proving time excludes native matrix multiplication and setup; these are recorded separately in the artifact. The table measures the online multiplication-checking layer, including sampled RS evaluations, Merkle openings, SNARK-side witness commitments, and auxiliary opening/linking checks; online proof bytes exclude raw sampled matrix-column witness values, raw-matrix encoding and input-root construction for $\cm _A,\cm _B,\cm _C$, and setup/key/CRS material}{table.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Primary matrix benchmark. With the sampled-opening backend, $\textsf  {FastMatMul}_{\mathsf  {QA}}$ follows the expected $\mathcal  {O}(k)$ checking-layer growth, whereas the Freivalds SNARK baseline follows $\mathcal  {O}(k^2)$ growth.}}{12}{figure.2}\protected@file@percent }
 \newlabel{fig:main-benchmark}{{2}{12}{Primary matrix benchmark. With the sampled-opening backend, $\fmQA $ follows the expected $\mathcal {O}(k)$ checking-layer growth, whereas the Freivalds SNARK baseline follows $\mathcal {O}(k^2)$ growth}{figure.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Primary matrix benchmark}{12}{section*.53}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces GPT-2 checking-layer case study at sequence length $1{,}024$ with $36$ matrix-multiplication claims over input roots. Costs are normalized to the Freivalds baseline.}}{12}{figure.3}\protected@file@percent }
 \newlabel{fig:gpt2-case-study}{{3}{12}{GPT-2 checking-layer case study at sequence length $1{,}024$ with $36$ matrix-multiplication claims over input roots. Costs are normalized to the Freivalds baseline}{figure.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Verification, online bytes, and GPT-2 workload}{12}{section*.51}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Exact GPT-2 checking-layer metrics from the CSV artifact for sequence length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups.}}{12}{table.5}\protected@file@percent }
-\newlabel{tab:gpt2-case-study}{{5}{12}{Exact GPT-2 checking-layer metrics from the CSV artifact for sequence length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups}{table.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Strict parameters and deployment scope}{12}{section*.52}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Verification, online bytes, and GPT-2 workload}{12}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Strict parameters and deployment scope}{12}{section*.55}\protected@file@percent }
 \citation{ghodsi2017safetynets}
 \citation{weng2021mystique}
 \citation{liu2021zkcnn}
@@ -154,6 +155,15 @@
 \bibcite{freivalds1977probabilistic}{1}
 \bibcite{weng2021mystique}{2}
 \bibcite{chen2024zkml}{3}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Primary matrix-multiplication benchmark for $\textsf  {FastMatMul}_{\mathsf  {QA}}$ and the optimized Freivalds SNARK baseline. $\textsf  {FastMatMul}_{\mathsf  {QA}}$ is the current implementation of the sampled-opening backend with multi-column Merkle openings. Proving time excludes native matrix multiplication and setup; these are recorded separately in the artifact. The table measures the online multiplication-checking layer, including sampled RS evaluations, Merkle openings, SNARK-side witness commitments, and auxiliary opening/linking checks; online proof bytes exclude raw sampled matrix-column witness values, raw-matrix encoding and input-root construction for $\textsf  {cm}_A,\textsf  {cm}_B,\textsf  {cm}_C$, and setup/key/CRS material.}}{13}{table.4}\protected@file@percent }
+\newlabel{tab:meow-vs-freivalds}{{4}{13}{Primary matrix-multiplication benchmark for $\fmQA $ and the optimized Freivalds SNARK baseline. $\fmQA $ is the current implementation of the sampled-opening backend with multi-column Merkle openings. Proving time excludes native matrix multiplication and setup; these are recorded separately in the artifact. The table measures the online multiplication-checking layer, including sampled RS evaluations, Merkle openings, SNARK-side witness commitments, and auxiliary opening/linking checks; online proof bytes exclude raw sampled matrix-column witness values, raw-matrix encoding and input-root construction for $\cm _A,\cm _B,\cm _C$, and setup/key/CRS material}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces $\textsf  {FastMatMul}_{\mathsf  {QA}}$ component breakdown from \texttt  {meow\_benchmark\_results.csv}. Commit time is \texttt  {MatrixCommitTime} plus \texttt  {VectorCommitTime}. SNARK proving time is \texttt  {CircuitProveTime}; SNARK proof size is the Groth16 proof size. Merkle and CP-Link columns report the corresponding proving, proof-size, and verification components from the artifact.}}{13}{table.5}\protected@file@percent }
+\newlabel{tab:meow-breakdown}{{5}{13}{$\fmQA $ component breakdown from \texttt {meow\_benchmark\_results.csv}. Commit time is \texttt {MatrixCommitTime} plus \texttt {VectorCommitTime}. SNARK proving time is \texttt {CircuitProveTime}; SNARK proof size is the Groth16 proof size. Merkle and CP-Link columns report the corresponding proving, proof-size, and verification components from the artifact}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Exact GPT-2 checking-layer metrics from the CSV artifact for sequence length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups.}}{13}{table.6}\protected@file@percent }
+\newlabel{tab:gpt2-case-study}{{6}{13}{Exact GPT-2 checking-layer metrics from the CSV artifact for sequence length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups}{table.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion and Related Work}{13}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{13}{Conclusion and Related Work}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{References}{13}{section*.58}\protected@file@percent }
 \bibcite{ghodsi2017safetynets}{4}
 \bibcite{fiat1987prove}{5}
 \bibcite{golovnev2023brakedown}{6}
@@ -175,38 +185,35 @@
 \bibcite{cong2026dualmatrix}{22}
 \bibcite{zhang2025zkvc}{23}
 \bibcite{bennett2023matrix}{24}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion and Related Work}{13}{section.7}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{13}{Conclusion and Related Work}{section.7}{}}
-\@writefile{toc}{\contentsline {section}{References}{13}{section*.55}\protected@file@percent }
 \bibcite{ames2017ligero}{25}
 \bibcite{ben2018fast}{26}
 \bibcite{kate2010constant}{27}
 \bibcite{bunz2018bulletproofs}{28}
 \bibcite{pedersen1991non}{29}
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Detailed Proof of Theorem~\ref {thm:security}}{14}{section*.56}\protected@file@percent }
-\newlabel{app:security-proof}{{A}{14}{\appendixname \nobreakspace \thesectiondis \\* Detailed Proof of Theorem~\ref {thm:security}}{section*.56}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Perfect completeness}{14}{section*.57}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Bad-event decomposition}{14}{section*.58}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Freivalds randomization}{14}{section*.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Detailed Proof of Theorem~\ref {thm:security}}{14}{section*.59}\protected@file@percent }
+\newlabel{app:security-proof}{{A}{14}{\appendixname \nobreakspace \thesectiondis \\* Detailed Proof of Theorem~\ref {thm:security}}{section*.59}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Perfect completeness}{14}{section*.60}\protected@file@percent }
 \citation{pedersen1991non}
-\@writefile{toc}{\contentsline {paragraph}{\relax Proximity sampling}{15}{section*.60}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Combining the bounds and parameters}{15}{section*.61}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Fiat--Shamir variant}{15}{section*.62}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: CP-Link Backend Instantiation}{15}{section*.63}\protected@file@percent }
-\newlabel{app:cplink-backend}{{B}{15}{\appendixname \nobreakspace \thesectiondis \\* CP-Link Backend Instantiation}{section*.63}{}}
-\newlabel{thm:cp-link-backend}{{B.1}{15}{Batched CP-link backend}{theorem.Appendix.B.1}{}}
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  C: Additional Evaluation Details}{15}{section*.64}\protected@file@percent }
-\newlabel{app:eval-details}{{C}{15}{\appendixname \nobreakspace \thesectiondis \\* Additional Evaluation Details}{section*.64}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Concrete parameters used in the main experiments.}}{16}{table.6}\protected@file@percent }
-\newlabel{tab:eval-parameters}{{6}{16}{Concrete parameters used in the main experiments}{table.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Measurement coverage in the current artifact.}}{16}{table.7}\protected@file@percent }
-\newlabel{tab:metric-coverage}{{7}{16}{Measurement coverage in the current artifact}{table.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Proof-material accounting for the CP-linked sampled-opening backend.}}{16}{table.8}\protected@file@percent }
-\newlabel{tab:proof-material-accounting}{{8}{16}{Proof-material accounting for the CP-linked sampled-opening backend}{table.8}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Representative byte-level accounting from \texttt  {meow\_benchmark\_results.csv}.}}{17}{table.9}\protected@file@percent }
-\newlabel{tab:byte-accounting}{{9}{17}{Representative byte-level accounting from \texttt {meow\_benchmark\_results.csv}}{table.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Setup accounting for representative rows.}}{17}{table.10}\protected@file@percent }
-\newlabel{tab:setup-accounting}{{10}{17}{Setup accounting for representative rows}{table.10}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Structural constraint and raw-column-size accounting for two representative rows.}}{17}{table.11}\protected@file@percent }
-\newlabel{tab:constraint-accounting}{{11}{17}{Structural constraint and raw-column-size accounting for two representative rows}{table.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Bad-event decomposition}{15}{section*.61}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Freivalds randomization}{15}{section*.62}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Proximity sampling}{15}{section*.63}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Combining the bounds and parameters}{15}{section*.64}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Fiat--Shamir variant}{15}{section*.65}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: CP-Link Backend Instantiation}{15}{section*.66}\protected@file@percent }
+\newlabel{app:cplink-backend}{{B}{15}{\appendixname \nobreakspace \thesectiondis \\* CP-Link Backend Instantiation}{section*.66}{}}
+\newlabel{thm:cp-link-backend}{{B.1}{16}{Batched CP-Link backend}{theorem.Appendix.B.1}{}}
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  C: Additional Evaluation Details}{16}{section*.67}\protected@file@percent }
+\newlabel{app:eval-details}{{C}{16}{\appendixname \nobreakspace \thesectiondis \\* Additional Evaluation Details}{section*.67}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Concrete parameters used in the main experiments.}}{16}{table.7}\protected@file@percent }
+\newlabel{tab:eval-parameters}{{7}{16}{Concrete parameters used in the main experiments}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Measurement coverage in the current artifact.}}{17}{table.8}\protected@file@percent }
+\newlabel{tab:metric-coverage}{{8}{17}{Measurement coverage in the current artifact}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Proof-material accounting for the CP-Link sampled-opening backend.}}{17}{table.9}\protected@file@percent }
+\newlabel{tab:proof-material-accounting}{{9}{17}{Proof-material accounting for the CP-Link sampled-opening backend}{table.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Representative byte-level accounting from \texttt  {meow\_benchmark\_results.csv}.}}{17}{table.10}\protected@file@percent }
+\newlabel{tab:byte-accounting}{{10}{17}{Representative byte-level accounting from \texttt {meow\_benchmark\_results.csv}}{table.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Setup accounting for representative rows.}}{17}{table.11}\protected@file@percent }
+\newlabel{tab:setup-accounting}{{11}{17}{Setup accounting for representative rows}{table.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Structural constraint and raw-column-size accounting for two representative rows.}}{17}{table.12}\protected@file@percent }
+\newlabel{tab:constraint-accounting}{{12}{17}{Structural constraint and raw-column-size accounting for two representative rows}{table.12}{}}
 \gdef \@abspage@last{17}

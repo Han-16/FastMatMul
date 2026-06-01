@@ -79,7 +79,7 @@ Our contributions are as follows.
     linear codes and Merkle-tree commitments.
 	    In our sampled-opening backend, pre-query vector commitments to
 	    $\vect{x},\vect{y},\vect{z}$ are fixed before the query set is derived,
-	    and the committed-witness SNARK backend binds the sampled values used in
+	    and the CC-SNARK backend binds the sampled values used in
 	    the fold checks to public SNARK-side commitments; auxiliary
 	    opening/linking verifiers connect those commitments to authenticated
 	    external leaves.
@@ -100,7 +100,7 @@ Our contributions are as follows.
     + 4(1\!-\!\delta)^{t}$,
     where $\delta$ is the code's relative distance,
     $\epsilon_{\mathsf{SNARK}}$ is the SNARK soundness error including
-    committed-witness binding,
+    CC-SNARK witness binding,
 	    $\epsilon_{\mathsf{cc}}$ is the vector-binding and sampled commitment-linking error,
 	    and $\epsilon_{\mathsf{bind}}$ is the Merkle commitment's binding error.
 	    The Fiat--Shamir non-interactive variant adds the standard
@@ -157,8 +157,8 @@ Our contributions are as follows.
 \end{itemize}
 
 \paragraph{Paper organization}
-Section~\ref{sec:tech-overview} gives a high-level technical overview.
 Section~\ref{sec:prelim} recalls the necessary background.
+Section~\ref{sec:tech-overview} gives a high-level technical overview.
 Section~\ref{sec:construction} presents the formal construction and complexity
 analysis.
 Section~\ref{sec:security} provides the security proof.

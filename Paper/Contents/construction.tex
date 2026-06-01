@@ -65,7 +65,7 @@ witness data; the auxiliary verifier sees handles and authentication paths.
 \begin{definition}[Sampled-opening backend]\label{def:codecom-backend}
 The online checker uses a black-box backend for sampled openings.
 For each sampled object $\chi$ and query $j$, the Groth16 relation uses a
-private value $a_{\chi,j}$ and the committed-witness SNARK backend publishes a
+private value $a_{\chi,j}$ and the CC-SNARK backend publishes a
 SNARK-side commitment $\Gamma_{\chi,j}$ to that value.
 The auxiliary verifier sees the committed root $\cm_\chi$, a leaf handle
 $L_{\chi,j}$, an opening path $\pi_{\chi,j}$, and an aggregate auxiliary proof
@@ -76,7 +76,7 @@ The backend must provide three guarantees:
 
 \emph{SNARK-side binding.}
 If the Groth16 verifier accepts, every sampled value used in the fold equations
-is bound by the committed-witness SNARK backend to its public commitment
+is bound by the CC-SNARK backend to its public commitment
 $\Gamma_{\chi,j}$.
 This property is part of the selected SNARK backend and is charged to
 $\epsilon_{\mathsf{SNARK}}$.
@@ -132,7 +132,7 @@ Pedersen-style algebraic commitment to the same object.
 The auxiliary proof is one batched quasi-adaptive NIZK (QA-NIZK) proof for a
 linear relation~\cite{jutla2013shorter} linking all $Q=|\mathcal{S}|t$ sampled
 SNARK-side/leaf commitment pairs.
-Assuming committed-witness binding of the Groth16 backend, binding of the handle
+Assuming CC-SNARK witness binding, binding of the handle
 parameters, soundness of the QA-NIZK for the linear batch relation, and a
 domain-separated batch challenge sampled after the batch statement is fixed, the
 linking error is
@@ -299,7 +299,7 @@ $\mathsf{AuxV}$ over the same transcript and SNARK-side commitments.
 \endgroup
 Here $\forall j \in I$ ranges over every sampled position in the ordered tuple,
 including repetitions.
-The committed-witness Groth16 backend is the bridge between the private Groth16
+The CC-SNARK backend is the bridge between the private Groth16
 witness and the auxiliary opening world: the fold equations use $a_{\chi,j}$,
 and SNARK verification binds that same witness slot to the public commitment
 $\Gamma_{\chi,j}$.
@@ -333,7 +333,7 @@ in-circuit checking relation is \emph{linear in $k$}.
 \paragraph{Intermediate-binding cost}
 The vector-binding checks in~\eqref{eq:vec-bind} force the prover to commit to fixed
 vectors $\vect{x},\vect{y},\vect{z}$ before the query tuple is sampled.
-The committed-witness binding of $\Gamma_{\chi,j}$ and the link check in
+The CC-SNARK witness binding of $\Gamma_{\chi,j}$ and the link check in
 \eqref{eq:link-check} then force each sampled external opening to equal the
 value used by the in-circuit fold relation; for intermediate vectors,
 \eqref{eq:rs-check} also forces this value to be the corresponding code
@@ -440,7 +440,7 @@ Groth16 circuit and auxiliary verifiers.
 First, constraint~\eqref{eq:vec-bind} ties the pre-query vector commitments
 $\mu_x,\mu_y,\mu_z$ to the same $\vect{x},\vect{y},\vect{z}$ used in the fold
 checks.
-The committed-witness SNARK backend binds each sampled value used by the
+The CC-SNARK backend binds each sampled value used by the
 circuit to the public commitment $\Gamma_{\chi,j}$ through the Groth16
 verification equation; this is not a separate arithmetic constraint.
 Constraints~\eqref{eq:rs-check}--\eqref{eq:eq-check} verify the sampled RS,
@@ -457,7 +457,7 @@ SNARK-side commitments $\{\Gamma_{\chi,j}\}$.
 The relation witness $\wit$ consists of the intermediate vectors, openings of
 their vector commitments, and the sampled matrix columns or vector leaves used
 by the fold equations.
-The randomness $\{\rho_{\chi,j}\}$ is consumed by the committed-witness/linking
+The randomness $\{\rho_{\chi,j}\}$ is consumed by the CC-SNARK/linking
 backend, not by an in-circuit opening check.
 
 \paragraph{Non-interactive variant}
@@ -532,7 +532,7 @@ are:
 \begin{enumerate}[label=(\roman*)]
   \item \emph{Vector computation}: Computing $\vect{x}, \vect{y}, \vect{z}$ costs $\mathcal{O}(k^2)$ in total.
   \item \emph{Intermediate-vector roots}: Encoding $\vect{x},\vect{y},\vect{z}$ and forming their roots costs $\mathcal{O}(n)$ for constant-rate linear codes.
-  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + E_{\mathsf{vec}}(k))$ for the fold checks, sampled RS evaluations, and vector-binding constraints. Merkle authentication, SNARK-side witness commitments, and sampled-linking work are backend costs included in the reported proving, verification, and online-byte breakdowns.
+  \item \emph{SNARK proving}: The circuit size is $\mathcal{O}(t \cdot k + E_{\mathsf{vec}}(k))$ for the fold checks, sampled RS evaluations, and vector-binding constraints. Merkle authentication, CC-SNARK witness commitments, and sampled-linking work are backend costs included in the reported proving, verification, and online-byte breakdowns.
 \end{enumerate}
 
 \paragraph{Verifier computation}

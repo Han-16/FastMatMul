@@ -7,7 +7,7 @@ As discussed in Section~\ref{sec:relation-chain}, the input roots $\cm_A,\cm_B,\
 This is the committed-input model used by code-based proof systems such as Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion}; $\protocol$ verifies the multiplication relation among these committed objects.
 For the intermediate vectors, the prover sends pre-query vector commitments to
 $\vect{x},\vect{y},\vect{z}$ before the query tuple is sampled.
-At each sampled coordinate, the committed-witness SNARK backend binds the matrix
+At each sampled coordinate, the CC-SNARK backend binds the matrix
 column or vector leaf used by the circuit to a public SNARK-side commitment
 $\Gamma_{\chi,j}$.
 The auxiliary verifier authenticates a compact external Merkle leaf handle
@@ -95,7 +95,7 @@ Here $t = |I|$ is the query complexity and $\delta$ is the relative minimum
 distance of $\mathcal{C}$.
 The terms $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and
 $\epsilon_{\mathsf{bind}}$ denote, respectively, the soundness error of the
-SNARK backend including committed-witness binding, the
+SNARK backend including CC-SNARK witness binding, the
 vector-binding/linking consistency error of the selected intermediate backend,
 and the union-bounded position-binding error of the opening layer over all roots
 and openings used in the protocol.

@@ -20,8 +20,8 @@ For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D}=\vect{0}$, so
 For each intermediate vector $v\in\{\vect{x},\vect{y},\vect{z}\}$, the honest
 prover commits to the intermediate vector before $I$ is sampled, commits to the
 encoded leaf handles, publishes SNARK-side commitments through the
-committed-witness Groth16 backend,
-and supplies accepted Merkle openings and CP-link proofs for the sampled
+CC-SNARK backend,
+and supplies accepted Merkle openings and CP-Link proofs for the sampled
 coordinates.
 For any queried index $j\in[n]$, linearity of $\mathcal{C}$ gives
 \[
@@ -44,10 +44,10 @@ vector-binding or witness-to-leaf linking failure for an accepted sampled
 object, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted
 leaf-handle openings for the same root and position.
 For the sampled-opening part of $\mathsf{Bad}_{\mathsf{cc}}$, condition on the
-committed-witness Groth16 binding property: for every accepted SNARK-side
+CC-SNARK binding property: for every accepted SNARK-side
 commitment $\Gamma_{\chi,j}$ it obtains the sampled witness value
 $a_{\chi,j}$ and opening randomness $\rho_{\chi,j}$ bound to that commitment.
-The CP-link batch tag is
+The CP-Link batch tag is
 $T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
 where $P_I=\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}$.
 Thus the auxiliary proof is tied to the same SNARK-side/leaf commitment pairs that appear in the
@@ -181,17 +181,17 @@ The artifact uses Pedersen-style~\cite{pedersen1991non} handles
   L=\rho_L H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
 \]
 with $d_\chi=k$ for matrix columns and $d_\chi=1$ for vector coordinates.
-Leaf handles are authenticated by the Merkle tree, while the committed-witness
-Groth16 backend binds $\Gamma$ to the sampled witness value used by the circuit.
+Leaf handles are authenticated by the Merkle tree, while the CC-SNARK backend
+binds $\Gamma$ to the sampled witness value used by the circuit.
 The link proof shows that the SNARK-side commitment and the authenticated leaf
 handle open to the same sampled object.
 
-\begin{theorem}[Batched CP-link backend]\label{thm:cp-link-backend}
+\begin{theorem}[Batched CP-Link backend]\label{thm:cp-link-backend}
 Assume the Pedersen handle parameters are generated so that the handle
 commitment is binding, the QA-NIZK link proof for the linear batch relation is
 sound, and the batching challenge is sampled by the Fiat--Shamir random oracle
 after the batch statement is fixed.
-For $Q=|\mathcal{S}|t$ sampled objects, the batched CP-link verifier accepts a
+For $Q=|\mathcal{S}|t$ sampled objects, the batched CP-Link verifier accepts a
 false batch with probability at most
 $\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$.
 The artifact serializes the $Q$ logical relations as one online batched proof;
@@ -199,7 +199,7 @@ generator and CRS bytes are setup material and are not included in the online
 proof-size claim.
 \end{theorem}
 
-The logical CP-link relation contains one equation per sampled object:
+The logical CP-Link relation contains one equation per sampled object:
 \[
   \Gamma_q-L_q=\Delta_qH,\qquad q\in[Q],
 \]
@@ -264,8 +264,8 @@ Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
 Code rate & $\rho=1/2$ \\
 Codeword length & $n=2k$ \\
 Sampled positions & $t=128$ \\
-Primary linking layer & Pre-query vector commitments, SNARK-side commitments, QA-NIZK/CP-link, and multi-column Merkle openings \\
-Backend model & CP-linked sampled intermediate backend; input roots are fixed before $r$ \\
+Primary linking layer & Pre-query vector commitments, SNARK-side commitments, QA-NIZK/CP-Link, and multi-column Merkle openings \\
+Backend model & CP-Link sampled intermediate backend; input roots are fixed before $r$ \\
 Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
 \bottomrule
 \end{tabularx}
@@ -285,9 +285,9 @@ raw-matrix encoding/root construction and serialized key/CRS sizes.
 \toprule
 \textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
 \midrule
-Constraint count & Yes, aggregate & Groth16 circuit size including vector openings, sampled RS evaluations, and fold checks; per-gadget constraint counters are not reported, and committed-witness/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
+Constraint count & Yes, aggregate & Groth16 circuit size including vector openings, sampled RS evaluations, and fold checks; per-gadget constraint counters are not reported, and CC-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
 Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
-Verification time & Yes & Includes current QA-NIZK/CP-link and opening verification overhead. \\
+Verification time & Yes & Includes current QA-NIZK/CP-Link and opening verification overhead. \\
 Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
 Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
 Input-root generation & Partial & Root construction is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
@@ -301,7 +301,7 @@ Peak memory and variance & No & Needed for a full systems artifact evaluation. \
 Table~\ref{tab:proof-material-accounting} explains the proof-size convention
 used in the main text. The sampled matrix columns are large, but they are
 private Groth16 witness data; the serialized proof contains only compact
-handles, authentication paths, the Groth16 proof, and the batched CP-link
+handles, authentication paths, the Groth16 proof, and the batched CP-Link
 material.
 
 \begin{table}[H]
@@ -315,11 +315,11 @@ material.
 Input column $a_{M,j}$ & No & $k$ field elements are Groth16 witness data; handles and paths are serialized. \\
 Vector leaf $a_{v,j}$ & No & One field element is used as Groth16 witness data and checked by $a_{v,j}=\enc(v)_j$; the SNARK-side commitment is linked to the Merkle leaf handle. \\
 Merkle path & Yes & Authenticates $L_{\chi,j}$ in $\mathsf{AuxV}$; charged to proof bytes and verify time. \\
-CP-link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all sampled SNARK-side/leaf commitment pairs. \\
-Groth16 proof & Yes & Verifies vector openings, sampled RS evaluations, and fold/equality checks, while its committed-witness interface binds sampled values to SNARK-side commitments. \\
+CP-Link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all sampled SNARK-side/leaf commitment pairs. \\
+Groth16 proof & Yes & Verifies vector openings, sampled RS evaluations, and fold/equality checks, while its CC-SNARK interface binds sampled values to SNARK-side commitments. \\
 \bottomrule
 \end{tabularx}
-\caption{Proof-material accounting for the CP-linked sampled-opening backend.}
+\caption{Proof-material accounting for the CP-Link sampled-opening backend.}
 \label{tab:proof-material-accounting}
 \end{table}
 
@@ -336,7 +336,7 @@ and raw sampled columns are intentionally not serialized.
 \toprule
 \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
 \midrule
-$k=1{,}024$ & $108{,}160$\,B & $108{,}548$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-link; roots/vector commitments are public inputs. \\
+$k=1{,}024$ & $108{,}160$\,B & $108{,}548$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots/vector commitments are public inputs. \\
 $k=4{,}096$ & $146{,}400$\,B & $146{,}788$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
 \bottomrule
 \end{tabularx}
@@ -346,7 +346,7 @@ $k=4{,}096$ & $146{,}400$\,B & $146{,}788$\,B & Raw sampled columns would be $50
 \end{table}
 
 Table~\ref{tab:setup-accounting} records setup time for representative rows and
-separates protocol, circuit, and CP-link setup components. The current artifact
+separates protocol, circuit, and CP-Link setup components. The current artifact
 does not report serialized proving/verifying-key or CRS bytes; this is why the
 main text states proof size as online proof material excluding key/CRS data.
 
@@ -356,7 +356,7 @@ main text states proof size as online proof material excluding key/CRS data.
 \setlength{\tabcolsep}{4pt}
 \begin{tabularx}{\columnwidth}{@{}p{0.19\columnwidth}rrrrX@{}}
 \toprule
-\textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-link} & \textbf{Key / CRS size} \\
+\textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-Link} & \textbf{Key / CRS size} \\
 \midrule
 $k=1{,}024$ & $32.99$\,s & $0.06$\,s & $31.81$\,s & $1.12$\,s & Not reported by the current artifact. \\
 $k=4{,}096$ & $128.21$\,s & $0.23$\,s & $123.64$\,s & $4.34$\,s & Not reported by the current artifact. \\
