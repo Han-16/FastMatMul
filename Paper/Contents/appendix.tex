@@ -53,7 +53,7 @@ where $P_I=\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}$.
 Thus the auxiliary proof is tied to the same SNARK-side/leaf commitment pairs that appear in the
 SNARK public statement and the Merkle openings.
 A sampled linking failure occurs if
-$\openV(\pi_{\chi,j},L_{\chi,j},\cm_\chi,j)=1$ and
+$\merkleO(\pi_{\chi,j},L_{\chi,j},\cm_\chi,j)=1$ and
 $\cpLinkV(\para,T_I,\{(\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j},\tau_I)=1$, but
 for some sampled pair there is no leaf-opening randomness $\eta_{\chi,j}$ such
 that $L_{\chi,j}$ opens to the same $a_{\chi,j}$ extracted from the Groth16

@@ -53,11 +53,11 @@ without arithmetizing the full matrix product.
 Our artifact reports the online checking cost after the roots are available;
 the raw cost of encoding matrices and building their roots is reported
 separately when measured and is not included in the online proof-byte claims.
-Throughout this section, $\merkle(\enc(\mat{M}))$ is shorthand for the Merkle
+Throughout this section, $\merkleC(\enc(\mat{M}))$ is shorthand for the Merkle
 root over compact leaf handles
 $(L_{M,1},\ldots,L_{M,n})$, where each handle is binding to the corresponding
 encoded column $\enc(\mat{M})^{(j)}$.
-For an encoded vector, $\merkle(\enc(v))$ analogously commits to handles for
+For an encoded vector, $\merkleC(\enc(v))$ analogously commits to handles for
 the length-$n$ sequence of encoded coordinates.
 The sampled values themselves are opened only to the Groth16 relation as
 witness data; the auxiliary verifier sees handles and authentication paths.
@@ -175,9 +175,9 @@ $(\mat{A}, \mat{B}, \mat{C})$; the relation $\mathcal{R}_{\mathsf{orig}}$
 requires:
 \[
 \begin{gathered}
-  \cm_A = \merkle(\enc(\mat{A})),\quad
-  \cm_B = \merkle(\enc(\mat{B})),\\
-  \cm_C = \merkle(\enc(\mat{C})),\quad
+  \cm_A = \merkleC(\enc(\mat{A})),\quad
+  \cm_B = \merkleC(\enc(\mat{B})),\\
+  \cm_C = \merkleC(\enc(\mat{C})),\quad
   \mat{A}\mat{B} = \mat{C}.
 \end{gathered}
 \]
@@ -288,7 +288,7 @@ $\mathsf{AuxV}$ over the same transcript and SNARK-side commitments.
   &\forall j \in I{:}\quad
     a_{y,j} = a_{z,j}, \tag{EQ}\label{eq:eq-check}\\
   &\forall \chi \in \mathcal{S},\, j \in I{:}\quad
-    \openV(\pi_{\chi,j},L_{\chi,j},\cm_{\chi},j)=1
+    \merkleO(\pi_{\chi,j},L_{\chi,j},\cm_{\chi},j)=1
     \tag{PATH}\label{eq:path-check}
     \\
   &\mathsf{LinkV}(\stmt,I,
@@ -356,7 +356,7 @@ We discuss the trade-off in Section~\ref{sec:complexity}.
 \label{sec:protocol-desc}
 
 We now give the full specification of $\protocol$.
-Let $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ be a systematic linear code with relative distance $\delta$ and $\merkle$ denote the Merkle tree commitment.
+Let $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ be a systematic linear code with relative distance $\delta$ and $\merkleC$ denote the Merkle tree commitment.
 Let $\mathcal{M} = \{\mat{A}, \mat{B}, \mat{C}\}$ be the matrix set,
 $\mathcal{W} = \{\vect{x}, \vect{y}, \vect{z}\}$ the intermediate-vector set,
 and $\mathcal{S} = \mathcal{M} \cup \mathcal{W}$ the objects opened at sampled
@@ -375,9 +375,9 @@ The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\
     \mathcal{P} \< \< \mathcal{V} \\[4pt]
     %% Phase 1
     \textbf{Phase 1: Commit inputs} \< \< \\
-    \cm_A\gets\merkle(\enc(\mat{A})),\quad
-      \cm_B\gets\merkle(\enc(\mat{B})),\quad
-      \cm_C\gets\merkle(\enc(\mat{C}))
+    \cm_A\gets\merkleC(\enc(\mat{A})),\quad
+      \cm_B\gets\merkleC(\enc(\mat{B})),\quad
+      \cm_C\gets\merkleC(\enc(\mat{C}))
       \< \sendmessageright*[2.5cm]{\cm_A,\cm_B,\cm_C} \< \\[4pt]
     \mathsf{Cm}_{ABC}\gets\Hash(\para,\cm_A,\cm_B,\cm_C) \< \< \\[4pt]
     %% Phase 2
@@ -390,7 +390,7 @@ The protocol $\protocol$ operates between a prover $\mathcal{P}$ and verifier $\
     \vect{x} \gets \vect{r}\mat{A},\quad \vect{y} \gets \vect{x}\mat{B},\quad \vect{z} \gets \vect{r}\mat{C} \< \< \\
     \text{For } v \in \mathcal{W}: \< \< \\
     \quad \omega_v \sample \{0,1\}^{\lambda},\quad \mu_v \gets \pedersen(v;\omega_v) \< \< \\
-    \quad \enc_v \gets \enc(v),\quad \cm_v \gets \merkle(\enc_v) \< \< \\
+    \quad \enc_v \gets \enc(v),\quad \cm_v \gets \merkleC(\enc_v) \< \< \\
     \mathsf{Cm}_{XYZ} \gets \Hash(\para,r,\mu_x,\mu_y,\mu_z,\cm_x,\cm_y,\cm_z)
       \< \sendmessageright*[2.5cm]{\mu_x,\mu_y,\mu_z,\cm_x,\cm_y,\cm_z} \< \\[4pt]
     %% Phase 4
