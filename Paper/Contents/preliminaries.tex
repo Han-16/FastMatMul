@@ -10,7 +10,7 @@ We write $\textsf{negl}(\lambda)$ for any function that is negligible in~$\lambd
 
 Matrices are denoted by bold uppercase letters $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$ and vectors by bold lowercase letters $\vect{x}, \vect{y}, \vect{z} \in \mathbb{F}^k$.
 For a matrix $\mat{M}$, we write $\mat{M}_{i,\star}$ for its $i$-th row and $\mat{M}_{\star,j}$ for its $j$-th column, both viewed as elements of~$\mathbb{F}^k$.
-We write $[n] = \{1, 2, \ldots, n\}$ and $I \sample [n]^t$ to denote the uniform sampling of $t$ indices from $[n]$ (with replacement).
+We write $[n] = \{1, 2, \ldots, n\}$ and $I \sample [n]^t$ to denote the uniform sampling of $t$ indices from $[n]$.
 The expression $r \sample \mathbb{F}$ denotes uniform random sampling from $\mathbb{F}$.
 
 \subsection{Linear Error-Correcting Codes}
@@ -58,7 +58,7 @@ with negligible probability.
 
 A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ provides a vector commitment scheme with the following algorithms:
 \begin{itemize}
-  \item $\cm \gets \merkle(\vect{v})$: Given a vector $\vect{v} = (v_1, \ldots, v_n)$, construct a binary hash tree with leaves $H(v_1), \ldots, H(v_n)$ and output the root hash $\cm$.
+  \item $\cm \gets \merkleC(\vect{v})$: Given a vector $\vect{v} = (v_1, \ldots, v_n)$, construct a binary hash tree with leaves $H(v_1), \ldots, H(v_n)$ and output the root hash $\cm$.
   \item $(\vect{v}_j, \pi_j) \gets \merkleO(\cm, j)$: Open position $j$, returning the leaf value $v_j$ and the authentication path $\pi_j$ (the sequence of sibling hashes from the leaf to the root).
   \item $b \gets \merkleV(\pi_j, v_j, \cm)$: Verify that $v_j$ is the $j$-th leaf consistent with root $\cm$; output $b \in \{0,1\}$.
 \end{itemize}

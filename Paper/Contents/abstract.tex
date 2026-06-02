@@ -1,33 +1,41 @@
-Verifiable computation systems frequently need to prove large matrix
-multiplication statements, but na\"ive SNARK arithmetization of a
-$k \times k$ product costs $\mathcal{O}(k^3)$ constraints and even Freivalds'
-classical reduction leaves $\mathcal{O}(k^2)$ circuit work.
-We present $\protocol$, a matrix-multiplication checking layer that reduces the
-SNARK relation to $\mathcal{O}(tk+E_{\mathsf{vec}}(k))$ constraints plus
-$\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work,
-where $t$ is a security-parameter-sized constant.
-The protocol combines Freivalds' randomized check with proximity testing over
-row-wise encoded matrix commitments; a sampled-opening backend fixes
-intermediate vectors before sampling and links SNARK-side commitments for the
-circuit's sampled values to small commitments authenticated by Merkle paths.
+Efficiently proving large-scale matrix multiplication statements is one of the central bottlenecks in verifiable computation systems. A na"ive arithmetization of \(k \times k\) matrix multiplication inside a SNARK circuit requires \(\mathcal{O}(k^3)\) constraints, while even Freivalds' randomized checking technique still incurs \(\mathcal{O}(k^2)\) circuit work. In this paper, we propose \(\protocol\) to reduce this circuit cost.
 
-We prove perfect completeness and computational soundness for input roots that
-bind to row-wise encodings of $\mat{A},\mat{B},\mat{C}$, assuming the soundness
-of the intermediate binding/linking backend, with error
-$\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}} + \epsilon_{\mathsf{bind}}
-+ (k-1)/|\mathbb{F}| + 4(1-\delta)^t$.
-The Fiat--Shamir variant adds the standard random-oracle loss
-$\epsilon_{\mathsf{FS}}(q_H)$.
-The protocol includes an input-commit phase for $\mat{A},\mat{B},\mat{C}$; our
-measurements focus on the online multiplication-checking layer after those
-roots are available.
+\(\protocol\) combines Freivalds' randomized check with a proximity test based on codeword encoding, allowing matrix multiplication statements to be verified without directly arithmetizing the entire \(k \times k\) computation inside the SNARK circuit. Instead of taking the full matrices as witnesses, the SNARK circuit checks only a small number of sampled codeword positions. Using a commit-and-prove SNARK together with Merkle membership and CP-Links, \(\protocol\) ensures that the witnesses used inside the circuit correspond to the same values committed before the SNARK proof was generated.
 
-We implement the checking layer in Rust and compare it with a direct Freivalds
-SNARK baseline.
-At $k = 4{,}096$, $\fmQA$ gives a $30.3\times$ constraint reduction, a
-$7.24\times$ proving-time speedup, and a $147$\,KB online proof excluding
-setup/key/CRS material; it continues to $k = 8{,}192$ with a $168$\,KB online
-proof under the same convention.
-A GPT-2 checking-layer case study with $36$ claims over input roots
-shows a $2.30\times$ constraint reduction and a $1.78\times$ proving-time
-speedup.
+As a result, \(\protocol\) reduces the SNARK relation to \(\mathcal{O}(tk)\) constraints and requires only an additional \(\mathcal{O}(t \log n) + E_{\mathsf{link}}(k)\) cost for opening and linking. Since \(t\) is the number of sampled codeword positions and is chosen as a small constant independent of the matrix dimension \(k\), the number of constraints is linear in the matrix size. We implement \(\protocol\) in Go and compare it against a Freivalds-based SNARK circuit. For \(k=2^{12}\), \(\protocol\) reduces the constraint count by \(30.3\times\) and shortens proof generation time by \(7.24\times\), while verification remains constant with respect to the matrix size and takes less than \(0.01\) seconds.
+
+
+
+% Verifiable computation systems frequently need to prove large matrix
+% multiplication statements, but na\"ive SNARK arithmetization of a
+% $k \times k$ product costs $\mathcal{O}(k^3)$ constraints and even Freivalds'
+% classical reduction leaves $\mathcal{O}(k^2)$ circuit work.
+% We present $\protocol$, a matrix-multiplication checking layer that reduces the
+% SNARK relation to $\mathcal{O}(tk+E_{\mathsf{vec}}(k))$ constraints plus
+% $\mathcal{O}(t\log n+E_{\mathsf{link}}(k))$ auxiliary opening/linking work,
+% where $t$ is a security-parameter-sized constant.
+% The protocol combines Freivalds' randomized check with proximity testing over
+% row-wise encoded matrix commitments; a sampled-opening backend fixes
+% intermediate vectors before sampling and links SNARK-side commitments for the
+% circuit's sampled values to small commitments authenticated by Merkle paths.
+
+% We prove perfect completeness and computational soundness for input roots that
+% bind to row-wise encodings of $\mat{A},\mat{B},\mat{C}$, assuming the soundness
+% of the intermediate binding/linking backend, with error
+% $\epsilon_{\mathsf{SNARK}} + \epsilon_{\mathsf{cc}} + \epsilon_{\mathsf{bind}}
+% + (k-1)/|\mathbb{F}| + 4(1-\delta)^t$.
+% The Fiat--Shamir variant adds the standard random-oracle loss
+% $\epsilon_{\mathsf{FS}}(q_H)$.
+% The protocol includes an input-commit phase for $\mat{A},\mat{B},\mat{C}$; our
+% measurements focus on the online multiplication-checking layer after those
+% roots are available.
+
+% We implement the checking layer in Rust and compare it with a direct Freivalds
+% SNARK baseline.
+% At $k = 4{,}096$, $\fmQA$ gives a $30.3\times$ constraint reduction, a
+% $7.24\times$ proving-time speedup, and a $147$\,KB online proof excluding
+% setup/key/CRS material; it continues to $k = 8{,}192$ with a $168$\,KB online
+% proof under the same convention.
+% A GPT-2 checking-layer case study with $36$ claims over input roots
+% shows a $2.30\times$ constraint reduction and a $1.78\times$ proving-time
+% speedup.
