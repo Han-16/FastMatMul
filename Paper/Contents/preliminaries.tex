@@ -8,27 +8,44 @@ We write $\textsf{negl}(\lambda)$ for any function that is negligible in~$\lambd
 \subsection{Notation}
 \label{sec:notation}
 
-Matrices are denoted by bold uppercase letters $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$ and vectors by bold lowercase letters $\vect{x}, \vect{y}, \vect{z} \in \mathbb{F}^k$.
-For a matrix $\mat{M}$, we write $\mat{M}_{i,\star}$ for its $i$-th row and $\mat{M}_{\star,j}$ for its $j$-th column, both viewed as elements of~$\mathbb{F}^k$.
-We write $[n] = \{1, 2, \ldots, n\}$ and $I \sample [n]^t$ to denote the uniform sampling of $t$ indices from $[n]$.
-The expression $r \sample \mathbb{F}$ denotes uniform random sampling from $\mathbb{F}$.
+Matrices are denoted by bold uppercase letters $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$, and vectors by bold lowercase letters $\vect{x}, \vect{y}, \vect{z} \in \mathbb{F}^k$.
+For a vector $\vect{x}$, we write $\vect{x}[i]$ for its $i$-th entry. For a
+matrix $\mat{M}$, we write $\mat{M}[i,j]$ for the entry in the $i$-th row and $j$-th column. 
+We denote the $i$-th row of $\mat{M}$ by $\mat{M}[i,*]$, and we will often write it simply as $\mat{M}[i]$. 
+Similarly, we denote the $j$-th column of $\mat{M}$ by $\mat{M}[*,j]$. We write $[n] = \{1,2,\ldots,n\}$. For $t \in \mathbb{N}$, $I \sample [n]^t$ denotes the uniform sampling of $t$ indices from $[n]$. Similarly, $r \sample \mathbb{F}$ denotes uniform random sampling from
+$\mathbb{F}$.
+
+
 
 \subsection{Linear Error-Correcting Codes}
 \label{sec:prelim-codes}
 
-A \emph{linear code} over $\mathbb{F}$ is an $\mathbb{F}$-linear map $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ defined by a generator matrix $G \in \mathbb{F}^{k \times n}$, so that $\mathcal{C}(\vect{m}) = \vect{m} \cdot G$ for any input vector $\vect{m} \in \mathbb{F}^k$.
-The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\vect{c} \neq \vect{c}'} \Delta(\vect{c}, \vect{c}')$ over distinct codewords $\vect{c}, \vect{c}' \in \mathcal{C}$, where $\Delta$ denotes the Hamming distance.
+A \emph{linear code} over $\mathbb{F}$ is an $\mathbb{F}$-linear map
+$\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ defined by a generator matrix
+$\mat{G} \in \mathbb{F}^{k \times n}$, so that
+$\mathcal{C}(\vect{m}) = \vect{m} \cdot \mat{G}$ for any input vector
+$\vect{m} \in \mathbb{F}^k$.
+The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\vect{c} \neq \vect{c}'} \Delta(\vect{c}, \vect{c}')$,
+where the minimum is taken over distinct codewords
+$\vect{c}, \vect{c}' \in \mathcal{C}$, and $\Delta$ denotes the Hamming distance.
 The \emph{relative distance} is $\delta = d/n$.
-A code is \emph{systematic} if the first $k$ coordinates of $\mathcal{C}(\vect{m})$ equal $\vect{m}$ itself.
+A code is \emph{systematic} if the first $k$ coordinates of
+$\mathcal{C}(\vect{m})$ equal $\vect{m}$ itself.
 
 We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
-For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the \emph{row-wise encoding} $\enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}_{i,\star})$.
-The $j$-th column of $\enc(\mat{M})$ is denoted $\enc(\mat{M})^{(j)} \in \mathbb{F}^k$.
+For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the
+\emph{row-wise encoding} $\hat{\mat{M}} := \enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}[i,*])$ for each $i \in [k]$.
+The $j$-th column of $\hat{\mat{M}}$ is denoted by
+$\hat{\mat{M}}[*,j] \in \mathbb{F}^k$ for each $j \in [n]$.
 
-The key property we exploit is \emph{linearity}: for any coefficients $r_0, \ldots, r_{k-1} \in \mathbb{F}$,
+The key property we exploit is \emph{linearity}: for any coefficients
+$r_1, \ldots, r_k \in \mathbb{F}$,
 \begin{equation}\label{eq:code-linearity}
-\sum_{i=0}^{k-1} r_i \cdot \enc(\mat{M}_{i,\star}) = \enc\!\left(\sum_{i=0}^{k-1} r_i \cdot \mat{M}_{i,\star}\right).
+\sum_{i=1}^{k} r_i \cdot \hat{\mat{M}}[i,*]
+=
+\enc\!\left(\sum_{i=1}^{k} r_i \cdot \mat{M}[i,*]\right).
 \end{equation}
+
 
 \begin{definition}[Fold]\label{def:fold}
 For vectors $\vect{c},\vect{r}\in \mathbb{F}^k$ with
@@ -38,7 +55,7 @@ $\vect{r}=(r_0,\ldots,r_{k-1})$, define
 \fold(\vect{c}, \vect{r}) \coloneqq \langle \vect{r}, \vect{c} \rangle = \sum_{i=0}^{k-1} r_i \cdot c_i.
 \]
 Equivalently, for the $j$-th column of a row-wise encoded matrix,
-$\fold(\enc(\mat{M})^{(j)}, \vect{r})$ equals the $j$-th coordinate of
+$\fold(\hat{\mat{M}}[*,j], \vect{r})$ equals the $j$-th coordinate of
 $\enc(\vect{r}\mat{M})$.
 This follows directly from the linearity of the code (Equation~\ref{eq:code-linearity}).
 \end{definition}
@@ -48,24 +65,78 @@ Our protocol is compatible with any linear code.
 Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
 We discuss the trade-offs in Section~\ref{sec:complexity}.
 
+% \subsection{Commitment Schemes}
+% \label{sec:prelim-commitments}
+
+% A commitment scheme lets a prover fix a value and later open it. We use
+% commitments only through the standard binding property: after a commitment is
+% fixed, a polynomial-time prover cannot open it to two different values except
+% with negligible probability.
+
+% A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ provides a vector commitment scheme with the following algorithms:
+% \begin{itemize}
+%   \item $\cm \gets \merkleC(\vect{v})$: Given a vector $\vect{v} = (v_1, \ldots, v_n)$, construct a binary hash tree with leaves $H(v_1), \ldots, H(v_n)$ and output the root hash $\cm$.
+%   \item $(\vect{v}_j, \pi_j) \gets \merkleO(\cm, j)$: Open position $j$, returning the leaf value $v_j$ and the authentication path $\pi_j$ (the sequence of sibling hashes from the leaf to the root).
+%   \item $b \gets \merkleV(\pi_j, v_j, \cm)$: Verify that $v_j$ is the $j$-th leaf consistent with root $\cm$; output $b \in \{0,1\}$.
+% \end{itemize}
+
+% The scheme is \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce $(j, v, \pi)$ and $(j, v', \pi')$ with $v \neq v'$ such that both verify against the same root $\cm$, except with probability $\epsilon_{\mathsf{bind}}(\lambda) = \textsf{negl}(\lambda)$.
 \subsection{Commitment Schemes}
 \label{sec:prelim-commitments}
+A commitment scheme allows a committer to bind itself to a message while keeping the message hidden until it is opened. In this work, we use two types of commitments: Merkle tree commitments and Pedersen vector commitments.
 
-A commitment scheme lets a prover fix a value and later open it. We use
-commitments only through the standard binding property: after a commitment is
-fixed, a polynomial-time prover cannot open it to two different values except
-with negligible probability.
+\subsubsection{Merkle tree commitments}
+A Merkle tree commitment over a collision-resistant hash function
+$H: \{0,1\}^* \to \{0,1\}^\lambda$ is a vector commitment for a vector
+$\vect{v}=(\vect{v}[1],\ldots,\vect{v}[n]) \in \mathbb{F}^n$.
+It consists of the following algorithms.
 
-A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ provides a vector commitment scheme with the following algorithms:
 \begin{itemize}
-  \item $\cm \gets \merkleC(\vect{v})$: Given a vector $\vect{v} = (v_1, \ldots, v_n)$, construct a binary hash tree with leaves $H(v_1), \ldots, H(v_n)$ and output the root hash $\cm$.
-  \item $(\vect{v}_j, \pi_j) \gets \merkleO(\cm, j)$: Open position $j$, returning the leaf value $v_j$ and the authentication path $\pi_j$ (the sequence of sibling hashes from the leaf to the root).
-  \item $b \gets \merkleV(\pi_j, v_j, \cm)$: Verify that $v_j$ is the $j$-th leaf consistent with root $\cm$; output $b \in \{0,1\}$.
+\item $\rt \gets \merkleC(\vect{v}):$ Given a vector $\vect{v}$, construct a binary hash tree with leaves $H(\vect{v}[1]), \dots, H(\vect{v}[n])$ and output the root hash $\rt$.
+
+\item $\pi_j \gets \merkleO(\vect{v}, j):$ Open position $j$, returning the leaf value $\vect{v}[j]$ and the authentication path $\pi_j$.
+
+\item $b \gets \merkleV(\rt, j, \vect{v}[j], \pi_j):$ Verify that $\vect{v}[j]$ is the $j$-th leaf consistent with root $\cm$; output $b \in \{0, 1\}.$
+
 \end{itemize}
 
-The scheme is \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce $(j, v, \pi)$ and $(j, v', \pi')$ with $v \neq v'$ such that both verify against the same root $\cm$, except with probability $\epsilon_{\mathsf{bind}}(\lambda) = \textsf{negl}(\lambda)$.
+Merkle tree commitments is \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce a root $\rt$, an index $j \in [n]$, two distinct values $v \neq v'$, and authentication paths $\pi_j,\pi'_j$ such that
+\[
+    \merkleV(\rt,j,v,\pi_j)=
+    \merkleV(\rt,j,v',\pi'_j)=1,
+\]
+except with probability $\epsilon_{\mathsf{merkle}}(\lambda)=\mathsf{negl}(\lambda)$.
 
-\subsection{SNARKs and Commit-and-Prove Proofs}
+
+
+\subsubsection{Pedersen commitments}
+Pedersen commitments can be viewed as algebraic vector commitments over a group $\mathbb{G}$ of prime order $q$.
+$\mathsf{ck}=(G_1,\ldots,G_n,H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
+
+\begin{itemize}
+    \item $\cm \gets \pedC(\ck, \vect{v}; r): $ On input a vector $\mathbf{v}\in\mathbb{F}^n$ and randomness $r\sample\mathbb{F}$, output $\cm := \sum_{i=1}^{n}\mathbf{v}[i]G_i + rH \in \mathbb{G}$
+    \item $\pi \gets \pedO(\mathbf{v},r)$: The opening consists of the vector and the randomness, namely $\pi=(\mathbf{v},r)$.
+    \item $b \gets \pedV(\ck, \cm,\mathbf{v},r)$: Returns $b=1$ if $\cm \stackrel{?}{=} \sum_{i=1}^{n}\mathbf{v}[i]G_i + rH$. Otherwise, $b=0$
+\end{itemize}
+
+Pedersen commitments are \emph{perfectly hiding} and
+\emph{computationally binding}: under the discrete logarithm assumption,
+no $\ppt$ adversary can produce a commitment $\cm$, two distinct vectors
+$\vect{v}\neq\vect{v}'$, and randomness values $r,r'$ such that
+\[
+\pedV(\ck,\cm,\vect{v},r) = \pedV(\ck,\cm,\vect{v}',r') = 1,
+\]
+except with probability
+$\epsilon_{\mathsf{ped}}(\lambda)=\mathsf{negl}(\lambda)$.
+
+They are also \emph{additively homomorphic}: for
+$\cm_1=\pedC(\ck,\vect{v}_1;r_1)$ and
+$\cm_2=\pedC(\ck,\vect{v}_2;r_2)$,
+\[
+\cm_1+\cm_2 = \pedC(\ck,\vect{v}_1+\vect{v}_2;r_1+r_2).
+\]
+
+\subsection{Succinct Non-interactive Argument of Knowledge}
 \label{sec:prelim-snark}
 
 \paragraph{SNARKs}
