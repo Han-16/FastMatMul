@@ -65,22 +65,7 @@ Our protocol is compatible with any linear code.
 Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
 We discuss the trade-offs in Section~\ref{sec:complexity}.
 
-% \subsection{Commitment Schemes}
-% \label{sec:prelim-commitments}
 
-% A commitment scheme lets a prover fix a value and later open it. We use
-% commitments only through the standard binding property: after a commitment is
-% fixed, a polynomial-time prover cannot open it to two different values except
-% with negligible probability.
-
-% A \emph{Merkle tree}~\cite{merkle1989certified} over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ provides a vector commitment scheme with the following algorithms:
-% \begin{itemize}
-%   \item $\cm \gets \merkleC(\vect{v})$: Given a vector $\vect{v} = (v_1, \ldots, v_n)$, construct a binary hash tree with leaves $H(v_1), \ldots, H(v_n)$ and output the root hash $\cm$.
-%   \item $(\vect{v}_j, \pi_j) \gets \merkleO(\cm, j)$: Open position $j$, returning the leaf value $v_j$ and the authentication path $\pi_j$ (the sequence of sibling hashes from the leaf to the root).
-%   \item $b \gets \merkleV(\pi_j, v_j, \cm)$: Verify that $v_j$ is the $j$-th leaf consistent with root $\cm$; output $b \in \{0,1\}$.
-% \end{itemize}
-
-% The scheme is \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce $(j, v, \pi)$ and $(j, v', \pi')$ with $v \neq v'$ such that both verify against the same root $\cm$, except with probability $\epsilon_{\mathsf{bind}}(\lambda) = \textsf{negl}(\lambda)$.
 \subsection{Commitment Schemes}
 \label{sec:prelim-commitments}
 A commitment scheme allows a committer to bind itself to a message while keeping the message hidden until it is opened. In this work, we use two types of commitments: Merkle tree commitments and Pedersen vector commitments.
@@ -118,79 +103,32 @@ Pedersen commitments can be viewed as algebraic vector commitments over a group 
 $\mathsf{ck}=(G_1,\ldots,G_n,H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
 
 \begin{itemize}
-\item $\cm \gets \pedC(\ck,\vect{v};r)$:
-outputs a commitment $\cm := \sum_{i=1}^{n}\vect{v}[i]G_i + rH \in \mathbb{G}$ for a vector $\vect{v}\in\mathbb{F}^n$ and randomness $r\sample\mathbb{F}$.
+\item $\cm \gets \pedC(\ck,\vect{v};o)$:
+outputs a commitment $\cm := \sum_{i=1}^{n}\vect{v}[i]G_i + oH \in \mathbb{G}$ for a vector $\vect{v}\in\mathbb{F}^n$ and randomness $o\sample\mathbb{F}$.
 
-\item $\pi \gets \pedO(\vect{v},r)$:
-outputs the opening $\pi=(\vect{v},r)$ consisting of the committed vector and
-the randomness.
+\item $\pi \gets \pedO(\vect{v},o)$:
+outputs the opening $\pi=(\vect{v},o)$ consisting of the committed vector and the randomness.
 
-\item $b \gets \pedV(\ck,\cm,\vect{v},r)$:
-outputs $b=1$ if $\cm \stackrel{?}{=} \sum_{i=1}^{n}\vect{v}[i]G_i + rH$,
+\item $b \gets \pedV(\ck,\cm,\vect{v},o)$:
+outputs $b=1$ if $\cm \stackrel{?}{=} \sum_{i=1}^{n}\vect{v}[i]G_i + oH$,
 and outputs $b=0$ otherwise.
 \end{itemize}
 
 Pedersen commitments are \emph{perfectly hiding} and
 \emph{computationally binding}: under the discrete logarithm assumption,
 no $\ppt$ adversary can produce a commitment $\cm$, two distinct vectors
-$\vect{v}\neq\vect{v}'$, and randomness values $r,r'$ such that
+$\vect{v}\neq\vect{v}'$, and randomness values $o,o'$ such that
 \[
-\pedV(\ck,\cm,\vect{v},r) = \pedV(\ck,\cm,\vect{v}',r') = 1,
+\pedV(\ck,\cm,\vect{v},o) = \pedV(\ck,\cm,\vect{v}',o') = 1,
 \]
 except with probability
 $\epsilon_{\mathsf{ped}}(\lambda)=\mathsf{negl}(\lambda)$.
 
 They are also \emph{additively homomorphic}: for
-$\cm_1=\pedC(\ck,\vect{v}_1;r_1)$ and
-$\cm_2=\pedC(\ck,\vect{v}_2;r_2)$, $\cm_1+\cm_2 = \pedC(\ck,\vect{v}_1+\vect{v}_2;r_1+r_2).$
+$\cm_1=\pedC(\ck,\vect{v}_1;o_1)$ and
+$\cm_2=\pedC(\ck,\vect{v}_2;o_2)$, $\cm_1+\cm_2 = \pedC(\ck,\vect{v}_1+\vect{v}_2;o_1+o_2).$
 
-% \subsection{Succinct Non-interactive Argument of Knowledge}
-% \label{sec:prelim-snark}
 
-% \paragraph{SNARKs}
-% A \emph{SNARK} (Succinct Non-interactive Argument of Knowledge) for an NP relation $\mathcal{R}$ consists of algorithms $(\textsf{Setup}, \snarkP, \snarkV)$:
-% \begin{itemize}
-%   \item $\para \gets \textsf{Setup}(1^\lambda, \mathcal{R})$: Generate public parameters.
-%   \item $\pi \gets \snarkP(\para, \stmt, \wit)$: Given a statement $\stmt$ and witness $\wit$ with $(\stmt, \wit) \in \mathcal{R}$, produce a proof $\pi$.
-%   \item $b \gets \snarkV(\para, \stmt, \pi)$: Verify the proof and output $b \in \{0,1\}$.
-% \end{itemize}
-
-% A SNARK satisfies \emph{completeness} (an honest prover always convinces the verifier), \emph{knowledge soundness} (any $\ppt$ prover that makes the verifier accept can be used to extract a valid witness), and \emph{succinctness} (the proof size $|\pi|$ and verifier time are $\textsf{poly}(\lambda, |\stmt|)$, independent of the witness size and computation).
-
-% Our protocol is modular with respect to the choice of SNARK backend, including
-% pairing-based systems such as Pinocchio~\cite{parno2013pinocchio} and
-% Groth16~\cite{groth2016size}, as well as transparent or preprocessing systems
-% such as Hyrax~\cite{wahby2018doubly}, Sonic~\cite{maller2019sonic},
-% Marlin~\cite{chiesa2020marlin}, and Spartan~\cite{setty2020spartan}.
-% The key metric is the \emph{circuit size} (number of R1CS constraints or PlonK gates) of the relation that the SNARK backend must prove, as this dominates the prover's cost.
-
-% \paragraph{Commitment-carrying SNARKs}
-% A \emph{commitment-carrying SNARK} (CC-SNARK) is a SNARK backend that lets the
-% prover publish commitments $\Gamma_i$ to selected private witness values
-% $a_i$ while proving an arithmetic relation that uses the same values.
-% The public statement contains the commitments $\Gamma_i$.
-% Soundness requires that, except with the SNARK backend's binding error, an
-% accepting proof fixes each committed witness value: the value used by the
-% relation at the selected witness slot is the value opened by $\Gamma_i$.
-% In this paper, the commitments $\Gamma_{\chi,j}$ are SNARK-side commitments to
-% sampled matrix columns or vector coordinates.
-
-% \paragraph{Commit-and-prove SNARKs}
-% A \emph{commit-and-prove SNARK} (CP-SNARK) proves an NP relation while also
-% proving that designated witness values open public commitments.
-% For a commitment scheme $\mathsf{Com}$ and relation $\mathcal{R}$, the induced
-% commit-and-prove relation is
-% \[
-%   \begin{aligned}
-%   \mathcal{R}_{\mathsf{CP}}
-%   =
-%   \{\,((\stmt,C),(v,\rho,\wit')) :\;&
-%   C=\mathsf{Com}(v;\rho)\\
-%   &{}\land(\stmt,v,\wit')\in\mathcal{R}\,\}.
-%   \end{aligned}
-% \]
-% Thus a CP-SNARK binds an external commitment $C$ to the private value used in
-% the proven computation.
 \subsection{Succinct Non-interactive Arguments of Knowledge}
 \label{sec:prelim-snark}
 
@@ -208,29 +146,77 @@ outputs a proof $\pi$ for a statement $\stmt$ and witness $\wit$ satisfying $(\s
 outputs $b=1$ if $\pi$ is accepted as a valid proof for $\stmt$, and outputs $b=0$ otherwise.
 \end{itemize}
 
-\subsection{CP-Link}
+\begin{remark}[Security Properties]
+A SNARK scheme $\bPi$ satisfies completeness, if an honestly generated proof for any valid statement-witness pair $(\stmt,\wit)\in\relation$ is accepted by the verifier with overwhelming probability. It satisfies knowledge soundness if any PPT prover that produces an accepting proof for a statement $\stmt$ must know a valid witness $\wit$ such that $(\stmt,\wit)\in\relation$, except with negligible probability. This is formalized by the existence of an efficient knowledge extractor. A SNARK may additionally satisfy zero knowledge, meaning that the proof reveals no information beyond the truth of the statement. This is modeled by a simulator $\mathsf{Sim}$ that can generate a proof indistinguishable from a real proof without knowing a valid witness. A SNARK satisfying zero knowledge is called a zk-SNARK.
+\end{remark}
+
+
+\subsubsection{Commit-and-Prove SNARKs}
+A commit-and-prove SNARK (CP-SNARK)~\cite{gnark, legosnark} is a variant of a SNARK that proves statements about witnesses bound to an external commitment. We call such a commitment a \emph{witness commitment}. Let $\com$ be a commitment scheme with commitment key $\ck$. For an NP relation $\relation$, a CP-SNARK proves knowledge of a witness $\wit := (\comwit,\omega,o)$ such that $\widetilde{\cm} = \com(\ck,\comwit;o)$ and  $(\stmt,\comwit,\omega) \in \relation$. Here, $\comwit$ is the committed witness, $\tilde{o}$ is the opening randomness of the
+witness commitment $\widetilde{\cm}$, and $\omega$ is the remaining private witness. A CP-SNARK scheme is a tuple of algorithms $\bPi_{\cp}=(\setup,\prove,\verify)$.
+
+\begin{itemize}
+    \item $\para \gets \bPi_{\cp}.\setup(1^\lambda,\relation)$: generates public parameters $\para=(\pk,\vk,\ck)$ for the relation $\relation$, where $\pk$ is the proving key, $\vk$ is the verifying key, and $\ck$ is the commitment key.
+
+    \item $(\pi_{\cp},\widetilde{\cm}) \gets \bPi_{\cp}.\prove(\para,\stmt,\comwit,\omega,\tilde{o})$: outputs a proof $\pi_{\cp}$ and a witness commitment $\widetilde{\cm}$ such that $\widetilde{\cm} = \com(\ck,\comwit;\tilde{o})$.
+
+    \item $b \gets \bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})$: outputs $b=1$ if $\pi_{\cp}$ is accepted as a valid proof for $\stmt$ with respect to the witness commitment $\widetilde{\cm}$, and outputs $b=0$ otherwise.
+\end{itemize}
+
+
+
+
+\subsection{CP-LINK}
 \label{sec:prelim-cplink}
 
-A \emph{CP-Link} proof is a lightweight commit-and-prove proof whose only
-purpose is to link two commitments to the same value.  The value may be a field
-element, a vector, or a matrix column.
-For a SNARK-side commitment $\Gamma$ and an external commitment $C$, the link
-relation is
+A CP-link proof is a proof system for linking commitments. It proves that two
+or more commitments are commitments to the same message, without revealing the
+message or the opening randomness. This notion is abstract and does not depend
+on a particular commitment scheme.
+
+Let $\com$ be a commitment scheme. For commitment keys
+$\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the
+equality-linking relation is defined as
 \[
-  \begin{aligned}
-  \mathcal{R}_{\mathsf{link}}
-  =
-  \{\,((\Gamma,C),(u,\rho_\Gamma,\rho_C)) :\;&
-  \Gamma=\mathsf{Com}_{\mathsf{snark}}(u;\rho_\Gamma)\\
-  &{}\land C=\mathsf{Com}_{\mathsf{ext}}(u;\rho_C)\,\}.
-  \end{aligned}
+\begin{aligned}
+\relation_{\mathsf{link}}
+=
+\Big\{
+&\big(
+((\ck_i,\cm_i)_{i=1}^{t}),
+(m,(o_i)_{i=1}^{t})
+\big)
+:\\
+&\cm_i = \com(\ck_i,m;o_i)
+\quad \text{for all } i\in[t]
+\Big\}.
+\end{aligned}
 \]
-We use this relation in two places.  First, for each sampled position, it links
-a SNARK-side commitment $\Gamma_{\chi,j}$ to an authenticated Merkle leaf handle
-$L_{\chi,j}$.  Second, for each intermediate vector $v$, it links a SNARK-side
-vector commitment $\Gamma^{\mathsf{vec}}_v$ to the pre-query vector commitment
-$\mu_v$.  In our artifact, these equal-opening claims are batched into one
-QA-NIZK proof.
+A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all
+commitments $\cm_1,\ldots,\cm_t$ commit to the same message $m$, while keeping $m$ hidden.
+
+A CP-link proof system is a tuple of algorithms
+$\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
+
+\begin{itemize}
+\item $\para_{\mathsf{link}} \gets
+\bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})$:
+generates public parameters for the linking relation.
+
+\item $\pi_{\mathsf{link}} \gets
+\bPi_{\mathsf{link}}.\prove(
+\para_{\mathsf{link}},
+(\ck_i,\cm_i)_{i=1}^{t},
+m,(o_i)_{i=1}^{t})$:
+outputs a proof that the commitments open to the same message $m$.
+
+\item $b \gets
+\bPi_{\mathsf{link}}.\verify(
+\para_{\mathsf{link}},
+(\ck_i,\cm_i)_{i=1}^{t},
+\pi_{\mathsf{link}})$:
+outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
+\end{itemize}
 
 \subsection{Freivalds' Algorithm}
 \label{sec:prelim-freivalds}
