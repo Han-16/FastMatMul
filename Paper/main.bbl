@@ -45,62 +45,11 @@ Z.~Ghodsi, T.~Gu, and S.~Garg, ``Safetynets: Verifiable execution of deep
   neural networks on an untrusted cloud,'' \emph{Advances in Neural Information
   Processing Systems}, vol.~30, 2017.
 
-\bibitem{fiat1987prove}
-A.~Fiat and A.~Shamir, ``How to prove yourself: Practical solutions to
-  identification and signature problems,'' in \emph{Advances in Cryptology --
-  CRYPTO '86}.\hskip 1em plus 0.5em minus 0.4em\relax Berlin, Heidelberg:
-  Springer, 1987, pp. 186--194.
-
 \bibitem{golovnev2023brakedown}
 A.~Golovnev, J.~Lee, S.~Setty, J.~Thaler, and R.~S. Wahby, ``Brakedown:
   Linear-time and field-agnostic snarks for r1cs,'' in \emph{Advances in
   Cryptology -- CRYPTO 2023}.\hskip 1em plus 0.5em minus 0.4em\relax Cham:
   Springer, 2023, pp. 193--226.
-
-\bibitem{xie2022orion}
-T.~Xie, Y.~Zhang, and D.~Song, ``Orion: Zero knowledge proof with linear prover
-  time,'' in \emph{Advances in Cryptology -- CRYPTO 2022}.\hskip 1em plus 0.5em
-  minus 0.4em\relax Cham: Springer, 2022, pp. 299--328.
-
-\bibitem{merkle1989certified}
-R.~C. Merkle, ``A certified digital signature,'' in \emph{Advances in
-  Cryptology -- CRYPTO '89}.\hskip 1em plus 0.5em minus 0.4em\relax Berlin,
-  Heidelberg: Springer, 1989, pp. 218--238.
-
-\bibitem{parno2013pinocchio}
-B.~Parno, J.~Howell, C.~Gentry, and M.~Raykova, ``Pinocchio: Nearly practical
-  verifiable computation,'' in \emph{2013 IEEE Symposium on Security and
-  Privacy}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY, USA: IEEE,
-  2013, pp. 238--252.
-
-\bibitem{groth2016size}
-J.~Groth, ``On the size of pairing-based non-interactive arguments,'' in
-  \emph{Advances in Cryptology -- EUROCRYPT 2016}.\hskip 1em plus 0.5em minus
-  0.4em\relax Berlin, Heidelberg: Springer, 2016, pp. 305--326.
-
-\bibitem{wahby2018doubly}
-R.~S. Wahby, I.~Tzialla, A.~Shelat, J.~Thaler, and M.~Walfish,
-  ``Doubly-efficient zksnarks without trusted setup,'' in \emph{2018 IEEE
-  Symposium on Security and Privacy}.\hskip 1em plus 0.5em minus 0.4em\relax
-  New York, NY, USA: IEEE, 2018, pp. 926--943.
-
-\bibitem{maller2019sonic}
-M.~Maller, S.~Bowe, M.~Kohlweiss, and S.~Meiklejohn, ``Sonic: Zero-knowledge
-  snarks from linear-size universal and updatable structured reference
-  strings,'' in \emph{Proceedings of the 2019 ACM SIGSAC Conference on Computer
-  and Communications Security}.\hskip 1em plus 0.5em minus 0.4em\relax New
-  York, NY, USA: ACM, 2019, pp. 2111--2128.
-
-\bibitem{chiesa2020marlin}
-A.~Chiesa, Y.~Hu, M.~Maller, P.~Mishra, N.~Vesely, and N.~Ward, ``Marlin:
-  Preprocessing zksnarks with universal and updatable srs,'' in \emph{Advances
-  in Cryptology -- EUROCRYPT 2020}.\hskip 1em plus 0.5em minus 0.4em\relax
-  Cham: Springer, 2020, pp. 738--768.
-
-\bibitem{setty2020spartan}
-S.~Setty, ``Spartan: Efficient and general-purpose zksnarks without trusted
-  setup,'' in \emph{Advances in Cryptology -- CRYPTO 2020}.\hskip 1em plus
-  0.5em minus 0.4em\relax Cham: Springer, 2020, pp. 704--737.
 
 \bibitem{schwartz1980fast}
 J.~T. Schwartz, ``Fast probabilistic algorithms for verification of polynomial
@@ -111,12 +60,23 @@ R.~Zippel, ``Probabilistic algorithms for sparse polynomials,'' in
   \emph{Symbolic and Algebraic Computation (EUROSAM '79)}.\hskip 1em plus 0.5em
   minus 0.4em\relax Berlin, Heidelberg: Springer, 1979, pp. 216--226.
 
+\bibitem{xie2022orion}
+T.~Xie, Y.~Zhang, and D.~Song, ``Orion: Zero knowledge proof with linear prover
+  time,'' in \emph{Advances in Cryptology -- CRYPTO 2022}.\hskip 1em plus 0.5em
+  minus 0.4em\relax Cham: Springer, 2022, pp. 299--328.
+
 \bibitem{jutla2013shorter}
 \BIBentryALTinterwordspacing
 C.~S. Jutla and A.~Roy, ``Shorter quasi-adaptive {NIZK} proofs for linear
   subspaces,'' Cryptology ePrint Archive, Paper 2013/109, 2013. [Online].
   Available: \url{https://eprint.iacr.org/2013/109}
 \BIBentrySTDinterwordspacing
+
+\bibitem{fiat1987prove}
+A.~Fiat and A.~Shamir, ``How to prove yourself: Practical solutions to
+  identification and signature problems,'' in \emph{Advances in Cryptology --
+  CRYPTO '86}.\hskip 1em plus 0.5em minus 0.4em\relax Berlin, Heidelberg:
+  Springer, 1987, pp. 186--194.
 
 \bibitem{liu2021zkcnn}
 T.~Liu, X.~Xie, and Y.~Zhang, ``Zkcnn: Zero knowledge proofs for convolutional
@@ -174,6 +134,19 @@ A.~Kate, G.~M. Zaverucha, and I.~Goldberg, ``Constant-size commitments to
   polynomials and their applications,'' in \emph{Advances in Cryptology --
   ASIACRYPT 2010}.\hskip 1em plus 0.5em minus 0.4em\relax Berlin, Heidelberg:
   Springer, 2010, pp. 177--194.
+
+\bibitem{maller2019sonic}
+M.~Maller, S.~Bowe, M.~Kohlweiss, and S.~Meiklejohn, ``Sonic: Zero-knowledge
+  snarks from linear-size universal and updatable structured reference
+  strings,'' in \emph{Proceedings of the 2019 ACM SIGSAC Conference on Computer
+  and Communications Security}.\hskip 1em plus 0.5em minus 0.4em\relax New
+  York, NY, USA: ACM, 2019, pp. 2111--2128.
+
+\bibitem{chiesa2020marlin}
+A.~Chiesa, Y.~Hu, M.~Maller, P.~Mishra, N.~Vesely, and N.~Ward, ``Marlin:
+  Preprocessing zksnarks with universal and updatable srs,'' in \emph{Advances
+  in Cryptology -- EUROCRYPT 2020}.\hskip 1em plus 0.5em minus 0.4em\relax
+  Cham: Springer, 2020, pp. 738--768.
 
 \bibitem{bunz2018bulletproofs}
 B.~B{\"u}nz, J.~Bootle, D.~Boneh, A.~Poelstra, P.~Wuille, and G.~Maxwell,

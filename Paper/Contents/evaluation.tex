@@ -13,11 +13,11 @@ The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
 
 These measurements include the online sampled-handle path described in
 Section~\ref{sec:construction}: pre-query vector commitments fix
-$\vect{x},\vect{y},\vect{z}$ before $I$, the CC-SNARK backend
-binds every sampled matrix column or vector leaf to a public SNARK-side
-commitment, Merkle openings
-authenticate compact external leaf handles, and auxiliary linking checks connect
-the two views.
+$\vect{x},\vect{y},\vect{z}$ before $I$, vector-level CP-Link connects those
+commitments to the Groth16 vector witnesses, the CC-SNARK backend binds every
+sampled matrix column or vector leaf to a public SNARK-side commitment, Merkle
+openings authenticate compact external leaf handles, and sampled linking checks
+connect the sampled views.
 The raw sampled matrix columns are SNARK witness data, not serialized auxiliary
 proof bytes.
 All byte counts in this section are online proof bytes: they exclude raw-matrix
@@ -49,8 +49,8 @@ details.
   ymin=1e4, ymax=1e8,
 ]
 \addplot[color=orange, mark=pentagon*] coordinates {
-  (7, 55059) (8, 106905) (9, 210985) (10, 419139)
-  (11, 835065) (12, 1667305) (13, 3331779)
+  (7, 54069) (8, 105915) (9, 209995) (10, 418149)
+  (11, 834075) (12, 1666315) (13, 3330789)
 };
 \addlegendentry{$\fmQA$}
 \addplot[color=red, mark=triangle*, dashed] coordinates {
@@ -65,8 +65,8 @@ details.
   ymin=0.5, ymax=1000,
 ]
 \addplot[color=orange, mark=pentagon*] coordinates {
-  (7, 0.78) (8, 1.57) (9, 3.37) (10, 7.90)
-  (11, 20.91) (12, 55.92) (13, 181.29)
+  (7, 0.76) (8, 1.52) (9, 3.14) (10, 7.19)
+  (11, 17.33) (12, 48.54) (13, 151.61)
 };
 \addplot[color=red, mark=triangle*, dashed] coordinates {
   (7, 0.58) (8, 2.03) (9, 6.89) (10, 25.63)
@@ -93,16 +93,16 @@ $k$, matching the expected $\mathcal{O}(k^2)$ scaling.
 In contrast, $\fmQA$ grows by approximately $2\times$, matching the
 $\mathcal{O}(k)$ checking-layer scaling of the sampled-opening backend.
 The crossover in absolute constraint count occurs at $k=256$.
-At $k=1{,}024$, $\fmQA$ uses $419{,}139$ constraints versus $3{,}156{,}298$
-for Freivalds, a $7.53\times$ reduction.
-At $k=4{,}096$, $\fmQA$ uses $1{,}667{,}305$ constraints versus
-$50{,}495{,}818$ for Freivalds, a $30.29\times$ reduction.
+At $k=1{,}024$, $\fmQA$ uses $418{,}149$ constraints versus $3{,}156{,}298$
+for Freivalds, a $7.55\times$ reduction.
+At $k=4{,}096$, $\fmQA$ uses $1{,}666{,}315$ constraints versus
+$50{,}495{,}818$ for Freivalds, a $30.30\times$ reduction.
 
 The same benchmark shows a proving-time crossover at $k=256$.
-At $k=4{,}096$, $\fmQA$ proves in $55.92\,\text{s}$ versus
-$405.04\,\text{s}$ for Freivalds, a $7.24\times$ speedup.
-$\fmQA$ also completes $k=8{,}192$ with $3{,}331{,}779$ constraints and a
-$181.29\,\text{s}$ proving time; Freivalds was not measured at that size in the
+At $k=4{,}096$, $\fmQA$ proves in $48.54\,\text{s}$ versus
+$405.04\,\text{s}$ for Freivalds, an $8.34\times$ speedup.
+$\fmQA$ also completes $k=8{,}192$ with $3{,}330{,}789$ constraints and a
+$151.61\,\text{s}$ proving time; Freivalds was not measured at that size in the
 current artifact. Table~\ref{tab:meow-breakdown} breaks down the $\fmQA$ rows
 into commitment, SNARK, Merkle, and CP-Link components.
 
@@ -169,8 +169,8 @@ benchmark, dominated by the auxiliary linking backend; Freivalds verification is
 faster because it checks only a direct Groth16 proof.
 The artifact therefore trades slower verification for smaller prover circuits
 and faster proving at medium and large dimensions.
-The $\fmQA$ online proof grows from $56{,}388$ bytes at $k=128$ to
-$146{,}788$ bytes at $k=4{,}096$ and $167{,}748$ bytes at $k=8{,}192$.
+The $\fmQA$ online proof grows from $22{,}404$ bytes at $k=128$ to
+$59{,}332$ bytes at $k=4{,}096$ and $67{,}268$ bytes at $k=8{,}192$.
 At $k=4{,}096,t=128$, publishing the three sampled input-matrix columns alone
 would require about $3tk\cdot32\approx50$\,MB; Appendix~\ref{app:eval-details}
 gives detailed byte, setup, and constraint accounting.
@@ -190,14 +190,14 @@ The measured rows use $t=128$ to study scaling. If $\delta=1/2$, a conservative
 per-term $2^{-131}$ proximity budget uses $t=133$, increasing sample-dependent
 work by only $1.0391\times$.
 At $k=4{,}096$, this extrapolates to at most $1.74$ million constraints,
-$58.10\,\text{s}$ proving time, and $153$\,KB online proof bytes.
+$50.44\,\text{s}$ proving time, and $62$\,KB online proof bytes.
 The current artifact does not include measured $t=133$ rows; these strict
 numbers are extrapolations from the measured $t=128$ rows.
 Online-byte figures exclude raw-matrix encoding, input-root construction,
 proving/verifying keys, and serialized CRS or generator material. End-to-end
 deployments preserve the measured prover-time win only if amortized root
 generation costs stay below
-the observed margins: $349.12\,\text{s}$ for $k=4{,}096$ and $178.55\,\text{s}$
+the observed margins: $356.50\,\text{s}$ for $k=4{,}096$ and $178.55\,\text{s}$
 for the GPT-2 row.
 The CSV artifact reports point estimates and aggregate setup/proving/verification
 times; repeated-run variance, confidence intervals, peak memory, and serialized

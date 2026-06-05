@@ -212,21 +212,25 @@ outputs $b=1$ if $\pi$ is accepted as a valid proof for $\stmt$, and outputs $b=
 \label{sec:prelim-cplink}
 
 A \emph{CP-Link} proof is a lightweight commit-and-prove proof whose only
-purpose is to link two commitments to the same value.
-For a SNARK-side commitment $\Gamma$ and an external leaf handle $L$, the link
+purpose is to link two commitments to the same value.  The value may be a field
+element, a vector, or a matrix column.
+For a SNARK-side commitment $\Gamma$ and an external commitment $C$, the link
 relation is
 \[
   \begin{aligned}
   \mathcal{R}_{\mathsf{link}}
   =
-  \{\,((\Gamma,L),(a,\rho_\Gamma,\rho_L)) :\;&
-  \Gamma=\mathsf{Com}_{\mathsf{snark}}(a;\rho_\Gamma)\\
-  &{}\land L=\mathsf{Com}_{\mathsf{leaf}}(a;\rho_L)\,\}.
+  \{\,((\Gamma,C),(u,\rho_\Gamma,\rho_C)) :\;&
+  \Gamma=\mathsf{Com}_{\mathsf{snark}}(u;\rho_\Gamma)\\
+  &{}\land C=\mathsf{Com}_{\mathsf{ext}}(u;\rho_C)\,\}.
   \end{aligned}
 \]
-The verifier first authenticates $L$ under the relevant Merkle root and then
-checks the CP-Link proof. In our artifact, many such equal-opening claims are
-batched into one QA-NIZK proof.
+We use this relation in two places.  First, for each sampled position, it links
+a SNARK-side commitment $\Gamma_{\chi,j}$ to an authenticated Merkle leaf handle
+$L_{\chi,j}$.  Second, for each intermediate vector $v$, it links a SNARK-side
+vector commitment $\Gamma^{\mathsf{vec}}_v$ to the pre-query vector commitment
+$\mu_v$.  In our artifact, these equal-opening claims are batched into one
+QA-NIZK proof.
 
 \subsection{Freivalds' Algorithm}
 \label{sec:prelim-freivalds}

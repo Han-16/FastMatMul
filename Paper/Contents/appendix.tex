@@ -21,8 +21,8 @@ For each intermediate vector $v\in\{\vect{x},\vect{y},\vect{z}\}$, the honest
 prover commits to the intermediate vector before $I$ is sampled, commits to the
 encoded leaf handles, publishes SNARK-side commitments through the
 CC-SNARK backend,
-and supplies accepted Merkle openings and CP-Link proofs for the sampled
-coordinates.
+and supplies accepted Merkle openings and CP-Link proofs for both the full
+vectors and the sampled coordinates.
 For any queried index $j\in[n]$, linearity of $\mathcal{C}$ gives
 \[
   \fold(\enc(\mat{A})^{(j)},\vect{r})
@@ -39,22 +39,32 @@ accepts with probability one.
 Let $\mathsf{Acc}$ be the event that the verifier accepts a false committed
 matrix statement, and assume $\mat{A}\mat{B}\neq\mat{C}$.
 Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false in-circuit
-SNARK instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a
-vector-binding or witness-to-leaf linking failure for an accepted sampled
-object, and $\mathsf{Bad}_{\mathsf{bind}}$ as two inconsistent accepted
-leaf-handle openings for the same root and position.
-For the sampled-opening part of $\mathsf{Bad}_{\mathsf{cc}}$, condition on the
-CC-SNARK binding property: for every accepted SNARK-side
-commitment $\Gamma_{\chi,j}$ it obtains the sampled witness value
-$a_{\chi,j}$ and opening randomness $\rho_{\chi,j}$ bound to that commitment.
+SNARK instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a vector-level or
+witness-to-leaf linking failure, and $\mathsf{Bad}_{\mathsf{bind}}$ as two
+inconsistent accepted leaf-handle openings for the same root and position.
+For $\mathsf{Bad}_{\mathsf{cc}}$, condition on the CC-SNARK binding property:
+for every accepted SNARK-side vector commitment $\Gamma^{\mathsf{vec}}_v$ it
+obtains the vector witness $v$ and opening randomness bound to that commitment;
+for every accepted sampled commitment $\Gamma_{\chi,j}$ it obtains the sampled
+witness value $a_{\chi,j}$ and opening randomness $\rho_{\chi,j}$ bound to that
+commitment.
 The CP-Link batch tag is
 $T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
-where $P_I=\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}$.
-Thus the auxiliary proof is tied to the same SNARK-side/leaf commitment pairs that appear in the
-SNARK public statement and the Merkle openings.
+where
+\[
+P_I=
+\{(v,\Gamma^{\mathsf{vec}}_v,\mu_v)\}_{v\in\mathcal{W}}
+\cup
+\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}.
+\]
+Thus the auxiliary proof is tied to the same vector-level and sampled commitment
+pairs that appear in the SNARK public statement and the Merkle openings.
+A vector-level linking failure occurs if the CP-Link proof accepts but, for some
+$v\in\mathcal{W}$, $\Gamma^{\mathsf{vec}}_v$ and $\mu_v$ do not open to the same
+vector.
 A sampled linking failure occurs if
 $\merkleO(\pi_{\chi,j},L_{\chi,j},\cm_\chi,j)=1$ and
-$\cpLinkV(\para,T_I,\{(\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j},\tau_I)=1$, but
+$\cpLinkV(\para,T_I,P_I,\tau_I)=1$, but
 for some sampled pair there is no leaf-opening randomness $\eta_{\chi,j}$ such
 that $L_{\chi,j}$ opens to the same $a_{\chi,j}$ extracted from the Groth16
 witness.
@@ -174,49 +184,54 @@ This proves Theorem~\ref{thm:security}.
 \section{CP-Link Backend Instantiation}
 \label{app:cplink-backend}
 
-The artifact uses Pedersen-style~\cite{pedersen1991non} handles
+The artifact uses Pedersen-style~\cite{pedersen1991non} commitments
 \[
   \Gamma=\rho_\Gamma H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
   \qquad
-  L=\rho_L H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
+  C=\rho_C H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
 \]
-with $d_\chi=k$ for matrix columns and $d_\chi=1$ for vector coordinates.
+with $d_\chi=k$ for matrix columns and full intermediate vectors, and
+$d_\chi=1$ for vector coordinates.
+For vector-level links, $C$ is the pre-query vector commitment $\mu_v$.
+For sampled links, $C$ is the authenticated Merkle leaf handle $L_{\chi,j}$.
 Leaf handles are authenticated by the Merkle tree, while the CC-SNARK backend
-binds $\Gamma$ to the sampled witness value used by the circuit.
-The link proof shows that the SNARK-side commitment and the authenticated leaf
-handle open to the same sampled object.
+binds $\Gamma$ to the vector or sampled witness value used by the circuit.
+The link proof shows that the SNARK-side commitment and the external commitment
+open to the same object.
 
 \begin{theorem}[Batched CP-Link backend]\label{thm:cp-link-backend}
 Assume the Pedersen handle parameters are generated so that the handle
 commitment is binding, the QA-NIZK link proof for the linear batch relation is
 sound, and the batching challenge is sampled by the Fiat--Shamir random oracle
 after the batch statement is fixed.
-For $Q=|\mathcal{S}|t$ sampled objects, the batched CP-Link verifier accepts a
-false batch with probability at most
+For $Q=|\mathcal{S}|t+|\mathcal{W}|$ vector-level and sampled objects, the
+batched CP-Link verifier accepts a false batch with probability at most
 $\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$.
 The artifact serializes the $Q$ logical relations as one online batched proof;
 generator and CRS bytes are setup material and are not included in the online
 proof-size claim.
 \end{theorem}
 
-The logical CP-Link relation contains one equation per sampled object:
+The logical CP-Link relation contains one equation per vector-level or sampled
+object:
 \[
-  \Gamma_q-L_q=\Delta_qH,\qquad q\in[Q],
+  \Gamma_q-C_q=\Delta_qH,\qquad q\in[Q],
 \]
-where $Q=|\mathcal{S}|t$ and $q$ indexes the pairs
-$(\chi,j)\in\mathcal{S}\times I$.
+where $Q=|\mathcal{S}|t+|\mathcal{W}|$ and $q$ indexes both vector-level pairs
+$(v,\Gamma^{\mathsf{vec}}_v,\mu_v)$ and sampled pairs
+$(\chi,j,\Gamma_{\chi,j},L_{\chi,j})$.
 The batch statement is
 \[
 \begin{aligned}
-P_I&=\{(\chi_q,j_q,\Gamma_q,L_q)\}_{q=1}^{Q},\\
+P_I&=\{(\mathrm{tag}_q,\Gamma_q,C_q)\}_{q=1}^{Q},\\
 T_I&=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I).
 \end{aligned}
 \]
 The implementation batches these equations by deriving
-$\beta\gets\Hash(\textsf{FMM-link-rand},T_I,\{\Gamma_q,L_q\}_{q=1}^{Q})$ and
+$\beta\gets\Hash(\textsf{FMM-link-rand},T_I,\{\Gamma_q,C_q\}_{q=1}^{Q})$ and
 checking a single randomized linear relation
 \[
-  \sum_{q=1}^{Q}\beta^q(\Gamma_q-L_q)=
+  \sum_{q=1}^{Q}\beta^q(\Gamma_q-C_q)=
   \left(\sum_{q=1}^{Q}\beta^q\Delta_q\right)H .
 \]
 If any individual equality is false, the left-minus-right side is a nonzero
@@ -225,13 +240,13 @@ most $Q/|\mathbb{F}|$ in the random-oracle model.
 Combining this with Pedersen binding and QA-NIZK soundness gives the bound in
 Theorem~\ref{thm:cp-link-backend}.
 The QA-NIZK statement is
-$(\para,T_I,\{\Gamma_q,L_q\}_{q=1}^{Q})$ and the witness is the aggregate
+$(\para,T_I,\{\Gamma_q,C_q\}_{q=1}^{Q})$ and the witness is the aggregate
 difference opening $\sum_q\beta^q\Delta_q$.
 Its CRS fixes the handle generators and linear-relation verification
 parameters; if serialized, those bytes are setup/key/CRS material rather than
 online proof bytes.
 Thus the $128$-byte value reported in the experiments is one online batched
-QA-NIZK proof for all sampled links, not a per-link cost.
+QA-NIZK proof for all vector-level and sampled links, not a per-link cost.
 
 \section{Additional Evaluation Details}
 \label{app:eval-details}
@@ -285,7 +300,7 @@ raw-matrix encoding/root construction and serialized key/CRS sizes.
 \toprule
 \textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
 \midrule
-Constraint count & Yes, aggregate & Groth16 circuit size including vector openings, sampled RS evaluations, and fold checks; per-gadget constraint counters are not reported, and CC-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
+Constraint count & Yes, aggregate & Groth16 circuit size including sampled RS evaluations and fold checks; per-gadget constraint counters are not reported, and CC-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
 Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
 Verification time & Yes & Includes current QA-NIZK/CP-Link and opening verification overhead. \\
 Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
@@ -313,10 +328,10 @@ material.
 \textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
 \midrule
 Input column $a_{M,j}$ & No & $k$ field elements are Groth16 witness data; handles and paths are serialized. \\
-Vector leaf $a_{v,j}$ & No & One field element is used as Groth16 witness data and checked by $a_{v,j}=\enc(v)_j$; the SNARK-side commitment is linked to the Merkle leaf handle. \\
+Vector leaf $a_{v,j}$ & No & One field element is used as Groth16 witness data and checked by $a_{v,j}=\enc(v)_j$; the sampled SNARK-side commitment is linked to the Merkle leaf handle. \\
 Merkle path & Yes & Authenticates $L_{\chi,j}$ in $\mathsf{AuxV}$; charged to proof bytes and verify time. \\
-CP-Link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all sampled SNARK-side/leaf commitment pairs. \\
-Groth16 proof & Yes & Verifies vector openings, sampled RS evaluations, and fold/equality checks, while its CC-SNARK interface binds sampled values to SNARK-side commitments. \\
+CP-Link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all vector-level and sampled commitment pairs. \\
+Groth16 proof & Yes & Verifies sampled RS evaluations and fold/equality checks, while its CC-SNARK interface binds full vector witnesses and sampled values to SNARK-side commitments. \\
 \bottomrule
 \end{tabularx}
 \caption{Proof-material accounting for the CP-Link sampled-opening backend.}
@@ -336,12 +351,12 @@ and raw sampled columns are intentionally not serialized.
 \toprule
 \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
 \midrule
-$k=1{,}024$ & $108{,}160$\,B & $108{,}548$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots/vector commitments are public inputs. \\
-$k=4{,}096$ & $146{,}400$\,B & $146{,}788$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
+$k=1{,}024$ & $43{,}904$\,B & $44{,}292$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots/vector commitments are public inputs. \\
+$k=4{,}096$ & $58{,}944$\,B & $59{,}332$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
 \bottomrule
 \end{tabularx}
 \caption{Representative byte-level accounting from
-\texttt{meow\_benchmark\_results.csv}.}
+\texttt{meow\_benchmark\_results\_v2.csv}.}
 \label{tab:byte-accounting}
 \end{table}
 
@@ -358,8 +373,8 @@ main text states proof size as online proof material excluding key/CRS data.
 \toprule
 \textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-Link} & \textbf{Key / CRS size} \\
 \midrule
-$k=1{,}024$ & $32.99$\,s & $0.06$\,s & $31.81$\,s & $1.12$\,s & Not reported by the current artifact. \\
-$k=4{,}096$ & $128.21$\,s & $0.23$\,s & $123.64$\,s & $4.34$\,s & Not reported by the current artifact. \\
+$k=1{,}024$ & $33.16$\,s & $0.18$\,s & $31.83$\,s & $1.15$\,s & Not reported by the current artifact. \\
+$k=4{,}096$ & $130.08$\,s & $0.71$\,s & $125.01$\,s & $4.37$\,s & Not reported by the current artifact. \\
 \bottomrule
 \end{tabularx}
 \caption{Setup accounting for representative rows.}
@@ -368,7 +383,7 @@ $k=4{,}096$ & $128.21$\,s & $0.23$\,s & $123.64$\,s & $4.34$\,s & Not reported b
 
 Table~\ref{tab:constraint-accounting} separates the dominant deterministic
 $3tk$ fold terms from the remaining checked constraints. The residual includes
-sampled RS evaluations, vector openings, equality checks, and circuit
+sampled RS evaluations, equality checks, and circuit
 glue, so the table is a structural audit of the aggregate constraint counts
 rather than a per-gadget profiler.
 
@@ -380,8 +395,8 @@ rather than a per-gadget profiler.
 \toprule
 \textbf{Case} & \textbf{Total} & \textbf{$3tk$ folds} & \textbf{Residual} & \textbf{Raw cols.} \\
 \midrule
-$k=1{,}024$ & $419{,}139$ & $393{,}216$ & $25{,}923$ & $12.6$\,MB \\
-$k=4{,}096$ & $1{,}667{,}305$ & $1{,}572{,}864$ & $94{,}441$ & $50.3$\,MB \\
+$k=1{,}024$ & $418{,}149$ & $393{,}216$ & $24{,}933$ & $12.6$\,MB \\
+$k=4{,}096$ & $1{,}666{,}315$ & $1{,}572{,}864$ & $93{,}451$ & $50.3$\,MB \\
 \bottomrule
 \end{tabularx}
 \caption{Structural constraint and raw-column-size accounting for two
