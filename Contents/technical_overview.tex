@@ -30,12 +30,14 @@ A direct SNARK arithmetization of this relation computes every entry of
 \]
 
 Freivalds' algorithm reduces the cubic check to a vector-matrix check.  The
-verifier samples a challenge vector \(\vect{r}\in\mathbb{F}^k\) and checks
+classical algorithm samples a challenge vector \(\vect{r}\in\mathbb{F}^k\) and checks
 \[
   \vect{r}\mat{A}\mat{B}
   =
   \vect{r}\mat{C}.
 \]
+In \(\protocol\), the verifier derives one scalar \(r\) and uses the structured
+vector \((1,r,\ldots,r^{k-1})\), which keeps the public challenge compact.
 Equivalently, the prover introduces intermediate vectors
 \[
   \vect{x}=\vect{r}\mat{A},
@@ -76,13 +78,14 @@ form
   \fold(\vect{r},\widehat{\mat{A}}[*,j]),
 \]
 \[
+\begin{aligned}
   \enc(\vect{y})[j]
-  =
-  \fold(\vect{x},\widehat{\mat{B}}[*,j]),
-  \quad
+  &=
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),\\
   \enc(\vect{z})[j]
-  =
+  &=
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+\end{aligned}
 \]
 Only the queried columns
 \(\widehat{\mat{A}}[*,j]\), \(\widehat{\mat{B}}[*,j]\),
@@ -198,9 +201,9 @@ Thus the verifier obtains a chain of consistency:
 \begin{array}{c}
 \text{SNARK witness values}
 \\
-\Updownarrow\ \text{CP-LINK}
+\Updownarrow\ \text{CP-Link}
 \\
-\text{External pedersen leaf commitments}
+\text{External Pedersen leaf commitments}
 \\
 \Updownarrow\ \text{Merkle openings}
 \\
@@ -242,7 +245,7 @@ proximity term used in the security analysis.
 The distance argument applies only to values fixed before the query positions
 are sampled.  Merkle position binding prevents the prover from opening a root
 to two different leaves at the same position.  Pedersen binding prevents a
-committed leaf from being opened to two different messages.  CP-LINK ensures
+committed leaf from being opened to two different messages.  CP-Link ensures
 that the values used by the SNARK are the same values authenticated by the
 external commitments.  Therefore, except for the binding and linking failure
 probabilities, any accepting proof corresponds to fixed encoded objects that

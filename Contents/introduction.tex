@@ -9,7 +9,7 @@ product. This problem appears throughout verifiable inference and training for
 modern neural networks. In particular, projection and attention layers often
 involve matrix multiplications with dimension \(k \ge 1{,}000\). A na\"ive
 arithmetization of a single \(k \times k\) matrix multiplication inside a SNARK circuit generates \(\mathcal{O}(k^3)\) arithmetic constraints, which is
-impractical even for moderate values of \(k\). \\
+impractical even for moderate values of \(k\).
 
 % \paragraph{\(\mathcal{O}(k^2)\) barrier.}
 \noindent\textbf{The \(\mathcal{O}(k^2)\) barrier.}
@@ -27,7 +27,7 @@ The resulting \(\mathcal{O}(k^2)\)-size circuit is an improvement, but it remain
 costly. In our optimized baseline, Freivalds already requires \(50.5\) million
 R1CS constraints and \(405.04\,\text{s}\) of proving time at \(k=4{,}096\).
 Thus, a significant gap remains between the \(\mathcal{O}(k^2)\) SNARK cost and
-practical large-scale matrix verification. \\
+practical large-scale matrix verification.
 
 % \paragraph{Our insight: from computation to checking.}
 \noindent\textbf{Our insight: From computation to checking.} 
@@ -38,7 +38,7 @@ arithmetic outside the SNARK and commits to the relevant intermediate values.
 The verifier then checks only a small number of lightweight algebraic relations
 that are sufficient to detect inconsistencies.
 
-The technical core of this shift is \emph{proximity testing over linear error-correcting codes}. By encoding each matrix row-wise using a systematic linear code \(\mathcal{C}\) with relative distance \(\delta\), the vector-matrix products
+The technical core of this approach is \emph{proximity testing over linear error-correcting codes}. By encoding each matrix row-wise using a systematic linear code \(\mathcal{C}\) with relative distance \(\delta\), the vector-matrix products
 \[
     \vect{x}=\vect{r}\mat{A}, \qquad
     \vect{y}=\vect{x}\mat{B}, \qquad
@@ -48,18 +48,17 @@ can be checked column by column in the encoded domain. The linearity of \(\mathc
 If the prover cheats in any of these relations, the corresponding codewords disagree on at least a \(\delta\)-fraction of positions, and a random query detects the inconsistency with probability at least \(\delta\).
 
 The key point is that the SNARK circuit does not take the full matrices as witnesses. Instead, it receives only \(t\) sampled columns and checks local algebraic relations on those columns, including fold computations and the codeword encoding consistency of the intermediate vectors \(\vect{x}, \vect{y}\), and \(\vect{z}\). 
-We use a commit-and-prove SNARK to produce commitments to the
-full vector witnesses and sampled values used inside the circuit. Together with
-the SNARK proof, the prover sends Merkle membership proofs for the queried
-indices in the previously committed Merkle trees, as well as CP-Link proofs
-showing that the pre-query vector commitments, the corresponding Merkle leaf
-values, and the SNARK witnesses represent the same underlying data.
-By verifying these proofs, the verifier is assured that the values used inside the circuit are consistent with the data committed before the SNARK proof was generated.
+We use a commit-and-prove SNARK to commit to the sampled block witnesses used
+inside the circuit. Together with the SNARK proof, the prover sends Merkle
+membership proofs for the queried leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\),
+as well as CP-Link proofs showing that the SNARK-side sampled blocks and the
+opened Pedersen leaves contain the same data.
+By verifying these proofs, the verifier is assured that the values used inside the circuit are consistent with the committed data fixed before the query positions were derived.
 As a result, the in-circuit checking cost is \(\mathcal{O}(tk)\), while the
 additional opening and linking work is
 \(\mathcal{O}(t \log n) + E_{\mathsf{link}}(k)\). Since \(t\) is the number of
 sampled codeword positions and is independent of the matrix dimension \(k\), the
-protocol has linear in-circuit cost in the matrix dimension. \\
+protocol has linear in-circuit cost in the matrix dimension.
 
 % \paragraph{Contributions.}
 \noindent\textbf{Contributions.} 
@@ -69,7 +68,7 @@ We present \(\protocol\), a protocol for efficiently proving matrix multiplicati
     Instead of computing vector-matrix products inside the SNARK circuit, \(\protocol\) encodes the matrices and intermediate vectors as codewords and checks only randomly sampled codeword positions. 
     By exploiting the linearity of the code, each sampled position can be verified through local fold relations, reducing the in-circuit checking cost from \(\mathcal{O}(k^2)\) to \(\mathcal{O}(tk)\), which is linear in the matrix dimension for fixed \(t\). 
     \item \textbf{Soundness analysis.} We prove the soundness of \(\protocol\). In particular, we show that if \(\mat{A}\mat{B}\ne\mat{C}\), then any prover that commits to inconsistent encoded values is detected with probability determined by the code distance and the number of sampled positions. 
-    The analysis also accounts for the Merkle openings and CP-links that bind the values checked inside the SNARK circuit to the data committed before proof generation. 
+    The analysis also accounts for the Merkle openings and CP-Link proofs that bind the values checked inside the SNARK circuit to the data committed before proof generation. 
     \item \textbf{Implementation and evaluation.} We implement \(\protocol\) in Go and evaluate it against a Freivalds-based SNARK circuit for matrix dimensions from \(k=2^7\) to \(2^{13}\). At \(k=2^{12}\), \(\protocol\) reduces the constraint count by \(30.3\times\) and shortens proof generation time by \(8.34\times\), while verification remains independent of the matrix dimension and takes less than \(0.01\,\text{s}\). 
     We also evaluate \(\protocol\) on a GPT-2 workload with sequence length \(2^{10}\), where it reduces the constraint count by \(2.3\times\) and proving time by \(1.78\times\), showing that the approach extends to matrix-heavy neural network workloads. 
 \end{itemize}

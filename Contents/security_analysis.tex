@@ -1,187 +1,152 @@
 \section{Security Analysis}
 \label{sec:security}
 
-We prove that the protocol $\protocol$ (Figure~\ref{fig:protocol}) constitutes a secure interactive argument for the matrix multiplication relation $\mathcal{R}_{\mathsf{orig}}$ over encoded input roots and the sampled-opening backend of Definition~\ref{def:codecom-backend}.
-Soundness and completeness are established in Theorem~\ref{thm:security} below; knowledge soundness is discussed separately in Remark~\ref{rem:aok}.
-As discussed in Section~\ref{sec:relation-chain}, the input roots $\cm_A,\cm_B,\cm_C$ bind to row-wise encodings of fixed matrices $\mat{A},\mat{B},\mat{C}$.
-This is the committed-input model used by code-based proof systems such as Brakedown~\cite{golovnev2023brakedown} and Orion~\cite{xie2022orion}; $\protocol$ verifies the multiplication relation among these committed objects.
-For the intermediate vectors, the prover sends pre-query vector commitments to
-$\vect{x},\vect{y},\vect{z}$ before the query tuple is sampled.
-The CC-SNARK backend binds each vector witness used by Groth16 to a public
-SNARK-side vector commitment $\Gamma^{\mathsf{vec}}_v$, and the auxiliary
-CP-Link proof links $\Gamma^{\mathsf{vec}}_v$ to the pre-query commitment
-$\mu_v$.
-At each sampled coordinate, the CC-SNARK backend also binds the matrix column or
-vector leaf used by the circuit to a public SNARK-side commitment
-$\Gamma_{\chi,j}$.
-The auxiliary verifier authenticates a compact external Merkle leaf handle
-$L_{\chi,j}$ and checks that it is linked to the SNARK-side commitment.
-For intermediate vectors, the SNARK also computes $\enc(v)_j$ internally before
-the sampled value is linked to the authenticated handle.
+We prove that \(\protocol\) is sound for the committed matrix multiplication
+statement defined in Section~\ref{sec:construction}.  The public roots
+\(\rt_{ABC}\) and \(\rt_{XYZ}\) bind, respectively, to the packed encoded
+matrix columns and the packed encoded symbols of the intermediate vectors.
+The sampled-opening backend of Definition~\ref{def:codecom-backend} links the
+sampled witnesses used by the SNARK to the corresponding opened Pedersen leaves.
+Completeness and soundness are stated in Theorem~\ref{thm:security}; knowledge
+soundness is discussed separately in Remark~\ref{rem:aok}.
 
 \paragraph{Scope of the security claim}
 The theorem is a statement-soundness result for committed matrix
-multiplication, not a standalone argument-of-knowledge or zero-knowledge
-theorem.
-The public objects are the encoded input roots and the
-transcript-derived challenges; the committed objects are the row-wise encodings
-of $\mat{A},\mat{B},\mat{C}$ and the intermediate encoded vectors.
-The backend supplies vector-level links to the pre-query commitments and sampled
-consistency between the SNARK-side commitments and the external Merkle openings.
-Witness extraction and hiding require the additional composition assumptions
-described in Remark~\ref{rem:aok} and are outside the main theorem.
-In short, $\cm_A,\cm_B,\cm_C$ are input roots fixed before $r$;
-$\mu_x,\mu_y,\mu_z$ and $\cm_x,\cm_y,\cm_z$ are fixed before $I$; the full
-intermediate vectors and sampled raw columns are private Groth16 witness values
-linked to pre-query commitments and authenticated leaf handles.
+multiplication.  It does not, by itself, claim a standalone argument of
+knowledge or zero knowledge for the entire input-commitment layer.  The
+committed objects are:
+\[
+  \rt_{ABC}
+  \quad\text{and}\quad
+  \rt_{XYZ},
+\]
+where \(\rt_{ABC}\) fixes the encoded matrix-column blocks
+\(\{\vect{m}_{ABC,j}\}_{j\in[n]}\), and \(\rt_{XYZ}\) fixes the encoded
+intermediate-vector blocks \(\{\vect{m}_{XYZ,j}\}_{j\in[n]}\).  The SNARK-side
+commitments \(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) bind the
+sampled blocks used inside the SNARK.  CP-Link then links these sampled blocks
+to the Pedersen leaves opened under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
 
 \paragraph{Soundness-critical ordering}
-The proof uses the following timing invariants.
-First, the input roots $\cm_A,\cm_B,\cm_C$ are fixed before the
-Freivalds challenge $r$ is sampled.
-Second, the intermediate vector commitments and encoded-vector roots are fixed
-before the query tuple $I=(j_1,\ldots,j_t) \sample [n]^t$ is sampled;
-conditioned on accepting vector-level CP-Link proofs, the vectors used by
-Groth16 are the vectors fixed by $\mu_x,\mu_y,\mu_z$ independently of the
-sampled positions, and accepted auxiliary linking proofs bind sampled external
-openings to the corresponding SNARK-side commitments.
-For intermediate vectors, the vector-level links and in-circuit RS checks force
-the value behind each SNARK-side commitment to be the corresponding coordinate
-of $\enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z})$.
-Third, the entries of $I$ are sampled independently with replacement, as
-defined in Section~\ref{sec:notation}.
-If an implementation samples without replacement, the proximity failure
-probability only decreases; the theorem states the simpler with-replacement
-bound.
+The proof relies on the transcript order enforced by the construction.
+First, \(\rt_{ABC}\) is fixed before the Freivalds scalar \(r\) is derived.
+Thus the encoded matrices are fixed before the prover sees the challenge used
+to define \(\vect{x}=\vect{r}\mat{A}\),
+\(\vect{y}=\vect{x}\mat{B}\), and \(\vect{z}=\vect{r}\mat{C}\).
+Second, \(\rt_{XYZ}\) is fixed before the query tuple
+\(I=(j_1,\ldots,j_t)\) is derived.  Thus the encoded intermediate-vector
+symbols are fixed before the sampled positions are known.  Third, the verifier
+accepts sampled values only when the SNARK proof, Merkle openings, and CP-Link
+proofs all accept.  Conditioned on the soundness of these components, the
+values used in the sampled fold checks are exactly the values fixed by
+\(\rt_{ABC}\) and \(\rt_{XYZ}\) at the queried positions.
 
 \paragraph{Backend failure event}
-The backend bad event is the only non-standard composition point.
-After the transcript prefix fixes
-$(\mathsf{Cm}_{ABC},r,\mathsf{Cm}_{XYZ},I)$, the adversary must output
-SNARK-side vector commitments, sampled SNARK-side commitments, Merkle openings,
-and an auxiliary linking proof for the vector-level and sampled objects.
-A backend failure occurs if all these checks accept while some value used in
-the Groth16 fold relation is not the value fixed by the corresponding pre-query
-vector commitment or authenticated at the corresponding leaf position.
-Definition~\ref{def:codecom-backend} charges this event to
-$\epsilon_{\mathsf{cc}}$; Appendix~\ref{app:security-proof} expands the event
-for the concrete backend.
-For the artifact backend summarized in Section~\ref{sec:construction}, the
-batched CP-Link component contributes
-$\epsilon_{\mathsf{link}}\le
-\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$, where
-$Q=|\mathcal{S}|t+|\mathcal{W}|$ is the number of sampled SNARK-side/leaf
-commitment pairs plus vector-level commitment pairs.
-Here $\epsilon_{\mathsf{ped}}$ is the binding error of the algebraic handle
-parameters, $\epsilon_{\mathsf{QA}}$ is the soundness error of the batched
-QA-NIZK relation, and the $Q/|\mathbb{F}|$ term is the standard randomized-batch
-failure probability after the batch statement is fixed.
+The backend bad event captures the only composition point specific to our
+construction.  After the transcript prefix fixes
+\[
+  (\rt_{ABC}, r, \rt_{XYZ}, I),
+\]
+the adversary outputs a SNARK proof, sampled Merkle openings, and CP-Link
+proofs for the two sampled block families.  A backend failure occurs if all
+these checks accept while either \(\widetilde{\cm}_{ABC}\) is not linked to the
+opened blocks \((\cm_{ABC,j})_{j\in I}\), or
+\(\widetilde{\cm}_{XYZ}\) is not linked to the opened blocks
+\((\cm_{XYZ,j})_{j\in I}\), or an opened Merkle leaf is not the value fixed at
+the claimed position under its root.  Definition~\ref{def:codecom-backend}
+charges this event to \(\epsilon_{\mathsf{open}}+\epsilon_{\mathsf{link}}\),
+where \(\epsilon_{\mathsf{open}}\) covers Merkle position binding and Pedersen
+binding, and \(\epsilon_{\mathsf{link}}\) covers CP-Link soundness.
 
 \begin{theorem}[Security]\label{thm:security}
-The protocol $\protocol$ satisfies the following properties:
+The protocol \(\protocol\) satisfies the following properties.
 \begin{enumerate}[label=(\roman*)]
-  \item \textbf{Perfect completeness.} If $\mat{A}\mat{B} = \mat{C}$, an honest prover always makes the verifier accept.
+  \item \textbf{Perfect completeness.} If
+  \(\mat{A}\mat{B}=\mat{C}\), an honest prover makes the verifier accept.
+
   \item \textbf{Interactive computational soundness.}
-  For any $\ppt$ adversary $\mathcal{P}^*$ given public input
-  roots for $\mat{A},\mat{B},\mat{C}$, let $\mathsf{Acc}$ be the event
-  that the verifier accepts a false committed matrix statement.
-  Then:
+  For any \(\ppt\) adversary \(\mathcal{P}^*\), let \(\mathsf{Acc}\) be the
+  event that the verifier accepts a false committed matrix multiplication
+  statement.  Then
 \[
 \begin{aligned}
-\Pr[\mathsf{Acc} \mid \mat{A}\mat{B} \neq \mat{C}]
+\Pr[\mathsf{Acc}\mid \mat{A}\mat{B}\neq\mat{C}]
 &\le
 \epsilon_{\mathsf{SNARK}}(\lambda)
-+ \epsilon_{\mathsf{cc}}(\lambda)
-+ \epsilon_{\mathsf{bind}}(\lambda) \\
-&\quad + \frac{k-1}{|\mathbb{F}|}
-+ 4(1 - \delta)^{t},
++\epsilon_{\mathsf{open}}(\lambda)
++\epsilon_{\mathsf{link}}(\lambda) \\
+&\quad
++ \frac{k-1}{|\mathbb{F}|}
++4(1-\delta)^t .
 \end{aligned}
 \]
-Here $t = |I|$ is the query complexity and $\delta$ is the relative minimum
-distance of $\mathcal{C}$.
-The terms $\epsilon_{\mathsf{SNARK}}$, $\epsilon_{\mathsf{cc}}$, and
-$\epsilon_{\mathsf{bind}}$ denote, respectively, the soundness error of the
-SNARK backend including CC-SNARK witness binding, the vector-level and sampled
-linking consistency error of the selected intermediate backend,
-and the union-bounded position-binding error of the opening layer over all roots
-and openings used in the protocol.
-  In the notation of Definition~\ref{def:codecom-backend},
-  $\epsilon_{\mathsf{cc}}\le
-  \epsilon_{\mathsf{vec}}+\epsilon_{\mathsf{link}}$.
-  For the artifact backend,
-  $\epsilon_{\mathsf{link}}\le
-  \epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}
-  +( |\mathcal{S}|t+|\mathcal{W}| )/|\mathbb{F}|$;
-  Appendix~\ref{app:cplink-backend} gives the full batching equation.
+Here \(t=|I|\) is the number of sampled positions and \(\delta\) is the
+relative distance of the code \(\mathcal{C}\).  The term
+\(\epsilon_{\mathsf{SNARK}}\) is the soundness error of the CP-SNARK relation,
+\(\epsilon_{\mathsf{open}}\) is the binding error of the Merkle/Pedersen
+opening layer, and \(\epsilon_{\mathsf{link}}\) is the soundness error of the
+two blockwise CP-Link checks.
+
   \item \textbf{Fiat--Shamir soundness.} In the random oracle model, the
-  non-interactive variant described in Section~\ref{sec:protocol-desc}
-  satisfies the same bound with an additional Fiat--Shamir loss term
-  $\epsilon_{\mathsf{FS}}(q_H)$, where $q_H$ is the adversary's number of
+  non-interactive protocol in Section~\ref{sec:protocol-desc} satisfies the
+  same bound with an additional Fiat--Shamir loss
+  \(\epsilon_{\mathsf{FS}}(q_H)\), where \(q_H\) is the adversary's number of
   random-oracle queries.
 \end{enumerate}
 \end{theorem}
 
 \begin{corollary}[Evaluated backend]\label{cor:evaluated-backend}
-For the backend used in the artifact, Theorem~\ref{thm:security} applies with
+For the backend used in the artifact, the opening and linking contribution in
+Theorem~\ref{thm:security} can be written as
 \[
-  \epsilon_{\mathsf{cc}}
+  \epsilon_{\mathsf{open}}+\epsilon_{\mathsf{link}}
   \le
-	  \epsilon_{\mathsf{vec}}
-	  +\epsilon_{\mathsf{ped}}
-	  +\epsilon_{\mathsf{QA}}
-	  +( |\mathcal{S}|t+|\mathcal{W}| )/|\mathbb{F}|.
+  \epsilon_{\mathsf{merkle}}
+  +\epsilon_{\mathsf{ped}}
+  +\epsilon_{\mathsf{QA}}
+  +\frac{2t}{|\mathbb{F}|}.
 \]
-The bound assumes the pre-query vector commitment is binding, the algebraic
-handle parameters are binding, the QA-NIZK is sound for the stated linear batch
-relation, and the batch randomizer is sampled after the commitment-pair
-statement is fixed.
-In the non-interactive artifact, the Fiat--Shamir loss term
-$\epsilon_{\mathsf{FS}}(q_H)$ covers both the protocol challenges $(r,I)$ and
-the backend batch randomizer, using separate domain tags.
+The first two terms cover Merkle position binding and Pedersen binding.  The
+last two terms cover the batched CP-Link proof for the two sampled block
+families, \(ABC\) and \(XYZ\).
 \end{corollary}
 
-The reported scaling rows use $t=128$; if $\delta=1/2$, this gives proximity
-term $2^{-126}$, while a conservative per-term $2^{-131}$ target uses $t=133$.
-A strict deployment must also instantiate the SNARK, pre-query vector
-commitment, CP-Link backend, and hash parameters so their union-bounded errors
-fit the aggregate security budget.
+The reported scaling rows use \(t=128\).  If \(\delta=1/2\), the proximity
+term is \(4(1-\delta)^t=2^{-126}\).  A deployment that targets a different
+security level can increase \(t\), choose a larger-distance code, or instantiate
+the backend with smaller component errors.
 
 \paragraph{Proof sketch}
 Completeness follows from linearity of the Freivalds reduction and of the
-encoding: honest openings satisfy every sampled fold and equality check.
-For soundness, condition away SNARK, vector-level linking, sampled linking, and
-position-binding failures.
-Then the input roots fix $\mat{A},\mat{B},\mat{C}$ before $r$, the intermediate
-commitments fix $\vect{x},\vect{y},\vect{z}$ before $I$, and accepted sampled
-openings are the same values used by the Groth16 fold relation.
-Schwartz--Zippel gives the Freivalds term $(k-1)/|\mathbb{F}|$; conditioned on
-Freivalds not failing, at least one of the four encoded relations is false, so
-$t$ random coordinates miss its disagreement set with probability at most
-$(1-\delta)^t$.
-Union-bounding over the four relations gives the proximity term.
-Appendix~\ref{app:security-proof} gives the detailed proof and the
-Fiat--Shamir random-oracle reduction.
+encoding.  Honest commitments, openings, and CP-Link proofs make every sampled
+fold and equality check accept.
+
+For soundness, condition away SNARK, opening, and CP-Link failures.  Then
+\(\rt_{ABC}\) fixes the encoded matrices before \(r\), and \(\rt_{XYZ}\) fixes
+the encoded intermediate-vector symbols before \(I\).  The sampled values used
+inside the SNARK are the same values opened from these roots.  If
+\(\mat{A}\mat{B}\neq\mat{C}\), the structured Freivalds check fails to detect
+the false product with probability at most \((k-1)/|\mathbb{F}|\).  Conditioned
+on not hitting this Freivalds failure event, at least one of the local encoded
+relations checked in Section~\ref{sec:snark-relation} is false.  By the
+relative distance \(\delta\), a random sampled position misses the disagreement
+with probability at most \(1-\delta\).  Union-bounding over the four checked
+relations gives the \(4(1-\delta)^t\) term.  Adding the SNARK, opening,
+linking, and Fiat--Shamir failure events gives the stated bound.
 
 \begin{remark}[Fiat--Shamir soundness]\label{rem:fs-soundness}
-The proof of the main bound in Theorem~\ref{thm:security} is for the
-public-coin interactive protocol.
-The non-interactive variant in Section~\ref{sec:protocol-desc} derives both
-$r$ and $I$ from domain-separated hashes of the full transcript prefix.
-The artifact backend also derives its batch randomizer with a separate domain
-tag after the commitment-pair batch statement is fixed.
-In the random oracle model, the same proof applies with the standard
-Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$, where $q_H$ is the adversary's
-number of random-oracle queries.
-This term accounts for grinding over transcript prefixes and is negligible for
-polynomial $q_H$ when the challenge and query hashes have $\lambda$-bit
-security.
+The theorem is stated first for the public-coin interactive protocol.  The
+non-interactive protocol derives \(r\), \(I\), and backend batch challenges
+from domain-separated hashes of the transcript.  In the random oracle model,
+the same argument applies with the standard Fiat--Shamir loss
+\(\epsilon_{\mathsf{FS}}(q_H)\).
 \end{remark}
 
 \begin{remark}[Knowledge Soundness]\label{rem:aok}
-The theorem above is a statement-soundness result relative to input roots that
-bind to row-wise encoded matrices.
-A full \emph{argument of knowledge} can be obtained by composing $\protocol$ with an extractable input-commitment interface and a knowledge-sound SNARK.
-In that setting, the input-commitment extractor yields openings of $\cm_A,\cm_B,\cm_C$ to row-wise encoded matrices, while the SNARK extractor yields the intermediate vectors and queried openings used in $\mathcal{R}_{\mathsf{Prox}}$.
-The same soundness argument then implies that any prover accepted with non-negligible probability is bound, except with the stated error, to matrices satisfying $\mat{A}\mat{B}=\mat{C}$.
-We treat this as an orthogonal composition issue and focus the main theorem on the multiplication-checking protocol.
+The theorem above is a statement-soundness claim relative to the committed
+roots \(\rt_{ABC}\) and \(\rt_{XYZ}\).  A full argument of knowledge can be
+obtained by composing \(\protocol\) with an extractable commitment interface
+and a knowledge-sound CP-SNARK.  This is an orthogonal composition issue; the
+main theorem focuses on soundness of the matrix-multiplication checking
+protocol.
 \end{remark}

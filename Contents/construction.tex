@@ -1,11 +1,12 @@
 \section{The LAMP Protocol}
 \label{sec:construction}
 
-This section gives the formal construction of \(\protocol\).  Section~\ref{sec:tech-overview}
-explained the protocol at a high level; here we specify the committed
-statement, the SNARK relation, the auxiliary Merkle and CP-LINK checks, and the
-resulting prover and verifier algorithms.  We describe the single matrix
-multiplication protocol, which is the core construction analyzed in this work.
+This section gives the formal construction of \(\protocol\), following the
+overview in Section~\ref{sec:tech-overview}.  The protocol proves a matrix
+multiplication statement over committed encoded data.  The SNARK circuit checks
+only sampled codeword positions, while Merkle openings and CP-Link proofs bind
+the sampled circuit witnesses to values fixed before the query positions are
+derived.
 
 \begin{table}[t]
 \centering
@@ -18,42 +19,40 @@ multiplication protocol, which is the core construction analyzed in this work.
 \(\mathcal{C}\) & Systematic linear code \(\mathbb{F}^k\to\mathbb{F}^n\). \\
 \(\widehat{\mat{M}}\) & Row-wise encoding of matrix \(\mat{M}\). \\
 \(\widehat{\vect{v}}\) & Encoding of vector \(\vect{v}\). \\
-\(\rt_{ABC}\) & Merkle root over Pedersen commitments to packed encoded columns of \(\mat{A},\mat{B},\mat{C}\). \\
-\(\rt_{XYZ}\) & Merkle root over Pedersen commitments to encoded symbols of \(\vect{x}\) and the claimed output vector \(\vect{yz}\). \\
+\(\rt_{ABC}\) & Merkle root over packed Pedersen commitments to encoded columns of \(\mat{A},\mat{B},\mat{C}\). \\
+\(\rt_{XYZ}\) & Merkle root over packed Pedersen commitments to encoded symbols of \(\vect{x},\vect{y},\vect{z}\). \\
 \(I=(j_1,\ldots,j_t)\) & Transcript-derived tuple of queried codeword positions. \\
-\(\widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ}\) & SNARK-side committed-witness commitments to sampled values. \\
-\(\pi_{\mathsf{mt}}\) & Merkle authentication paths for the queried leaves. \\
-\(\pi_{\mathsf{link}}\) & CP-LINK proofs connecting SNARK-side commitments to external Pedersen commitments. \\
+\(\widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ}\) & SNARK-side witness commitments to sampled packed values. \\
+\(\pi_{\mathsf{mt}}\) & Merkle authentication paths for queried leaves. \\
+\(\pi_{\mathsf{link}}\) & CP-Link proofs connecting SNARK-side commitments to external Pedersen commitments. \\
 \bottomrule
 \end{tabularx}
 \caption{Protocol-specific notation used in Section~\ref{sec:construction}.}
 \label{tab:notation}
 \end{table}
 
-\subsection{Parameters and Statement}
+\subsection{Committed Statement}
 \label{sec:relation-chain}
 
-Let \(\mathbb{F}\) be the field, let
-\(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\), and let
+Let \(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\), and let
 \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a systematic linear code with
-relative distance \(\delta\).  The target relation is the committed matrix
-multiplication relation
+relative distance \(\delta\).  The target relation is
 \[
   \mathcal{R}_{\mathsf{MM}}
   =
   \{(\mat{A},\mat{B},\mat{C}) :
     \mat{A}\mat{B}=\mat{C}\}.
 \]
-The verifier does not receive the matrices directly.  Instead, the prover
-commits to their row-wise encodings and proves that the committed matrices
-satisfy the multiplication relation.
+The verifier does not receive the raw matrices as public input.  Instead, the
+prover commits to row-wise encodings of the matrices and proves that the
+committed objects satisfy the multiplication relation.
 
-\(\protocol\) uses the structured Freivalds challenge described in
-Section~\ref{sec:prelim-freivalds}.  A scalar \(r\in\mathbb{F}\) defines
+As in Section~\ref{sec:prelim-freivalds}, \(\protocol\) derives one scalar
+\(r\in\mathbb{F}\) and uses the structured Freivalds vector
 \[
   \vect{r}=(1,r,r^2,\ldots,r^{k-1}).
 \]
-The prover computes
+The prover then defines
 \[
   \vect{x}=\vect{r}\mat{A},
   \qquad
@@ -61,22 +60,14 @@ The prover computes
   \qquad
   \vect{z}=\vect{r}\mat{C}.
 \]
-If \(\mat{A}\mat{B}=\mat{C}\), then \(\vect{y}=\vect{z}\).  In the concrete
-relation below we use a single claimed output vector \(\vect{yz}\): an honest
-prover sets
-\[
-  \vect{yz}=\vect{y}=\vect{z}.
-\]
-The SNARK then checks that \(\vect{yz}\) is simultaneously consistent with the
-\(B\)-side product \(\vect{x}\mat{B}\) and the \(C\)-side product
-\(\vect{r}\mat{C}\).  This is equivalent to introducing separate
-\(\vect{y}\) and \(\vect{z}\) and checking \(\vect{y}=\vect{z}\), but it saves
-one encoded output vector in the implementation.
+If \(\mat{A}\mat{B}=\mat{C}\), then \(\vect{y}=\vect{z}\).  Therefore, the
+matrix multiplication statement can be checked by verifying the three
+vector-product relations above and the final equality \(\vect{y}=\vect{z}\).
 
 \subsection{Matrix Encoding and Commitment}
 \label{sec:matrix-commitment}
 
-The prover first row-wise encodes the input and output matrices:
+The prover first encodes the input and output matrices row-wise:
 \[
   \widehat{\mat{A}}=\enc(\mat{A}),\qquad
   \widehat{\mat{B}}=\enc(\mat{B}),\qquad
@@ -109,74 +100,61 @@ commitments:
 \[
   \rt_{ABC}
   \gets
-  \merkleC(\cm_{ABC,1},\ldots,\cm_{ABC,n}).
+  \merkleC((\cm_{ABC,j})_{j\in[n]};\bot).
 \]
 The root \(\rt_{ABC}\) is fixed before the Freivalds challenge \(r\) is
-derived.  This ordering is soundness-critical: after \(\rt_{ABC}\) is fixed,
-Merkle position binding and Pedersen binding fix the encoded matrix columns
-that can later be opened at sampled positions.
+derived.  This ordering fixes the encoded matrix columns before the prover sees
+the challenge used to form \(\vect{x},\vect{y},\vect{z}\).
 
-\subsection{Challenge Generation and Folded Vectors}
+\subsection{Intermediate Vectors and Query Sampling}
 \label{sec:challenge-and-vectors}
+\label{sec:vector-commitment}
 
-The verifier derives the Freivalds challenge from the matrix commitment
-transcript:
+The verifier derives the Freivalds challenge from the matrix root:
 \[
-  r \gets \Hash(\textsf{LAMP-r},\rt_{ABC}).
+  r \gets \Hash(\textsf{LAMP-r},\rt_{ABC}),
+  \qquad
+  \vect{r}=(1,r,\ldots,r^{k-1}).
 \]
-The prover then computes
+The prover computes
 \[
   \vect{x}=\vect{r}\mat{A},
   \qquad
-  \vect{yz}=\vect{x}\mat{B}.
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C},
 \]
-For an honest statement, \(\vect{yz}=\vect{r}\mat{C}\).  The prover encodes the
-two intermediate vectors:
+and encodes the intermediate vectors:
 \[
   \widehat{\vect{x}}=\enc(\vect{x}),
   \qquad
-  \widehat{\vect{yz}}=\enc(\vect{yz}).
+  \widehat{\vect{y}}=\enc(\vect{y}),
+  \qquad
+  \widehat{\vect{z}}=\enc(\vect{z}).
 \]
-
-The code linearity from Section~\ref{sec:prelim-codes} gives the local
-identities that the SNARK will later check.  For every \(j\in[n]\),
-\[
-  \widehat{\vect{x}}[j]
-  =
-  \fold(\vect{r},\widehat{\mat{A}}[*,j]),
-\]
-and, for an honest prover,
-\[
-  \widehat{\vect{yz}}[j]
-  =
-  \fold(\vect{x},\widehat{\mat{B}}[*,j])
-  =
-  \fold(\vect{r},\widehat{\mat{C}}[*,j]).
-\]
-The SNARK checks these equations only at the sampled positions.
-
-\subsection{Vector Commitments and Query Sampling}
-\label{sec:vector-commitment}
-
-After computing \(\widehat{\vect{x}}\) and \(\widehat{\vect{yz}}\), the prover
-commits to their encoded symbols.  For each \(j\in[n]\), define
+For each \(j\in[n]\), it packs the encoded vector symbols into
 \[
   \vect{m}_{XYZ,j}
   \coloneqq
-  \big(\widehat{\vect{x}}[j]\,\|\,\widehat{\vect{yz}}[j]\big)
-  \in\mathbb{F}^{2}.
+  \big(
+    \widehat{\vect{x}}[j]\,
+    \|\,\widehat{\vect{y}}[j]\,
+    \|\,\widehat{\vect{z}}[j]
+  \big)
+  \in\mathbb{F}^{3}.
 \]
-Using a Pedersen commitment key \(\ck_{XYZ}\), the prover computes
+Using a Pedersen commitment key \(\ck_{XYZ}\), the prover samples
+\(o_{XYZ,j}\sample\mathbb{F}\) and computes
 \[
   \cm_{XYZ,j}
   \gets
   \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}),
 \]
-and then
+and publishes the Merkle root
 \[
   \rt_{XYZ}
   \gets
-  \merkleC(\cm_{XYZ,1},\ldots,\cm_{XYZ,n}).
+  \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot).
 \]
 The query tuple is derived only after \(\rt_{XYZ}\) is fixed:
 \[
@@ -187,42 +165,42 @@ The query tuple is derived only after \(\rt_{XYZ}\) is fixed:
   &\gets \mathsf{Sample}_t(\rho_I).
 \end{aligned}
 \]
-The out-of-domain evaluation points used for the vector encoding checks are
-also derived from the same transcript:
+The points used for the vector-code consistency checks are derived from the
+same transcript prefix:
 \[
 \begin{aligned}
-  \rho_{\mathsf{RS}}
-  &\gets \Hash(\textsf{LAMP-RS},\rt_{ABC},r,\rt_{XYZ}),\\
-  \alpha_x,\alpha_{yz}
-  &\gets \mathsf{Derive}_{\mathbb{F}}(\rho_{\mathsf{RS}}).
+  \rho_{\mathsf{code}}
+  &\gets \Hash(\textsf{LAMP-code},\rt_{ABC},r,\rt_{XYZ}),\\
+  \alpha_x,\alpha_y,\alpha_z
+  &\gets \mathsf{Derive}_{\mathbb{F}}(\rho_{\mathsf{code}}).
 \end{aligned}
 \]
-The concrete sampler uses domain separation to obtain distinct field elements
-outside the code evaluation domain.
+The concrete sampler uses domain separation to obtain field elements outside
+the code evaluation domain.
 
 \subsection{SNARK Relation}
 \label{sec:snark-relation}
 
-The inner SNARK proves the local arithmetic relation at the sampled positions.
-Its public statement contains the roots, transcript-derived challenges and
-query positions, and the SNARK-side committed-witness commitments:
+The inner SNARK proves the sampled arithmetic relation.  Its public statement
+contains the commitment roots, transcript-derived challenges, query positions,
+code-check points, and SNARK-side witness commitments:
 \[
 \begin{aligned}
   \stmt =
   \big(
-  &\rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_{yz},\\
+  &\rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z,\\
   &\widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ}
   \big).
 \end{aligned}
 \]
-The private witness contains the intermediate vectors and codewords, together
-with the sampled openings:
+The private witness contains the intermediate vectors, their codewords, and the
+sampled packed values:
 \[
 \begin{aligned}
   \wit =
   \big(
-  &\vect{x},\vect{yz},
-  \widehat{\vect{x}},\widehat{\vect{yz}},\\
+  &\vect{x},\vect{y},\vect{z},
+  \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},\\
   &\{\vect{m}_{ABC,j}\}_{j\in I},
   \{\vect{m}_{XYZ,j}\}_{j\in I}
   \big).
@@ -242,50 +220,51 @@ For every sampled \(j\in I\), write
   \qquad
   \vect{m}_{XYZ,j}
   =
-  (x_j\,\|\,yz_j),
+  (x_j\,\|\,y_j\,\|\,z_j),
 \]
 where \(\vect{a}_j,\vect{b}_j,\vect{c}_j\in\mathbb{F}^k\) and
-\(x_j,yz_j\in\mathbb{F}\).  The SNARK checks:
+\(x_j,y_j,z_j\in\mathbb{F}\).  The SNARK checks:
 \begingroup
 \scriptsize
 \begin{align}
   &\widehat{\vect{x}}
     \text{ is consistent with } \enc(\vect{x})
     \text{ at } \alpha_x,
-    \tag{RS-X}\label{eq:rs-check}\\
-  &\widehat{\vect{yz}}
-    \text{ is consistent with } \enc(\vect{yz})
-    \text{ at } \alpha_{yz},
-    \tag{RS-YZ}\label{eq:rs-yz-check}\\
+    \tag{CODE-X}\label{eq:rs-check}\\
+  &\widehat{\vect{y}}
+    \text{ is consistent with } \enc(\vect{y})
+    \text{ at } \alpha_y,
+    \tag{CODE-Y}\label{eq:rs-y-check}\\
+  &\widehat{\vect{z}}
+    \text{ is consistent with } \enc(\vect{z})
+    \text{ at } \alpha_z,
+    \tag{CODE-Z}\label{eq:rs-z-check}\\
   &x_j=\widehat{\vect{x}}[j],
     \qquad
-    yz_j=\widehat{\vect{yz}}[j],
+    y_j=\widehat{\vect{y}}[j],
+    \qquad
+    z_j=\widehat{\vect{z}}[j],
     \tag{LOOKUP}\label{eq:lookup-check}\\
   &x_j=\fold(\vect{r},\vect{a}_j),
     \tag{FOLD-A}\label{eq:fold-A}\\
-  &yz_j=\fold(\vect{x},\vect{b}_j),
+  &y_j=\fold(\vect{x},\vect{b}_j),
     \tag{FOLD-B}\label{eq:fold-B}\\
-  &yz_j=\fold(\vect{r},\vect{c}_j),
+  &z_j=\fold(\vect{r},\vect{c}_j),
     \tag{FOLD-C}\label{eq:fold-C}\\
-  &\fold(\vect{x},\vect{b}_j)
-    =
-    \fold(\vect{r},\vect{c}_j).
+  &y_j=z_j.
     \tag{EQ}\label{eq:eq-check}
 \end{align}
 \endgroup
-The last equality is redundant given the two preceding constraints, but it
-makes explicit that the \(B\)-side and \(C\)-side products are forced to agree
-at the queried encoded position.  In the concrete circuit, the lookup checks
-are implemented using lookup tables over \(\widehat{\vect{x}}\) and
-\(\widehat{\vect{yz}}\), and the RS checks are implemented by comparing
-barycentric evaluations at \(\alpha_x\) and \(\alpha_{yz}\).
+The first three checks enforce that the intermediate codewords used by the
+sampled relation are encodings of the vector witnesses.  The remaining checks
+are the sampled fold relations from Section~\ref{sec:overview-encoding}.
 
-\subsection{Merkle Openings and CP-LINK}
+\subsection{Merkle Openings and CP-Link}
 \label{sec:openings-and-cplink}
 
 The SNARK relation alone does not prove that the sampled witnesses are the
 values committed in the Merkle trees.  The auxiliary verifier therefore checks
-Merkle openings and CP-LINK proofs.
+Merkle openings and CP-Link proofs.
 
 For each \(j\in I\), the prover opens the external leaves
 \(\cm_{ABC,j}\) and \(\cm_{XYZ,j}\) under \(\rt_{ABC}\) and \(\rt_{XYZ}\):
@@ -298,9 +277,10 @@ For each \(j\in I\), the prover opens the external leaves
     \tag{PATH-XYZ}\label{eq:path-xyz-check}
 \end{align}
 \endgroup
-It then proves, via CP-LINK, that the SNARK-side commitment to the sampled
-\(ABC\) witness opens to the same message as the external Pedersen commitments
-\((\cm_{ABC,j})_{j\in I}\), and similarly for the \(XYZ\) sampled witnesses:
+It then proves, via CP-Link, that the SNARK-side commitment to the sampled
+\(ABC\) witness opens to the same block messages as the external Pedersen
+commitments \((\cm_{ABC,j})_{j\in I}\), and similarly for the \(XYZ\) sampled
+witnesses:
 \begingroup
 \scriptsize
 \begin{align}
@@ -316,10 +296,15 @@ It then proves, via CP-LINK, that the SNARK-side commitment to the sampled
     \tag{LINK-XYZ}\label{eq:link-xyz-check}
 \end{align}
 \endgroup
+Here \(\cpLinkV\) denotes the batched, blockwise linking relation supplied by
+the backend: the SNARK-side commitment is opened as the concatenation of the
+sampled blocks, and each external Pedersen commitment is opened to the
+corresponding block.  Equivalently, it is a batched application of the
+same-message commitment-linking relation from Section~\ref{sec:prelim-cplink}.
 
 \begin{definition}[Sampled-opening backend]\label{def:codecom-backend}
 A sampled-opening backend for \(\protocol\) consists of the Merkle opening
-checks and CP-LINK checks above, together with the committed-witness interface
+checks and CP-Link checks above, together with the committed-witness interface
 of the SNARK.  It must satisfy:
 \begin{itemize}
   \item \emph{Position binding}: an accepted Merkle opening fixes a unique
@@ -329,9 +314,9 @@ of the SNARK.  It must satisfy:
   \item \emph{SNARK-side binding}: an accepting SNARK proof binds the sampled
   witnesses used by the circuit to the public SNARK-side commitments
   \(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\);
-  \item \emph{CP-LINK consistency}: accepted CP-LINK proofs imply that the
+  \item \emph{CP-Link consistency}: accepted CP-Link proofs imply that the
   SNARK-side commitments and the external Pedersen leaves commit to the same
-  sampled messages, except with the CP-LINK soundness error.
+  sampled messages, except with the CP-Link soundness error.
 \end{itemize}
 \end{definition}
 
@@ -340,7 +325,7 @@ Under this backend, the verifier obtains the consistency chain
 \begin{array}{c}
 \text{values used in the SNARK}
 \\
-\Updownarrow\ \text{committed witness and CP-LINK}
+\Updownarrow\ \text{committed witness and CP-Link}
 \\
 \text{external Pedersen leaves}
 \\
@@ -366,7 +351,7 @@ sample \(r\) after \(\rt_{ABC}\) and \(I\) after \(\rt_{XYZ}\).
 \begin{minipage}{0.96\textwidth}
 \textbf{Public parameters:}
 field \(\mathbb{F}\), code \(\mathcal{C}\), query count \(t\), Pedersen keys
-\(\ck_{ABC},\ck_{XYZ}\), Merkle hash, SNARK parameters, and CP-LINK parameters.
+\(\ck_{ABC},\ck_{XYZ}\), Merkle hash, SNARK parameters, and CP-Link parameters.
 
 \medskip
 \noindent\textbf{Prover \(\mathcal{P}(\mat{A},\mat{B},\mat{C})\).}
@@ -374,51 +359,52 @@ field \(\mathbb{F}\), code \(\mathcal{C}\), query count \(t\), Pedersen keys
   \item Encode \(\mat{A},\mat{B},\mat{C}\) row-wise.  Build
   \(\cm_{ABC,j}\) and \(\rt_{ABC}\).
   \item Derive \(r\) and set \(\vect{r}=(1,r,\ldots,r^{k-1})\).
-  Compute \(\vect{x}=\vect{r}\mat{A}\) and
-  \(\vect{yz}=\vect{x}\mat{B}\).  Encode
-  \(\widehat{\vect{x}}\) and \(\widehat{\vect{yz}}\).
+  Compute \(\vect{x}=\vect{r}\mat{A}\),
+  \(\vect{y}=\vect{x}\mat{B}\), and
+  \(\vect{z}=\vect{r}\mat{C}\).  Encode
+  \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\).
   \item Build \(\cm_{XYZ,j}\) and \(\rt_{XYZ}\).  Derive the query tuple
-  \(I\) and RS evaluation points \(\alpha_x,\alpha_{yz}\).
+  \(I\) and code-check points \(\alpha_x,\alpha_y,\alpha_z\).
   \item For every \(j\in I\), prepare the sampled witnesses
   \(\vect{m}_{ABC,j}\) and \(\vect{m}_{XYZ,j}\), and the corresponding Merkle
   authentication paths.
   \item Generate the CP-SNARK proof for the relation in
-  Section~\ref{sec:snark-relation}.  Extract the SNARK-side committed-witness
-  commitments \(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\).
-  \item Generate CP-LINK proofs
+  Section~\ref{sec:snark-relation}.  Extract the SNARK-side witness commitments
+  \(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\).
+  \item Generate CP-Link proofs
   \(\pi_{\mathsf{link}}^{ABC}\) and \(\pi_{\mathsf{link}}^{XYZ}\).
-  Output the roots, SNARK proof, Merkle openings, and CP-LINK proofs.
+  Output the roots, SNARK proof, Merkle openings, and CP-Link proofs.
 \end{enumerate}
 
 \medskip
 \noindent\textbf{Verifier \(\mathcal{V}\).}
 \begin{enumerate}[label=\arabic*.,leftmargin=1.4em]
-  \item Recompute \(r\), \(I\), \(\alpha_x\), and \(\alpha_{yz}\) from the
+  \item Recompute \(r\), \(I\), and \(\alpha_x,\alpha_y,\alpha_z\) from the
   transcript.
   \item Verify the SNARK proof against the public statement \(\stmt\).
   \item Verify all Merkle openings against \(\rt_{ABC}\) and \(\rt_{XYZ}\).
-  \item Verify the two CP-LINK proofs connecting SNARK-side commitments to the
+  \item Verify the two CP-Link proofs connecting SNARK-side commitments to the
   opened Pedersen leaves.
   \item Accept iff all checks accept.
 \end{enumerate}
 \end{minipage}}
 \caption{The \(\protocol\) protocol for verifiable matrix multiplication.}
 \Description{Protocol flow for LAMP showing matrix commitments, challenge
-generation, vector commitments, sampled openings, SNARK proof generation, and
-verification.}
+generation, intermediate-vector commitments, sampled openings, SNARK proof
+generation, and verification.}
 \label{fig:protocol}
 \end{figure*}
 
 The proof consists of the SNARK proof, the sampled Merkle openings, and the
-CP-LINK proofs.  The sampled matrix columns and vector symbols themselves are
+CP-Link proofs.  The sampled matrix columns and vector symbols themselves are
 private SNARK witnesses; they are not public proof data.  The roots and
 transcript-derived challenges are public.
 
-We separate three kinds of work.  First, the application may need to compute
-the claimed output \(\mat{C}=\mat{A}\mat{B}\); this native matrix multiplication
-cost is shared by all approaches and is not part of the SNARK checking cost.
-Second, the prover must encode the matrices and build the matrix commitment
-root.  Third, the online proof checks the committed multiplication statement.
+We separate three kinds of work.  First, the application may need to compute or
+obtain the claimed output \(\mat{C}\); this native matrix multiplication cost is
+shared by all approaches and is not part of the SNARK checking cost.  Second,
+the prover encodes the matrices and builds the matrix commitment root.  Third,
+the online proof checks the committed multiplication statement.
 
 \paragraph{SNARK constraints}
 For each queried position \(j\), the circuit computes three length-\(k\) folds:
@@ -430,15 +416,15 @@ For each queried position \(j\), the circuit computes three length-\(k\) folds:
 \end{aligned}
 \]
 Thus the sampled fold constraints cost \(\mathcal{O}(tk)\).  The vector
-encoding checks for \(\widehat{\vect{x}}\) and
-\(\widehat{\vect{yz}}\) are also linear in \(k+n\) per checked
-out-of-domain point for the Reed--Solomon instantiation used in the artifact.
-For constant-rate codes and fixed \(t\), the dominant in-circuit checking cost
-is linear in \(k\).
+encoding checks for
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are also linear in
+\(k+n\) per checked out-of-domain point for the Reed--Solomon instantiation
+used in the artifact.  For constant-rate codes and fixed \(t\), the dominant
+in-circuit checking cost is linear in \(k\).
 
 \paragraph{Auxiliary work}
 Merkle openings contribute \(\mathcal{O}(t\log n)\) hash work and proof
-material.  CP-LINK contributes backend-dependent proving and verification
+material.  CP-Link contributes backend-dependent proving and verification
 costs, denoted by \(E_{\mathsf{link}}(k,t)\).  These checks are outside the
 SNARK circuit.
 
@@ -463,7 +449,7 @@ Intermediate vectors & \(\mathcal{O}(k^2)\) native work & --- \\
 Vector encoding/root & \(\mathcal{O}(n)\) for constant-rate codes & --- \\
 SNARK circuit & \(\mathcal{O}(tk)\) constraints & SNARK verification \\
 Merkle openings & \(\mathcal{O}(t\log n)\) & \(\mathcal{O}(t\log n)\) \\
-CP-LINK & \(E_{\mathsf{link}}(k,t)\) & backend-dependent \\
+CP-Link & \(E_{\mathsf{link}}(k,t)\) & backend-dependent \\
 \bottomrule
 \end{tabularx}
 \caption{Asymptotic costs for \(\protocol\).  The table separates native

@@ -51,6 +51,22 @@ A.~Golovnev, J.~Lee, S.~Setty, J.~Thaler, and R.~S. Wahby, ``Brakedown:
   Cryptology -- CRYPTO 2023}.\hskip 1em plus 0.5em minus 0.4em\relax Cham:
   Springer, 2023, pp. 193--226.
 
+\bibitem{gnark}
+\BIBentryALTinterwordspacing
+A.~Belling, A.~Soleimanian, and O.~Bégassat, ``Recursion over public-coin
+  interactive proof systems; faster hash verification,'' Cryptology {ePrint}
+  Archive, Paper 2022/1072, 2022. [Online]. Available:
+  \url{https://eprint.iacr.org/2022/1072}
+\BIBentrySTDinterwordspacing
+
+\bibitem{legosnark}
+\BIBentryALTinterwordspacing
+M.~Campanelli, D.~Fiore, and A.~Querol, ``{LegoSNARK}: Modular design and
+  composition of succinct zero-knowledge proofs,'' Cryptology {ePrint} Archive,
+  Paper 2019/142, 2019. [Online]. Available:
+  \url{https://eprint.iacr.org/2019/142}
+\BIBentrySTDinterwordspacing
+
 \bibitem{schwartz1980fast}
 J.~T. Schwartz, ``Fast probabilistic algorithms for verification of polynomial
   identities,'' \emph{Journal of the ACM}, vol.~27, no.~4, pp. 701--717, 1980.
@@ -59,24 +75,6 @@ J.~T. Schwartz, ``Fast probabilistic algorithms for verification of polynomial
 R.~Zippel, ``Probabilistic algorithms for sparse polynomials,'' in
   \emph{Symbolic and Algebraic Computation (EUROSAM '79)}.\hskip 1em plus 0.5em
   minus 0.4em\relax Berlin, Heidelberg: Springer, 1979, pp. 216--226.
-
-\bibitem{xie2022orion}
-T.~Xie, Y.~Zhang, and D.~Song, ``Orion: Zero knowledge proof with linear prover
-  time,'' in \emph{Advances in Cryptology -- CRYPTO 2022}.\hskip 1em plus 0.5em
-  minus 0.4em\relax Cham: Springer, 2022, pp. 299--328.
-
-\bibitem{jutla2013shorter}
-\BIBentryALTinterwordspacing
-C.~S. Jutla and A.~Roy, ``Shorter quasi-adaptive {NIZK} proofs for linear
-  subspaces,'' Cryptology ePrint Archive, Paper 2013/109, 2013. [Online].
-  Available: \url{https://eprint.iacr.org/2013/109}
-\BIBentrySTDinterwordspacing
-
-\bibitem{fiat1987prove}
-A.~Fiat and A.~Shamir, ``How to prove yourself: Practical solutions to
-  identification and signature problems,'' in \emph{Advances in Cryptology --
-  CRYPTO '86}.\hskip 1em plus 0.5em minus 0.4em\relax Berlin, Heidelberg:
-  Springer, 1987, pp. 186--194.
 
 \bibitem{liu2021zkcnn}
 T.~Liu, X.~Xie, and Y.~Zhang, ``Zkcnn: Zero knowledge proofs for convolutional
@@ -122,6 +120,11 @@ S.~Ames, C.~Hazay, Y.~Ishai, and M.~Venkitasubramaniam, ``Ligero: Lightweight
   1em plus 0.5em minus 0.4em\relax New York, NY, USA: ACM, 2017, pp.
   2087--2104.
 
+\bibitem{xie2022orion}
+T.~Xie, Y.~Zhang, and D.~Song, ``Orion: Zero knowledge proof with linear prover
+  time,'' in \emph{Advances in Cryptology -- CRYPTO 2022}.\hskip 1em plus 0.5em
+  minus 0.4em\relax Cham: Springer, 2022, pp. 299--328.
+
 \bibitem{ben2018fast}
 E.~Ben-Sasson, I.~Bentov, Y.~Horesh, and M.~Riabzev, ``Fast reed-solomon
   interactive oracle proofs of proximity,'' in \emph{45th International
@@ -153,11 +156,5 @@ B.~B{\"u}nz, J.~Bootle, D.~Boneh, A.~Poelstra, P.~Wuille, and G.~Maxwell,
   ``Bulletproofs: Short proofs for confidential transactions and more,'' in
   \emph{2018 IEEE Symposium on Security and Privacy}.\hskip 1em plus 0.5em
   minus 0.4em\relax New York, NY, USA: IEEE, 2018, pp. 315--334.
-
-\bibitem{pedersen1991non}
-T.~P. Pedersen, ``Non-interactive and information-theoretic secure verifiable
-  secret sharing,'' in \emph{Advances in Cryptology -- CRYPTO '91}.\hskip 1em
-  plus 0.5em minus 0.4em\relax Berlin, Heidelberg: Springer, 1991, pp.
-  129--140.
 
 \end{thebibliography}

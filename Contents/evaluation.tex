@@ -12,17 +12,17 @@ The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
 (32 cores) and 254GiB RAM.
 
 These measurements include the online sampled-handle path described in
-Section~\ref{sec:construction}: pre-query vector commitments fix
-$\vect{x},\vect{y},\vect{z}$ before $I$, vector-level CP-Link connects those
-commitments to the Groth16 vector witnesses, the CC-SNARK backend binds every
-sampled matrix column or vector leaf to a public SNARK-side commitment, Merkle
-openings authenticate compact external leaf handles, and sampled linking checks
-connect the sampled views.
+Section~\ref{sec:construction}: \(\rt_{ABC}\) fixes the packed encoded matrix
+columns before \(r\), \(\rt_{XYZ}\) fixes the packed encoded vector symbols
+before \(I\), the CP-SNARK backend binds the sampled blocks to
+\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\), Merkle openings
+authenticate the opened Pedersen leaves, and blockwise CP-Link connects the
+SNARK-side sampled blocks to those leaves.
 The raw sampled matrix columns are SNARK witness data, not serialized auxiliary
 proof bytes.
 All byte counts in this section are online proof bytes: they exclude raw-matrix
-encoding and input-root construction for $\cm_A,\cm_B,\cm_C$,
-proving/verifying keys, serialized CRS data, and generator material.
+encoding and construction of \(\rt_{ABC}\), proving/verifying keys, serialized
+CRS data, and generator material.
 They should not be read as complete end-to-end deployment costs from raw
 matrices.
 Appendix~\ref{app:eval-details} records parameter and measurement coverage
@@ -137,7 +137,7 @@ into commitment, SNARK, Merkle, and CP-Link components.
 \end{axis}
 \end{tikzpicture}
 \caption{GPT-2 checking-layer case study at sequence length $1{,}024$ with
-$36$ matrix-multiplication claims over input roots. Costs are normalized to
+$36$ matrix-multiplication claims over committed roots. Costs are normalized to
 the Freivalds baseline.}
 \Description{Ratio plot comparing GPT-2 relative cost.}
 \label{fig:gpt2-case-study}
@@ -176,7 +176,7 @@ would require about $3tk\cdot32\approx50$\,MB; Appendix~\ref{app:eval-details}
 gives detailed byte, setup, and constraint accounting.
 
 Figure~\ref{fig:gpt2-case-study} and Table~\ref{tab:gpt2-case-study} report the
-GPT-2-style workload over input roots. $\fmQA$ reduces constraints by
+GPT-2-style workload over committed roots. $\fmQA$ reduces constraints by
 $2.30\times$ and proving time by $1.78\times$, with lower setup time in this
 experiment. Verification is $1.39\times$ slower, so latency-sensitive
 deployments still need batching, amortization, or a more succinct
@@ -193,7 +193,7 @@ At $k=4{,}096$, this extrapolates to at most $1.74$ million constraints,
 $50.44\,\text{s}$ proving time, and $62$\,KB online proof bytes.
 The current artifact does not include measured $t=133$ rows; these strict
 numbers are extrapolations from the measured $t=128$ rows.
-Online-byte figures exclude raw-matrix encoding, input-root construction,
+Online-byte figures exclude raw-matrix encoding, committed-root construction,
 proving/verifying keys, and serialized CRS or generator material. End-to-end
 deployments preserve the measured prover-time win only if amortized root
 generation costs stay below

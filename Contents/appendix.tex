@@ -2,251 +2,246 @@
 \label{app:security-proof}
 
 \begin{proof}
-We establish completeness and soundness for the interactive protocol, and then
-explain the Fiat--Shamir variant.
+We prove the public-coin interactive protocol first.  The Fiat--Shamir variant
+is handled at the end.
 
 \paragraph{Perfect completeness}
-Suppose the prover is honest and $\mat{A}\mat{B} = \mat{C}$.
-Let $\mat{D} \coloneqq \mat{A}\mat{B} - \mat{C} = \mat{0}$.
-For any challenge vector $\vect{r}$, we have $\vect{r}\mat{D}=\vect{0}$, so
+Assume that the honest prover holds matrices
+\(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\) with
+\(\mat{A}\mat{B}=\mat{C}\).  Let
+\(\vect{r}=(1,r,\ldots,r^{k-1})\), and define
 \[
-  \vect{y}
-  = \vect{x}\mat{B}
-  = (\vect{r}\mat{A})\mat{B}
-  = \vect{r}(\mat{A}\mat{B})
-  = \vect{r}\mat{C}
-  = \vect{z}.
+  \vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C}.
 \]
-For each intermediate vector $v\in\{\vect{x},\vect{y},\vect{z}\}$, the honest
-prover commits to the intermediate vector before $I$ is sampled, commits to the
-encoded leaf handles, publishes SNARK-side commitments through the
-CC-SNARK backend,
-and supplies accepted Merkle openings and CP-Link proofs for both the full
-vectors and the sampled coordinates.
-For any queried index $j\in[n]$, linearity of $\mathcal{C}$ gives
+Then \(\vect{y}=\vect{z}\).  The honest prover commits to the packed encoded
+matrix blocks \(\{\vect{m}_{ABC,j}\}_{j\in[n]}\) under \(\rt_{ABC}\), commits
+to the packed encoded vector blocks \(\{\vect{m}_{XYZ,j}\}_{j\in[n]}\) under
+\(\rt_{XYZ}\), and supplies the sampled openings and CP-Link proofs required
+by Section~\ref{sec:openings-and-cplink}.
+
+For every queried position \(j\in I\), code linearity gives
 \[
-  \fold(\enc(\mat{A})^{(j)},\vect{r})
-  = \enc(\vect{r}\mat{A})_j
-  = \enc(\vect{x})_j,
+  \fold(\vect{r},\widehat{\mat{A}}[*,j])
+  =
+  \widehat{\vect{x}}[j],
 \]
-and analogously for the $\mat{B}$ and $\mat{C}$ folds.
-Since $\vect{y}=\vect{z}$, the equality check between their encoded openings
-also holds at every coordinate.
-All authenticated openings and backend checks are honest, so the verifier
-accepts with probability one.
+and similarly
+\[
+  \fold(\vect{x},\widehat{\mat{B}}[*,j])
+  =
+  \widehat{\vect{y}}[j],
+  \qquad
+  \fold(\vect{r},\widehat{\mat{C}}[*,j])
+  =
+  \widehat{\vect{z}}[j].
+\]
+Since \(\vect{y}=\vect{z}\), the equality check
+\(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\) also holds.  All SNARK,
+Merkle, and CP-Link checks are honestly generated, so the verifier accepts.
 
 \paragraph{Bad-event decomposition}
-Let $\mathsf{Acc}$ be the event that the verifier accepts a false committed
-matrix statement, and assume $\mat{A}\mat{B}\neq\mat{C}$.
-Define $\mathsf{Bad}_{\mathsf{SNARK}}$ as acceptance of a false in-circuit
-SNARK instance, $\mathsf{Bad}_{\mathsf{cc}}$ as a vector-level or
-witness-to-leaf linking failure, and $\mathsf{Bad}_{\mathsf{bind}}$ as two
-inconsistent accepted leaf-handle openings for the same root and position.
-For $\mathsf{Bad}_{\mathsf{cc}}$, condition on the CC-SNARK binding property:
-for every accepted SNARK-side vector commitment $\Gamma^{\mathsf{vec}}_v$ it
-obtains the vector witness $v$ and opening randomness bound to that commitment;
-for every accepted sampled commitment $\Gamma_{\chi,j}$ it obtains the sampled
-witness value $a_{\chi,j}$ and opening randomness $\rho_{\chi,j}$ bound to that
-commitment.
-The CP-Link batch tag is
-$T_I=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I)$,
-where
+Let \(\mathsf{Acc}\) be the event that the verifier accepts a false committed
+matrix multiplication statement.  We decompose the failure probability into
+the following events:
+\begin{itemize}
+  \item \(\mathsf{Bad}_{\mathsf{SNARK}}\): the CP-SNARK accepts although the
+  sampled relation of Section~\ref{sec:snark-relation} is false for the
+  committed sampled witnesses;
+  \item \(\mathsf{Bad}_{\mathsf{open}}\): a Merkle opening or Pedersen leaf
+  opening is accepted in a way that violates position binding or commitment
+  binding;
+  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
+  SNARK-side sampled blocks are not the same messages as the opened Pedersen
+  leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
+\end{itemize}
+By the assumed soundness of the selected backends,
 \[
-P_I=
-\{(v,\Gamma^{\mathsf{vec}}_v,\mu_v)\}_{v\in\mathcal{W}}
-\cup
-\{(\chi,j,\Gamma_{\chi,j},L_{\chi,j})\}_{\chi,j}.
-\]
-Thus the auxiliary proof is tied to the same vector-level and sampled commitment
-pairs that appear in the SNARK public statement and the Merkle openings.
-A vector-level linking failure occurs if the CP-Link proof accepts but, for some
-$v\in\mathcal{W}$, $\Gamma^{\mathsf{vec}}_v$ and $\mu_v$ do not open to the same
-vector.
-A sampled linking failure occurs if
-$\merkleO(\pi_{\chi,j},L_{\chi,j},\cm_\chi,j)=1$ and
-$\cpLinkV(\para,T_I,P_I,\tau_I)=1$, but
-for some sampled pair there is no leaf-opening randomness $\eta_{\chi,j}$ such
-that $L_{\chi,j}$ opens to the same $a_{\chi,j}$ extracted from the Groth16
-witness.
-For the Pedersen handle instantiation this means there is no $\eta_{\chi,j}$
-with
-\begin{align*}
-  L_{\chi,j}
-  &= \eta_{\chi,j}H+
-  \sum_{\ell=1}^{d_\chi} (a_{\chi,j})_\ell G_\ell,\\
-  \Gamma_{\chi,j}-L_{\chi,j}
-  &= (\rho_{\chi,j}-\eta_{\chi,j})H .
-\end{align*}
-Merkle position binding is charged separately to
-$\mathsf{Bad}_{\mathsf{bind}}$; outside that event, the accepted
-$L_{\chi,j}$ is the unique handle at position $j$ under the pre-query root
-$\cm_\chi$.
-By the assumed backend properties,
-\begin{align*}
+\begin{aligned}
 \Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
   &\le \epsilon_{\mathsf{SNARK}}(\lambda),\\
-\Pr[\mathsf{Bad}_{\mathsf{cc}}]
-  &\le \epsilon_{\mathsf{cc}}(\lambda),\\
-\Pr[\mathsf{Bad}_{\mathsf{bind}}]
-  &\le \epsilon_{\mathsf{bind}}(\lambda).
-\end{align*}
-Conditioned on the complement of these events, every accepting transcript has a
-valid SNARK witness, every accepted intermediate vector commitment binds a
-single vector $v$ before $I$ is sampled, every sampled value used by the
-Groth16 fold relation is bound to a SNARK-side commitment, every accepted
-auxiliary opening is linked to that commitment, and every accepted leaf handle is
-uniquely determined by its root and queried coordinate.
-The input roots are fixed before the Freivalds challenge is sampled,
-and the intermediate commitments are fixed before the sampled query tuple is
-sampled.
+\Pr[\mathsf{Bad}_{\mathsf{open}}]
+  &\le \epsilon_{\mathsf{open}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{link}}]
+  &\le \epsilon_{\mathsf{link}}(\lambda).
+\end{aligned}
+\]
+Condition on the complement of these events.  Then \(\rt_{ABC}\) fixes a
+unique sequence of packed matrix-column commitments at all queried positions,
+\(\rt_{XYZ}\) fixes a unique sequence of packed vector-symbol commitments at
+all queried positions, and the sampled values used by the SNARK are exactly the
+messages opened from those commitments.  In particular, the adversary cannot
+choose different sampled blocks after seeing \(I\) without breaking the
+opening or linking layer.
 
 \paragraph{Freivalds randomization}
-Under the same conditioning, the matrices bound to
-$\cm_A,\cm_B,\cm_C$ are fixed and satisfy
-$\mat{A}\mat{B}\neq\mat{C}$.
-Let $\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0$.
-There exists a column $\vect{d}_j$ of $\mat{D}$ with $\vect{d}_j\neq 0$.
-The condition $\vect{r}\mat{D}=0$ implies
+The matrix root \(\rt_{ABC}\) is fixed before \(r\) is derived.  In the
+committed statement, \(\rt_{ABC}\) binds to row-wise encoded matrices
+\(\mat{A},\mat{B},\mat{C}\).  Suppose
+\(\mat{A}\mat{B}\neq\mat{C}\), and let
+\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
+\(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
+\(\vect{r}\mat{D}=0\) implies
 \[
-  P_j(r) \coloneqq
-  \langle \vect{r},\vect{d}_j\rangle
-  = \sum_{i=0}^{k-1}(\mat{D})_{i,j} r^i
-  = 0 .
+  P(r)
+  \coloneqq
+  \langle (1,r,\ldots,r^{k-1}),\vect{d}\rangle
+  =
+  \sum_{i=0}^{k-1} d_i r^i
+  =
+  0 .
 \]
-Since $P_j$ is a nonzero polynomial of degree at most $k-1$ and $r$ is sampled
-after the input commitments are fixed, Lemma~\ref{lem:sz} gives
+The polynomial \(P\) is nonzero and has degree at most \(k-1\).  Since \(r\)
+is sampled after \(\rt_{ABC}\) is fixed, Schwartz--Zippel gives
 \[
-  \Pr_{r\sample\mathbb{F}}[\vect{r}\mat{D}=0]
-  \le \Pr_{r\sample\mathbb{F}}[P_j(r)=0]
-  \le \frac{k-1}{|\mathbb{F}|}.
+  \Pr[\vect{r}\mat{D}=0]
+  \le
+  \frac{k-1}{|\mathbb{F}|}.
 \]
 
 \paragraph{Proximity sampling}
-Now condition further on $\vect{r}\mat{D}\neq 0$.
-No vectors can simultaneously satisfy all four global relations:
+Now also condition on \(\vect{r}\mat{D}\neq 0\).  No vectors
+\(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
 \[
-  \vect{x}=\vect{r}\mat{A},\quad
-  \vect{y}=\vect{x}\mat{B},\quad
-  \vect{z}=\vect{r}\mat{C},\quad
+  \vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C},
+  \qquad
   \vect{y}=\vect{z}.
 \]
-Otherwise the four equalities would imply
-$\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}$, contradicting
-$\vect{r}\mat{D}\neq 0$.
-Thus at least one relation is false.
-Consider $\vect{x}\neq\vect{r}\mat{A}$; the other cases are identical.
-Injectivity and distance of the code imply that the two codewords
-$\enc(\vect{x})$ and $\enc(\vect{r}\mat{A})$ disagree on at least
-$\delta n$ coordinates.
-By code linearity, the sampled fold value from the committed rows of
-$\mat{A}$ equals $\enc(\vect{r}\mat{A})_j$ at coordinate $j$.
-Since the sampled column used by Groth16 is bound to the authenticated input
-leaf handle, and the sampled vector value is both bound to its authenticated
-leaf handle and checked to equal the circuit-computed codeword
-$\enc(\vect{x})_j$, the fold check rejects whenever $j$ is in the disagreement
-set.
-A single uniformly sampled coordinate misses this disagreement set with
-probability at most $1-\delta$, and $t$ independent sampled coordinates all
-miss it with probability at most $(1-\delta)^t$.
-Union-bounding over the four possible violated relations yields
-$4(1-\delta)^t$.
+Otherwise they would imply
+\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\), contradicting
+\(\vect{r}\mat{D}\neq 0\).
 
-\paragraph{Combining the bounds and parameters}
-Summing the backend, Freivalds, and proximity errors gives
+Therefore at least one checked encoded relation is false.  Consider the case
+\(\vect{x}\neq\vect{r}\mat{A}\); the other three cases are identical.  The
+codewords \(\enc(\vect{x})\) and \(\enc(\vect{r}\mat{A})\) are distinct, so by
+relative distance they disagree on at least \(\delta n\) coordinates.  For any
+queried coordinate \(j\), code linearity gives
+\[
+  \enc(\vect{r}\mat{A})[j]
+  =
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]).
+\]
+The sampled-opening backend ensures that the SNARK uses the opened
+\(\widehat{\mat{A}}[*,j]\) block under \(\rt_{ABC}\) and the opened
+\(\widehat{\vect{x}}[j]\) symbol under \(\rt_{XYZ}\).  Thus the fold check
+rejects whenever \(j\) lands in the disagreement set.  A uniformly sampled
+coordinate misses this set with probability at most \(1-\delta\), and \(t\)
+independent samples miss it with probability at most \((1-\delta)^t\).
+Union-bounding over the four possible violated relations gives
+\[
+  4(1-\delta)^t .
+\]
+
+\paragraph{Combining the bounds}
+Adding the SNARK, opening, linking, Freivalds, and proximity failure events
+gives
 \[
 \begin{aligned}
 \Pr[\mathsf{Acc}\mid\mat{A}\mat{B}\neq\mat{C}]
 &\le
 \epsilon_{\mathsf{SNARK}}(\lambda)
-+\epsilon_{\mathsf{cc}}(\lambda)
-+\epsilon_{\mathsf{bind}}(\lambda)\\
++\epsilon_{\mathsf{open}}(\lambda)
++\epsilon_{\mathsf{link}}(\lambda)\\
 &\quad+\frac{k-1}{|\mathbb{F}|}+4(1-\delta)^t .
 \end{aligned}
 \]
-For $\lambda=128$, a 256-bit field makes $(k-1)/|\mathbb{F}|$ negligible for
-the reported dimensions.
-The proximity term is at most $2^{-\lambda}$ when
-$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$; for example, for a code with
-$\delta=1/2$, $t=130$ suffices for the proximity term alone.
-For a conservative aggregate 128-bit budget over all terms, one should allocate
-the budget across terms, e.g., by targeting each term at $2^{-131}$.
+For the measured rows, \(t=128\).  When \(\delta=1/2\), the proximity term is
+\(4\cdot2^{-128}=2^{-126}\).  Larger \(t\) or a larger-distance code can be
+used when the deployment target requires a smaller proximity term.
 
 \paragraph{Fiat--Shamir variant}
-The non-interactive transcript derives both $r$ and $I$ from
-domain-separated hashes of the transcript prefix, including the public input
-roots, intermediate vector commitments, and encoded-vector roots.
-In the random oracle model, the preceding public-coin proof applies with the
-standard Fiat--Shamir loss $\epsilon_{\mathsf{FS}}(q_H)$ for an adversary that
-makes $q_H$ random-oracle queries.
+The non-interactive protocol derives \(r\), \(I\), and backend batch challenges
+from domain-separated hashes of the transcript.  In the random oracle model,
+the public-coin proof above applies with the standard Fiat--Shamir loss
+\(\epsilon_{\mathsf{FS}}(q_H)\) for an adversary making \(q_H\)
+random-oracle queries.
 This proves Theorem~\ref{thm:security}.
 \end{proof}
 
 \section{CP-Link Backend Instantiation}
 \label{app:cplink-backend}
 
-The artifact uses Pedersen-style~\cite{pedersen1991non} commitments
+This appendix records the concrete blockwise CP-Link relation used by the
+artifact.  For each queried \(j\in I\), the external Pedersen leaves have the
+form
 \[
-  \Gamma=\rho_\Gamma H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
-  \qquad
-  C=\rho_C H+\sum_{\ell=1}^{d_\chi} a_\ell G_\ell ,
+\begin{aligned}
+  \cm_{ABC,j}
+  &=
+  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}),\\
+  \cm_{XYZ,j}
+  &=
+  \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}).
+\end{aligned}
 \]
-with $d_\chi=k$ for matrix columns and full intermediate vectors, and
-$d_\chi=1$ for vector coordinates.
-For vector-level links, $C$ is the pre-query vector commitment $\mu_v$.
-For sampled links, $C$ is the authenticated Merkle leaf handle $L_{\chi,j}$.
-Leaf handles are authenticated by the Merkle tree, while the CC-SNARK backend
-binds $\Gamma$ to the vector or sampled witness value used by the circuit.
-The link proof shows that the SNARK-side commitment and the external commitment
-open to the same object.
+The CP-SNARK committed-witness interface produces
+\(\widetilde{\cm}_{ABC}\) for the concatenated sampled matrix blocks
+\((\vect{m}_{ABC,j})_{j\in I}\), and \(\widetilde{\cm}_{XYZ}\) for the
+concatenated sampled vector blocks \((\vect{m}_{XYZ,j})_{j\in I}\).  The
+CP-Link proof shows that these SNARK-side commitments and the opened external
+Pedersen leaves contain the same block messages.
 
 \begin{theorem}[Batched CP-Link backend]\label{thm:cp-link-backend}
-Assume the Pedersen handle parameters are generated so that the handle
-commitment is binding, the QA-NIZK link proof for the linear batch relation is
-sound, and the batching challenge is sampled by the Fiat--Shamir random oracle
-after the batch statement is fixed.
-For $Q=|\mathcal{S}|t+|\mathcal{W}|$ vector-level and sampled objects, the
+Assume the Pedersen parameters are binding, the QA-NIZK proof for the linear
+batch relation is sound, and the batching challenge is sampled by the
+Fiat--Shamir random oracle after the batch statement is fixed.  For the two
+sampled block families \(ABC\) and \(XYZ\), each with \(t\) queried blocks, the
 batched CP-Link verifier accepts a false batch with probability at most
-$\epsilon_{\mathsf{ped}}+\epsilon_{\mathsf{QA}}+Q/|\mathbb{F}|$.
-The artifact serializes the $Q$ logical relations as one online batched proof;
-generator and CRS bytes are setup material and are not included in the online
+\[
+  \epsilon_{\mathsf{ped}}
+  +\epsilon_{\mathsf{QA}}
+  +\frac{2t}{|\mathbb{F}|}.
+\]
+Generator and CRS bytes are setup material and are not included in the online
 proof-size claim.
 \end{theorem}
 
-The logical CP-Link relation contains one equation per vector-level or sampled
-object:
+The logical CP-Link statement contains one equality per opened block.  We index
+these \(Q=2t\) equalities by \(q\in[Q]\).  Each equality has the form
 \[
-  \Gamma_q-C_q=\Delta_qH,\qquad q\in[Q],
+  C^{\mathsf{snark}}_q
+  -
+  C^{\mathsf{leaf}}_q
+  =
+  \Delta_q H,
 \]
-where $Q=|\mathcal{S}|t+|\mathcal{W}|$ and $q$ indexes both vector-level pairs
-$(v,\Gamma^{\mathsf{vec}}_v,\mu_v)$ and sampled pairs
-$(\chi,j,\Gamma_{\chi,j},L_{\chi,j})$.
-The batch statement is
+where \(C^{\mathsf{snark}}_q\) is the commitment induced by the SNARK-side
+sampled-block commitment, \(C^{\mathsf{leaf}}_q\) is the corresponding external
+Pedersen leaf commitment, and \(\Delta_q\) is the difference of the two opening
+randomness values.  The batch statement is
 \[
 \begin{aligned}
-P_I&=\{(\mathrm{tag}_q,\Gamma_q,C_q)\}_{q=1}^{Q},\\
-T_I&=\Hash(\textsf{FMM-link-batch},\mathsf{Cm}_{ABC},\mathsf{Cm}_{XYZ},I,P_I).
+P_I&=\{(\mathrm{tag}_q,C^{\mathsf{snark}}_q,C^{\mathsf{leaf}}_q)\}_{q=1}^{Q},\\
+T_I&=\Hash(\textsf{LAMP-link-batch},\rt_{ABC},\rt_{XYZ},I,P_I).
 \end{aligned}
 \]
-The implementation batches these equations by deriving
-$\beta\gets\Hash(\textsf{FMM-link-rand},T_I,\{\Gamma_q,C_q\}_{q=1}^{Q})$ and
-checking a single randomized linear relation
+The implementation derives
 \[
-  \sum_{q=1}^{Q}\beta^q(\Gamma_q-C_q)=
+  \beta
+  \gets
+  \Hash(\textsf{LAMP-link-rand},T_I,P_I)
+\]
+and checks the single randomized linear relation
+\[
+  \sum_{q=1}^{Q}\beta^q
+  (C^{\mathsf{snark}}_q-C^{\mathsf{leaf}}_q)
+  =
   \left(\sum_{q=1}^{Q}\beta^q\Delta_q\right)H .
 \]
-If any individual equality is false, the left-minus-right side is a nonzero
-degree-$Q$ polynomial in $\beta$, so the batch can pass with probability at
-most $Q/|\mathbb{F}|$ in the random-oracle model.
-Combining this with Pedersen binding and QA-NIZK soundness gives the bound in
-Theorem~\ref{thm:cp-link-backend}.
-The QA-NIZK statement is
-$(\para,T_I,\{\Gamma_q,C_q\}_{q=1}^{Q})$ and the witness is the aggregate
-difference opening $\sum_q\beta^q\Delta_q$.
-Its CRS fixes the handle generators and linear-relation verification
-parameters; if serialized, those bytes are setup/key/CRS material rather than
-online proof bytes.
-Thus the $128$-byte value reported in the experiments is one online batched
-QA-NIZK proof for all vector-level and sampled links, not a per-link cost.
+If any individual equality is false after the batch statement is fixed, the
+left-minus-right side is a nonzero polynomial in \(\beta\) of degree at most
+\(Q\).  Hence the randomized batch can pass with probability at most
+\(Q/|\mathbb{F}|=2t/|\mathbb{F}|\).  Combining this batch error with Pedersen
+binding and QA-NIZK soundness gives Theorem~\ref{thm:cp-link-backend}.  The
+reported \(128\)-byte CP-Link proof is one online batched QA-NIZK proof for the
+whole sampled batch, not a per-link cost.
 
 \section{Additional Evaluation Details}
 \label{app:eval-details}
@@ -279,7 +274,7 @@ Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
 Code rate & $\rho=1/2$ \\
 Codeword length & $n=2k$ \\
 Sampled positions & $t=128$ \\
-Primary linking layer & Pre-query vector commitments, SNARK-side commitments, QA-NIZK/CP-Link, and multi-column Merkle openings \\
+Primary linking layer & Packed Merkle roots, SNARK-side sampled-block commitments, QA-NIZK/CP-Link, and multi-column Merkle openings \\
 Backend model & CP-Link sampled intermediate backend; input roots are fixed before $r$ \\
 Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
 \bottomrule
@@ -300,12 +295,12 @@ raw-matrix encoding/root construction and serialized key/CRS sizes.
 \toprule
 \textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
 \midrule
-Constraint count & Yes, aggregate & Groth16 circuit size including sampled RS evaluations and fold checks; per-gadget constraint counters are not reported, and CC-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
+Constraint count & Yes, aggregate & Groth16 circuit size including sampled RS evaluations and fold checks; per-gadget constraint counters are not reported, and CP-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
 Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
 Verification time & Yes & Includes current QA-NIZK/CP-Link and opening verification overhead. \\
 Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
 Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
-Input-root generation & Partial & Root construction is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
+Committed-root generation & Partial & Construction of \(\rt_{ABC}\) and \(\rt_{XYZ}\) is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
 Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
 \bottomrule
 \end{tabularx}
@@ -327,11 +322,11 @@ material.
 \toprule
 \textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
 \midrule
-Input column $a_{M,j}$ & No & $k$ field elements are Groth16 witness data; handles and paths are serialized. \\
-Vector leaf $a_{v,j}$ & No & One field element is used as Groth16 witness data and checked by $a_{v,j}=\enc(v)_j$; the sampled SNARK-side commitment is linked to the Merkle leaf handle. \\
-Merkle path & Yes & Authenticates $L_{\chi,j}$ in $\mathsf{AuxV}$; charged to proof bytes and verify time. \\
-CP-Link proof & Yes & One batched QA-NIZK proof $\tau_I$ links all vector-level and sampled commitment pairs. \\
-Groth16 proof & Yes & Verifies sampled RS evaluations and fold/equality checks, while its CC-SNARK interface binds full vector witnesses and sampled values to SNARK-side commitments. \\
+Matrix block \(\vect{m}_{ABC,j}\) & No & The sampled block is Groth16 witness data; compact commitments and Merkle paths are serialized. \\
+Vector block \(\vect{m}_{XYZ,j}\) & No & The sampled block is Groth16 witness data and is checked against \(\widehat{\vect{x}}[j]\), \(\widehat{\vect{y}}[j]\), and \(\widehat{\vect{z}}[j]\); the SNARK-side sampled block is linked to the opened Pedersen leaf. \\
+Merkle path & Yes & Authenticates an opened Pedersen leaf under \(\rt_{ABC}\) or \(\rt_{XYZ}\); charged to proof bytes and verify time. \\
+CP-Link proof & Yes & One batched QA-NIZK proof \(\tau_I\) links the two sampled block families to their opened Pedersen leaves. \\
+Groth16 proof & Yes & Verifies sampled RS evaluations and fold/equality checks, while the CP-SNARK interface binds sampled block witnesses to SNARK-side commitments. \\
 \bottomrule
 \end{tabularx}
 \caption{Proof-material accounting for the CP-Link sampled-opening backend.}
@@ -351,7 +346,7 @@ and raw sampled columns are intentionally not serialized.
 \toprule
 \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
 \midrule
-$k=1{,}024$ & $43{,}904$\,B & $44{,}292$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots/vector commitments are public inputs. \\
+$k=1{,}024$ & $43{,}904$\,B & $44{,}292$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots are public inputs. \\
 $k=4{,}096$ & $58{,}944$\,B & $59{,}332$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
 \bottomrule
 \end{tabularx}

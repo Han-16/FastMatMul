@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.12.23)  5 JUN 2026 11:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.12.23)  8 JUN 2026 15:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1156,16 +1156,6 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 LaTeX Font Info:    Calculating math sizes for size <10.03749> on input line 6.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 4--13
-[]\T1/ptm/m/n/10.03749 Large-scale ma-trix mul-ti-pli-ca-tion is a re-cur-ring
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 4--13
-
- []
-
-
 Underfull \hbox (badness 4595) in paragraph at lines 15--19
 \T1/ptm/b/n/10.03749 The $\OMS/cmsy/m/n/10 O\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 k
 []\OT1/cmr/m/n/10 )$ \T1/ptm/b/n/10.03749 bar-rier. \T1/ptm/m/n/10.03749 Freiva
@@ -1175,35 +1165,19 @@ lds' clas-si-cal ran-dom-ized
 
 
 
-Underfull \hbox (badness 2181) in paragraph at lines 21--31
-\T1/ptm/m/n/10.03749 sys-tems, in-clud-ing Mys-tique [[]2[]], zkML [[]3[]], and
- the
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 21--31
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 52--65
-
- []
-
-
 
 [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
 ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 ]
-Underfull \hbox (badness 1558) in paragraph at lines 73--75
+Underfull \hbox (badness 1558) in paragraph at lines 70--72
 []\T1/ptm/b/n/10.03749 Soundness anal-y-sis. \T1/ptm/m/n/10.03749 We prove the 
 sound-ness of
  []
 
 
-Underfull \hbox (badness 3612) in paragraph at lines 75--77
+Underfull \hbox (badness 3612) in paragraph at lines 72--74
 []\T1/ptm/b/n/10.03749 Implementation and eval-u-a-tion. \T1/ptm/m/n/10.03749 W
 e im-ple-ment
  []
@@ -1214,69 +1188,37 @@ Underfull \hbox (badness 6364) in paragraph at lines 11--17
  []
 
 
-Underfull \vbox (badness 2253) has occurred while \output is active []
-
-
 
 
 Underfull \hbox (badness 1616) in paragraph at lines 56--61
-\T1/ptm/m/n/10.03749 ma-trix, $[]\OT1/cmr/m/n/10 ([][\OMS/cmsy/m/n/10 ^^C\OML/c
-mm/m/it/10 ; j\OT1/cmr/m/n/10 ]\OML/cmm/m/it/10 ; \OT1/cmr/bx/n/10 r\OT1/cmr/m/
-n/10 )$ \T1/ptm/m/n/10.03749 equals the $\OML/cmm/m/it/10 j$\T1/ptm/m/n/10.0374
+\T1/ptm/m/n/10.03749 ma-trix, $[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r\OML/cmm/m/
+it/10 ; []\OT1/cmr/m/n/10 [\OMS/cmsy/m/n/10 ^^C\OML/cmm/m/it/10 ; j\OT1/cmr/m/n
+/10 ])$ \T1/ptm/m/n/10.03749 equals the $\OML/cmm/m/it/10 j$\T1/ptm/m/n/10.0374
 9 -th co-or-di-nate of
  []
 
 
-
-[2]
-Underfull \hbox (badness 1546) in paragraph at lines 89--93
+Underfull \hbox (badness 1546) in paragraph at lines 77--81
 \T1/ptm/m/n/10.03749 mit-ment over a collision-resistant hash func-tion $\OML/c
 mm/m/it/10 H \OT1/cmr/m/n/10 :
  []
 
 
-Underfull \hbox (badness 1776) in paragraph at lines 95--98
-[]$[] \OMS/cmsy/m/n/10   []\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 v\OT1/cmr/m/n/10 )
-$\T1/ptm/m/n/10.03749 : out-puts a root hash $[]$ ob-
- []
+
+[2]
 
 
 
-) (./Contents/technical_overview.tex
-
-[3]
-Underfull \hbox (badness 4872) in paragraph at lines 43--43
- \T1/ptm/b/n/11.04124 3.3. Proximity-Based Ver-i-fi-ca-tion via Ran-dom
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 46--47
-[]\T1/ptm/m/n/10.03749 After the Freivalds re-duc-tion, the ver-i-fi-ca-tion
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 46--47
-\T1/ptm/m/n/10.03749 task be-comes: given com-mit-ted en-coded ma-tri-ces
- []
-
-
-Underfull \hbox (badness 4505) in paragraph at lines 46--47
-[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 A\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 ; []\OT1
-/cmr/m/n/10 (\OT1/cmr/bx/n/10 B\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 ; []\OT1/cmr/m
-/n/10 (\OT1/cmr/bx/n/10 C\OT1/cmr/m/n/10 )$ \T1/ptm/m/n/10.03749 and a ran-dom 
-chal-lenge $\OML/cmm/m/it/10 r$\T1/ptm/m/n/10.03749 ,
- []
-
-
+[3]) (./Contents/technical_overview.tex
 
 
 
 [4]
-Underfull \hbox (badness 3803) in paragraph at lines 103--107
- []\T1/ptm/m/n/10.03749 Commit in-puts. [][] The prover row-wise en-codes
- []
 
 ) (./Contents/construction.tex
+Underfull \hbox (badness 3428) in paragraph at lines 29--29
+[]|\T1/ptm/m/n/7.02625 SNARK-side wit-ness com-mit-ments to sam-pled
+ []
 
 
 
@@ -1285,253 +1227,223 @@ Underfull \hbox (badness 3803) in paragraph at lines 103--107
 
 
 [6]
-Underfull \vbox (badness 2503) has occurred while \output is active []
 
+LaTeX Font Info:    Calculating math sizes for size <8.03> on input line 391.
 
-
-
-
-[7]
-LaTeX Font Info:    Calculating math sizes for size <8.03> on input line 450.
-
-Underfull \vbox (badness 1715) has occurred while \output is active []
-
-
-
-
-Underfull \hbox (badness 1584) in paragraph at lines 501--509
-\T1/ptm/m/n/10.03749 transcript-derived chal-lenges, the sam-pled SNARK-side
+Underfull \hbox (badness 10000) in paragraph at lines 426--430
+ []\T1/ptm/m/n/10.03749 Auxiliary work. [][] Merkle open-ings con-tribute
  []
 
 
-
-[8]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-
-Underfull \hbox (badness 1668) in paragraph at lines 560--567
-\T1/ptm/m/n/10.03749 re-quired by the cho-sen back-end. For a pairing-based
+Underfull \hbox (badness 6220) in paragraph at lines 426--430
+\OMS/cmsy/m/n/10 O\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 t [] n\OT1/cmr/m/n/10 )$ \T
+1/ptm/m/n/10.03749 hash work and proof ma-te-rial. CP-Link
  []
 
 
+Underfull \hbox (badness 2005) in paragraph at lines 426--430
+\T1/ptm/m/n/10.03749 con-tributes backend-dependent prov-ing and ver-i-fi-ca-ti
+on
+ []
 
-[9]
-Underfull \hbox (badness 10000) in paragraph at lines 632--632
+
+Underfull \hbox (badness 10000) in paragraph at lines 454--454
+[]|\T1/ptm/m/n/9.03374 Matrix en-cod-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 454--454
 []|\T1/ptm/m/n/9.03374 Intermediate
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 632--632
-[]|\T1/ptm/m/n/9.03374 Auxiliary
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 632--632
-[]|\T1/ptm/b/n/9.03374 Online check-ing
+Underfull \hbox (badness 10000) in paragraph at lines 454--454
+[]|\T1/ptm/m/n/9.03374 Vector en-cod-
  []
 
 ) (./Contents/security_analysis.tex
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 39--56
- []\T1/ptm/m/n/10.03749 Soundness-critical or-der-ing. [][] The proof uses
- []
-
-
-Underfull \hbox (badness 1622) in paragraph at lines 39--56
-\T1/ptm/m/n/10.03749 the fol-low-ing tim-ing in-vari-ants. First, the in-put ro
-ots
- []
-
-
-Underfull \hbox (badness 6477) in paragraph at lines 39--56
-\T1/ptm/m/n/10.03749 SNARK-side com-mit-ments. For in-ter-me-di-ate vec-tors,
+[7]
+Underfull \hbox (badness 1490) in paragraph at lines 22--29
+\T1/ptm/m/n/10.03749 where $[][]$ fixes the en-coded matrix-column blocks
  []
 
 
 
-[10]
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.03749> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 81.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 62.
 
+
+[8]
 
 ) (./Contents/evaluation.tex
 Underfull \hbox (badness 1509) in paragraph at lines 4--13
 []\T1/ptm/m/n/10.03749 We im-ple-ment the multiplication-checking layer of
  []
 
-
-
-[11]
 Package pgfplots info on input line 50: Using 'lua backend=false' for axis: ymo
 de=log unsupported (yet).
 Package pgfplots info on input line 66: Using 'lua backend=false' for axis: ymo
 de=log unsupported (yet).
- (./Tables/Meow_vs_Freivalds.tex) (./Tables/Meow_breakdown.tex
+(./Tables/Meow_vs_Freivalds.tex) (./Tables/Meow_breakdown.tex
 LaTeX Font Info:    Trying to load font information for T1+pcr on input line 32
 .
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 ))
+
+[9]
 Package pgfplots info on input line 128: Using 'lua backend=false' for axis: ym
 ode=log unsupported (yet).
 Package pgfplots info on input line 128: Using 'lua backend=false' for axis: x 
 coord trafo unsupported.
 
 
-) (./Contents/conclusion.tex
+
+
+[10]) (./Contents/conclusion.tex
 Underfull \hbox (badness 2096) in paragraph at lines 4--19
-\T1/ptm/m/n/10.03749 and zkML [[]3[]]; sumcheck/GKR-based VC [[]13[]]; ded-i-
+\T1/ptm/m/n/10.03749 and zkML [[]3[]]; sumcheck/GKR-based VC [[]12[]]; ded-i-
+ []
+
+) (./main.bbl
+
+
+
+[11]) (./Contents/appendix.tex
+
+
+
+[12]
+Underfull \hbox (badness 2376) in paragraph at lines 183--190
+\T1/ptm/m/n/10.03749 The CP-SNARK committed-witness in-ter-face pro-duces
+ []
+
+
+Underfull \hbox (badness 3000) in paragraph at lines 183--190
+[][]$ \T1/ptm/m/n/10.03749 for the con-cate-nated sam-pled ma-trix blocks
  []
 
 
 
-[12])
 
-(./main.bbl
-
-[13]
-
-) (./Contents/appendix.tex
-
-[14]
-
-
-
-[15]
-Underfull \hbox (badness 10000) in paragraph at lines 286--286
+Underfull \hbox (badness 10000) in paragraph at lines 281--281
 []|\T1/ptm/m/n/9.03374 AMD EPYC 7B13, 32 cores,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 286--286
-[]|\T1/ptm/m/n/9.03374 Pre-query vec-tor com-mit-ments,
+Underfull \hbox (badness 2088) in paragraph at lines 281--281
+[]|\T1/ptm/m/n/9.03374 Packed Merkle roots, SNARK-side
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 286--286
-\T1/ptm/m/n/9.03374 SNARK-side com-mit-ments, QA-
+Underfull \hbox (badness 10000) in paragraph at lines 281--281
+\T1/ptm/m/n/9.03374 sampled-block com-mit-ments, QA-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 286--286
+Underfull \hbox (badness 10000) in paragraph at lines 281--281
 \T1/ptm/m/n/9.03374 NIZK/CP-Link, and multi-column
  []
 
 
-Underfull \hbox (badness 5161) in paragraph at lines 286--286
+Underfull \hbox (badness 5161) in paragraph at lines 281--281
 []|\T1/ptm/m/n/9.03374 Measured rows use $\OML/cmm/m/it/9 t \OT1/cmr/m/n/9 = 12
 8$\T1/ptm/m/n/9.03374 ;
  []
 
 
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 []|\T1/ptm/m/n/9.03374 Groth16 cir-cuit size
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 \T1/ptm/m/n/9.03374 in-clud-ing sam-pled RS
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 \T1/ptm/m/n/9.03374 per-gadget con-straint
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
-\T1/ptm/m/n/9.03374 and CC-SNARK/linking
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
+\T1/ptm/m/n/9.03374 and CP-SNARK/linking
  []
 
 
-Underfull \hbox (badness 3148) in paragraph at lines 311--311
+Underfull \hbox (badness 3148) in paragraph at lines 306--306
 \T1/ptm/m/n/9.03374 over-head is mea-sured in
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 []|\T1/ptm/m/n/9.03374 Excludes na-tive ma-trix
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 []|\T1/ptm/m/n/9.03374 Includes cur-rent QA-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 []|\T1/ptm/m/n/9.03374 Includes Groth16,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 \T1/ptm/m/n/9.03374 com-pact sam-pled
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 \T1/ptm/m/n/9.03374 QA-NIZK ma-te-rial; raw
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
 \T1/ptm/m/n/9.03374 sam-pled ma-trix columns
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 311--311
-[]|\T1/ptm/m/n/9.03374 Input-root
+Underfull \hbox (badness 10000) in paragraph at lines 306--306
+[]|\T1/ptm/m/n/9.03374 Committed-root
  []
 
 
-Underfull \hbox (badness 3417) in paragraph at lines 311--311
-\T1/ptm/m/n/9.03374 on-line proof bytes; raw-
+Underfull \hbox (badness 4467) in paragraph at lines 306--306
+[][]$ \T1/ptm/m/n/9.03374 is out-side on-line
  []
 
 
-Underfull \hbox (badness 3158) in paragraph at lines 311--311
+Underfull \hbox (badness 1755) in paragraph at lines 306--306
+\T1/ptm/m/n/9.03374 added for end-to-end de-
+ []
+
+
+Underfull \hbox (badness 3158) in paragraph at lines 306--306
 []|\T1/ptm/m/n/9.03374 Peak mem-ory and
  []
 
 
-
-[16]
-Underfull \hbox (badness 1655) in paragraph at lines 336--336
-[]|\T1/ptm/m/n/7.02625 One field el-e-ment is used as Groth16
- []
+Underfull \vbox (badness 7064) has occurred while \output is active []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 336--336
+
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 331--331
 []|\T1/ptm/m/n/7.02625 Verifies sam-pled RS eval-u-a-tions and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 336--336
-\T1/ptm/m/n/7.02625 in-ter-face binds full vec-tor wit-nesses
- []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 336--336
-\T1/ptm/m/n/7.02625 and sam-pled val-ues to SNARK-side
- []
-
-
-Underfull \hbox (badness 7944) in paragraph at lines 357--357
-\T1/ptm/m/n/7.02625 batched CP-Link; roots/vector
- []
-
-
-Underfull \hbox (badness 10000) in alignment at lines 401--401
+Underfull \hbox (badness 10000) in alignment at lines 396--396
 [][][][][] 
  []
-
-
 
 )
 
@@ -1547,64 +1459,59 @@ Before submitting the final camera ready copy, remember to:
 
 
 
-[17] (./main.aux)
+[14] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 7D009B9595A9A62BE5EEE6AE4E6F9051;5055.
+(rerunfilecheck)             Checksum: FF2D000F6B7DCD497F315A278457DF0B;5501.
  ) 
 Here is how much of TeX's memory you used:
- 36425 strings out of 473190
- 834855 string characters out of 5715799
- 1383343 words of memory out of 5000000
- 58822 multiletter control sequences out of 15000+600000
- 793663 words of font info for 256 fonts, out of 8000000 for 9000
+ 36321 strings out of 473190
+ 832989 string characters out of 5715799
+ 1362774 words of memory out of 5000000
+ 58762 multiletter control sequences out of 15000+600000
+ 788219 words of font info for 252 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 104i,31n,104p,884b,2519s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 104i,19n,104p,888b,2521s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb><
-/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></u
-sr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr
-/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/
-local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb></u
-sr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb>
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><
-/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></u
-sr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr
-/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/l
-ocal/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loc
-al/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local
-/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/t
-exlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texl
-ive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive
-/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/20
-25/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2025/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2025/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2025/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2025/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2025/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2025/texmf-dist/font
-s/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2025/texmf-dist/fonts/ty
-pe1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2025/texmf-dist/font
-s/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2025/texmf-dist/
-fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/local/texlive/2025/texmf-di
-st/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts
-/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/
-urw/helvetic/uhvr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/hel
-vetic/uhvro8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utm
-b8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb><
-/usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local
-/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (17 pages, 527341 bytes).
+/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></
+usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb
+></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></
+usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></us
+r/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/
+local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/lo
+cal/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/loca
+l/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/
+texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/tex
+live/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texliv
+e/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2
+025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2025/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2025/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2025/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2025/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2025/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2025/texmf-dist/fonts
+/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2025/texmf-dist/f
+onts/type1/public/amsfonts/symbols/msbm7.pfb></usr/local/texlive/2025/texmf-dis
+t/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/
+type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/helv
+etic/uhvro8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb
+8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></
+usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/
+texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (14 pages, 441882 bytes).
 PDF statistics:
- 684 PDF objects out of 1000 (max. 8388607)
- 581 compressed objects within 6 object streams
- 184 named destinations out of 1000 (max. 500000)
- 221 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 562 PDF objects out of 1000 (max. 8388607)
+ 473 compressed objects within 5 object streams
+ 142 named destinations out of 1000 (max. 500000)
+ 253 words of extra memory for PDF output out of 10000 (max. 10000000)
 

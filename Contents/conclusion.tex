@@ -11,17 +11,17 @@ SNARK/proximity systems~\cite{ames2017ligero,golovnev2023brakedown,
 xie2022orion,ben2018fast}.
 Unlike full-circuit ML systems or polynomial-commitment matrix
 arguments~\cite{kate2010constant}, $\protocol$ is a dedicated multiplication
-checking layer over encoded input roots and is orthogonal to succinct
+checking layer over committed encoded data and is orthogonal to succinct
 backends, including universal/updatable-SRS and inner-product-style
 systems~\cite{maller2019sonic,chiesa2020marlin,bunz2018bulletproofs}.
-The security theorem accounts for SNARK soundness, vector/leaf binding,
-sampled-linking consistency, Freivalds failure, and proximity-sampling error.
+The security theorem accounts for SNARK soundness, opening and linking
+soundness, Freivalds failure, and proximity-sampling error.
 
 The artifact confirms the expected separation. At $k=4{,}096$, $\fmQA$ gives a
-$30.29\times$ constraint reduction and a $7.24\times$ proving-time speedup over
+$30.29\times$ constraint reduction and an $8.34\times$ proving-time speedup over
 Freivalds-in-SNARK; on the GPT-2 case study it gives a $2.30\times$ constraint
-reduction and a $1.78\times$ proving-time speedup over input roots.
+reduction and a $1.78\times$ proving-time speedup over committed roots.
 The remaining limitation is explicit: the artifact measures the online checking
-layer after input-root generation. Reporting raw-matrix encoding/root costs,
+layer after committed-root generation. Reporting raw-matrix encoding/root costs,
 key/CRS sizes, reducing verification overhead, and batching
 many multiplications are the main deployment steps.
