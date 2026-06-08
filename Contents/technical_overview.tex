@@ -198,7 +198,7 @@ Thus the verifier obtains a chain of consistency:
 \begin{array}{c}
 \text{SNARK witness values}
 \\
-\Updownarrow\ \text{CP-LINK}
+\Updownarrow\ \text{CP-Link}
 \\
 \text{External pedersen leaf commitments}
 \\
@@ -242,7 +242,7 @@ proximity term used in the security analysis.
 The distance argument applies only to values fixed before the query positions
 are sampled.  Merkle position binding prevents the prover from opening a root
 to two different leaves at the same position.  Pedersen binding prevents a
-committed leaf from being opened to two different messages.  CP-LINK ensures
+committed leaf from being opened to two different messages.  CP-Link ensures
 that the values used by the SNARK are the same values authenticated by the
 external commitments.  Therefore, except for the binding and linking failure
 probabilities, any accepting proof corresponds to fixed encoded objects that
