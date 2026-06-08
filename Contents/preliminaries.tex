@@ -12,7 +12,7 @@ Matrices are denoted by bold uppercase letters $\mat{A}, \mat{B}, \mat{C} \in \m
 For a vector $\vect{x}$, we write $\vect{x}[i]$ for its $i$-th entry. For a
 matrix $\mat{M}$, we write $\mat{M}[i,j]$ for the entry in the $i$-th row and $j$-th column. 
 We denote the $i$-th row of $\mat{M}$ by $\mat{M}[i,*]$, and we will often write it simply as $\mat{M}[i]$. 
-Similarly, we denote the $j$-th column of $\mat{M}$ by $\mat{M}[*,j]$. We write $[n] = \{1,2,\ldots,n\}$. For $t \in \mathbb{N}$, $I \sample [n]^t$ denotes the uniform sampling of $t$ indices from $[n]$. Similarly, $r \sample \mathbb{F}$ denotes uniform random sampling from
+Similarly, we denote the $j$-th column of $\mat{M}$ by $\mat{M}[*,j]$. We write $[n] = \{0,1,\ldots,n-1\}$. For $t \in \mathbb{N}$, $I \sample [n]^t$ denotes the uniform sampling of $t$ indices from $[n]$. Similarly, $r \sample \mathbb{F}$ denotes uniform random sampling from
 $\mathbb{F}$.
 
 
@@ -77,30 +77,47 @@ $\vect{v}=(\vect{v}[1],\ldots,\vect{v}[n]) \in \mathbb{F}^n$.
 It consists of the following algorithms.
 
 \begin{itemize}
-\item $\rt \gets \merkleC(\vect{v})$:
+\item $\rt \gets \merkleC(\vect{v};\vect{o})$:
 outputs a root hash $\rt$ obtained by constructing a binary hash tree with
-leaves $H(\vect{v}[1]),\ldots,H(\vect{v}[n])$.
+randomized leaves
+$
+  \ell_j = H(\vect{v}[j], \vect{o}[j])
+  \qquad \text{for } j\in[n].
+$
+Internal nodes are computed by hashing their two children.
 
-\item $(\vect{v}[j],\pi_j) \gets \merkleO(\vect{v},j)$:
-outputs the leaf value $\vect{v}[j]$ and its authentication path $\pi_j$ for
-position $j \in [n]$.
+\item $(\vect{v}[j],o_j,\pi_j) \gets \merkleO(\vect{v},\vect{o},j)$:
+outputs the leaf value $\vect{v}[j]$, its opening randomness $o_j$, and its
+authentication path $\pi_j$ for position $j\in[n]$.
 
-\item $b \gets \merkleV(\rt,j,\vect{v}[j],\pi_j)$:
-outputs $b=1$ if $\vect{v}[j]$ is accepted as the $j$-th leaf consistent with
-root $\rt$, and outputs $b=0$ otherwise.
+\item $b \gets \merkleV(\rt,j,\vect{v}[j],\vect{o}[j],\pi_j)$:
+recomputes the randomized leaf
+$
+  \ell_j = H(\vect{v}[j], \vect{o}[j])
+$
+and outputs $b=1$ if the authentication path is consistent with root $\rt$ at
+position $j$, and outputs $b=0$ otherwise.
 \end{itemize}
 
-Merkle tree commitments are \emph{position-binding}: under the collision resistance of $H$, no $\ppt$ adversary can produce a root $\rt$, an index $j \in [n]$, two distinct values $v \neq v'$, and authentication paths $\pi_j,\pi'_j$ such that
+
+Merkle tree commitments are \emph{position-binding}: under the collision
+resistance of $H$, no $\ppt$ adversary can produce a root $\rt$, an index
+$j\in[n]$, two distinct openings $(v,o)\neq(v',o')$, and authentication paths
+$\pi_j,\pi'_j$ such that
 \[
-\merkleV(\rt,j,v,\pi_j)= \merkleV(\rt,j,v',\pi'_j)=1,
+  \merkleV(\rt,j,v,o,\pi_j)
+  =
+  \merkleV(\rt,j,v',o',\pi'_j)
+  =
+  1,
 \]
-except with probability $\epsilon_{\mathsf{merkle}}(\lambda)=\mathsf{negl}(\lambda)$.
+except with probability
+$\epsilon_{\mathsf{merkle}}(\lambda)=\mathsf{negl}(\lambda)$.
 
 
 
 \subsubsection{Pedersen commitments}
-Pedersen commitments can be viewed as algebraic vector commitments over a group $\mathbb{G}$ of prime order $q$.
-$\mathsf{ck}=(G_1,\ldots,G_n,H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
+Pedersen commitments can be viewed as algebraic vector commitments over a group $\mathbb{G}$ of prime order $q$. Let $\mathsf{ck}=(G_1,\ldots,G_n,H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
 
 \begin{itemize}
 \item $\cm \gets \pedC(\ck,\vect{v};o)$:
@@ -166,10 +183,10 @@ witness commitment $\widetilde{\cm}$, and $\omega$ is the remaining private witn
 
 
 
-\subsection{CP-LINK}
+\subsection{CP-Link}
 \label{sec:prelim-cplink}
 
-A CP-link proof is a proof system for linking commitments. It proves that two
+A CP-Link proof is a proof system for linking commitments. It proves that two
 or more commitments are commitments to the same message, without revealing the
 message or the opening randomness.
 

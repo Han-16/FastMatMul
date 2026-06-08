@@ -62,7 +62,7 @@ relation
 \]
 This removes the cubic matrix-matrix computation, but a SNARK circuit that
 computes \(\vect{r}\mat{A}\), \(\vect{x}\mat{B}\), and \(\vect{r}\mat{C}\)
-directly still performs \(\Theta(k^2)\) scalar multiplications.
+directly still performs \(\mathcal{O}(k^2)\) scalar multiplications.
 
 \(\protocol\) applies one more reduction.  Rather than computing the full
 vector-matrix products inside the circuit, it checks the products only at
@@ -141,7 +141,7 @@ corresponding codewords are distinct.  Since the code has relative distance
 positions.  Random sampling therefore detects an inconsistent relation with
 probability governed by \(\delta\) and the number of sampled positions.
 
-\subsection{Commitments and CP-LINK}
+\subsection{Commitments and CP-Link}
 \label{sec:overview-commit-link}
 
 The sampled checks above are meaningful only if the values used inside the
@@ -152,7 +152,7 @@ First, the prover commits to the encoded matrix columns.  In our construction, t
 \(j\) are committed together:
 \[
 \begin{aligned}
-  \vect{M}_{ABC,j}
+  \vect{m}_{ABC,j}
   &\coloneqq
   \big(
     \widehat{\mat{A}}[*,j]\,
@@ -161,38 +161,36 @@ First, the prover commits to the encoded matrix columns.  In our construction, t
   \big),\\
   \cm_{ABC,j}
   &\gets
-  \pedC(\ck_{ABC},\vect{M}_{ABC,j};o_{ABC,j}).
+  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}).
 \end{aligned}
 \]
 The vector of Pedersen commitments is then committed with a Merkle tree:
 \[
   \rt_{ABC}
   \gets
-  \merkleC(\cm_{ABC,1},\ldots,\cm_{ABC,n}).
+  \merkleC(\cm_{ABC,1},\ldots,\cm_{ABC,n}; \bot).
 \]
 This root is fixed before the Freivalds challenge is derived.
 
 After the Freivalds challenge is fixed, the prover computes the intermediate
 vectors and commits to their encoded coordinates.  Conceptually, this includes
 the encoded symbols of \(\widehat{\vect{x}}\), \(\widehat{\vect{y}}\), and
-\(\widehat{\vect{z}}\).  In the optimized implementation, the prover may use a
-single claimed output codeword once both the \(B\)-side and \(C\)-side folds
-are constrained to the same opened symbol.  At a high level, the second Merkle
+\(\widehat{\vect{z}}\). At a high level, the second Merkle
 root binds the encoded vector symbols used by the sampled checks:
 \[
   \rt_{XYZ}
   \gets
-  \merkleC(\cm_{XYZ,1},\ldots,\cm_{XYZ,n}).
+  \merkleC(\cm_{XYZ,1},\ldots,\cm_{XYZ,n}; \bot).
 \]
 
 The SNARK circuit does not verify Pedersen openings or Merkle paths internally.
-Instead, it uses a commit-and-prove interface to commit to the sampled witness
+Instead, it uses a commit-and-prove SNARK to commit to the sampled witness
 values used by the circuit.  The prover then supplies:
 \begin{itemize}
   \item Merkle openings showing that the external Pedersen commitments
   \(\cm_{ABC,j}\) and \(\cm_{XYZ,j}\) are authenticated under
   \(\rt_{ABC}\) and \(\rt_{XYZ}\);
-  \item CP-LINK proofs showing that the SNARK-side witness commitments and the
+  \item CP-Link proofs showing that the witness commitments from CP-SNARK and the
   external Pedersen commitments open to the same messages.
 \end{itemize}
 Thus the verifier obtains a chain of consistency:
@@ -202,7 +200,7 @@ Thus the verifier obtains a chain of consistency:
 \\
 \Updownarrow\ \text{CP-LINK}
 \\
-\text{Pedersen leaf commitments}
+\text{External pedersen leaf commitments}
 \\
 \Updownarrow\ \text{Merkle openings}
 \\
@@ -218,7 +216,7 @@ linking are verified outside the circuit.
 
 The soundness argument has three layers.
 
-\paragraph{Freivalds soundness.}
+\paragraph{Freivalds soundness}
 If \(\mat{A}\mat{B}\neq\mat{C}\), then
 \(\mat{D}=\mat{A}\mat{B}-\mat{C}\) is nonzero.  With the structured challenge
 \(\vect{r}=(1,r,\ldots,r^{k-1})\), the vector
@@ -227,7 +225,7 @@ If \(\mat{A}\mat{B}\neq\mat{C}\), then
 probability, at least one of the vector relations in the Freivalds reduction is
 false.
 
-\paragraph{Proximity soundness.}
+\paragraph{Proximity soundness}
 Condition on the commitments being binding and fixed before the sampled
 positions are derived.  If a vector relation is false, then the two associated
 encoded vectors are distinct codewords.  Since the code has relative distance
@@ -240,7 +238,7 @@ independent queries miss it with probability at most
 Union-bounding over the local relations checked by the protocol gives the
 proximity term used in the security analysis.
 
-\paragraph{Commitment and linking soundness.}
+\paragraph{Commitment and linking soundness}
 The distance argument applies only to values fixed before the query positions
 are sampled.  Merkle position binding prevents the prover from opening a root
 to two different leaves at the same position.  Pedersen binding prevents a
