@@ -20,79 +20,196 @@ For matrices arising in modern deep-learning inference (where $k$ can reach thou
 \subsection{From Vectors to Codewords: Leveraging Linear Codes}
 \label{sec:overview-encoding}
 
-Our key observation is that the \emph{linearity} of error-correcting codes can be exploited to push the bulk of the computation outside the circuit while retaining verifiability.
-Concretely, suppose we encode each row of a matrix $\mat{M} \in \mathbb{F}^{k \times k}$ using a systematic linear code $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ with relative minimum distance $\delta$.
-Write $\enc(\mat{M})$ for the matrix whose $i$-th row is $\mathcal{C}(\mat{M}_{i,\star})$.
-Because $\mathcal{C}$ is $\mathbb{F}$-linear, taking a linear combination of codewords yields the codeword of the corresponding linear combination of messages:
+Our key observation is that the \emph{linearity} of error-correcting codes can be used to move most of the computation outside the circuit while preserving verifiability.
+Concretely, suppose that each row of a matrix $\mat{M} \in \mathbb{F}^{k \times k}$ is encoded using a systematic linear code $\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ with relative distance $\delta$.
+We write $\widehat{\mat{M}} := \enc(\mat{M})$ for the row-wise encoding of $\mat{M}$, whose $i$-th row is $\mathcal{C}(\mat{M}[i,*])$.
+Because $\mathcal{C}$ is $\mathbb{F}$-linear, a linear combination of codewords is the codeword of the corresponding linear combination of messages:
 \begin{equation}\label{eq:linearity}
-  \sum_{i} r_i \cdot \mathcal{C}(\mat{M}_{i,\star}) = \mathcal{C}\!\left(\sum_i r_i \cdot \mat{M}_{i,\star}\right).
+  \sum_{i=1}^{k} r_i \cdot \widehat{\mat{M}}[i,*]
+  =
+  \enc\!\left(\sum_{i=1}^{k} r_i \cdot \mat{M}[i,*]\right).
 \end{equation}
-In other words, the ``fold'' operation $\fold(\enc(\mat{M}), \vect{r}) \coloneqq \sum_i r_i \cdot \enc(\mat{M})_{i,\star}$ equals $\enc(\vect{r}\mat{M})$ exactly.
+Equivalently, applying the fold operation column-by-column gives
+\begin{equation}\label{eq:fold-encoded-vector}
+    \big(
+        \fold(\vect{r}, \widehat{\mat{M}}[*,1]),
+        \ldots,
+        \fold(\vect{r}, \widehat{\mat{M}}[*,n])
+    \big)
+    =
+    \enc(\vect{r}\mat{M}).
+\end{equation}
 This identity is the engine that allows us to \emph{check vector-matrix products column-by-column in the encoded domain} without materializing the full vectors.
 
-\paragraph{Commitment via Merkle trees}
-Each encoded matrix $\enc(\mat{M})$ is committed column-by-column using a Merkle
-tree:
+\subsubsection{Commitment via Pedersen commitments and Merkle trees}
+\label{sec:overview-commitment}
+
+Each encoded matrix $\widehat{\mat{M}}$ is first committed column-by-column using
+Pedersen vector commitments. Let $\ck$ be a fixed Pedersen commitment key for
+vectors in $\mathbb{F}^k$. For each column $j\in[n]$, the prover samples
+$o_{M,j}\sample\mathbb{F}$ and computes
 \[
-  \cm_M \gets \textsf{M.CM}(\enc(\mat{M})).
+  \cm_{M,j}
+  \gets
+  \pedC(\ck,\widehat{\mat{M}}[*,j];o_{M,j}).
 \]
-The prover sends input roots $(\cm_A,\cm_B,\cm_C)$ before the challenge is
-sampled; these roots bind the encoded computation inputs and output using
-$\mathcal{O}(1)$ hash values.
+This produces a vector of Pedersen commitments
+\[
+  \vect{\cm}_M
+  =
+  (\cm_{M,1},\ldots,\cm_{M,n}).
+\]
+The prover then commits to this vector using a Merkle tree:
+\[
+  \rt_M
+  \gets
+  \merkleC(\vect{\cm}_M).
+\]
+Equivalently, the leaves of the Merkle tree are the Pedersen commitments to the
+encoded columns of $\widehat{\mat{M}}$. All column commitments use the same
+Pedersen commitment key $\ck$.
+
+For each $\mat{M}\in\{\mat{A},\mat{B},\mat{C}\}$, the prover first commits to
+each encoded column $\widehat{\mat{M}}[*,j]$ using a Pedersen commitment:
+\[
+    \cm_{M,j}
+    \gets
+    \pedC(\ck,\widehat{\mat{M}}[*,j];o_{M,j})
+    \quad \text{for each } j\in[n].
+\]
+It then collects these commitments into a vector and commits to this vector
+using a Merkle tree:
+\[
+    \vect{\cm}_M
+    \coloneqq
+    (\cm_{M,1},\ldots,\cm_{M,n}),
+    \quad
+    \rt_M
+    \gets
+    \merkleC(\vect{\cm}_M).
+\]
+The prover sends the roots $(\rt_A,\rt_B,\rt_C)$ before the Freivalds challenge
+$\vect{r}$ is sampled. These roots bind the prover to the Pedersen commitments
+of all encoded columns, while each Pedersen commitment binds the corresponding
+encoded column $\widehat{\mat{M}}[*,j]$.
+
 
 \subsection{Proximity-Based Verification via Random Sampling}
 \label{sec:overview-proximity}
 
-After the Freivalds reduction, the verification task becomes: given committed encoded matrices $\enc(\mat{A}), \enc(\mat{B}), \enc(\mat{C})$ and a random challenge $r$, check that the intermediate vectors
+After the Freivalds reduction, the verification task becomes: given committed
+encoded matrices $\widehat{\mat{A}}, \widehat{\mat{B}}, \widehat{\mat{C}}$ and
+a random challenge vector $\vect{r}$, check that the intermediate vectors
 \[
-  \vect{x} = \vect{r}\mat{A}, \quad \vect{y} = \vect{x}\mat{B}, \quad \vect{z} = \vect{r}\mat{C}
+  \vect{x} = \vect{r}\mat{A}, \quad
+  \vect{y} = \vect{x}\mat{B}, \quad
+  \vect{z} = \vect{r}\mat{C}
 \]
-satisfy $\vect{y} = \vect{z}$.
-We now explain how to verify these relations in \emph{sub-linear} time using the encoding.
+satisfy $\vect{y}=\vect{z}$.
+We now explain how to verify these relations in \emph{linear} time using the
+encoding.
 
-The prover computes $\vect{x}, \vect{y}, \vect{z}$ outside the SNARK, encodes
-them, commits to the vectors and to their encoded leaves, and sends these
-commitments before the query tuple is sampled.
-The pre-query vector commitments are needed because the sampled Merkle openings
-alone only fix the queried coordinates; without a pre-query commitment to
-$\vect{x},\vect{y},\vect{z}$, the prover could choose vectors after seeing $I$
-that fit only those sampled positions.
+The prover computes $\vect{x},\vect{y},\vect{z}$ outside the SNARK and encodes
+them as
+\[
+    \widehat{\vect{x}} \coloneqq \enc(\vect{x}), \quad
+    \widehat{\vect{y}} \coloneqq \enc(\vect{y}), \quad
+    \widehat{\vect{z}} \coloneqq \enc(\vect{z}).
+\]
+For each intermediate vector $\mathcal{W}\in\{\vect{x},\vect{y},\vect{z}\}$, the prover sample  $o_{\mathcal{W}}\sample\mathbb{F}$ and computes a Pedersen commitment $\cm_{\mathcal{W}} \gets \pedC(\ck,\mathcal{W};o_{\mathcal{W}})$.
+The prover also commits to the encoded coordinates of $\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}$, and sends these commitments before the query tuple is sampled.
+The pre-query vector commitments $(\cm_{\vect{x}},\cm_{\vect{y}},\cm_{\vect{z}})$ are needed because the sampled Merkle openings alone only fix the queried coordinates; without pre-query commitments to $\vect{x},\vect{y},\vect{z}$, the prover could choose vectors after seeing $I$ that fit only those sampled positions.
+
 The verifier then samples an ordered tuple
-$I=(j_1,\ldots,j_t) \sample [n]^t$ of column indices independently with
-replacement.
-For each sampled $j \in I$, the prover supplies the $j$-th column or coordinate
-as Groth16 witness data, publishes compact SNARK-side commitments bound to the
-relevant witnesses by the CC-SNARK backend, and provides auxiliary
-opening/linking material.  The auxiliary material links full vector witnesses to
-the pre-query vector commitments and links sampled witnesses to authenticated
-external leaf handles.
+$I=(j_1,\ldots,j_t)\sample[n]^t$ of column indices independently.
+For each sampled $j\in I$, the prover supplies the $j$-th encoded column or
+coordinate as SNARK witness data, publishes a witness commitment bound to the
+relevant witnesses by the CP-SNARK backend, and provides auxiliary
+opening/linking material. The auxiliary material links the full intermediate
+vector witnesses to the pre-query vector commitments
+$(\cm_{\vect{x}},\cm_{\vect{y}},\cm_{\vect{z}})$ and links the sampled encoded
+witnesses to the external Pedersen commitments.
 
-At each queried position $j$, the verifier checks four \emph{local consistency equations}:
+At each queried position $j$, the verifier checks four \emph{local consistency
+equations}:
 \begin{enumerate}[label=(\roman*)]
-  \item $\enc(\vect{x})_j = \fold\!\big(\enc(\mat{A})^{(j)},\, \vect{r}\big)$, \quad ensuring $\vect{x} = \vect{r}\mat{A}$;
-  \item $\enc(\vect{y})_j = \fold\!\big(\enc(\mat{B})^{(j)},\, \vect{x}\big)$, \quad ensuring $\vect{y} = \vect{x}\mat{B}$;
-  \item $\enc(\vect{z})_j = \fold\!\big(\enc(\mat{C})^{(j)},\, \vect{r}\big)$, \quad ensuring $\vect{z} = \vect{r}\mat{C}$;
-  \item $\enc(\vect{y})_j = \enc(\vect{z})_j$, \quad ensuring the Freivalds check $\vect{y} = \vect{z}$.
+  \item
+  $\widehat{\vect{x}}[j]
+  =
+  \fold\!\big(\vect{r},\widehat{\mat{A}}[*,j]\big)$,
+  ensuring $\vect{x}=\vect{r}\mat{A}$;
+
+  \item
+  $\widehat{\vect{y}}[j]
+  =
+  \fold\!\big(\vect{x},\widehat{\mat{B}}[*,j]\big)$,
+  ensuring $\vect{y}=\vect{x}\mat{B}$;
+
+  \item
+  $\widehat{\vect{z}}[j]
+  =
+  \fold\!\big(\vect{r},\widehat{\mat{C}}[*,j]\big)$,
+  ensuring $\vect{z}=\vect{r}\mat{C}$;
+
+  \item
+  $\widehat{\vect{y}}[j]
+  =
+  \widehat{\vect{z}}[j]$,
+  ensuring the Freivalds check $\vect{y}=\vect{z}$.
 \end{enumerate}
-The crucial point is that each of these checks involves only a \emph{single column} of the encoded matrices---an inner product of length $k$ (for the fold operations) plus a scalar comparison.
-Hence the total verifier work per query is $\mathcal{O}(k)$, and for $t$ queries the total is $\mathcal{O}(tk)$.
+
+The crucial point is that each of these checks involves only a \emph{single
+column} of the encoded matrices---an inner product of length $k$ for the fold
+operations plus a scalar comparison.
+Hence the total verifier work per query is $\mathcal{O}(k)$, and for $t$
+queries the total is $\mathcal{O}(tk)$.
+
+
+
 
 \paragraph{Why does sampling suffice?}
-The intermediate vectors are fixed before the query tuple is sampled.
-The vector-level CP-Link checks bind the vectors used by the SNARK to the
-pre-query vector commitments.  At each sampled position, the SNARK relation
-recomputes $\enc(\vect{x})_j$, $\enc(\vect{y})_j$, and $\enc(\vect{z})_j$ from
-those vector witnesses, and checks that these values match the opened encoded
-leaves through the sampled linking checks.
-The verifier does not encode the full vectors; it verifies the SNARK proof and
-the sampled opening/linking material.
-If any of the underlying vector relations fails---say $\vect{y} \neq \vect{z}$---then the codewords $\enc(\vect{y})$ and $\enc(\vect{z})$ are distinct.
-By the minimum-distance property of $\mathcal{C}$, they disagree in at least a $\delta$-fraction of positions.
-A uniformly random query lands on a disagreement with probability $\geq \delta$, so $t$ independent queries detect the inconsistency except with probability at most $(1 - \delta)^t$.
-By a union bound over the four checked relations, the overall proximity-check failure probability is at most $4(1-\delta)^t$.
-Setting
-$t=\lceil(\lambda+2)/\log_2(1/(1-\delta))\rceil$ drives this union-bounded
-proximity term below $2^{-\lambda}$.
+
+The prover commits to the encoded matrices and to the intermediate vectors
+before the query positions are sampled. The vector-level CP-link proofs ensure
+that the vectors used inside the SNARK are the same vectors committed before
+the queries are chosen.
+
+At each sampled position $j$, the SNARK relation recomputes the corresponding
+codeword symbols, such as $\widehat{\vect{x}}[j]$, $\widehat{\vect{y}}[j]$, and
+$\widehat{\vect{z}}[j]$, from the committed vector witnesses. It also checks that
+these symbols are consistent with the opened Merkle leaves, namely the
+Pedersen commitments to the queried encoded columns.
+
+The verifier therefore does not need to encode the full vectors. It only
+verifies the SNARK proof together with the sampled Merkle openings and linking
+proofs.
+
+Suppose that one of the checked vector relations is false. For example, if
+$\vect{y}\neq \vect{z}$, then $\enc(\vect{y})$ and $\enc(\vect{z})$ are distinct
+codewords. Since $\mathcal{C}$ has relative distance $\delta$, these two
+codewords differ in at least a $\delta$-fraction of positions. Hence a
+uniformly sampled query position detects this inconsistency with probability at
+least $\delta$. With $t$ independent queries, the probability that this false
+relation is not detected is at most $(1-\delta)^t$.
+
+Applying a union bound over the four vector relations
+\[
+  \vect{x}=\vect{r}\mat{A},\qquad
+  \vect{y}=\vect{x}\mat{B},\qquad
+  \vect{z}=\vect{r}\mat{C},\qquad
+  \vect{y}=\vect{z},
+\]
+the proximity-checking failure probability is at most $4(1-\delta)^t$.
+Thus, by setting
+$
+  t
+  =
+  \left\lceil
+    \frac{\lambda+2}
+         {\log_2(1/(1-\delta))}
+  \right\rceil,
+$
+this term is bounded by $2^{-\lambda}$.
 
 \subsection{Putting It Together: The Full Protocol Pipeline}
 \label{sec:overview-pipeline}

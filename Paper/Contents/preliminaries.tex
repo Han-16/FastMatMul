@@ -34,14 +34,14 @@ $\mathcal{C}(\vect{m})$ equal $\vect{m}$ itself.
 
 We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
 For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the
-\emph{row-wise encoding} $\hat{\mat{M}} := \enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}[i,*])$ for each $i \in [k]$.
-The $j$-th column of $\hat{\mat{M}}$ is denoted by
-$\hat{\mat{M}}[*,j] \in \mathbb{F}^k$ for each $j \in [n]$.
+\emph{row-wise encoding} $\widehat{\mat{M}} := \enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}[i,*])$ for each $i \in [k]$.
+The $j$-th column of $\widehat{\mat{M}}$ is denoted by
+$\widehat{\mat{M}}[*,j] \in \mathbb{F}^k$ for each $j \in [n]$.
 
 The key property we exploit is \emph{linearity}: for any coefficients
 $r_1, \ldots, r_k \in \mathbb{F}$,
 \begin{equation}\label{eq:code-linearity}
-\sum_{i=1}^{k} r_i \cdot \hat{\mat{M}}[i,*]
+\sum_{i=1}^{k} r_i \cdot \widehat{\mat{M}}[i,*]
 =
 \enc\!\left(\sum_{i=1}^{k} r_i \cdot \mat{M}[i,*]\right).
 \end{equation}
@@ -52,10 +52,10 @@ For vectors $\vect{c},\vect{r}\in \mathbb{F}^k$ with
 $\vect{c}=(c_0,\ldots,c_{k-1})^\top$ and
 $\vect{r}=(r_0,\ldots,r_{k-1})$, define
 \[
-\fold(\vect{c}, \vect{r}) \coloneqq \langle \vect{r}, \vect{c} \rangle = \sum_{i=0}^{k-1} r_i \cdot c_i.
+\fold(\vect{r}, \vect{c}) \coloneqq \langle \vect{r}, \vect{c} \rangle = \sum_{i=0}^{k-1} r_i \cdot c_i.
 \]
 Equivalently, for the $j$-th column of a row-wise encoded matrix,
-$\fold(\hat{\mat{M}}[*,j], \vect{r})$ equals the $j$-th coordinate of
+$\fold(\vect{r}, \widehat{\mat{M}}[*,j])$ equals the $j$-th coordinate of
 $\enc(\vect{r}\mat{M})$.
 This follows directly from the linearity of the code (Equation~\ref{eq:code-linearity}).
 \end{definition}
@@ -171,12 +171,10 @@ witness commitment $\widetilde{\cm}$, and $\omega$ is the remaining private witn
 
 A CP-link proof is a proof system for linking commitments. It proves that two
 or more commitments are commitments to the same message, without revealing the
-message or the opening randomness. This notion is abstract and does not depend
-on a particular commitment scheme.
+message or the opening randomness.
 
 Let $\com$ be a commitment scheme. For commitment keys
-$\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the
-equality-linking relation is defined as
+$\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation is defined as
 \[
 \begin{aligned}
 \relation_{\mathsf{link}}
@@ -192,8 +190,7 @@ equality-linking relation is defined as
 \Big\}.
 \end{aligned}
 \]
-A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all
-commitments $\cm_1,\ldots,\cm_t$ commit to the same message $m$, while keeping $m$ hidden.
+A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all commitments $\cm_1,\ldots,\cm_t$ are commitments to the same message $m$.
 
 A CP-link proof system is a tuple of algorithms
 $\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
@@ -233,17 +230,10 @@ Then for $r_1, \ldots, r_m \sample \mathbb{F}$ chosen uniformly and independentl
 \]
 \end{lemma}
 
-In our protocol, we use a structured variant: instead of sampling
-$\vect{r} \sample \mathbb{F}^k$ uniformly, we sample one scalar
-$r \sample \mathbb{F}$ and set
-$\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
+In our protocol, we use a structured variant: instead of sampling $\vect{r} \sample \mathbb{F}^k$ uniformly, we sample one scalar $r \sample \mathbb{F}$ and set $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
 This keeps the Freivalds challenge compact in the transcript and in the SNARK
 statement: the verifier records one field element rather than $k$ independent
-ones.
-If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero
-column $\vect{d}_j$ of $\mat{D}$, the value
-$\langle \vect{r}, \vect{d}_j \rangle$ is a non-zero univariate polynomial in
+ones. If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero
+column $\vect{d}_j$ of $\mat{D}$, the value $\langle \vect{r}, \vect{d}_j \rangle$ is a non-zero univariate polynomial in
 $r$ of degree at most $k-1$.
-By Lemma~\ref{lem:sz}, it vanishes with probability at most
-$(k-1)/|\mathbb{F}|$, which is negligible over the 256-bit fields used in our
-experiments.
+By Lemma~\ref{lem:sz}, it vanishes with probability at most $(k-1)/|\mathbb{F}|$.
