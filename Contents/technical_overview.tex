@@ -71,16 +71,16 @@ expensive native computation outside the SNARK, commits to the encoded
 matrices and intermediate vectors, and the SNARK checks local equations of the
 form
 \[
-  \widehat{\vect{x}}[j]
+  \enc(\vect{x})[j]
   =
   \fold(\vect{r},\widehat{\mat{A}}[*,j]),
 \]
 \[
-  \widehat{\vect{y}}[j]
+  \enc(\vect{y})[j]
   =
   \fold(\vect{x},\widehat{\mat{B}}[*,j]),
-  \qquad
-  \widehat{\vect{z}}[j]
+  \quad
+  \enc(\vect{z})[j]
   =
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \]
@@ -96,13 +96,7 @@ linear in \(k\) for fixed \(t\).
 Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a systematic linear code
 with relative distance \(\delta\).  For a matrix
 \(\mat{M}\in\mathbb{F}^{k\times k}\), the prover row-wise encodes \(\mat{M}\)
-as
-\[
-  \widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n},
-\]
-where the \(i\)-th row of \(\widehat{\mat{M}}\) is
-\(\enc(\mat{M}[i,*])\).  The \(j\)-th encoded column is denoted
-\(\widehat{\mat{M}}[*,j]\in\mathbb{F}^k\).
+as $\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
 
 The key identity is the linearity of the code.  For any vector
 \(\vect{u}\in\mathbb{F}^k\),
@@ -154,12 +148,11 @@ The sampled checks above are meaningful only if the values used inside the
 SNARK are bound to data fixed before the relevant challenges are sampled.
 \(\protocol\) achieves this using two layers of commitments.
 
-First, the prover commits to the encoded matrix columns.  In the concrete
-packed form used by our construction, the three encoded columns at position
+First, the prover commits to the encoded matrix columns.  In our construction, the three encoded columns at position
 \(j\) are committed together:
 \[
 \begin{aligned}
-  \vect{m}_{ABC,j}
+  \vect{M}_{ABC,j}
   &\coloneqq
   \big(
     \widehat{\mat{A}}[*,j]\,
@@ -168,7 +161,7 @@ packed form used by our construction, the three encoded columns at position
   \big),\\
   \cm_{ABC,j}
   &\gets
-  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}).
+  \pedC(\ck_{ABC},\vect{M}_{ABC,j};o_{ABC,j}).
 \end{aligned}
 \]
 The vector of Pedersen commitments is then committed with a Merkle tree:
