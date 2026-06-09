@@ -29,8 +29,6 @@ The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\ve
 where the minimum is taken over distinct codewords
 $\vect{c}, \vect{c}' \in \mathcal{C}$, and $\Delta$ denotes the Hamming distance.
 The \emph{relative distance} is $\delta = d/n$.
-A code is \emph{systematic} if the first $k$ coordinates of
-$\mathcal{C}(\vect{m})$ equal $\vect{m}$ itself.
 
 We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
 For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the
@@ -39,11 +37,11 @@ The $j$-th column of $\widehat{\mat{M}}$ is denoted by
 $\widehat{\mat{M}}[*,j] \in \mathbb{F}^k$ for each $j \in [n]$.
 
 The key property we exploit is \emph{linearity}: for any coefficients
-$r_1, \ldots, r_k \in \mathbb{F}$,
+$r_0, \ldots, r_{k-1} \in \mathbb{F}$,
 \begin{equation}\label{eq:code-linearity}
-\sum_{i=1}^{k} r_i \cdot \widehat{\mat{M}}[i,*]
+\sum_{i=0}^{k-1} r_i \cdot \widehat{\mat{M}}[i,*]
 =
-\enc\!\left(\sum_{i=1}^{k} r_i \cdot \mat{M}[i,*]\right).
+\enc\!\left(\sum_{i=0}^{k-1} r_i \cdot \mat{M}[i,*]\right)
 \end{equation}
 
 
@@ -63,7 +61,6 @@ This follows directly from the linearity of the code (Equation~\ref{eq:code-line
 \paragraph{Concrete instantiations}
 Our protocol is compatible with any linear code.
 Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
-We discuss the trade-offs in Section~\ref{sec:complexity}.
 
 
 \subsection{Commitment Schemes}
