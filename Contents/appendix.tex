@@ -57,16 +57,21 @@ the following events:
   \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
   SNARK-side sampled blocks are not the same messages as the opened Pedersen
   leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
+  \item \(\mathsf{Bad}_{\mathsf{code}}\): the probabilistic code-consistency
+  checks accept encoded views that are not encodings of their corresponding
+  intermediate vectors.
 \end{itemize}
 By the assumed soundness of the selected backends,
 \[
 \begin{aligned}
 \Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
-  &\le \epsilon_{\mathsf{SNARK}}(\lambda),\\
+  &\le \epsilon_{\mathsf{cp}}(\lambda),\\
 \Pr[\mathsf{Bad}_{\mathsf{open}}]
   &\le \epsilon_{\mathsf{open}}(\lambda),\\
 \Pr[\mathsf{Bad}_{\mathsf{link}}]
-  &\le \epsilon_{\mathsf{link}}(\lambda).
+  &\le \epsilon_{\mathsf{link}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{code}}]
+  &\le \epsilon_{\mathsf{code}}(\lambda).
 \end{aligned}
 \]
 Condition on the complement of these events.  Then \(\rt_{ABC}\) fixes a
@@ -140,15 +145,16 @@ Union-bounding over the four possible violated relations gives
 \]
 
 \paragraph{Combining the bounds}
-Adding the SNARK, opening, linking, Freivalds, and proximity failure events
-gives
+Adding the SNARK, opening, linking, code-consistency, Freivalds, and proximity
+failure events gives
 \[
 \begin{aligned}
 \Pr[\mathsf{Acc}\mid\mat{A}\mat{B}\neq\mat{C}]
 &\le
-\epsilon_{\mathsf{SNARK}}(\lambda)
+\epsilon_{\mathsf{cp}}(\lambda)
 +\epsilon_{\mathsf{open}}(\lambda)
-+\epsilon_{\mathsf{link}}(\lambda)\\
++\epsilon_{\mathsf{link}}(\lambda)
++\epsilon_{\mathsf{code}}(\lambda)\\
 &\quad+\frac{k-1}{|\mathbb{F}|}+4(1-\delta)^t .
 \end{aligned}
 \]
@@ -164,6 +170,117 @@ the public-coin proof above applies with the standard Fiat--Shamir loss
 random-oracle queries.
 This proves Theorem~\ref{thm:security}.
 \end{proof}
+
+\section{Barycentric Reed--Solomon Consistency Check}
+\label{app:rs-barycentric}
+
+This appendix specifies the Reed--Solomon instantiation of
+\(\mathsf{EncCheck}_{\mathcal{C}}\) used in
+Section~\ref{sec:snark-relation}.  Let
+\[
+  D=\{\omega_1,\ldots,\omega_n\}\subset\mathbb{F}
+\]
+be the public evaluation domain.  A message
+\(\vect{v}=(v_0,\ldots,v_{k-1})\in\mathbb{F}^k\) defines the degree-\(<k\)
+polynomial
+\[
+  p_{\vect{v}}(X)=\sum_{\ell=0}^{k-1} v_\ell X^\ell,
+  \qquad
+  \enc(\vect{v})=(p_{\vect{v}}(\omega_i))_{i=1}^{n}.
+\]
+Given a claimed encoded word
+\(\widehat{\vect{v}}\in\mathbb{F}^n\), let
+\(P_{\widehat{\vect{v}}}\) be the unique degree-\(<n\) polynomial satisfying
+\[
+  P_{\widehat{\vect{v}}}(\omega_i)=\widehat{\vect{v}}[i]
+  \qquad\text{for all }i\in[n].
+\]
+The check samples \(\alpha\sample\mathbb{F}\setminus D\) after the claimed
+word is fixed and compares \(P_{\widehat{\vect{v}}}(\alpha)\) with
+\(p_{\vect{v}}(\alpha)\).
+
+For efficient evaluation, define the domain polynomial and barycentric weights
+\[
+  L_D(X)=\prod_{i=1}^{n}(X-\omega_i),
+  \qquad
+  \lambda_i
+  =
+  \left(\prod_{\ell\neq i}(\omega_i-\omega_\ell)\right)^{-1}.
+\]
+For every \(\alpha\notin D\), barycentric interpolation gives
+\[
+  P_{\widehat{\vect{v}}}(\alpha)
+  =
+  L_D(\alpha)
+  \sum_{i=1}^{n}
+  \lambda_i
+  \frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
+\]
+Thus the concrete Reed--Solomon consistency check is
+\[
+\begin{aligned}
+\mathsf{EncCheck}_{\mathsf{RS}}
+(\widehat{\vect{v}},\vect{v};\alpha)=1
+\Longleftrightarrow{}&
+\sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
+\\
+&=
+L_D(\alpha)
+\sum_{i=1}^{n}
+\lambda_i
+\frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
+\end{aligned}
+\]
+The right-hand side is a linear form in the claimed encoded symbols once
+\(\alpha\) is fixed.  Equivalently, the verifier can derive the interpolation
+coefficients
+\[
+  \gamma_i(\alpha)
+  =
+  L_D(\alpha)\lambda_i(\alpha-\omega_i)^{-1}
+\]
+and the circuit checks
+\[
+  \sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
+  =
+  \sum_{i=1}^{n}\gamma_i(\alpha)\widehat{\vect{v}}[i].
+\]
+This costs \(\mathcal{O}(k+n)\) field operations per checked point, after the
+domain-dependent weights are precomputed.
+
+\begin{lemma}[Barycentric code-consistency soundness]
+\label{lem:rs-barycentric-soundness}
+If \(\widehat{\vect{v}}\neq\enc(\vect{v})\) and
+\(\alpha\sample\mathbb{F}\setminus D\) is sampled after
+\(\widehat{\vect{v}}\) and \(\vect{v}\) are fixed, then
+\[
+  \Pr[
+    \mathsf{EncCheck}_{\mathsf{RS}}
+    (\widehat{\vect{v}},\vect{v};\alpha)=1
+  ]
+  \le
+  \frac{n-1}{|\mathbb{F}|-n}.
+\]
+\end{lemma}
+
+\begin{proof}
+If \(\widehat{\vect{v}}\neq\enc(\vect{v})\), then the interpolation polynomial
+\(P_{\widehat{\vect{v}}}\) differs from the degree-\(<k\) polynomial
+\(p_{\vect{v}}\).  Their difference
+\[
+  Q(X)=P_{\widehat{\vect{v}}}(X)-p_{\vect{v}}(X)
+\]
+is a nonzero polynomial of degree at most \(n-1\).  The check accepts exactly
+when \(Q(\alpha)=0\).  Since \(\alpha\) is uniform over
+\(\mathbb{F}\setminus D\), at most \(n-1\) choices of \(\alpha\) can make the
+check accept, which proves the bound.
+\end{proof}
+
+In \(\protocol\), this check is applied independently to
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) at
+\(\alpha_x,\alpha_y,\alpha_z\).  A union bound gives the
+\(3(n-1)/(|\mathbb{F}|-n)\) term used in
+Definition~\ref{def:lamp-backend-assumptions}.
 
 \section{CP-Link Backend Instantiation}
 \label{app:cplink-backend}

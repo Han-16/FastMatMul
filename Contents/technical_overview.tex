@@ -19,9 +19,9 @@ The starting point is the matrix multiplication relation
 \]
 A direct SNARK arithmetization of this relation computes every entry of
 \(\mat{A}\mat{B}\).  This requires \(k^3\) scalar multiplications and therefore
-\(\mathcal{O}(k^3)\) arithmetic constraints.  This is the na\"ive relation:
+\(\mathcal{O}(k^3)\) arithmetic constraints.  This is the original relation:
 \[
-\relation_{\mathsf{naive}}
+\relation_{\mathsf{orig}}
 =
 \left\{
 (\mat{A},\mat{B},\mat{C}) :
@@ -144,51 +144,21 @@ corresponding codewords are distinct.  Since the code has relative distance
 positions.  Random sampling therefore detects an inconsistent relation with
 probability governed by \(\delta\) and the number of sampled positions.
 
-\subsection{Commitments and CP-Link}
+\subsection{Sampled-Opening Layer}
 \label{sec:overview-commit-link}
 
 The sampled checks above are meaningful only if the values used inside the
 SNARK are bound to data fixed before the relevant challenges are sampled.
-\(\protocol\) achieves this using two layers of commitments.
+\(\protocol\) achieves this through a sampled-opening layer.
+The prover first commits to the encoded matrix columns and fixes a Merkle root
+before the Freivalds challenge is derived.  After the challenge is fixed, the
+prover computes the intermediate vectors, commits to their encoded symbols, and
+fixes a second Merkle root before the sampled positions are derived.
 
-First, the prover commits to the encoded matrix columns.  In our construction, the three encoded columns at position
-\(j\) are committed together:
-\[
-\begin{aligned}
-  \vect{m}_{ABC,j}
-  &\coloneqq
-  \big(
-    \widehat{\mat{A}}[*,j]\,
-    \|\,\widehat{\mat{B}}[*,j]\,
-    \|\,\widehat{\mat{C}}[*,j]
-  \big),\\
-  \cm_{ABC,j}
-  &\gets
-  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}).
-\end{aligned}
-\]
-The vector of Pedersen commitments is then committed with a Merkle tree:
-\[
-  \rt_{ABC}
-  \gets
-  \merkleC(\cm_{ABC,1},\ldots,\cm_{ABC,n}; \bot).
-\]
-This root is fixed before the Freivalds challenge is derived.
-
-After the Freivalds challenge is fixed, the prover computes the intermediate
-vectors and commits to their encoded coordinates.  Conceptually, this includes
-the encoded symbols of \(\widehat{\vect{x}}\), \(\widehat{\vect{y}}\), and
-\(\widehat{\vect{z}}\). At a high level, the second Merkle
-root binds the encoded vector symbols used by the sampled checks:
-\[
-  \rt_{XYZ}
-  \gets
-  \merkleC(\cm_{XYZ,1},\ldots,\cm_{XYZ,n}; \bot).
-\]
-
-The SNARK circuit does not verify Pedersen openings or Merkle paths internally.
-Instead, it uses a commit-and-prove SNARK to commit to the sampled witness
-values used by the circuit.  The prover then supplies:
+The SNARK circuit itself only checks field equations on the sampled values.  It
+does not verify Pedersen openings or Merkle paths internally.  Instead, the
+commit-and-prove SNARK commits to the sampled witness blocks used by the
+circuit, and the prover supplies:
 \begin{itemize}
   \item Merkle openings showing that the external Pedersen commitments
   \(\cm_{ABC,j}\) and \(\cm_{XYZ,j}\) are authenticated under

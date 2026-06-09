@@ -2,19 +2,30 @@
 \label{sec:security}
 
 We prove perfect completeness and computational soundness for the public-coin
-interactive \(\protocol\) scheme.  The proof is stated for the protocol in which the
-verifier samples the Freivalds challenge, the query positions, and the
+interactive \(\protocol\) scheme.  The proof is stated for the protocol in which
+the verifier samples the Freivalds challenge, the query positions, and the
 code-check points.
 
 \paragraph{Statement and scope}
-The CP-SNARK relation is the local relation defined in
-Section~\ref{sec:snark-relation}; this section proves why satisfying that
-sampled relation, together with the commitment-opening and CP-Link checks,
-implies soundness for the matrix-multiplication statement.
+Section~\ref{sec:construction} defines the checked relation as the composite
+relation
+\[
+  \mathcal{R}_{\mathsf{LAMP}}
+  =
+  \mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}
+  \land
+  \mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}.
+\]
+The online component
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\) is enforced by the CP-SNARK,
+while the offline binding component
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) is enforced by sampled Merkle
+membership checks and CP-Link proofs.  This section proves that satisfying both
+components implies soundness for the committed matrix-multiplication statement.
 
 The theorem is relative to a certified input root \(\rt_{ABC}\).  Namely,
-\(\rt_{ABC}\) binds, before the Freivalds challenge is sampled, to
-row-wise encodings
+\(\rt_{ABC}\) binds, before the Freivalds challenge is sampled, to row-wise
+encodings
 \[
   \widehat{\mat{A}}=\enc(\mat{A}),\qquad
   \widehat{\mat{B}}=\enc(\mat{B}),\qquad
@@ -27,72 +38,76 @@ The multiplication statement is false when these certified matrices satisfy
 After the verifier samples the Freivalds challenge, the prover commits to the
 intermediate-vector messages \(\vect{x},\vect{y},\vect{z}\) and to their
 encoded views before the verifier samples the query tuple \(I\) and the
-code-check points.  This ordering is the only timing property needed by the
-proof: all values tested by the sampled proximity checks are fixed before the
-sampled positions are known.
+code-check points.  This ordering is the timing property needed by the proof:
+all values tested by the sampled proximity checks are fixed before the sampled
+positions are known.
 
-\paragraph{Error terms}
-We separate the errors into two groups.
+\begin{definition}[LAMP backend assumptions]
+\label{def:lamp-backend-assumptions}
+The backend used by \(\protocol\) is assumed to satisfy the following
+properties.
+\begin{itemize}
+  \item \emph{CP-SNARK soundness.}
+  Any accepting CP-SNARK proof for
+  \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\) has a valid online-checking
+  witness bound to the public SNARK-side witness commitments
+  \(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\), except with
+  probability at most \(\epsilon_{\mathsf{cp}}(\lambda)\).
 
-\emph{Relation-level statistical errors.}
-These are the errors that remain even when the CP-SNARK relation is enforced
-correctly on the sampled witness.
-The probabilistic Reed--Solomon encoding checks for
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\)
-fail with probability at most \(\epsilon_{\mathsf{code}}\).  For the
-Reed--Solomon consistency check used by \(\protocol\), if each code-check
-point is sampled uniformly from outside the evaluation domain after the
-intermediate commitments are fixed, then
-\[
-  \epsilon_{\mathsf{code}}
-  \le
-  \frac{3(n-1)}{|\mathbb{F}|-n}.
-\]
-The remaining relation-level errors are the Freivalds error
-\((k-1)/|\mathbb{F}|\) and the proximity-sampling error
-\(4(1-\delta)^t\).
+  \item \emph{Opening binding.}
+  Accepted Merkle openings fix unique Pedersen leaves at the queried positions,
+  and accepted Pedersen leaves are binding to unique packed messages, except
+  with probability at most \(\epsilon_{\mathsf{open}}(\lambda)\).
 
-\emph{Protocol-level cryptographic errors.}
-These errors ensure that the sampled relation is evaluated on values that
-actually come from the committed data.
-\(\epsilon_{\mathsf{cp}}\) bounds the soundness error of the CP-SNARK proof
-system for the relation in Section~\ref{sec:snark-relation}.
-\(\epsilon_{\mathsf{open}}\) bounds failures of the opening layer, including
-Merkle position binding and Pedersen binding for opened leaves.
-\(\epsilon_{\mathsf{link}}\) bounds CP-Link failures, namely accepting link
-proofs in which the CP-SNARK-side committed sampled blocks and the opened
-Pedersen leaves do not contain the same messages.
+  \item \emph{CP-Link consistency.}
+  Accepted CP-Link proofs imply that the SNARK-side committed sampled blocks and
+  the opened external Pedersen leaves contain the same packed messages, except
+  with probability at most \(\epsilon_{\mathsf{link}}(\lambda)\).
+
+  \item \emph{Code-consistency soundness.}
+  The probabilistic encoding checks for
+  \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) fail with
+  probability at most \(\epsilon_{\mathsf{code}}(\lambda)\).  For the
+  Reed--Solomon consistency check used by \(\protocol\), if each code-check
+  point is sampled uniformly from outside the evaluation domain after the
+  intermediate commitments are fixed, then
+  \[
+    \epsilon_{\mathsf{code}}
+    \le
+    \frac{3(n-1)}{|\mathbb{F}|-n}.
+  \]
+  Appendix~\ref{app:rs-barycentric} gives the corresponding barycentric
+  Reed--Solomon check and its soundness bound.
+\end{itemize}
+\end{definition}
 
 \begin{theorem}[Completeness and soundness]\label{thm:security}
-Assume that the input root \(\rt_{ABC}\) is certified as above, that the
-CP-SNARK relation is the relation of Section~\ref{sec:snark-relation}, and
-that the component errors are bounded by
-\(\epsilon_{\mathsf{cp}}\), \(\epsilon_{\mathsf{open}}\),
-\(\epsilon_{\mathsf{link}}\), and \(\epsilon_{\mathsf{code}}\).
-Then the interactive \(\protocol\) scheme satisfies:
+Assume that the input root \(\rt_{ABC}\) is certified as above and that the
+backend satisfies Definition~\ref{def:lamp-backend-assumptions}.  Then the
+interactive \(\protocol\) scheme satisfies:
 \begin{enumerate}[label=(\roman*)]
   \item \textbf{Perfect completeness.}
-  If \(\mat{A}\mat{B}=\mat{C}\), the honest prover is accepted with
-  probability one.
+  If \(\mat{A}\mat{B}=\mat{C}\), the honest prover is accepted with probability
+  one.
 
   \item \textbf{Interactive computational soundness.}
-  For every \(\ppt\) prover \(\mathcal{P}^*\), if the certified matrices
-  satisfy \(\mat{A}\mat{B}\neq\mat{C}\), then
-\[
-\begin{aligned}
-\Pr[\mathsf{Acc}]
-&\le
-\epsilon_{\mathsf{cp}}(\lambda)
-+\epsilon_{\mathsf{open}}(\lambda)
-+\epsilon_{\mathsf{link}}(\lambda)
-+\epsilon_{\mathsf{code}}(\lambda)\\
-&\quad
-+\frac{k-1}{|\mathbb{F}|}
-+4(1-\delta)^t .
-\end{aligned}
-\]
-Here \(t=|I|\) is the number of sampled codeword positions and \(\delta\) is
-the relative distance of the code \(\mathcal{C}\).
+  For every \(\ppt\) prover \(\mathcal{P}^*\), if the certified matrices satisfy
+  \(\mat{A}\mat{B}\neq\mat{C}\), then
+  \[
+  \begin{aligned}
+  \Pr[\mathsf{Acc}]
+  &\le
+  \epsilon_{\mathsf{cp}}(\lambda)
+  +\epsilon_{\mathsf{open}}(\lambda)
+  +\epsilon_{\mathsf{link}}(\lambda)
+  +\epsilon_{\mathsf{code}}(\lambda)\\
+  &\quad
+  +\frac{k-1}{|\mathbb{F}|}
+  +4(1-\delta)^t .
+  \end{aligned}
+  \]
+  Here \(t=|I|\) is the number of sampled codeword positions and \(\delta\) is
+  the relative distance of the code \(\mathcal{C}\).
 \end{enumerate}
 \end{theorem}
 
@@ -105,8 +120,9 @@ If \(\mat{A}\mat{B}=\mat{C}\), then for every challenge vector
   \vect{y}=\vect{x}\mat{B},\qquad
   \vect{z}=\vect{r}\mat{C}
 \]
-satisfy \(\vect{y}=\vect{z}\).  By linearity of \(\mathcal{C}\), for every
-codeword position \(j\),
+satisfy \(\vect{y}=\vect{z}\). 
+By linearity of \(\mathcal{C}\), for every
+sampled index \(j\),
 \[
 \begin{aligned}
   \widehat{\vect{x}}[j]
@@ -117,36 +133,35 @@ codeword position \(j\),
   &= \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \end{aligned}
 \]
-Thus every sampled fold check and equality check is satisfied.  The honest
-prover also supplies valid encoding checks, Merkle openings, CP-Link proofs,
-and a valid CP-SNARK proof, so the verifier accepts.
+Thus the honest witness satisfies
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\).  The honest prover also
+supplies valid Merkle openings and CP-Link proofs, so
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) holds and the verifier accepts.
 
 \emph{Soundness.}
-Condition first on the complement of the protocol-level cryptographic failure
-events and the Reed--Solomon encoding-check failure event.  This conditioning
-costs
+Condition first on the complement of the CP-SNARK, opening, CP-Link, and
+code-consistency failure events.  This conditioning costs
 \[
   \epsilon_{\mathsf{cp}}
   +\epsilon_{\mathsf{open}}
   +\epsilon_{\mathsf{link}}
   +\epsilon_{\mathsf{code}} .
 \]
-Under this conditioning, the accepted proof has the following properties:
-the accepted CP-SNARK proof has a witness satisfying the local relation in
-Section~\ref{sec:snark-relation}; the certified root \(\rt_{ABC}\) fixes
-row-wise encoded matrices
-\(\widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}}\) before \(r\); the
-intermediate-vector commitments fix \(\vect{x},\vect{y},\vect{z}\) and their
-encoded views before \(I\); and every sampled value used inside the CP-SNARK
-relation is the value opened from the corresponding pre-query commitment.
-Moreover, the encoding checks certify the committed encoded views as
-Reed--Solomon encodings of their corresponding messages, except with
-probability already charged to \(\epsilon_{\mathsf{code}}\).
+Under this conditioning, an accepted proof has a witness satisfying
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\), and the offline binding relation
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) ensures that every sampled value
+used inside the CP-SNARK is the value opened from the corresponding pre-query
+commitment.  The certified root \(\rt_{ABC}\) fixes row-wise encoded matrices
+\(\widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}}\) before \(r\), and the
+intermediate-vector root fixes the encoded views of
+\(\vect{x},\vect{y},\vect{z}\) before \(I\).  Moreover, the code-consistency
+checks certify the committed encoded views as encodings of their corresponding
+messages, except with probability already charged to
+\(\epsilon_{\mathsf{code}}\).
 
 Assume that \(\mat{A}\mat{B}\neq\mat{C}\), and let
-\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).
-There is a nonzero column \(\vect{d}\) of \(\mat{D}\).
-The event \(\vect{r}\mat{D}=0\) implies
+\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  There is a nonzero column
+\(\vect{d}\) of \(\mat{D}\).  The event \(\vect{r}\mat{D}=0\) implies
 \[
   \sum_{i=0}^{k-1} d_i r^i = 0 ,
 \]
@@ -168,25 +183,22 @@ Now condition further on \(\vect{r}\mat{D}\neq 0\).  Then no vectors
   \vect{y}=\vect{z},
 \]
 because these equalities would imply
-\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\).
-Therefore at least one of the four encoded relations checked by the sampled
-protocol is false.
+\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\).  Therefore at least one of the four
+encoded relations checked by the sampled protocol is false.
 
 Consider any one false relation, for example
-\(\vect{x}\neq\vect{r}\mat{A}\).  Since the encoding checks have not failed,
-the committed vector symbols are coordinates of
-\(\enc(\vect{x})\).  By code linearity, the corresponding folded matrix symbols
-are coordinates of \(\enc(\vect{r}\mat{A})\).  These two codewords are distinct,
-so by relative distance they disagree on at least \(\delta n\) positions.  A
-uniform query misses this disagreement set with probability at most
-\(1-\delta\), and \(t\) independent queries miss it with probability at most
-\((1-\delta)^t\).  The same argument applies to the other three relations.
-Union-bounding over the four possible violated relations gives the proximity
-term \(4(1-\delta)^t\).
+\(\vect{x}\neq\vect{r}\mat{A}\).  Since the code-consistency checks have not
+failed, the committed vector symbols are coordinates of \(\enc(\vect{x})\).  By
+code linearity, the corresponding folded matrix symbols are coordinates of
+\(\enc(\vect{r}\mat{A})\).  These two codewords are distinct, so by relative
+distance they disagree on at least \(\delta n\) positions.  A uniform query
+misses this disagreement set with probability at most \(1-\delta\), and \(t\)
+independent queries miss it with probability at most \((1-\delta)^t\).  The same
+argument applies to the other three relations.  Union-bounding over the four
+possible violated relations gives the proximity term \(4(1-\delta)^t\).
 
-Combining the protocol-level failures, the encoding-check failure, the
-Freivalds failure probability, and the proximity-sampling failure probability
-proves the stated bound.
+Combining the CP-SNARK, opening, linking, code-consistency, Freivalds, and
+proximity-sampling failure probabilities proves the stated bound.
 \end{proof}
 
 \begin{remark}[Fiat--Shamir]
