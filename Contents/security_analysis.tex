@@ -208,24 +208,6 @@ Combining the CP-SNARK, opening, linking, code-consistency, Freivalds, and
 proximity-sampling failure probabilities proves the stated bound.
 \end{proof}
 
-\noindent\textbf{Concrete interpretation.}
-In our implementation, the Reed--Solomon code has rate \(\rho = 1/2\), so
-\(n=2k\) and
-\[
-  \delta
-  =
-  1-\frac{k}{n}+\frac{1}{n}
-  =
-  \frac{1}{2}+\frac{1}{2k}.
-\]
-With \(t=128\) sampled positions, the proximity term is therefore bounded by
-\[
-  4(1-\delta)^t
-  <
-  4\cdot 2^{-128}
-  =
-  2^{-126}.
-\]
 
 \begin{remark}[Fiat--Shamir]
 The theorem above analyzes the public-coin interactive protocol.  A
