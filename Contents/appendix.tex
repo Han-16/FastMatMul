@@ -202,7 +202,7 @@ word is fixed and compares \(P_{\widehat{\vect{v}}}(\alpha)\) with
 For efficient evaluation, define the domain polynomial and barycentric weights
 \[
   L_D(X)=\prod_{i=1}^{n}(X-\omega_i),
-  \qquad
+  \quad
   \lambda_i
   =
   \left(\prod_{\ell\neq i}(\omega_i-\omega_\ell)\right)^{-1}.
@@ -282,244 +282,180 @@ In \(\protocol\), this check is applied independently to
 \(3(n-1)/(|\mathbb{F}|-n)\) term used in
 Definition~\ref{def:lamp-backend-assumptions}.
 
-% \section{CP-Link Backend Instantiation}
-% \label{app:cplink-backend}
+\section{CP-Link Instantiation}
+\label{app:cplink-instant}
 
-% This appendix records the concrete blockwise CP-Link relation used by the
-% artifact.  For each queried \(j\in I\), the external Pedersen leaves have the
-% form
-% \[
-% \begin{aligned}
-%   \cm_{ABC,j}
-%   &=
-%   \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}),\\
-%   \cm_{XYZ,j}
-%   &=
-%   \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}).
-% \end{aligned}
-% \]
-% The CP-SNARK committed-witness interface produces
-% \(\widetilde{\cm}_{ABC}\) for the concatenated sampled matrix blocks
-% \((\vect{m}_{ABC,j})_{j\in I}\), and \(\widetilde{\cm}_{XYZ}\) for the
-% concatenated sampled vector blocks \((\vect{m}_{XYZ,j})_{j\in I}\).  The
-% CP-Link proof shows that these SNARK-side commitments and the opened external
-% Pedersen leaves contain the same block messages.
+This appendix describes the CP-Link instantiation used in our implementation.
+We use a pairing-based quasi-adaptive NIZK argument for linking one
+SNARK-side witness commitment to several external Pedersen commitments.  For
+clarity, we describe the challenge-sampling step as an interactive public-coin
+protocol.  The implementation obtains the non-interactive version by applying
+the Fiat--Shamir transform.
 
-% \begin{theorem}[Batched CP-Link backend]\label{thm:cp-link-backend}
-% Assume the Pedersen parameters are binding, the QA-NIZK proof for the linear
-% batch relation is sound, and the batching challenge is sampled by the
-% Fiat--Shamir random oracle after the batch statement is fixed.  For the two
-% sampled block families \(ABC\) and \(XYZ\), each with \(t\) queried blocks, the
-% batched CP-Link verifier accepts a false batch with probability at most
-% \[
-%   \epsilon_{\mathsf{ped}}
-%   +\epsilon_{\mathsf{QA}}
-%   +\frac{2t}{|\mathbb{F}|}.
-% \]
-% Generator and CRS bytes are setup material and are not included in the online
-% proof-size claim.
-% \end{theorem}
+Let \(e:\mathbb{G}_1\times\mathbb{G}_2\to\mathbb{G}_T\) be a bilinear pairing
+over prime-order groups of order \(|\mathbb{F}|\).  We write the group
+operation in \(\mathbb{G}_1\) additively, and let \(g_2\in\mathbb{G}_2\) be a
+generator. \\
 
-% The logical CP-Link statement contains one equality per opened block.  We index
-% these \(Q=2t\) equalities by \(q\in[Q]\).  Each equality has the form
-% \[
-%   C^{\mathsf{snark}}_q
-%   -
-%   C^{\mathsf{leaf}}_q
-%   =
-%   \Delta_q H,
-% \]
-% where \(C^{\mathsf{snark}}_q\) is the commitment induced by the SNARK-side
-% sampled-block commitment, \(C^{\mathsf{leaf}}_q\) is the corresponding external
-% Pedersen leaf commitment, and \(\Delta_q\) is the difference of the two opening
-% randomness values.  The batch statement is
-% \[
-% \begin{aligned}
-% P_I&=\{(\mathrm{tag}_q,C^{\mathsf{snark}}_q,C^{\mathsf{leaf}}_q)\}_{q=1}^{Q},\\
-% T_I&=\Hash(\textsf{LAMP-link-batch},\rt_{ABC},\rt_{XYZ},I,P_I).
-% \end{aligned}
-% \]
-% The implementation derives
-% \[
-%   \beta
-%   \gets
-%   \Hash(\textsf{LAMP-link-rand},T_I,P_I)
-% \]
-% and checks the single randomized linear relation
-% \[
-%   \sum_{q=1}^{Q}\beta^q
-%   (C^{\mathsf{snark}}_q-C^{\mathsf{leaf}}_q)
-%   =
-%   \left(\sum_{q=1}^{Q}\beta^q\Delta_q\right)H .
-% \]
-% If any individual equality is false after the batch statement is fixed, the
-% left-minus-right side is a nonzero polynomial in \(\beta\) of degree at most
-% \(Q\).  Hence the randomized batch can pass with probability at most
-% \(Q/|\mathbb{F}|=2t/|\mathbb{F}|\).  Combining this batch error with Pedersen
-% binding and QA-NIZK soundness gives Theorem~\ref{thm:cp-link-backend}.  The
-% reported \(128\)-byte CP-Link proof is one online batched QA-NIZK proof for the
-% whole sampled batch, not a per-link cost.
+\noindent\textbf{Statement and witness.}
+Fix a block count \(q\) and a block length \(\ell\).  Let
+\(\ck_S=((G^S_{i,\nu})_{i\in[q],\nu\in[\ell]},H^S)\) be the SNARK-side
+commitment key for a commitment to \(q\) concatenated blocks, and let
+\(\ck_E=((G^E_{\nu})_{\nu\in[\ell]},H^E)\) be the external Pedersen commitment
+key for one block.
 
-% \section{Additional Evaluation Details}
-% \label{app:eval-details}
+The public statement is
+\(\stmt_{\mathsf{link}}=((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1}))\).  The witness is
+\[
+  \wit_{\mathsf{link}}
+  =
+  \big(
+    \vect{m}_0,\ldots,\vect{m}_{q-1},
+    \widetilde{o},
+    o_0,\ldots,o_{q-1}
+  \big),
+\]
+where each block \(\vect{m}_i\in\mathbb{F}^{\ell}\).  The intended relation is
+that \(\widetilde{\cm}\) commits to the ordered concatenation
+\(\vect{m}_0\|\cdots\|\vect{m}_{q-1}\) under \(\ck_S\), while each
+\(\cm_i\) commits to the corresponding block \(\vect{m}_i\) under \(\ck_E\).
+Equivalently,
+\[
+\begin{aligned}
+  \widetilde{\cm}
+  &=
+  \sum_{i\in[q]}\sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]G^S_{i,\nu}
+  +
+  \widetilde{o}H^S, \\
+  \cm_i
+  &=
+  \sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]G^E_{\nu}
+  +
+  o_iH^E
+  \qquad \text{for every } i\in[q].
+\end{aligned}
+\]
 
-% This appendix records the measurement boundary behind the main evaluation.
-% Tables~\ref{tab:eval-parameters} and~\ref{tab:metric-coverage} first state the
-% fixed experimental parameters and which costs are covered by the artifact.
-% Tables~\ref{tab:proof-material-accounting}--\ref{tab:constraint-accounting}
-% then separate serialized proof material from private Groth16 witness data and
-% from costs that remain unmeasured, such as raw-matrix encoding/root construction and
-% serialized key/CRS size.
-% The intent is to make the main text's proof-size and speedup claims auditable
-% without treating the checking-layer measurements as full end-to-end VC costs.
+\noindent\textbf{Interactive presentation.}
+In the interactive presentation, the commitments in
+\(\stmt_{\mathsf{link}}\), namely \(\widetilde{\cm}\) and
+\(\cm_0,\ldots,\cm_{q-1}\), are fixed before the verifier samples the batching
+coefficients.  The verifier then samples fresh coefficients
+\(\rho_0,\ldots,\rho_{q-1}\sample\mathbb{F}^{\ast}\), and the prover responds
+with one linking proof for the resulting aggregate statement. \\
 
-% Table~\ref{tab:eval-parameters} fixes the common parameter choices used by the
-% reported rows. In particular, the measured rows use $t=128$ for scaling, while
-% the table also records the nearby query counts needed for stricter
-% proximity-only and per-term security budgets.
+\noindent\textbf{Setup.}
+The setup algorithm takes \((\ck_S,\ck_E,q,\ell)\) as input.  It samples
+\(k_0,k_1,a\sample\mathbb{F}^{\ast}\) and outputs
+\[
+\begin{aligned}
+  \pk_{\mathsf{link}}
+  &=
+  \Big(
+    (k_0G^S_{i,\nu})_{i\in[q],\,\nu\in[\ell]},
+    k_0H^S,
+    (k_1G^E_{\nu})_{\nu\in[\ell]},
+    k_1H^E
+  \Big), \\
+  \vk_{\mathsf{link}}
+  &=
+  (C_0,C_1,A)
+  =
+  (ak_0g_2,ak_1g_2,ag_2).
+\end{aligned}
+\]
+The trapdoors \(k_0,k_1,a\) are discarded after setup. \\
 
-% \begin{table}[H]
-% \centering
-% \small
-% \begin{tabularx}{\columnwidth}{lX}
-% \toprule
-% \textbf{Parameter} & \textbf{Value in main experiments} \\
-% \midrule
-% Field size & 256-bit prime field \\
-% Server & AMD EPYC 7B13, 32 cores, 251.69\,GiB RAM, Linux/amd64 \\
-% Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
-% Code rate & $\rho=1/2$ \\
-% Codeword length & $n=2k$ \\
-% Sampled positions & $t=128$ \\
-% Primary linking layer & Packed Merkle roots, SNARK-side sampled-block commitments, QA-NIZK/CP-Link, and multi-column Merkle openings \\
-% Backend model & CP-Link sampled intermediate backend; input roots are fixed before $r$ \\
-% Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
-% \bottomrule
-% \end{tabularx}
-% \caption{Concrete parameters used in the main experiments.}
-% \label{tab:eval-parameters}
-% \end{table}
+\noindent\textbf{Proving.}
+Given the fixed statement \(\stmt_{\mathsf{link}}\), witness
+\(\wit_{\mathsf{link}}\), and verifier challenge
+\(\rho_0,\ldots,\rho_{q-1}\), the prover computes the aggregated block
+\(\vect{m}^{\mathsf{agg}}\coloneqq\sum_{i\in[q]}\rho_i\vect{m}_i\) and the
+aggregated blinding \(o^{\mathsf{agg}}\coloneqq\sum_{i\in[q]}\rho_i o_i\).
+It then outputs
+\[
+\begin{aligned}
+  \pi_{\mathsf{link}}
+  \coloneqq
+  &
+  \sum_{i\in[q]}\sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu](k_0G^S_{i,\nu})
+  +
+  \widetilde{o}(k_0H^S)
+  \\
+  &+
+  \sum_{\nu\in[\ell]}
+  \vect{m}^{\mathsf{agg}}[\nu](k_1G^E_{\nu})
+  +
+  o^{\mathsf{agg}}(k_1H^E).
+\end{aligned}
+\]
+Let \(\cm^{\mathsf{agg}}\coloneqq\sum_{i\in[q]}\rho_i\cm_i\).  By the
+homomorphism of Pedersen commitments, the proof can equivalently be written as
+\(\pi_{\mathsf{link}}=k_0\widetilde{\cm}+k_1\cm^{\mathsf{agg}}\). \\
 
-% Table~\ref{tab:metric-coverage} is a measurement-scope checklist rather than a
-% performance result. It distinguishes quantities measured directly by the CSV
-% artifact from costs that remain outside the online proof bytes, most notably
-% raw-matrix encoding/root construction and serialized key/CRS sizes.
+\noindent\textbf{Verification.}
+The verifier computes
+\(\cm^{\mathsf{agg}}\coloneqq\sum_{i\in[q]}\rho_i\cm_i\) and accepts if and
+only if
+\[
+  e(\widetilde{\cm},C_0)
+  \cdot
+  e(\cm^{\mathsf{agg}},C_1)
+  =
+  e(\pi_{\mathsf{link}},A).
+\]
+Equivalently, the verifier checks
+\[
+  e(\widetilde{\cm},C_0)
+  \cdot
+  e(\cm^{\mathsf{agg}},C_1)
+  \cdot
+  e(\pi_{\mathsf{link}},-A)
+  =
+  1_{\mathbb{G}_T}.
+\]
 
-% \begin{table}[H]
-% \centering
-% \small
-% \begin{tabularx}{\columnwidth}{@{}p{0.31\columnwidth}p{0.17\columnwidth}X@{}}
-% \toprule
-% \textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
-% \midrule
-% Constraint count & Yes, aggregate & Groth16 circuit size including sampled RS evaluations and fold checks; per-gadget constraint counters are not reported, and CP-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
-% Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
-% Verification time & Yes & Includes current QA-NIZK/CP-Link and opening verification overhead. \\
-% Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
-% Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
-% Committed-root generation & Partial & Construction of \(\rt_{ABC}\) and \(\rt_{XYZ}\) is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
-% Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
-% \bottomrule
-% \end{tabularx}
-% \caption{Measurement coverage in the current artifact.}
-% \label{tab:metric-coverage}
-% \end{table}
+\noindent\textbf{Correctness.}
+For an honestly generated proof, we have
+\(\pi_{\mathsf{link}}=k_0\widetilde{\cm}+k_1\cm^{\mathsf{agg}}\).  Therefore,
+by bilinearity,
+\[
+\begin{aligned}
+  e(\pi_{\mathsf{link}},A)
+  &=
+  e(k_0\widetilde{\cm}+k_1\cm^{\mathsf{agg}},ag_2)
+  \\
+  &=
+  e(\widetilde{\cm},ak_0g_2)
+  \cdot
+  e(\cm^{\mathsf{agg}},ak_1g_2)
+  \\
+  &=
+  e(\widetilde{\cm},C_0)
+  \cdot
+  e(\cm^{\mathsf{agg}},C_1).
+\end{aligned}
+\]
+Thus the verifier accepts. \\
 
-% Table~\ref{tab:proof-material-accounting} explains the proof-size convention
-% used in the main text. The sampled matrix columns are large, but they are
-% private Groth16 witness data; the serialized proof contains only compact
-% handles, authentication paths, the Groth16 proof, and the batched CP-Link
-% material.
+\noindent\textbf{Soundness intuition.}
+The protocol has two soundness components.  First, since the setup trapdoors
+\(k_0,k_1,a\) are hidden, a prover cannot construct a valid proof for a false
+aggregate statement except with the soundness error of the underlying
+pairing-based QA-NIZK argument.
 
-% \begin{table}[H]
-% \centering
-% \scriptsize
-% \setlength{\tabcolsep}{2.5pt}
-% \begin{tabularx}{\columnwidth}{@{}p{0.30\columnwidth}p{0.15\columnwidth}X@{}}
-% \toprule
-% \textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
-% \midrule
-% Matrix block \(\vect{m}_{ABC,j}\) & No & The sampled block is Groth16 witness data; compact commitments and Merkle paths are serialized. \\
-% Vector block \(\vect{m}_{XYZ,j}\) & No & The sampled block is Groth16 witness data and is checked against \(\widehat{\vect{x}}[j]\), \(\widehat{\vect{y}}[j]\), and \(\widehat{\vect{z}}[j]\); the SNARK-side sampled block is linked to the opened Pedersen leaf. \\
-% Merkle path & Yes & Authenticates an opened Pedersen leaf under \(\rt_{ABC}\) or \(\rt_{XYZ}\); charged to proof bytes and verify time. \\
-% CP-Link proof & Yes & One batched QA-NIZK proof \(\tau_I\) links the two sampled block families to their opened Pedersen leaves. \\
-% Groth16 proof & Yes & Verifies sampled RS evaluations and fold/equality checks, while the CP-SNARK interface binds sampled block witnesses to SNARK-side commitments. \\
-% \bottomrule
-% \end{tabularx}
-% \caption{Proof-material accounting for the CP-Link sampled-opening backend.}
-% \label{tab:proof-material-accounting}
-% \end{table}
+Second, the batching coefficients are sampled after the commitments in
+\(\stmt_{\mathsf{link}}\) are fixed.  Hence, if at least one external
+commitment is not linked to the corresponding block inside
+\(\widetilde{\cm}\), then the linking errors must vanish under a fresh random
+linear combination.  This happens with probability at most \(1/|\mathbb{F}|\).\\
 
-% Table~\ref{tab:byte-accounting} instantiates the accounting for two
-% representative matrix sizes. The reported totals are the serialized online
-% proof bytes in the artifact; roots and vector commitments are public inputs,
-% and raw sampled columns are intentionally not serialized.
-
-% \begin{table}[H]
-% \centering
-% \scriptsize
-% \setlength{\tabcolsep}{3pt}
-% \begin{tabularx}{\columnwidth}{@{}p{0.16\columnwidth}rrX@{}}
-% \toprule
-% \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
-% \midrule
-% $k=1{,}024$ & $43{,}904$\,B & $44{,}292$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots are public inputs. \\
-% $k=4{,}096$ & $58{,}944$\,B & $59{,}332$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
-% \bottomrule
-% \end{tabularx}
-% \caption{Representative byte-level accounting from
-% \texttt{meow\_benchmark\_results\_v2.csv}.}
-% \label{tab:byte-accounting}
-% \end{table}
-
-% Table~\ref{tab:setup-accounting} records setup time for representative rows and
-% separates protocol, circuit, and CP-Link setup components. The current artifact
-% does not report serialized proving/verifying-key or CRS bytes; this is why the
-% main text states proof size as online proof material excluding key/CRS data.
-
-% \begin{table}[H]
-% \centering
-% \scriptsize
-% \setlength{\tabcolsep}{4pt}
-% \begin{tabularx}{\columnwidth}{@{}p{0.19\columnwidth}rrrrX@{}}
-% \toprule
-% \textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-Link} & \textbf{Key / CRS size} \\
-% \midrule
-% $k=1{,}024$ & $33.16$\,s & $0.18$\,s & $31.83$\,s & $1.15$\,s & Not reported by the current artifact. \\
-% $k=4{,}096$ & $130.08$\,s & $0.71$\,s & $125.01$\,s & $4.37$\,s & Not reported by the current artifact. \\
-% \bottomrule
-% \end{tabularx}
-% \caption{Setup accounting for representative rows.}
-% \label{tab:setup-accounting}
-% \end{table}
-
-% Table~\ref{tab:constraint-accounting} separates the dominant deterministic
-% $3tk$ fold terms from the remaining checked constraints. The residual includes
-% sampled RS evaluations, equality checks, and circuit
-% glue, so the table is a structural audit of the aggregate constraint counts
-% rather than a per-gadget profiler.
-
-% \begin{table}[H]
-% \centering
-% \scriptsize
-% \setlength{\tabcolsep}{3pt}
-% \begin{tabularx}{\columnwidth}{@{}p{0.17\columnwidth}rrrr@{}}
-% \toprule
-% \textbf{Case} & \textbf{Total} & \textbf{$3tk$ folds} & \textbf{Residual} & \textbf{Raw cols.} \\
-% \midrule
-% $k=1{,}024$ & $418{,}149$ & $393{,}216$ & $24{,}933$ & $12.6$\,MB \\
-% $k=4{,}096$ & $1{,}666{,}315$ & $1{,}572{,}864$ & $93{,}451$ & $50.3$\,MB \\
-% \bottomrule
-% \end{tabularx}
-% \caption{Structural constraint and raw-column-size accounting for two
-% representative rows.}
-% \label{tab:constraint-accounting}
-% \end{table}
-
-% The accounting tables should be read as lower-level support for the main
-% evaluation, not as additional benchmark claims.
-% They justify three statements used throughout the paper: the large sampled
-% columns remain private witness data, the serialized online proof is dominated
-% by compact opening material rather than raw columns, and the current artifact
-% still leaves key/CRS size and raw-matrix encoding/root construction as
-% deployment costs outside the online proof-byte measurements.
+\noindent\textbf{Non-interactive version.}
+The implementation uses the non-interactive version obtained by Fiat--Shamir.
+Instead of receiving \(\rho_0,\ldots,\rho_{q-1}\) from the verifier, the prover
+and verifier derive them from the public statement and transcript context.  The
+proof and verification equations are identical to those above.

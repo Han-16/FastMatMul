@@ -166,30 +166,23 @@ circuit, and the prover supplies:
   external Pedersen commitments open to the same messages.
 \end{itemize}
 Thus the verifier obtains a chain of consistency:
-\[
-\begin{array}{c}
-\text{SNARK witness values}
-\\
-\Updownarrow\ \text{CP-Link}
-\\
-\text{External Pedersen leaf commitments}
-\\
-\Updownarrow\ \text{Merkle openings}
-\\
-\text{pre-query Merkle roots}.
-\end{array}
-\]
+\begin{gather*}
+\myblock{SNARK witness values} \\
+\Updownarrow \ \text{\small CP-Link} \\
+\myblock{External Pedersen leaf commitments} \\
+\Updownarrow \ \text{\small Merkle openings} \\
+\myblock{pre-query Merkle roots}
+\end{gather*}
 This separation is essential for efficiency.  The SNARK checks only arithmetic
 relations on field elements, while Merkle authentication and commitment
 linking are verified outside the circuit.
 
 \subsection{Soundness Intuition}
 \label{sec:overview-soundness}
-
 The soundness argument has three layers. \\
 
 % \paragraph{Freivalds soundness}
-\noindent\textbf{Freivalds soundness}
+\noindent\textbf{Freivalds soundness.}
 If \(\mat{A}\mat{B}\neq\mat{C}\), then
 \(\mat{D}=\mat{A}\mat{B}-\mat{C}\) is nonzero.  With the structured challenge
 \(\vect{r}=(1,r,\ldots,r^{k-1})\), the vector
@@ -210,7 +203,7 @@ Union-bounding over the local relations checked by the protocol gives the
 proximity term used in the security analysis. \\
 
 % \paragraph{Commitment and linking soundness}
-\noindent\textbf{Commitment and linking soundness}
+\noindent\textbf{Commitment and linking soundness.}
 The distance argument applies only to values fixed before the query positions
 are sampled.  Merkle position binding prevents the prover from opening a root
 to two different leaves at the same position.  Pedersen binding prevents a

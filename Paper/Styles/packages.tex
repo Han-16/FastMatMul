@@ -22,3 +22,19 @@
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{groupplots}
 \usepackage[hidelinks]{hyperref}
+\usepackage{float}
+
+\usepackage{amsmath}
+
+% 공통으로 사용할 예쁜 블록 스타일 정의
+\newtcbox{\myblock}[1][]{
+  colback=blue!5!white,    % 배경색 (연한 파란색)
+  colframe=blue!60!black,  % 테두리색
+  fontupper=\sffamily,     % 깔끔한 고딕(Sans-serif) 폰트
+  nobeforeafter, 
+  center, 
+  tcbox raise base,
+  arc=4pt,                 % 둥근 모서리 반지름
+  boxrule=1pt,             % 테두리 두께
+  top=4pt, bottom=4pt, left=8pt, right=8pt % 내부 여백
+}

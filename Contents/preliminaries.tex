@@ -204,9 +204,9 @@ $\bPi_{\cp}=(\setup,\com,\prove,\verify)$.
 \subsection{CP-Link}
 \label{sec:prelim-cplink}
 
-A CP-Link proof is a proof system for linking commitments. It proves that two
-or more commitments are commitments to the same message, without revealing the
-message or the opening randomness.
+A CP-Link proof is a proof system for linking commitments. In its basic
+equality-link form, it proves that two or more commitments are commitments to
+the same message, without revealing the message or the opening randomness.
 
 Let $\com$ be a commitment scheme. For commitment keys
 $\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation is defined as
@@ -227,6 +227,22 @@ $\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation 
 \]
 A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all commitments $\cm_1,\ldots,\cm_t$ are commitments to the same message $m$.
 
+We use CP-Link through the standard statement/witness interface for a linking
+relation.  For the equality-link relation above, the public statement and
+witness are
+\[
+  \stmt_{\mathsf{link}}
+  =
+  ((\ck_i,\cm_i)_{i=1}^{t}),
+  \qquad
+  \wit_{\mathsf{link}}
+  =
+  (m,(o_i)_{i=1}^{t}).
+\]
+More structured linking relations may link commitments to deterministic blocks
+or projections of a common message; in that case the projection maps are part of
+\(\relation_{\mathsf{link}}\), but the algorithmic interface is unchanged.
+
 A CP-Link proof system is a tuple of algorithms
 $\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
 
@@ -238,14 +254,14 @@ generates public parameters for the linking relation.
 \item $\pi_{\mathsf{link}} \gets
 \bPi_{\mathsf{link}}.\prove(
 \para_{\mathsf{link}},
-(\ck_i,\cm_i)_{i=1}^{t},
-m,(o_i)_{i=1}^{t})$:
-outputs a proof that the commitments open to the same message $m$.
+\stmt_{\mathsf{link}},
+\wit_{\mathsf{link}})$:
+outputs a proof that the statement-witness pair satisfies the linking relation.
 
 \item $b \gets
 \bPi_{\mathsf{link}}.\verify(
 \para_{\mathsf{link}},
-(\ck_i,\cm_i)_{i=1}^{t},
+\stmt_{\mathsf{link}},
 \pi_{\mathsf{link}})$:
 outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
 \end{itemize}

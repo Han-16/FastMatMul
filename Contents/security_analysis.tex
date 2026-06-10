@@ -4,10 +4,10 @@
 We prove perfect completeness and computational soundness for the public-coin
 interactive \(\protocol\) scheme.  The proof is stated for the protocol in which
 the verifier samples the Freivalds challenge, the query positions, and the
-code-check points.
+code-check points. \\
 
 % \paragraph{Statement and scope}
-\noindent\textbf{Statement and scope}
+\noindent\textbf{Statement and scope.}
 Section~\ref{sec:construction} defines the checked relation as the composite
 relation
 \[
@@ -24,7 +24,7 @@ while the offline binding component
 membership checks and CP-Link proofs.  This section proves that satisfying both
 components implies soundness for the committed matrix-multiplication statement.
 
-The theorem is relative to a certified input root \(\rt_{ABC}\).  Namely,
+The theorem is relative to a committed input root \(\rt_{ABC}\).  Namely,
 \(\rt_{ABC}\) binds, before the Freivalds challenge is sampled, to row-wise
 encodings
 \[
@@ -33,7 +33,7 @@ encodings
   \widehat{\mat{C}}=\enc(\mat{C})
 \]
 of fixed matrices \(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\).
-The multiplication statement is false when these certified matrices satisfy
+The multiplication statement is false when these matrices satisfy
 \(\mat{A}\mat{B}\neq\mat{C}\).
 
 After the verifier samples the Freivalds challenge, the prover commits to the
@@ -84,8 +84,10 @@ properties.
 \end{definition}
 
 \begin{theorem}[Completeness and soundness]\label{thm:security}
-Assume that the input root \(\rt_{ABC}\) is certified as above and that the
-backend satisfies Definition~\ref{def:lamp-backend-assumptions}.  Then the
+Assume that the input root \(\rt_{ABC}\) is fixed before the Freivalds challenge
+and binds to valid row-wise encodings of fixed matrices
+\(\mat{A},\mat{B},\mat{C}\), as described above. Assume also that the
+backend satisfies Definition~\ref{def:lamp-backend-assumptions}. Then the
 interactive \(\protocol\) scheme satisfies:
 \begin{enumerate}[label=(\roman*)]
   \item \textbf{Perfect completeness.}
@@ -93,8 +95,8 @@ interactive \(\protocol\) scheme satisfies:
   one.
 
   \item \textbf{Interactive computational soundness.}
-  For every \(\ppt\) prover \(\mathcal{P}^*\), if the certified matrices satisfy
-  \(\mat{A}\mat{B}\neq\mat{C}\), then
+  For every \(\ppt\) prover \(\mathcal{P}^*\), if the matrices bound by
+  \(\rt_{ABC}\) satisfy \(\mat{A}\mat{B}\neq\mat{C}\), then
   \[
   \begin{aligned}
   \Pr[\mathsf{Acc}]
@@ -113,8 +115,10 @@ interactive \(\protocol\) scheme satisfies:
 \end{enumerate}
 \end{theorem}
 
+
 \begin{proof}
-\emph{Completeness.}
+% \emph{Completeness.}
+\noindent\textbf{Completeness.}
 If \(\mat{A}\mat{B}=\mat{C}\), then for every challenge vector
 \(\vect{r}=(1,r,\ldots,r^{k-1})\), the honest intermediate vectors
 \[
@@ -138,9 +142,10 @@ sampled index \(j\),
 Thus the honest witness satisfies
 \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\).  The honest prover also
 supplies valid Merkle openings and CP-Link proofs, so
-\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) holds and the verifier accepts.
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) holds and the verifier accepts. \\
 
-\emph{Soundness.}
+% \emph{Soundness.}
+\noindent\textbf{Soundness.}
 Condition first on the complement of the CP-SNARK, opening, CP-Link, and
 code-consistency failure events.  This conditioning costs
 \[
@@ -202,6 +207,25 @@ possible violated relations gives the proximity term \(4(1-\delta)^t\).
 Combining the CP-SNARK, opening, linking, code-consistency, Freivalds, and
 proximity-sampling failure probabilities proves the stated bound.
 \end{proof}
+
+\noindent\textbf{Concrete interpretation.}
+In our implementation, the Reed--Solomon code has rate \(\rho = 1/2\), so
+\(n=2k\) and
+\[
+  \delta
+  =
+  1-\frac{k}{n}+\frac{1}{n}
+  =
+  \frac{1}{2}+\frac{1}{2k}.
+\]
+With \(t=128\) sampled positions, the proximity term is therefore bounded by
+\[
+  4(1-\delta)^t
+  <
+  4\cdot 2^{-128}
+  =
+  2^{-126}.
+\]
 
 \begin{remark}[Fiat--Shamir]
 The theorem above analyzes the public-coin interactive protocol.  A

@@ -1,204 +1,158 @@
 \section{Implementation and Evaluation}
 \label{sec:implementation}
 
-We implement the multiplication-checking layer of $\protocol$ and evaluate the
-current artifact, denoted $\fmQA$, against an optimized SNARK-in-circuit
-Freivalds baseline~\cite{freivalds1977probabilistic}.
-$\fmQA$ uses multi-column Merkle openings, a Groth16 circuit proof, and the
-sampled-opening backend from Section~\ref{sec:construction}.
-All main experiments use a 256-bit prime field, rate $\rho=1/2$, codeword
-length $n=2k$, and $t=128$ sampled positions.
+We implement \(\protocol\) in Go using gnark.  The CP-SNARK layer is instantiated as a Groth16 over the BN254 curve, following the commit-and-prove interface used by \cite{legosnark, gnark}.  The encoding layer uses a Reed--Solomon code with rate \(\rho=1/2\), so the codeword length is \(n=2k\), and all matrix experiments use \(t=128\) sampled codeword positions.  The CP-Link layer is implemented using a pairing-based QA-NIZK proof~\cite{qa-nizk}; this instantiation verifies using a constant number of pairings.  Appendix~\ref{app:cplink-instant} gives the CP-Link construction used in our implementation.
+The QA-NIZK CP-Link instantiation requires a trusted setup; this is consistent with our backend, since the implementation already relies on a trusted setup for Groth16.
 The experiments were run on a Linux server with an AMD EPYC 7B13 CPU
-(32 cores) and 254GiB RAM.
+(32 cores) and \(254\) GB of memory.
 
-These measurements include the online sampled-handle path described in
-Section~\ref{sec:construction}: \(\rt_{ABC}\) fixes the packed encoded matrix
-columns before \(r\), \(\rt_{XYZ}\) fixes the packed encoded vector symbols
-before \(I\), the CP-SNARK backend binds the sampled blocks to
-\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\), Merkle openings
-authenticate the opened Pedersen leaves, and blockwise CP-Link connects the
-SNARK-side sampled blocks to those leaves.
-The raw sampled matrix columns are SNARK witness data, not serialized auxiliary
-proof bytes.
-All byte counts in this section are online proof bytes: they exclude raw-matrix
-encoding and construction of \(\rt_{ABC}\), proving/verifying keys, serialized
-CRS data, and generator material.
-They should not be read as complete end-to-end deployment costs from raw
-matrices.
-Appendix~\ref{app:eval-details} records parameter and measurement coverage
-details.
-
-\begin{figure}[t]
+\begin{table*}[!t]
 \centering
-\begin{tikzpicture}
-\begin{groupplot}[
-  group style={group size=1 by 2, vertical sep=0.85cm},
-  width=\columnwidth,
-  height=3.35cm,
-  xlabel={$\log k$},
-  xmin=6.5, xmax=13.5,
-  xtick={7,8,9,10,11,12,13},
-  grid=major,
-  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west},
-  every axis plot/.append style={thick},
-]
-\nextgroupplot[
-  ylabel={Constraints},
-  ymode=log,
-  log basis y={10},
-  ymin=1e4, ymax=1e8,
-]
-\addplot[color=orange, mark=pentagon*] coordinates {
-  (7, 54069) (8, 105915) (9, 209995) (10, 418149)
-  (11, 834075) (12, 1666315) (13, 3330789)
-};
-\addlegendentry{$\fmQA$}
-\addplot[color=red, mark=triangle*, dashed] coordinates {
-  (7, 49610) (8, 197194) (9, 788810) (10, 3156298)
-  (11, 12622154) (12, 50495818)
-};
-\addlegendentry{Freivalds}
-\nextgroupplot[
-  ylabel={Prove time (s)},
-  ymode=log,
-  log basis y={10},
-  ymin=0.5, ymax=1000,
-]
-\addplot[color=orange, mark=pentagon*] coordinates {
-  (7, 0.76) (8, 1.52) (9, 3.14) (10, 7.19)
-  (11, 17.33) (12, 48.54) (13, 151.61)
-};
-\addplot[color=red, mark=triangle*, dashed] coordinates {
-  (7, 0.58) (8, 2.03) (9, 6.89) (10, 25.63)
-  (11, 102.07) (12, 405.04)
-};
-\end{groupplot}
-\end{tikzpicture}
-\caption{Primary matrix benchmark. With the sampled-opening backend,
-$\fmQA$ follows the expected $\mathcal{O}(k)$ checking-layer growth,
-whereas the Freivalds SNARK baseline follows $\mathcal{O}(k^2)$ growth.}
-\Description{Two-panel line plot comparing FastMatMul QA and Freivalds. The
-top panel shows constraints and the bottom panel shows proving time on log
-scales.}
-\label{fig:main-benchmark}
-\end{figure}
-
-\input{Tables/Meow_vs_Freivalds}
-\input{Tables/Meow_breakdown}
-
-\paragraph{Primary matrix benchmark}
-Figure~\ref{fig:main-benchmark} shows the main scaling behavior.
-Freivalds constraints grow by approximately $4\times$ with each doubling of
-$k$, matching the expected $\mathcal{O}(k^2)$ scaling.
-In contrast, $\fmQA$ grows by approximately $2\times$, matching the
-$\mathcal{O}(k)$ checking-layer scaling of the sampled-opening backend.
-The crossover in absolute constraint count occurs at $k=256$.
-At $k=1{,}024$, $\fmQA$ uses $418{,}149$ constraints versus $3{,}156{,}298$
-for Freivalds, a $7.55\times$ reduction.
-At $k=4{,}096$, $\fmQA$ uses $1{,}666{,}315$ constraints versus
-$50{,}495{,}818$ for Freivalds, a $30.30\times$ reduction.
-
-The same benchmark shows a proving-time crossover at $k=256$.
-At $k=4{,}096$, $\fmQA$ proves in $48.54\,\text{s}$ versus
-$405.04\,\text{s}$ for Freivalds, an $8.34\times$ speedup.
-$\fmQA$ also completes $k=8{,}192$ with $3{,}330{,}789$ constraints and a
-$151.61\,\text{s}$ proving time; Freivalds was not measured at that size in the
-current artifact. Table~\ref{tab:meow-breakdown} breaks down the $\fmQA$ rows
-into commitment, SNARK, Merkle, and CP-Link components.
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}
-\begin{axis}[
-  ymode=log,
-  width=\columnwidth,
-  height=4.3cm,
-  ylabel={Relative cost (Freivalds = $1\times$)},
-  ymin=0.35, ymax=2.5,
-  symbolic x coords={Constraints,Setup,Prove,Verify},
-  xtick=data,
-  x tick label style={rotate=25, anchor=east, font=\scriptsize},
-  ytick={0.5,1,1.5,2},
-  yticklabels={$0.5\times$,$1\times$,$1.5\times$,$2\times$},
-  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west, fill=white},
-  enlarge x limits=0.14,
-  grid=major,
-  mark size=2.2pt,
-  every axis plot/.append style={thick},
-]
-\addplot[color=black, dashed, mark=none, line width=0.9pt] coordinates {
-  (Constraints,1) (Setup,1) (Prove,1) (Verify,1)
-};
-\addlegendentry{Freivalds baseline}
-\addplot[color=orange!90!black, mark=pentagon*] coordinates {
-  (Constraints,0.43) (Setup,0.50) (Prove,0.56) (Verify,1.39)
-};
-\addlegendentry{$\fmQA$}
-\end{axis}
-\end{tikzpicture}
-\caption{GPT-2 checking-layer case study at sequence length $1{,}024$ with
-$36$ matrix-multiplication claims over committed roots. Costs are normalized to
-the Freivalds baseline.}
-\Description{Ratio plot comparing GPT-2 relative cost.}
-\label{fig:gpt2-case-study}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrr}
+% \scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c cc ccc ccc ccc}
 \toprule
-\textbf{Metric} & \textbf{$\fmQA$} & \textbf{Freivalds} & \textbf{Ratio} \\
+\multirow{2}{*}{\(\boldsymbol{k}\)}
+& \multicolumn{2}{c}{\textbf{Commit Time}}
+& \multicolumn{3}{c}{\textbf{Prove Time}}
+& \multicolumn{3}{c}{\textbf{Verify Time}}
+& \multicolumn{3}{c}{\textbf{Proof Size}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}\cmidrule(lr){10-12}
+& ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Groth16 & Merkle & CP-Link
+& Merkle & Groth16 & CP-Link \\
 \midrule
-Constraints & $33.4$M & $76.8$M & $0.43\times$ \\
-Setup time & $2{,}078.38$\,s & $4{,}173.32$\,s & $0.50\times$ \\
-Prove time & $230.14$\,s & $408.69$\,s & $0.56\times$ \\
-Verify time & $0.68$\,s & $0.49$\,s & $1.39\times$ \\
-  $\fmQA$ online proof & $3{,}355{,}428$\,B & --- & --- \\
+$2^7$   & 0.09\,s   & 0.01\,s & 1\,ms & 0.63\,s  & 0.02\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}016\,B & 260\,B & 128\,B \\
+$2^8$   & 0.27\,s   & 0.02\,s & 1\,ms & 1.18\,s  & 0.05\,s & 2\,ms & 1\,ms & 3\,ms & 28{,}800\,B & 260\,B & 128\,B \\
+$2^9$   & 0.87\,s   & 0.04\,s & 1\,ms & 2.17\,s  & 0.07\,s & 2\,ms & 1\,ms & 3\,ms & 34{,}816\,B & 260\,B & 128\,B \\
+$2^{10}$ & 3.07\,s & 0.13\,s & 1\,ms & 3.88\,s  & 0.12\,s & 2\,ms & 1\,ms & 3\,ms & 43{,}904\,B & 260\,B & 128\,B \\
+$2^{11}$ & 9.61\,s & 0.41\,s & 1\,ms & 7.10\,s  & 0.21\,s & 2\,ms & 1\,ms & 3\,ms & 50{,}624\,B & 260\,B & 128\,B \\
+$2^{12}$ & 32.60\,s & 1.97\,s & 1\,ms & 13.55\,s & 0.42\,s & 2\,ms & 2\,ms & 3\,ms & 58{,}944\,B & 260\,B & 128\,B \\
+$2^{13}$ & 117.37\,s & 6.50\,s & 1\,ms & 26.81\,s & 0.93\,s & 2\,ms & 2\,ms & 3\,ms & 66{,}880\,B & 260\,B & 128\,B \\
 \bottomrule
 \end{tabular}
-\caption{Exact GPT-2 checking-layer metrics from the CSV artifact for sequence
-length $1{,}024$, $36$ matrix-multiplication claims, and $5$ commitment groups.}
-\label{tab:gpt2-case-study}
+\end{adjustbox}
+\vspace{6pt}
+\caption{Component-level measurements for \(\protocol\).}
+\label{tab:lamp-breakdown}
+\end{table*}
+
+\subsection{LAMP Component Breakdown}
+\label{sec:eval-lamp-breakdown}
+
+Table~\ref{tab:lamp-breakdown} breaks down the measured \(\protocol\) costs by
+component.  The column ``ABC commit'' is the time to commit to the encoded
+matrix blocks \(\vect{m}_{ABC,j}\), including the Pedersen leaf commitments and
+the Merkle root \(\rt_{ABC}\).  The column ``XYZ commit'' is the analogous time
+for the encoded intermediate-vector blocks \(\vect{m}_{XYZ,j}\) and the root
+\(\rt_{XYZ}\).  Once the Merkle trees are built, the sampled Merkle proof is
+generated quickly: in all measured rows, Merkle proof generation is about
+\(1\) ms.  The Groth16 proving column is the time to prove the online
+arithmetic relation from Figure~\ref{relation:online}, and the CP-Link column is
+the time to link the SNARK-side sampled-block commitments to the opened
+Pedersen leaves.
+
+For proof size, the Merkle column reports the serialized Merkle multi-proof for
+the sampled openings.  The Groth16 column reports the Groth16 proof together
+with the SNARK-side witness commitments \(\widetilde{\cm}\).  The CP-Link
+column reports the serialized CP-Link proof.
+
+The breakdown shows the expected division of labor in \(\protocol\).  The
+Groth16 proving time grows roughly linearly with \(k\), reflecting the
+\(\mathcal{O}(tk)\) online relation.  Commitment generation is also visible,
+especially for \(\rt_{ABC}\), because each sampled codeword position contains
+three length-\(k\) encoded matrix columns before they are packed into Pedersen
+leaves.  Verification remains small: the verifier checks one Groth16 proof,
+sampled Merkle memberships, and CP-Link proofs, with total verification time
+below \(10\) ms in all single-matrix rows.
+
+\begin{table*}[!t]
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c cc cc cc cc}
+\toprule
+\multirow{2}{*}{\(\boldsymbol{k}\)}
+& \multicolumn{2}{c}{\textbf{Constraints}}
+& \multicolumn{2}{c}{\textbf{Prove Time}}
+& \multicolumn{2}{c}{\textbf{Verify Time}}
+& \multicolumn{2}{c}{\textbf{Proof Size}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+& \(\protocol\) & Freivalds
+& \(\protocol\) & Freivalds
+& \(\protocol\) & Freivalds
+& \(\protocol\) & Freivalds \\
+\midrule
+$2^7$   & 54{,}069      & 49{,}610       & 0.76\,s  & 0.58\,s   & 6\,ms & 1\,ms & 22{,}404\,B & 196\,B \\
+$2^8$   & 105{,}915     & 197{,}194      & 1.52\,s  & 2.03\,s   & 6\,ms & 1\,ms & 29{,}188\,B & 196\,B \\
+$2^9$   & 209{,}995     & 788{,}810      & 3.14\,s  & 6.89\,s   & 6\,ms & 1\,ms & 35{,}204\,B & 196\,B \\
+$2^{10}$ & 418{,}149   & 3{,}156{,}298  & 7.19\,s  & 25.63\,s  & 6\,ms & 2\,ms & 44{,}292\,B & 196\,B \\
+$2^{11}$ & 834{,}075   & 12{,}622{,}154 & 17.33\,s & 102.07\,s & 6\,ms & 2\,ms & 51{,}012\,B & 196\,B \\
+$2^{12}$ & 1{,}666{,}315 & 50{,}495{,}818 & 48.54\,s & 405.04\,s & 7\,ms & 2\,ms & 59{,}332\,B & 196\,B \\
+$2^{13}$ & 3{,}330{,}789 & -- & 151.61\,s & -- & 7\,ms & -- & 67{,}268\,B & -- \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{\(\protocol\) compared with a Freivalds-in-SNARK baseline.}
+\label{tab:lamp-vs-freivalds}
+\end{table*}
+
+\subsection{Comparison with a Freivalds Baseline}
+\label{sec:eval-freivalds}
+
+We compare \(\protocol\) with a Freivalds baseline implemented as a SNARK
+circuit.  The baseline applies the same randomized reduction but computes the
+resulting vector-matrix products inside the circuit, so its constraint count
+scales as \(\mathcal{O}(k^2)\).  Table~\ref{tab:lamp-vs-freivalds} compares
+constraint counts, proving time, verification time, and online proof size.  For
+the Freivalds baseline, the proof-size column is \(196\) B, accounting for the
+Groth16 proof and the commitment material used by the baseline.
+
+The crossover occurs at \(k=256\).  At \(k=1{,}024\), \(\protocol\) uses
+\(418{,}149\) constraints compared with \(3{,}156{,}298\) constraints for
+Freivalds, a \(7.55\times\) reduction, and proving time drops from
+\(25.63\) s to \(7.19\) s.  At \(k=4{,}096\), the constraint count is reduced
+from \(50{,}495{,}818\) to \(1{,}666{,}315\), a \(30.30\times\) reduction, and
+proving time drops from \(405.04\) s to \(48.54\) s.  For \(k=8{,}192\),
+\(\protocol\) completes with \(3{,}330{,}789\) constraints, \(151.61\) s
+proving time, \(7\) ms verification time, and \(67{,}268\) B of proof material.
+The Freivalds baseline ran out of memory at this size, so its entries are not
+reported.  The price is larger online proof material and slightly higher
+verification time, because \(\protocol\) sends sampled Merkle openings and
+CP-Link material in addition to the Groth16 proof.
+
+
+\subsection{GPT-2 Workload}
+\label{sec:eval-gpt2}
+
+We also evaluate a GPT-2-style workload with sequence length \(2^{10}=1{,}024\).
+The workload contains \(36\) matrix-multiplication claims and \(5\) commitment
+groups.  Table~\ref{tab:lamp-gpt2} reports the aggregate constraint count,
+proving time, verification time, and online proof size for \(\protocol\) and
+the Freivalds baseline.
+
+On this workload, \(\protocol\) reduces the constraint count by \(2.30\times\)
+and the proving time by \(1.78\times\).  Verification is \(1.39\times\) slower
+than the Freivalds baseline because the verifier also checks Merkle membership
+and CP-Link proofs.  The \(\protocol\) proof is larger because it aggregates
+the sampled openings and linking material for all \(36\) multiplication claims.
+
+\begin{table}[H]
+\centering
+% \footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}ccccc@{}}
+\toprule
+\textbf{System} & \textbf{Constraints} & \textbf{Prove} & \textbf{Verify} & \textbf{Proof Size} \\
+\midrule
+\(\protocol\) & 33{,}396{,}220 & 230.14\,s & 0.68\,s & 3{,}355{,}428\,B \\
+Freivalds & 76{,}807{,}671 & 408.69\,s & 0.49\,s & 196\,B \\
+\bottomrule
+\end{tabular*}
+\vspace{6pt}
+\caption{GPT-2 at sequence length \(2^{10}\).}
+\label{tab:lamp-gpt2}
 \end{table}
-
-\paragraph{Verification, online bytes, and GPT-2 workload}
-$\fmQA$ verification is nearly constant at about $0.01\,\text{s}$ in the matrix
-benchmark, dominated by the auxiliary linking backend; Freivalds verification is
-faster because it checks only a direct Groth16 proof.
-The artifact therefore trades slower verification for smaller prover circuits
-and faster proving at medium and large dimensions.
-The $\fmQA$ online proof grows from $22{,}404$ bytes at $k=128$ to
-$59{,}332$ bytes at $k=4{,}096$ and $67{,}268$ bytes at $k=8{,}192$.
-At $k=4{,}096,t=128$, publishing the three sampled input-matrix columns alone
-would require about $3tk\cdot32\approx50$\,MB; Appendix~\ref{app:eval-details}
-gives detailed byte, setup, and constraint accounting.
-
-Figure~\ref{fig:gpt2-case-study} and Table~\ref{tab:gpt2-case-study} report the
-GPT-2-style workload over committed roots. $\fmQA$ reduces constraints by
-$2.30\times$ and proving time by $1.78\times$, with lower setup time in this
-experiment. Verification is $1.39\times$ slower, so latency-sensitive
-deployments still need batching, amortization, or a more succinct
-opening/linking backend.
-The $3.36$\,MB GPT-2 online proof is larger than the single-matrix rows because
-it aggregates $36$ multiplication claims and their sampled SNARK-side
-commitments, Merkle authentication paths, and linking material.
-
-\paragraph{Strict parameters and deployment scope}
-The measured rows use $t=128$ to study scaling. If $\delta=1/2$, a conservative
-per-term $2^{-131}$ proximity budget uses $t=133$, increasing sample-dependent
-work by only $1.0391\times$.
-At $k=4{,}096$, this extrapolates to at most $1.74$ million constraints,
-$50.44\,\text{s}$ proving time, and $62$\,KB online proof bytes.
-The current artifact does not include measured $t=133$ rows; these strict
-numbers are extrapolations from the measured $t=128$ rows.
-Online-byte figures exclude raw-matrix encoding, committed-root construction,
-proving/verifying keys, and serialized CRS or generator material. End-to-end
-deployments preserve the measured prover-time win only if amortized root
-generation costs stay below
-the observed margins: $356.50\,\text{s}$ for $k=4{,}096$ and $178.55\,\text{s}$
-for the GPT-2 row.
-The CSV artifact reports point estimates and aggregate setup/proving/verification
-times; repeated-run variance, confidence intervals, peak memory, and serialized
-key/CRS/generator sizes remain unmeasured.

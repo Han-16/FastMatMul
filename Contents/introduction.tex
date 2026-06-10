@@ -11,7 +11,6 @@ involve matrix multiplications with dimension \(k \ge 1{,}000\). A naive
 arithmetization of a single \(k \times k\) matrix multiplication inside a SNARK circuit generates \(\mathcal{O}(k^3)\) arithmetic constraints, which is
 impractical even for moderate values of \(k\). \\
 
-% \paragraph{\(\mathcal{O}(k^2)\) barrier.}
 \noindent\textbf{The \(\mathcal{O}(k^2)\) barrier.}
 Freivalds' classical randomized check~\cite{freivalds1977probabilistic} reduces
 this cost from \(\mathcal{O}(k^3)\) to \(\mathcal{O}(k^2)\). Given matrices
@@ -29,7 +28,6 @@ R1CS constraints and \(405.04\,\text{s}\) of proving time at \(k=4{,}096\).
 Thus, a significant gap remains between the \(\mathcal{O}(k^2)\) SNARK cost and
 practical large-scale matrix verification. \\
 
-% \paragraph{Our insight: from computation to checking.}
 \noindent\textbf{Our insight: From computation to checking.} 
 We observe that the \(\mathcal{O}(k^2)\) barrier is not inherent to the
 verification problem itself. Rather, it arises because existing approaches
@@ -60,7 +58,6 @@ additional opening and linking work is
 sampled codeword positions and is independent of the matrix dimension \(k\), the
 protocol has linear in-circuit cost in the matrix dimension.
 
-% \paragraph{Contributions.}
 \noindent\textbf{Contributions.} 
 We present \(\protocol\), a protocol for efficiently proving matrix multiplication statements. Our contributions are as follows. 
 \begin{itemize} 
@@ -72,3 +69,14 @@ We present \(\protocol\), a protocol for efficiently proving matrix multiplicati
     \item \textbf{Implementation and evaluation.} We implement \(\protocol\) in Go and evaluate it against a Freivalds-based SNARK circuit for matrix dimensions from \(k=2^7\) to \(2^{13}\). At \(k=2^{12}\), \(\protocol\) reduces the constraint count by \(30.3\times\) and shortens proof generation time by \(8.34\times\), while verification remains independent of the matrix dimension and takes less than \(0.01\,\text{s}\). 
     We also evaluate \(\protocol\) on a GPT-2 workload with sequence length \(2^{10}\), where it reduces the constraint count by \(2.3\times\) and proving time by \(1.78\times\), showing that the approach extends to matrix-heavy neural network workloads. 
 \end{itemize}
+
+\noindent\textbf{Paper organization.}
+Section~\ref{sec:related} discusses related work.
+Section~\ref{sec:prelim} introduces the necessary background.
+Section~\ref{sec:tech-overview} gives an overview of \(\protocol\), and
+Section~\ref{sec:construction} presents the full construction.
+Section~\ref{sec:security} proves security, and
+Section~\ref{sec:implementation} reports the implementation and evaluation.
+Section~\ref{sec:conclusion} concludes.
+Additional proofs and backend details appear in the appendices.
+
