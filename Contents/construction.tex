@@ -131,7 +131,7 @@ inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
 Instead, it checks only the field equations that certify the sampled encoded
 positions are consistent with the Freivalds reduction.
 
-The public statement contains the merkle roots and verifier-sampled
+The public statement contains the Merkle roots and verifier-sampled
 challenges:
   $\stmt
   =
@@ -488,7 +488,7 @@ using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} +
 A naive SNARK arithmetization of matrix multiplication costs
 \(\mathcal{O}(k^3)\) constraints, while a Freivalds-based SNARK baseline computes
 the vector-matrix products inside the circuit and costs \(\mathcal{O}(k^2)\) constraints.  \(\protocol\) moves the vector-matrix products to native prover work and checks only sampled encoded-column relations inside the CP-SNARK.  
-As a result, the main constraints of circuit is 
+As a result, the main circuit constraint count is
 \(\mathcal{O}(tk)\).
 
 \begin{figure*}[p]

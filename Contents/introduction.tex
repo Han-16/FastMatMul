@@ -7,7 +7,7 @@ computation. A prover may wish to convince a verifier that matrices
 requiring either the verifier or the SNARK circuit to recompute the entire
 product. This problem appears throughout verifiable inference and training for
 modern neural networks. In particular, projection and attention layers often
-involve matrix multiplications with dimension \(k \ge 1{,}000\). A na\"ive
+involve matrix multiplications with dimension \(k \ge 1{,}000\). A naive
 arithmetization of a single \(k \times k\) matrix multiplication inside a SNARK circuit generates \(\mathcal{O}(k^3)\) arithmetic constraints, which is
 impractical even for moderate values of \(k\). \\
 
