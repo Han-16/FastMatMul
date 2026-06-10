@@ -39,71 +39,93 @@ The circuit checks field equations on sampled encoded values, while the auxiliar
 
 \subsection{Commitment Layout and Public Challenges}
 \label{sec:commitment-challenge}
-
 The prover first encodes the matrices row-wise:
-  $\widehat{\mat{A}}=\enc(\mat{A}),
+{\footnotesize
+\(\widehat{\mat{A}}=\enc(\mat{A}),
   \widehat{\mat{B}}=\enc(\mat{B}),
-  \widehat{\mat{C}}=\enc(\mat{C}).$
+  \widehat{\mat{C}}=\enc(\mat{C})\).
+}
 For each codeword position \(j\in[n]\), it packs the three encoded columns into
-  $\vect{m}_{ABC,j}
+{\footnotesize
+\(\vect{m}_{ABC,j}
   \coloneqq
   \big(
     \widehat{\mat{A}}[*,j]\,
     \|\,\widehat{\mat{B}}[*,j]\,
     \|\,\widehat{\mat{C}}[*,j]
   \big)
-  \in\mathbb{F}^{3k}.$
+  \in\mathbb{F}^{3k}\).
+}
 Using a Pedersen commitment key \(\ck_{ABC}\), the prover samples
 \(o_{ABC,j}\sample\mathbb{F}\) and computes
-  $\cm_{ABC,j}
+{\footnotesize
+\(\cm_{ABC,j}
   \gets
-  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}).$
+  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j})\).
+}
 The matrix root is the Merkle commitment to these Pedersen commitments:
-  $\rt_{ABC}
+{\footnotesize
+\(\rt_{ABC}
   \gets
-  \merkleC((\cm_{ABC,j})_{j\in[n]};\bot).$
+  \merkleC((\cm_{ABC,j})_{j\in[n]};\bot)\).
+}
 The root \(\rt_{ABC}\) is fixed before the Freivalds challenge is derived.
 After receiving \(\rt_{ABC}\), the verifier samples \(r\sample\mathbb{F}\). 
-The prover sets $\vect{r}=(1,r,r^2,\ldots,r^{k-1})$
+The prover sets {\footnotesize \(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\)}
 and computes
-  $\vect{x}=\vect{r}\mat{A},
+{\footnotesize
+\(\vect{x}=\vect{r}\mat{A},
   \vect{y}=\vect{x}\mat{B},
-  \vect{z}=\vect{r}\mat{C}.$
+  \vect{z}=\vect{r}\mat{C}\).
+}
 It then encodes the intermediate vectors:
-  $\widehat{\vect{x}}=\enc(\vect{x}),
+{\footnotesize
+\(\widehat{\vect{x}}=\enc(\vect{x}),
   \widehat{\vect{y}}=\enc(\vect{y}),
-  \widehat{\vect{z}}=\enc(\vect{z}).$
+  \widehat{\vect{z}}=\enc(\vect{z})\).
+}
 For each \(j\in[n]\), the prover packs the encoded vector symbols into
-  $\vect{m}_{XYZ,j}
+{\footnotesize
+\(\vect{m}_{XYZ,j}
   \coloneqq
   \big(
     \widehat{\vect{x}}[j]\,
     \|\,\widehat{\vect{y}}[j]\,
     \|\,\widehat{\vect{z}}[j]
   \big)
-  \in\mathbb{F}^{3}$.
+  \in\mathbb{F}^{3}\).
+}
 Using a Pedersen commitment key \(\ck_{XYZ}\), the prover samples
 \(o_{XYZ,j}\sample\mathbb{F}\), computes
-  $\cm_{XYZ,j}
+{\footnotesize
+\(\cm_{XYZ,j}
   \gets
-  \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}),$
+  \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j})\),
+}
 and sends the vector-symbol root
-  $\rt_{XYZ}
+{\footnotesize
+\(\rt_{XYZ}
   \gets
-  \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot)$
+  \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot)\)
+}
 to the verifier.
-
-Only after receiving \(\rt_{XYZ}\) does the verifier sample the query tuple $I=(j_1,\ldots,j_t)\sample [n]^t$.
+Only after receiving \(\rt_{XYZ}\) does the verifier sample the query tuple
+{\footnotesize \(I=(j_1,\ldots,j_t)\sample [n]^t\).}
 It also samples public code-check points
-\(\alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D\), where \(D\) is the
+{\footnotesize
+\(\alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D\),
+}
+where \(D\) is the
 code evaluation domain.  These points are used by the circuit to check that
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are encodings of
+{\footnotesize
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\)
+}
+are encodings of
 the claimed intermediate vectors.  For the Reed--Solomon code used in our implementation, this check is the barycentric out-of-domain consistency test recalled in Appendix~\ref{app:rs-barycentric}. 
 
 
 \subsection{The Online Relation}
 \label{sec:snark-relation}
-
 The online relation is the arithmetic relation proved inside the
 inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
 Instead, it checks only the field equations that certify the sampled encoded
