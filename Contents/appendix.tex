@@ -282,244 +282,244 @@ In \(\protocol\), this check is applied independently to
 \(3(n-1)/(|\mathbb{F}|-n)\) term used in
 Definition~\ref{def:lamp-backend-assumptions}.
 
-\section{CP-Link Backend Instantiation}
-\label{app:cplink-backend}
+% \section{CP-Link Backend Instantiation}
+% \label{app:cplink-backend}
 
-This appendix records the concrete blockwise CP-Link relation used by the
-artifact.  For each queried \(j\in I\), the external Pedersen leaves have the
-form
-\[
-\begin{aligned}
-  \cm_{ABC,j}
-  &=
-  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}),\\
-  \cm_{XYZ,j}
-  &=
-  \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}).
-\end{aligned}
-\]
-The CP-SNARK committed-witness interface produces
-\(\widetilde{\cm}_{ABC}\) for the concatenated sampled matrix blocks
-\((\vect{m}_{ABC,j})_{j\in I}\), and \(\widetilde{\cm}_{XYZ}\) for the
-concatenated sampled vector blocks \((\vect{m}_{XYZ,j})_{j\in I}\).  The
-CP-Link proof shows that these SNARK-side commitments and the opened external
-Pedersen leaves contain the same block messages.
+% This appendix records the concrete blockwise CP-Link relation used by the
+% artifact.  For each queried \(j\in I\), the external Pedersen leaves have the
+% form
+% \[
+% \begin{aligned}
+%   \cm_{ABC,j}
+%   &=
+%   \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}),\\
+%   \cm_{XYZ,j}
+%   &=
+%   \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}).
+% \end{aligned}
+% \]
+% The CP-SNARK committed-witness interface produces
+% \(\widetilde{\cm}_{ABC}\) for the concatenated sampled matrix blocks
+% \((\vect{m}_{ABC,j})_{j\in I}\), and \(\widetilde{\cm}_{XYZ}\) for the
+% concatenated sampled vector blocks \((\vect{m}_{XYZ,j})_{j\in I}\).  The
+% CP-Link proof shows that these SNARK-side commitments and the opened external
+% Pedersen leaves contain the same block messages.
 
-\begin{theorem}[Batched CP-Link backend]\label{thm:cp-link-backend}
-Assume the Pedersen parameters are binding, the QA-NIZK proof for the linear
-batch relation is sound, and the batching challenge is sampled by the
-Fiat--Shamir random oracle after the batch statement is fixed.  For the two
-sampled block families \(ABC\) and \(XYZ\), each with \(t\) queried blocks, the
-batched CP-Link verifier accepts a false batch with probability at most
-\[
-  \epsilon_{\mathsf{ped}}
-  +\epsilon_{\mathsf{QA}}
-  +\frac{2t}{|\mathbb{F}|}.
-\]
-Generator and CRS bytes are setup material and are not included in the online
-proof-size claim.
-\end{theorem}
+% \begin{theorem}[Batched CP-Link backend]\label{thm:cp-link-backend}
+% Assume the Pedersen parameters are binding, the QA-NIZK proof for the linear
+% batch relation is sound, and the batching challenge is sampled by the
+% Fiat--Shamir random oracle after the batch statement is fixed.  For the two
+% sampled block families \(ABC\) and \(XYZ\), each with \(t\) queried blocks, the
+% batched CP-Link verifier accepts a false batch with probability at most
+% \[
+%   \epsilon_{\mathsf{ped}}
+%   +\epsilon_{\mathsf{QA}}
+%   +\frac{2t}{|\mathbb{F}|}.
+% \]
+% Generator and CRS bytes are setup material and are not included in the online
+% proof-size claim.
+% \end{theorem}
 
-The logical CP-Link statement contains one equality per opened block.  We index
-these \(Q=2t\) equalities by \(q\in[Q]\).  Each equality has the form
-\[
-  C^{\mathsf{snark}}_q
-  -
-  C^{\mathsf{leaf}}_q
-  =
-  \Delta_q H,
-\]
-where \(C^{\mathsf{snark}}_q\) is the commitment induced by the SNARK-side
-sampled-block commitment, \(C^{\mathsf{leaf}}_q\) is the corresponding external
-Pedersen leaf commitment, and \(\Delta_q\) is the difference of the two opening
-randomness values.  The batch statement is
-\[
-\begin{aligned}
-P_I&=\{(\mathrm{tag}_q,C^{\mathsf{snark}}_q,C^{\mathsf{leaf}}_q)\}_{q=1}^{Q},\\
-T_I&=\Hash(\textsf{LAMP-link-batch},\rt_{ABC},\rt_{XYZ},I,P_I).
-\end{aligned}
-\]
-The implementation derives
-\[
-  \beta
-  \gets
-  \Hash(\textsf{LAMP-link-rand},T_I,P_I)
-\]
-and checks the single randomized linear relation
-\[
-  \sum_{q=1}^{Q}\beta^q
-  (C^{\mathsf{snark}}_q-C^{\mathsf{leaf}}_q)
-  =
-  \left(\sum_{q=1}^{Q}\beta^q\Delta_q\right)H .
-\]
-If any individual equality is false after the batch statement is fixed, the
-left-minus-right side is a nonzero polynomial in \(\beta\) of degree at most
-\(Q\).  Hence the randomized batch can pass with probability at most
-\(Q/|\mathbb{F}|=2t/|\mathbb{F}|\).  Combining this batch error with Pedersen
-binding and QA-NIZK soundness gives Theorem~\ref{thm:cp-link-backend}.  The
-reported \(128\)-byte CP-Link proof is one online batched QA-NIZK proof for the
-whole sampled batch, not a per-link cost.
+% The logical CP-Link statement contains one equality per opened block.  We index
+% these \(Q=2t\) equalities by \(q\in[Q]\).  Each equality has the form
+% \[
+%   C^{\mathsf{snark}}_q
+%   -
+%   C^{\mathsf{leaf}}_q
+%   =
+%   \Delta_q H,
+% \]
+% where \(C^{\mathsf{snark}}_q\) is the commitment induced by the SNARK-side
+% sampled-block commitment, \(C^{\mathsf{leaf}}_q\) is the corresponding external
+% Pedersen leaf commitment, and \(\Delta_q\) is the difference of the two opening
+% randomness values.  The batch statement is
+% \[
+% \begin{aligned}
+% P_I&=\{(\mathrm{tag}_q,C^{\mathsf{snark}}_q,C^{\mathsf{leaf}}_q)\}_{q=1}^{Q},\\
+% T_I&=\Hash(\textsf{LAMP-link-batch},\rt_{ABC},\rt_{XYZ},I,P_I).
+% \end{aligned}
+% \]
+% The implementation derives
+% \[
+%   \beta
+%   \gets
+%   \Hash(\textsf{LAMP-link-rand},T_I,P_I)
+% \]
+% and checks the single randomized linear relation
+% \[
+%   \sum_{q=1}^{Q}\beta^q
+%   (C^{\mathsf{snark}}_q-C^{\mathsf{leaf}}_q)
+%   =
+%   \left(\sum_{q=1}^{Q}\beta^q\Delta_q\right)H .
+% \]
+% If any individual equality is false after the batch statement is fixed, the
+% left-minus-right side is a nonzero polynomial in \(\beta\) of degree at most
+% \(Q\).  Hence the randomized batch can pass with probability at most
+% \(Q/|\mathbb{F}|=2t/|\mathbb{F}|\).  Combining this batch error with Pedersen
+% binding and QA-NIZK soundness gives Theorem~\ref{thm:cp-link-backend}.  The
+% reported \(128\)-byte CP-Link proof is one online batched QA-NIZK proof for the
+% whole sampled batch, not a per-link cost.
 
-\section{Additional Evaluation Details}
-\label{app:eval-details}
+% \section{Additional Evaluation Details}
+% \label{app:eval-details}
 
-This appendix records the measurement boundary behind the main evaluation.
-Tables~\ref{tab:eval-parameters} and~\ref{tab:metric-coverage} first state the
-fixed experimental parameters and which costs are covered by the artifact.
-Tables~\ref{tab:proof-material-accounting}--\ref{tab:constraint-accounting}
-then separate serialized proof material from private Groth16 witness data and
-from costs that remain unmeasured, such as raw-matrix encoding/root construction and
-serialized key/CRS size.
-The intent is to make the main text's proof-size and speedup claims auditable
-without treating the checking-layer measurements as full end-to-end VC costs.
+% This appendix records the measurement boundary behind the main evaluation.
+% Tables~\ref{tab:eval-parameters} and~\ref{tab:metric-coverage} first state the
+% fixed experimental parameters and which costs are covered by the artifact.
+% Tables~\ref{tab:proof-material-accounting}--\ref{tab:constraint-accounting}
+% then separate serialized proof material from private Groth16 witness data and
+% from costs that remain unmeasured, such as raw-matrix encoding/root construction and
+% serialized key/CRS size.
+% The intent is to make the main text's proof-size and speedup claims auditable
+% without treating the checking-layer measurements as full end-to-end VC costs.
 
-Table~\ref{tab:eval-parameters} fixes the common parameter choices used by the
-reported rows. In particular, the measured rows use $t=128$ for scaling, while
-the table also records the nearby query counts needed for stricter
-proximity-only and per-term security budgets.
+% Table~\ref{tab:eval-parameters} fixes the common parameter choices used by the
+% reported rows. In particular, the measured rows use $t=128$ for scaling, while
+% the table also records the nearby query counts needed for stricter
+% proximity-only and per-term security budgets.
 
-\begin{table}[H]
-\centering
-\small
-\begin{tabularx}{\columnwidth}{lX}
-\toprule
-\textbf{Parameter} & \textbf{Value in main experiments} \\
-\midrule
-Field size & 256-bit prime field \\
-Server & AMD EPYC 7B13, 32 cores, 251.69\,GiB RAM, Linux/amd64 \\
-Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
-Code rate & $\rho=1/2$ \\
-Codeword length & $n=2k$ \\
-Sampled positions & $t=128$ \\
-Primary linking layer & Packed Merkle roots, SNARK-side sampled-block commitments, QA-NIZK/CP-Link, and multi-column Merkle openings \\
-Backend model & CP-Link sampled intermediate backend; input roots are fixed before $r$ \\
-Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
-\bottomrule
-\end{tabularx}
-\caption{Concrete parameters used in the main experiments.}
-\label{tab:eval-parameters}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \small
+% \begin{tabularx}{\columnwidth}{lX}
+% \toprule
+% \textbf{Parameter} & \textbf{Value in main experiments} \\
+% \midrule
+% Field size & 256-bit prime field \\
+% Server & AMD EPYC 7B13, 32 cores, 251.69\,GiB RAM, Linux/amd64 \\
+% Matrix dimensions & $\fmQA$: $2^7$--$2^{13}$; Freivalds: $2^7$--$2^{12}$ \\
+% Code rate & $\rho=1/2$ \\
+% Codeword length & $n=2k$ \\
+% Sampled positions & $t=128$ \\
+% Primary linking layer & Packed Merkle roots, SNARK-side sampled-block commitments, QA-NIZK/CP-Link, and multi-column Merkle openings \\
+% Backend model & CP-Link sampled intermediate backend; input roots are fixed before $r$ \\
+% Query-count targets & Measured rows use $t=128$; proximity-only $2^{-128}$ at $\delta=1/2$ uses $t=130$; conservative per-term $2^{-131}$ uses $t=133$. \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Concrete parameters used in the main experiments.}
+% \label{tab:eval-parameters}
+% \end{table}
 
-Table~\ref{tab:metric-coverage} is a measurement-scope checklist rather than a
-performance result. It distinguishes quantities measured directly by the CSV
-artifact from costs that remain outside the online proof bytes, most notably
-raw-matrix encoding/root construction and serialized key/CRS sizes.
+% Table~\ref{tab:metric-coverage} is a measurement-scope checklist rather than a
+% performance result. It distinguishes quantities measured directly by the CSV
+% artifact from costs that remain outside the online proof bytes, most notably
+% raw-matrix encoding/root construction and serialized key/CRS sizes.
 
-\begin{table}[H]
-\centering
-\small
-\begin{tabularx}{\columnwidth}{@{}p{0.31\columnwidth}p{0.17\columnwidth}X@{}}
-\toprule
-\textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
-\midrule
-Constraint count & Yes, aggregate & Groth16 circuit size including sampled RS evaluations and fold checks; per-gadget constraint counters are not reported, and CP-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
-Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
-Verification time & Yes & Includes current QA-NIZK/CP-Link and opening verification overhead. \\
-Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
-Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
-Committed-root generation & Partial & Construction of \(\rt_{ABC}\) and \(\rt_{XYZ}\) is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
-Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
-\bottomrule
-\end{tabularx}
-\caption{Measurement coverage in the current artifact.}
-\label{tab:metric-coverage}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \small
+% \begin{tabularx}{\columnwidth}{@{}p{0.31\columnwidth}p{0.17\columnwidth}X@{}}
+% \toprule
+% \textbf{Metric} & \textbf{Covered?} & \textbf{Interpretation} \\
+% \midrule
+% Constraint count & Yes, aggregate & Groth16 circuit size including sampled RS evaluations and fold checks; per-gadget constraint counters are not reported, and CP-SNARK/linking overhead is measured in time/proof bytes rather than as extra R1CS constraints. \\
+% Online proving time & Yes & Excludes native matrix multiplication and one-time setup. \\
+% Verification time & Yes & Includes current QA-NIZK/CP-Link and opening verification overhead. \\
+% Proof size & Yes & Includes Groth16, compact sampled commitments/openings, and QA-NIZK material; raw sampled matrix columns are Groth16 witness data, not serialized proof bytes. \\
+% Setup time & Partial & Recorded for the matrix and GPT-2 workloads; setup/key sizes are not reported. \\
+% Committed-root generation & Partial & Construction of \(\rt_{ABC}\) and \(\rt_{XYZ}\) is outside online proof bytes; raw-matrix encoding/root costs must be added for end-to-end deployments. \\
+% Peak memory and variance & No & Needed for a full systems artifact evaluation. \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Measurement coverage in the current artifact.}
+% \label{tab:metric-coverage}
+% \end{table}
 
-Table~\ref{tab:proof-material-accounting} explains the proof-size convention
-used in the main text. The sampled matrix columns are large, but they are
-private Groth16 witness data; the serialized proof contains only compact
-handles, authentication paths, the Groth16 proof, and the batched CP-Link
-material.
+% Table~\ref{tab:proof-material-accounting} explains the proof-size convention
+% used in the main text. The sampled matrix columns are large, but they are
+% private Groth16 witness data; the serialized proof contains only compact
+% handles, authentication paths, the Groth16 proof, and the batched CP-Link
+% material.
 
-\begin{table}[H]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabularx}{\columnwidth}{@{}p{0.30\columnwidth}p{0.15\columnwidth}X@{}}
-\toprule
-\textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
-\midrule
-Matrix block \(\vect{m}_{ABC,j}\) & No & The sampled block is Groth16 witness data; compact commitments and Merkle paths are serialized. \\
-Vector block \(\vect{m}_{XYZ,j}\) & No & The sampled block is Groth16 witness data and is checked against \(\widehat{\vect{x}}[j]\), \(\widehat{\vect{y}}[j]\), and \(\widehat{\vect{z}}[j]\); the SNARK-side sampled block is linked to the opened Pedersen leaf. \\
-Merkle path & Yes & Authenticates an opened Pedersen leaf under \(\rt_{ABC}\) or \(\rt_{XYZ}\); charged to proof bytes and verify time. \\
-CP-Link proof & Yes & One batched QA-NIZK proof \(\tau_I\) links the two sampled block families to their opened Pedersen leaves. \\
-Groth16 proof & Yes & Verifies sampled RS evaluations and fold/equality checks, while the CP-SNARK interface binds sampled block witnesses to SNARK-side commitments. \\
-\bottomrule
-\end{tabularx}
-\caption{Proof-material accounting for the CP-Link sampled-opening backend.}
-\label{tab:proof-material-accounting}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{2.5pt}
+% \begin{tabularx}{\columnwidth}{@{}p{0.30\columnwidth}p{0.15\columnwidth}X@{}}
+% \toprule
+% \textbf{Object} & \textbf{Serialized?} & \textbf{Where it is checked / charged} \\
+% \midrule
+% Matrix block \(\vect{m}_{ABC,j}\) & No & The sampled block is Groth16 witness data; compact commitments and Merkle paths are serialized. \\
+% Vector block \(\vect{m}_{XYZ,j}\) & No & The sampled block is Groth16 witness data and is checked against \(\widehat{\vect{x}}[j]\), \(\widehat{\vect{y}}[j]\), and \(\widehat{\vect{z}}[j]\); the SNARK-side sampled block is linked to the opened Pedersen leaf. \\
+% Merkle path & Yes & Authenticates an opened Pedersen leaf under \(\rt_{ABC}\) or \(\rt_{XYZ}\); charged to proof bytes and verify time. \\
+% CP-Link proof & Yes & One batched QA-NIZK proof \(\tau_I\) links the two sampled block families to their opened Pedersen leaves. \\
+% Groth16 proof & Yes & Verifies sampled RS evaluations and fold/equality checks, while the CP-SNARK interface binds sampled block witnesses to SNARK-side commitments. \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Proof-material accounting for the CP-Link sampled-opening backend.}
+% \label{tab:proof-material-accounting}
+% \end{table}
 
-Table~\ref{tab:byte-accounting} instantiates the accounting for two
-representative matrix sizes. The reported totals are the serialized online
-proof bytes in the artifact; roots and vector commitments are public inputs,
-and raw sampled columns are intentionally not serialized.
+% Table~\ref{tab:byte-accounting} instantiates the accounting for two
+% representative matrix sizes. The reported totals are the serialized online
+% proof bytes in the artifact; roots and vector commitments are public inputs,
+% and raw sampled columns are intentionally not serialized.
 
-\begin{table}[H]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\columnwidth}{@{}p{0.16\columnwidth}rrX@{}}
-\toprule
-\textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
-\midrule
-$k=1{,}024$ & $43{,}904$\,B & $44{,}292$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots are public inputs. \\
-$k=4{,}096$ & $58{,}944$\,B & $59{,}332$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
-\bottomrule
-\end{tabularx}
-\caption{Representative byte-level accounting from
-\texttt{meow\_benchmark\_results\_v2.csv}.}
-\label{tab:byte-accounting}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{3pt}
+% \begin{tabularx}{\columnwidth}{@{}p{0.16\columnwidth}rrX@{}}
+% \toprule
+% \textbf{Case} & \textbf{Opening payload} & \textbf{Online proof} & \textbf{Note} \\
+% \midrule
+% $k=1{,}024$ & $43{,}904$\,B & $44{,}292$\,B & Adds $260$\,B Groth16 and $128$\,B batched CP-Link; roots are public inputs. \\
+% $k=4{,}096$ & $58{,}944$\,B & $59{,}332$\,B & Raw sampled columns would be $50.3$\,MB if serialized. \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Representative byte-level accounting from
+% \texttt{meow\_benchmark\_results\_v2.csv}.}
+% \label{tab:byte-accounting}
+% \end{table}
 
-Table~\ref{tab:setup-accounting} records setup time for representative rows and
-separates protocol, circuit, and CP-Link setup components. The current artifact
-does not report serialized proving/verifying-key or CRS bytes; this is why the
-main text states proof size as online proof material excluding key/CRS data.
+% Table~\ref{tab:setup-accounting} records setup time for representative rows and
+% separates protocol, circuit, and CP-Link setup components. The current artifact
+% does not report serialized proving/verifying-key or CRS bytes; this is why the
+% main text states proof size as online proof material excluding key/CRS data.
 
-\begin{table}[H]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}p{0.19\columnwidth}rrrrX@{}}
-\toprule
-\textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-Link} & \textbf{Key / CRS size} \\
-\midrule
-$k=1{,}024$ & $33.16$\,s & $0.18$\,s & $31.83$\,s & $1.15$\,s & Not reported by the current artifact. \\
-$k=4{,}096$ & $130.08$\,s & $0.71$\,s & $125.01$\,s & $4.37$\,s & Not reported by the current artifact. \\
-\bottomrule
-\end{tabularx}
-\caption{Setup accounting for representative rows.}
-\label{tab:setup-accounting}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabularx}{\columnwidth}{@{}p{0.19\columnwidth}rrrrX@{}}
+% \toprule
+% \textbf{Case} & \textbf{Total setup} & \textbf{Protocol} & \textbf{Circuit} & \textbf{CP-Link} & \textbf{Key / CRS size} \\
+% \midrule
+% $k=1{,}024$ & $33.16$\,s & $0.18$\,s & $31.83$\,s & $1.15$\,s & Not reported by the current artifact. \\
+% $k=4{,}096$ & $130.08$\,s & $0.71$\,s & $125.01$\,s & $4.37$\,s & Not reported by the current artifact. \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Setup accounting for representative rows.}
+% \label{tab:setup-accounting}
+% \end{table}
 
-Table~\ref{tab:constraint-accounting} separates the dominant deterministic
-$3tk$ fold terms from the remaining checked constraints. The residual includes
-sampled RS evaluations, equality checks, and circuit
-glue, so the table is a structural audit of the aggregate constraint counts
-rather than a per-gadget profiler.
+% Table~\ref{tab:constraint-accounting} separates the dominant deterministic
+% $3tk$ fold terms from the remaining checked constraints. The residual includes
+% sampled RS evaluations, equality checks, and circuit
+% glue, so the table is a structural audit of the aggregate constraint counts
+% rather than a per-gadget profiler.
 
-\begin{table}[H]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\columnwidth}{@{}p{0.17\columnwidth}rrrr@{}}
-\toprule
-\textbf{Case} & \textbf{Total} & \textbf{$3tk$ folds} & \textbf{Residual} & \textbf{Raw cols.} \\
-\midrule
-$k=1{,}024$ & $418{,}149$ & $393{,}216$ & $24{,}933$ & $12.6$\,MB \\
-$k=4{,}096$ & $1{,}666{,}315$ & $1{,}572{,}864$ & $93{,}451$ & $50.3$\,MB \\
-\bottomrule
-\end{tabularx}
-\caption{Structural constraint and raw-column-size accounting for two
-representative rows.}
-\label{tab:constraint-accounting}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{3pt}
+% \begin{tabularx}{\columnwidth}{@{}p{0.17\columnwidth}rrrr@{}}
+% \toprule
+% \textbf{Case} & \textbf{Total} & \textbf{$3tk$ folds} & \textbf{Residual} & \textbf{Raw cols.} \\
+% \midrule
+% $k=1{,}024$ & $418{,}149$ & $393{,}216$ & $24{,}933$ & $12.6$\,MB \\
+% $k=4{,}096$ & $1{,}666{,}315$ & $1{,}572{,}864$ & $93{,}451$ & $50.3$\,MB \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Structural constraint and raw-column-size accounting for two
+% representative rows.}
+% \label{tab:constraint-accounting}
+% \end{table}
 
-The accounting tables should be read as lower-level support for the main
-evaluation, not as additional benchmark claims.
-They justify three statements used throughout the paper: the large sampled
-columns remain private witness data, the serialized online proof is dominated
-by compact opening material rather than raw columns, and the current artifact
-still leaves key/CRS size and raw-matrix encoding/root construction as
-deployment costs outside the online proof-byte measurements.
+% The accounting tables should be read as lower-level support for the main
+% evaluation, not as additional benchmark claims.
+% They justify three statements used throughout the paper: the large sampled
+% columns remain private witness data, the serialized online proof is dominated
+% by compact opening material rather than raw columns, and the current artifact
+% still leaves key/CRS size and raw-matrix encoding/root construction as
+% deployment costs outside the online proof-byte measurements.

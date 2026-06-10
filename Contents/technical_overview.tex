@@ -31,11 +31,10 @@ A direct SNARK arithmetization of this relation computes every entry of
 
 Freivalds' algorithm reduces the cubic check to a vector-matrix check.  The
 classical algorithm samples a challenge vector \(\vect{r}\in\mathbb{F}^k\) and checks
-\[
-  \vect{r}\mat{A}\mat{B}
+  $\vect{r}\mat{A}\mat{B}
   =
-  \vect{r}\mat{C}.
-\]
+  \vect{r}\mat{C}.$
+  
 In \(\protocol\), the verifier derives one scalar \(r\) and uses the structured
 vector \((1,r,\ldots,r^{k-1})\), which keeps the public challenge compact.
 Equivalently, the prover introduces intermediate vectors
@@ -187,31 +186,31 @@ linking are verified outside the circuit.
 \subsection{Soundness Intuition}
 \label{sec:overview-soundness}
 
-The soundness argument has three layers.
+The soundness argument has three layers. \\
 
-\paragraph{Freivalds soundness}
+% \paragraph{Freivalds soundness}
+\noindent\textbf{Freivalds soundness}
 If \(\mat{A}\mat{B}\neq\mat{C}\), then
 \(\mat{D}=\mat{A}\mat{B}-\mat{C}\) is nonzero.  With the structured challenge
 \(\vect{r}=(1,r,\ldots,r^{k-1})\), the vector
 \(\vect{r}\mat{D}\) is nonzero except with probability at most
 \((k-1)/|\mathbb{F}|\), by Schwartz--Zippel.  Therefore, except with this
 probability, at least one of the vector relations in the Freivalds reduction is
-false.
+false. \\
 
-\paragraph{Proximity soundness}
+% \paragraph{Proximity soundness}
+\noindent\textbf{Proximity soundness.}
 Condition on the commitments being binding and fixed before the sampled
 positions are derived.  If a vector relation is false, then the two associated
 encoded vectors are distinct codewords.  Since the code has relative distance
 \(\delta\), they differ on at least \(\delta n\) positions.  A random query
 misses this disagreement with probability at most \(1-\delta\), and \(t\)
-independent queries miss it with probability at most
-\[
-  (1-\delta)^t.
-\]
+independent queries miss it with probability at most $(1-\delta)^t.$
 Union-bounding over the local relations checked by the protocol gives the
-proximity term used in the security analysis.
+proximity term used in the security analysis. \\
 
-\paragraph{Commitment and linking soundness}
+% \paragraph{Commitment and linking soundness}
+\noindent\textbf{Commitment and linking soundness}
 The distance argument applies only to values fixed before the query positions
 are sampled.  Merkle position binding prevents the prover from opening a root
 to two different leaves at the same position.  Pedersen binding prevents a
@@ -219,7 +218,7 @@ committed leaf from being opened to two different messages.  CP-Link ensures
 that the values used by the SNARK are the same values authenticated by the
 external commitments.  Therefore, except for the binding and linking failure
 probabilities, any accepting proof corresponds to fixed encoded objects that
-pass the sampled proximity checks.
+pass the sampled proximity checks. \\
 
 Putting the layers together, a cheating prover must either break one of the
 commitment/linking mechanisms, violate SNARK soundness, hit the Freivalds

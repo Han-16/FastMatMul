@@ -132,12 +132,14 @@ and the remaining private witness is
     \vect{x},\vect{y},\vect{z},
     \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
   \big).$
-The CP-SNARK treats \(\comwit\) as the committed part of the witness and
-outputs witness commitments
-\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\).
-These witness commitments are not checked against the Merkle roots inside the
-circuit.  Instead, they are connected to the externally committed Merkle leaves
-by the offline relation in Section~\ref{sec:openings-and-cplink}.
+The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
+prover first computes the SNARK-side witness commitments
+\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) using
+\(\bPi_{\cp}.\com\), and then proves the online relation with witness
+\(\wit=(\comwit,\omega)\).  These witness commitments are not checked against
+the Merkle roots inside the circuit.  Instead, they are connected to the
+externally committed Merkle leaves by the offline relation in
+Section~\ref{sec:openings-and-cplink}.
 Write
   $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
 when the out-of-domain code-consistency check accepts that
@@ -360,12 +362,112 @@ pre-query Merkle root.  Therefore, once both
 arithmetic checks performed inside the CP-SNARK were applied to values already
 bound by \(\rt_{ABC}\) and \(\rt_{XYZ}\).  This separation is what allows the SNARK circuit to avoid in-circuit Pedersen verification and in-circuit Merkle path verification.
 
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\columnwidth}{@{}lcc@{}}
+\toprule
+\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+\midrule
+ABC encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+ABC commit
+& \(\mathcal{O}(nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{F}\)
+& -- \\
+
+Intermediate
+& \(\mathcal{O}(k^2)\,\mathbb{F}\)
+& -- \\
+
+XYZ encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+XYZ commit
+& \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{F}\)
+& -- \\
+
+Merkle openings
+& \(\mathcal{O}(t\log n) \mathbb{F}\)
+& \(\mathcal{O}(t\log n)\mathbb{F} \) \\
+
+CP-SNARK
+& \(\mathcal{O}(tk)\) constraints, \(E_{\mathsf{snark}}^\mathcal{P}\)
+& \(E_{\mathsf{snark}}^\mathcal{V}\) \\
+
+CP-Link
+& \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+& \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+\bottomrule
+\end{tabularx}
+\caption{Asymptotic costs for \(\protocol\).}
+\label{tab:cost-summary}
+\end{table}
 
 \subsection{Protocol Algorithms and Complexity}
-\label{sec:protocol-desc}
-\label{sec:complexity}
+\label{sec:protocol-complexity}
+Figure~\ref{fig:protocol} presents the public-coin version of
+\(\protocol\).  The protocol can be made non-interactive via the
+Fiat--Shamir transform, by deriving \(r\) after \(\rt_{ABC}\) and deriving
+\(I,\alpha_x,\alpha_y,\alpha_z\) after \(\rt_{XYZ}\).
 
-Figure~\ref{fig:protocol} presents the interactive version of the protocol. The protocol can be made non-interactive via the Fiat--Shamir transform, by deriving \(r\) after \(\rt_{ABC}\) and deriving \(I,\alpha_x,\alpha_y,\alpha_z\) after \(\rt_{XYZ}\).
+The proof consists of the CP-SNARK proof, the sampled Merkle openings, and the
+CP-Link proofs.  The sampled matrix-column blocks and vector-symbol blocks are
+private CP-SNARK witnesses; they are not serialized as public proof material.
+The public statement contains the roots
+\(\rt_{ABC},\rt_{XYZ}\) and the verifier-sampled challenges. \\
+
+% \paragraph{Cost model}
+\noindent\textbf{Cost model}
+We report the cost of the \protocol.  The computation of the claimed output matrix \(C=AB\) is outside this cost model.  
+We do count the work performed by the \protocol prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
+
+Let \(E_{\enc}(k,n)\) denote cost of the corresponding encoding phase. 
+We write \(\mathbb{G}\) for group operations used by Pedersen commitments and \(\mathbb{F}\) for field-level work in the commitment.  Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and verification costs, respectively. Let \(E_{\mathsf{link},\mathcal{P}}(k,t)\) and \(E_{\mathsf{link},\mathcal{V}}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
+Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
+
+% \paragraph{Prover work}
+\noindent\textbf{Prover work}
+The prover first encodes the three input matrices and commits to the packed
+encoded matrix columns.  The ABC commitment phase consists of \(n\) Pedersen
+commitments to blocks of length \(k\), followed by a Merkle root over
+the resulting leaves.  After the Freivalds challenge \(r\) is sampled, the
+prover computes the intermediate witnesses
+  $\vect{x}=\vect{r}\mat{A},
+  \vect{y}=\vect{x}\mat{B},
+  \vect{z}=\vect{r}\mat{C},$
+which costs \(\mathcal{O}(k^2)\) field operations.  This is distinct from the
+excluded native computation of \(C=AB\).  The prover then encodes
+\(\vect{x},\vect{y},\vect{z}\), commits to their encoded symbols, opens the
+sampled Merkle paths, proves the online CP-SNARK relation, and produces the
+CP-Link proofs.
+
+For each queried position \(j\in I\), the CP-SNARK circuit checks three
+length-\(k\) fold equations:
+\[
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]),\qquad
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),\qquad
+  \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+\]
+Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. \\
+
+% \paragraph{Verifier work}
+\noindent\textbf{Verifier work}
+The verifier does not encode matrices, compute intermediate vectors, or build
+commitment roots.  Its work consists of CP-SNARK verification, verification of
+the sampled Merkle authentication paths, and CP-Link verification.  Therefore,
+using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n) + E_{\mathsf{link}}^\mathcal{V}(k,t).$ \\
+
+% \paragraph{Comparison}
+\noindent\textbf{Comparison}
+A naive SNARK arithmetization of matrix multiplication costs
+\(\mathcal{O}(k^3)\) constraints, while a Freivalds-based SNARK baseline computes
+the vector-matrix products inside the circuit and costs \(\mathcal{O}(k^2)\) constraints.  \(\protocol\) moves the vector-matrix products to native prover work and checks only sampled encoded-column relations inside the CP-SNARK.  
+As a result, the main constraints of circuit is 
+\(\mathcal{O}(tk)\).
 
 \begin{figure*}[p]
 \centering
@@ -412,7 +514,15 @@ Figure~\ref{fig:protocol} presents the interactive version of the protocol. The 
       \vect{x},\vect{y},\vect{z},
       \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
       \big) \\
-    (\pi_{\cp},\widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ}) \gets \bPi_{\cp}.\prove(\para,\stmt,\wit) \\
+    \widetilde{\cm}_{ABC} \gets
+      \bPi_{\cp}.\com(\para,(\vect{m}_{ABC,j})_{j\in I};\widetilde{o}_{ABC}) \\
+    \widetilde{\cm}_{XYZ} \gets
+      \bPi_{\cp}.\com(\para,(\vect{m}_{XYZ,j})_{j\in I};\widetilde{o}_{XYZ}) \\
+    \stmt_{\cp} \gets
+      \big(
+      \stmt,\widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ}
+      \big) \\
+    \pi_{\cp} \gets \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit) \\
     \pi_{\mathsf{link}}^{ABC} \gets \bPi_{\mathsf{link}}.\prove( \widetilde{\cm}_{ABC}, (\cm_{ABC,j})_{j\in I}; (\vect{m}_{ABC,j})_{j\in I}) \\
     \pi_{\mathsf{link}}^{XYZ} \gets \bPi_{\mathsf{link}}.\prove( \widetilde{\cm}_{XYZ}, (\cm_{XYZ,j})_{j\in I}; (\vect{m}_{XYZ,j})_{j\in I}) \\
     \pi_{\protocol}
@@ -429,7 +539,8 @@ Figure~\ref{fig:protocol} presents the interactive version of the protocol. The 
         \big) \\
     \< \sendmessageright*[1.3cm]{\pi_\protocol} \\ 
     \< \< \text{Parse } \pi_{\protocol} \\
-    \< \< b_{\cp} \gets \bPi_{\cp}.\verify \big( \para, \stmt, \widetilde{\cm}_{ABC}, \widetilde{\cm}_{XYZ}, \pi_{\cp}) \\
+    \< \< \stmt_{\cp} \gets \big( \stmt,\widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ} \big) \\
+    \< \< b_{\cp} \gets \bPi_{\cp}.\verify \big( \para, \stmt_{\cp}, \pi_{\cp}) \\
     \< \< \text{For every } j\in I: \\
     \< \< \qquad b_{\mathsf{mem},j}^{ABC} \gets \merkleV( \rt_{ABC}, j, \cm_{ABC,j}, \pi_{\mathsf{mem},j}^{ABC}) \\
     \< \< \qquad b_{\mathsf{mem},j}^{XYZ} \gets \merkleV( \rt_{XYZ}, j, \cm_{XYZ,j}, \pi_{\mathsf{mem},j}^{XYZ}) \\
@@ -441,66 +552,3 @@ Figure~\ref{fig:protocol} presents the interactive version of the protocol. The 
 \caption{The \protocol\ protocol}
 \label{fig:protocol}
 \end{figure*}
-
-
-
-The proof consists of the CP-SNARK proof, the sampled Merkle openings, and the
-CP-Link proofs.  The sampled matrix columns and vector symbols themselves are
-private CP-SNARK witnesses; they are not public proof data.  The roots and the verifier-sampled challenges are public.
-
-We separate three kinds of work.  First, the application may need to compute or
-obtain the claimed output \(\mat{C}\); this native matrix multiplication cost is
-shared by all approaches and is not part of the SNARK checking cost.  Second,
-the prover encodes the matrices and builds the matrix commitment root.  Third,
-the online proof checks the committed multiplication statement.
-
-\paragraph{SNARK constraints}
-For each queried position \(j\), the circuit computes three length-\(k\) folds:
-\[
-  \fold(\vect{r},\widehat{\mat{A}}[*,j]),\quad
-  \fold(\vect{x},\widehat{\mat{B}}[*,j]),\quad
-  \fold(\vect{r},\widehat{\mat{C}}[*,j]).
-\]
-Thus the sampled fold constraints cost \(\mathcal{O}(tk)\).  The vector
-encoding checks for
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are also linear in
-\(k+n\) per checked out-of-domain point for the Reed--Solomon instantiation
-used in the artifact; Appendix~\ref{app:rs-barycentric} gives the concrete
-barycentric form of this check.  For constant-rate codes and fixed \(t\), the
-dominant in-circuit checking cost is linear in \(k\).
-
-\paragraph{Auxiliary work}
-The external commitment layer incurs additional work outside the SNARK circuit.
-Computing the Pedersen leaf commitments costs \(\mathcal{O}(nk)\) group-scalar work, since there are \(n\) leaves and each commits to \(\mathcal{O}(k)\) field elements.  Building the Merkle trees over these leaves costs \(\mathcal{O}(n)\) hash work.  For the sampled positions, Merkle openings add \(\mathcal{O}(t\log n)\) hash work and proof material, while the cost of CP-Link depends on the underlying CP-Link construction and is denoted by \(E_{\mathsf{link}}(k,t)\). 
-These operations are all performed outside the SNARK circuit, making them significantly cheaper than verifying Pedersen commitments and Merkle paths in-circuit.
-
-
-\paragraph{Comparison}
-Na\"ive SNARK arithmetization of matrix multiplication costs
-\(\mathcal{O}(k^3)\) constraints.  A Freivalds-in-SNARK baseline computes the
-vector-matrix products directly and costs \(\mathcal{O}(k^2)\) constraints.
-\(\protocol\) replaces the full vector-matrix computation with sampled
-encoded-column checks, giving \(\mathcal{O}(tk)\) fold constraints plus
-auxiliary opening and linking work.
-
-\begin{table}[t]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{0.22\columnwidth}@{}}
-\toprule
-\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
-\midrule
-Matrix root & \(\mathcal{O}(kn)\) encoding and root generation & fixed before \(r\) \\
-Intermediate & \(\mathcal{O}(k^2)\) native vector products & --- \\
-Vector root & \(\mathcal{O}(n)\) encoding and root generation & --- \\
-CP-SNARK & \(\mathcal{O}(tk)\) constraints & proof verification \\
-Merkle paths & \(\mathcal{O}(t\log n)\) & \(\mathcal{O}(t\log n)\) \\
-CP-Link & \(E_{\mathsf{link}}(k,t)\) & backend dep. \\
-\bottomrule
-\end{tabularx}
-\caption{Asymptotic costs for \(\protocol\).  Matrix and vector roots include
-encoding and Merkle-root generation; CP-SNARK denotes the in-circuit sampled
-checking relation.}
-\label{tab:cost-summary}
-\end{table}

@@ -169,15 +169,33 @@ A SNARK scheme $\bPi$ satisfies completeness, if an honestly generated proof for
 
 
 \subsubsection{Commit-and-Prove SNARKs}
-A commit-and-prove SNARK (CP-SNARK)~\cite{gnark, legosnark} is a variant of a SNARK that proves statements about witnesses bound to an external commitment. We call such a commitment a \emph{witness commitment}. Let $\com$ be a commitment scheme with commitment key $\ck$. For an NP relation $\relation$, a CP-SNARK proves knowledge of a witness $\wit := (\comwit,\omega,o)$ such that $\widetilde{\cm} = \com(\ck,\comwit;o)$ and  $(\stmt,\comwit,\omega) \in \relation$. Here, $\comwit$ is the committed witness, $\tilde{o}$ is the opening randomness of the
-witness commitment $\widetilde{\cm}$, and $\omega$ is the remaining private witness. A CP-SNARK scheme is a tuple of algorithms $\bPi_{\cp}=(\setup,\prove,\verify)$.
+A commit-and-prove SNARK (CP-SNARK)~\cite{gnark, legosnark} is a variant of a SNARK that proves statements about witnesses bound to an external commitment. We call such a commitment a \emph{witness commitment}. Let $\com$ be a commitment scheme with commitment key $\ck$. For an NP relation $\relation$ over tuples $(\stmt,\comwit,\omega)$, a CP-SNARK proves knowledge of a witness
+$\wit := (\comwit,\omega)$ such that $(\stmt,\comwit,\omega)\in\relation$,
+where $\comwit$ is the committed part of the witness and $\omega$ is the
+remaining private witness.  The committed witness is bound separately by a
+witness commitment
+$\widetilde{\cm}=\com(\ck,\comwit;\tilde{o})$, where $\tilde{o}$ is the
+opening randomness.  Equivalently, the CP proof is verified with respect to the
+extended public statement $\stmt_{\cp}:=(\stmt,\widetilde{\cm})$.  When the
+context is clear, we write this extended statement simply as $\stmt$.
+A CP-SNARK scheme is a tuple of algorithms
+$\bPi_{\cp}=(\setup,\com,\prove,\verify)$.
 
 \begin{itemize}
     \item $\para \gets \bPi_{\cp}.\setup(1^\lambda,\relation)$: generates public parameters $\para=(\pk,\vk,\ck)$ for the relation $\relation$, where $\pk$ is the proving key, $\vk$ is the verifying key, and $\ck$ is the commitment key.
 
-    \item $(\pi_{\cp},\widetilde{\cm}) \gets \bPi_{\cp}.\prove(\para,\stmt,\comwit,\omega,\tilde{o})$: outputs a proof $\pi_{\cp}$ and a witness commitment $\widetilde{\cm}$ such that $\widetilde{\cm} = \com(\ck,\comwit;\tilde{o})$.
+    \item $\widetilde{\cm} \gets \bPi_{\cp}.\com(\para,\comwit;\tilde{o})$:
+    outputs a witness commitment to the committed witness part $\comwit$.
 
-    \item $b \gets \bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})$: outputs $b=1$ if $\pi_{\cp}$ is accepted as a valid proof for $\stmt$ with respect to the witness commitment $\widetilde{\cm}$, and outputs $b=0$ otherwise.
+    \item $\pi_{\cp} \gets \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit)$:
+    outputs a proof for the extended statement $\stmt_{\cp}$ and witness
+    $\wit=(\comwit,\omega)$.
+
+    \item $b \gets \bPi_{\cp}.\verify(\para,\stmt_{\cp},\pi_{\cp})$:
+    outputs $b=1$ if $\pi_{\cp}$ is accepted as a valid proof for the extended
+    statement $\stmt_{\cp}$, and outputs $b=0$ otherwise. Equivalently, we may
+    write verification as
+    $\bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})$.
 \end{itemize}
 
 
