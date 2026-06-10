@@ -448,7 +448,7 @@ We report the cost of the \protocol.  The computation of the claimed output matr
 We do count the work performed by the \protocol prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
 
 Let \(E_{\enc}(k,n)\) denote cost of the corresponding encoding phase. 
-We write \(\mathbb{G}\) for group operations used by Pedersen commitments and \(\mathbb{F}\) for field-level work in the commitment.  Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and verification costs, respectively. Let \(E_{\mathsf{link},\mathcal{P}}(k,t)\) and \(E_{\mathsf{link},\mathcal{V}}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
+We write \(\mathbb{G}\) for group operations used by Pedersen commitments and \(\mathbb{F}\) for field-level work in the commitment.  Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and verification costs, respectively. Let \(E_{\mathsf{link}}^\mathcal{P}(k,t)\) and \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
 Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
 
 % \paragraph{Prover work}
