@@ -119,96 +119,131 @@ interactive \(\protocol\) scheme satisfies:
 \end{theorem}
 
 
-\begin{proof}
-% \emph{Completeness.}
-\noindent\textbf{Completeness.}
-If \(\mat{A}\mat{B}=\mat{C}\), then for every challenge vector
-\(\vect{r}=(1,r,\ldots,r^{k-1})\), the honest intermediate vectors
+% \begin{proof}
+% % \emph{Completeness.}
+% \noindent\textbf{Completeness.}
+% If \(\mat{A}\mat{B}=\mat{C}\), then for every challenge vector
+% \(\vect{r}=(1,r,\ldots,r^{k-1})\), the honest intermediate vectors
+% \[
+%   \vect{x}=\vect{r}\mat{A},\qquad
+%   \vect{y}=\vect{x}\mat{B},\qquad
+%   \vect{z}=\vect{r}\mat{C}
+% \]
+% satisfy \(\vect{y}=\vect{z}\). 
+% By linearity of \(\mathcal{C}\), for every
+% sampled index \(j\),
+% \[
+% \begin{aligned}
+%   \widehat{\vect{x}}[j]
+%   &= \fold(\vect{r},\widehat{\mat{A}}[*,j]),\\
+%   \widehat{\vect{y}}[j]
+%   &= \fold(\vect{x},\widehat{\mat{B}}[*,j]),\\
+%   \widehat{\vect{z}}[j]
+%   &= \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+% \end{aligned}
+% \]
+% Thus the honest witness satisfies
+% \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\).  The honest prover also
+% supplies valid Merkle openings and CP-Link proofs, so
+% \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) holds and the verifier accepts. \\
+
+% % \emph{Soundness.}
+% \noindent\textbf{Soundness.}
+% Condition first on the complement of the CP-SNARK, opening, CP-Link, and
+% code-consistency failure events.  This conditioning costs
+% \[
+%   \epsilon_{\mathsf{cp}}
+%   +\epsilon_{\mathsf{open}}
+%   +\epsilon_{\mathsf{link}}
+%   +\epsilon_{\mathsf{code}} .
+% \]
+% Under this conditioning, an accepted proof has a witness satisfying
+% \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\), and the offline binding relation
+% \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) ensures that every sampled value
+% used inside the CP-SNARK is the value opened from the corresponding pre-query
+% commitment.  The certified root \(\rt_{ABC}\) fixes row-wise encoded matrices
+% \(\widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}}\) before \(r\), and the
+% intermediate-vector root fixes the encoded views of
+% \(\vect{x},\vect{y},\vect{z}\) before \(I\).  Moreover, the code-consistency
+% checks certify the committed encoded views as encodings of their corresponding
+% messages, except with probability already charged to
+% \(\epsilon_{\mathsf{code}}\).
+
+% Assume that \(\mat{A}\mat{B}\neq\mat{C}\), and let
+% \(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  There is a nonzero column
+% \(\vect{d}\) of \(\mat{D}\).  The event \(\vect{r}\mat{D}=0\) implies
+% \[
+%   \sum_{i=0}^{k-1} d_i r^i = 0 ,
+% \]
+% where the left-hand side is a nonzero polynomial in \(r\) of degree at most
+% \(k-1\).  Since \(r\) is sampled after \(\rt_{ABC}\) is fixed,
+% Schwartz--Zippel gives
+% \[
+%   \Pr[\vect{r}\mat{D}=0]
+%   \le
+%   \frac{k-1}{|\mathbb{F}|}.
+% \]
+
+% Now condition further on \(\vect{r}\mat{D}\neq 0\).  Then no vectors
+% \(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
+% \[
+%   \vect{x}=\vect{r}\mat{A},\qquad
+%   \vect{y}=\vect{x}\mat{B},\qquad
+%   \vect{z}=\vect{r}\mat{C},\qquad
+%   \vect{y}=\vect{z},
+% \]
+% because these equalities would imply
+% \(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\).  Therefore at least one of the four
+% encoded relations checked by the sampled protocol is false.
+
+% Consider any one false relation, for example
+% \(\vect{x}\neq\vect{r}\mat{A}\).  Since the code-consistency checks have not
+% failed, the committed vector symbols are coordinates of \(\enc(\vect{x})\).  By
+% code linearity, the corresponding folded matrix symbols are coordinates of
+% \(\enc(\vect{r}\mat{A})\).  These two codewords are distinct, so by relative
+% distance they disagree on at least \(\delta n\) positions.  A uniform query
+% misses this disagreement set with probability at most \(1-\delta\), and \(t\)
+% independent queries miss it with probability at most \((1-\delta)^t\).  The same
+% argument applies to the other three relations.  Union-bounding over the four
+% possible violated relations gives the proximity term \(4(1-\delta)^t\).
+
+% Combining the CP-SNARK, opening, linking, code-consistency, Freivalds, and
+% proximity-sampling failure probabilities proves the stated bound.
+% \end{proof}
+\begin{proof}[Proof sketch]
+Completeness follows from the honest choice
 \[
   \vect{x}=\vect{r}\mat{A},\qquad
   \vect{y}=\vect{x}\mat{B},\qquad
-  \vect{z}=\vect{r}\mat{C}
+  \vect{z}=\vect{r}\mat{C}.
 \]
-satisfy \(\vect{y}=\vect{z}\). 
-By linearity of \(\mathcal{C}\), for every
-sampled index \(j\),
-\[
-\begin{aligned}
-  \widehat{\vect{x}}[j]
-  &= \fold(\vect{r},\widehat{\mat{A}}[*,j]),\\
-  \widehat{\vect{y}}[j]
-  &= \fold(\vect{x},\widehat{\mat{B}}[*,j]),\\
-  \widehat{\vect{z}}[j]
-  &= \fold(\vect{r},\widehat{\mat{C}}[*,j]).
-\end{aligned}
-\]
-Thus the honest witness satisfies
-\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\).  The honest prover also
-supplies valid Merkle openings and CP-Link proofs, so
-\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) holds and the verifier accepts. \\
+If \(\mat{A}\mat{B}=\mat{C}\), then \(\vect{y}=\vect{z}\).  By linearity of
+\(\mathcal{C}\), the sampled fold equations in
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\) hold at every queried position, and
+the honestly generated Merkle openings and CP-Link proofs satisfy
+\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\).
 
-% \emph{Soundness.}
-\noindent\textbf{Soundness.}
-Condition first on the complement of the CP-SNARK, opening, CP-Link, and
-code-consistency failure events.  This conditioning costs
-\[
-  \epsilon_{\mathsf{cp}}
-  +\epsilon_{\mathsf{open}}
-  +\epsilon_{\mathsf{link}}
-  +\epsilon_{\mathsf{code}} .
-\]
-Under this conditioning, an accepted proof has a witness satisfying
-\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\), and the offline binding relation
-\(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) ensures that every sampled value
-used inside the CP-SNARK is the value opened from the corresponding pre-query
-commitment.  The certified root \(\rt_{ABC}\) fixes row-wise encoded matrices
-\(\widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}}\) before \(r\), and the
-intermediate-vector root fixes the encoded views of
-\(\vect{x},\vect{y},\vect{z}\) before \(I\).  Moreover, the code-consistency
-checks certify the committed encoded views as encodings of their corresponding
-messages, except with probability already charged to
-\(\epsilon_{\mathsf{code}}\).
+For soundness, condition on the complement of the CP-SNARK, opening, CP-Link,
+and code-consistency failure events.  These events contribute
+\(\epsilon_{\mathsf{cp}}+\epsilon_{\mathsf{open}}+\epsilon_{\mathsf{link}}
++\epsilon_{\mathsf{code}}\).  Under this conditioning, every sampled value used
+inside the CP-SNARK is the value opened from the corresponding pre-query
+commitment, and the committed intermediate encoded views are valid encodings of
+their claimed messages.
 
-Assume that \(\mat{A}\mat{B}\neq\mat{C}\), and let
-\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  There is a nonzero column
-\(\vect{d}\) of \(\mat{D}\).  The event \(\vect{r}\mat{D}=0\) implies
-\[
-  \sum_{i=0}^{k-1} d_i r^i = 0 ,
-\]
-where the left-hand side is a nonzero polynomial in \(r\) of degree at most
-\(k-1\).  Since \(r\) is sampled after \(\rt_{ABC}\) is fixed,
-Schwartz--Zippel gives
-\[
-  \Pr[\vect{r}\mat{D}=0]
-  \le
-  \frac{k-1}{|\mathbb{F}|}.
-\]
+If \(\mat{A}\mat{B}\neq\mat{C}\), then for
+\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\), the structured Freivalds challenge
+\(\vect{r}=(1,r,\ldots,r^{k-1})\) satisfies
+\(\vect{r}\mat{D}=0\) with probability at most
+\((k-1)/|\mathbb{F}|\) by Schwartz--Zippel.  Conditioned on
+\(\vect{r}\mat{D}\neq 0\), at least one of the four global vector relations
+underlying the online checks is false.  The two corresponding codewords then
+disagree on at least a \(\delta\)-fraction of positions, so \(t\) independent
+queries miss the disagreement with probability at most \((1-\delta)^t\).
+Union-bounding over the four checked relations gives \(4(1-\delta)^t\).
 
-Now condition further on \(\vect{r}\mat{D}\neq 0\).  Then no vectors
-\(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
-\[
-  \vect{x}=\vect{r}\mat{A},\qquad
-  \vect{y}=\vect{x}\mat{B},\qquad
-  \vect{z}=\vect{r}\mat{C},\qquad
-  \vect{y}=\vect{z},
-\]
-because these equalities would imply
-\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\).  Therefore at least one of the four
-encoded relations checked by the sampled protocol is false.
-
-Consider any one false relation, for example
-\(\vect{x}\neq\vect{r}\mat{A}\).  Since the code-consistency checks have not
-failed, the committed vector symbols are coordinates of \(\enc(\vect{x})\).  By
-code linearity, the corresponding folded matrix symbols are coordinates of
-\(\enc(\vect{r}\mat{A})\).  These two codewords are distinct, so by relative
-distance they disagree on at least \(\delta n\) positions.  A uniform query
-misses this disagreement set with probability at most \(1-\delta\), and \(t\)
-independent queries miss it with probability at most \((1-\delta)^t\).  The same
-argument applies to the other three relations.  Union-bounding over the four
-possible violated relations gives the proximity term \(4(1-\delta)^t\).
-
-Combining the CP-SNARK, opening, linking, code-consistency, Freivalds, and
-proximity-sampling failure probabilities proves the stated bound.
+Combining these events yields the stated bound.  Appendix~\ref{app:security-proof}
+gives the detailed bad-event decomposition and the Fiat--Shamir variant.
 \end{proof}
 
 

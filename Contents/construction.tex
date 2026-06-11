@@ -12,7 +12,7 @@ verified outside the circuit.
 \label{sec:relation-chain}
 
 Let \(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\), and let
-\(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a systematic linear code with
+\(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code with
 relative distance \(\delta\).  The target matrix-multiplication relation is
 \[
   \mathcal{R}_{\mathsf{orig}}
@@ -228,20 +228,20 @@ positions are consistent with the Freivalds reduction.
 
 The public statement contains the Merkle roots and verifier-sampled
 challenges:
-  $\stmt
-  =
-  \big(
-    \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z
-  \big)$.
+\[
+\stmt = \big( \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z
+  \big).
+\]
+The roots are included in the statement to bind the CP-SNARK proof to the same
+transcript and offline checks; the online field equations themselves do not
+evaluate Merkle paths.
+
 The complete SNARK witness is
   $\wit=(\comwit,\omega)$,
 where the committed part of the witness is
-  $\comwit
-  =
-  \big(
-    (\vect{m}_{ABC,j})_{j\in I},
-    (\vect{m}_{XYZ,j})_{j\in I}
-  \big),$
+\[
+\comwit = \big( (\vect{m}_{ABC,j})_{j\in I},(\vect{m}_{XYZ,j})_{j\in I} \big),
+\]
 and the remaining private witness is
   $\omega
   =
@@ -511,51 +511,60 @@ pre-query Merkle root.  Therefore, once both
 arithmetic checks performed inside the CP-SNARK were applied to values already
 bound by \(\rt_{ABC}\) and \(\rt_{XYZ}\).  This separation is what allows the SNARK circuit to avoid in-circuit Pedersen verification and in-circuit Merkle path verification.
 
-\begin{table}[t]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}lcc@{}}
-\toprule
-\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
-\midrule
-ABC encoding
-& \(E_{\enc}(k,n)\)
-& -- \\
+% \begin{table}[t]
+% \centering
+% \footnotesize
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabularx}{\columnwidth}{@{}lcc@{}}
+% \toprule
+% \textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+% \midrule
+% ABC encoding
+% & \(E_{\enc}(k,n)\)
+% & -- \\
 
-ABC commit
-& \(\mathcal{O}(nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
-& -- \\
+% ABC commit
+% & \(\mathcal{O}(nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & -- \\
 
-Intermediate
-& \(\mathcal{O}(k^2)\,\mathbb{F}\)
-& -- \\
+% Intermediate
+% & \(\mathcal{O}(k^2)\,\mathbb{F}\)
+% & -- \\
 
-XYZ encoding
-& \(E_{\enc}(k,n)\)
-& -- \\
+% XYZ encoding
+% & \(E_{\enc}(k,n)\)
+% & -- \\
 
-XYZ commit
-& \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
-& -- \\
-
-Merkle openings
-& \(\mathcal{O}(t\log n) \mathbb{H}\)
-& \(\mathcal{O}(t\log n)\mathbb{H} \) \\
-
-CP-SNARK
-& \(\mathcal{O}(tk)\) constraints, \(E_{\mathsf{snark}}^\mathcal{P}\)
-& \(E_{\mathsf{snark}}^\mathcal{V}\) \\
-
-CP-Link
-& \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
-& \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
-\bottomrule
-\end{tabularx}
-\vspace{6pt}
-\caption{Asymptotic costs for \(\protocol\).}
-\label{tab:cost-summary}
-\end{table}
+% XYZ commit
+% & \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & -- 
+% \\
+% Merkle openings
+% & \(\mathcal{O}(t\log n) \mathbb{H}\)
+% & \(\mathcal{O}(t\log n)\mathbb{H} \) 
+% \\
+% % CP-SNARK
+% % & \(
+% % \mathcal{O}(tk)+E_{\mathsf{code}} +
+% % E_{\mathsf{snark}}^\mathcal{P}
+% % \)
+% % & \(E_{\mathsf{snark}}^\mathcal{V}\) 
+% CP-SNARK
+% & \(\begin{array}{c}
+% \mathcal{O}(tk)+E_{\mathsf{code}}\ \text{constraints}\\
+% E_{\mathsf{snark}}^\mathcal{P}
+% \end{array}\)
+% & \(E_{\mathsf{snark}}^\mathcal{V}\)
+% \\
+% CP-Link
+% & \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+% & \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+% \bottomrule
+% \end{tabularx}
+% \vspace{6pt}
+% \caption{Asymptotic costs for \(\protocol\).}
+% \label{tab:cost-summary}
+% \end{table}
 
 \subsection{Protocol Algorithms and Complexity}
 \label{sec:protocol-complexity}
@@ -600,14 +609,72 @@ We report the cost of the \protocol.  The computation of the claimed output matr
 We do count the work performed by the \protocol prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
 
 Let \(E_{\enc}(k,n)\) denote cost of the corresponding encoding phase. 
+Let \(E_{\mathsf{code}}=E_{\mathsf{code}}(k,n)\) denote the constraint cost of the intermediate
+code-consistency checks; for the Reed--Solomon check in
+Appendix~\ref{app:rs-barycentric}, this is \(\mathcal{O}(k+n)\) after
+domain-dependent coefficients are precomputed.
 We write \(\mathbb{G}\) for group operations used by Pedersen commitments,
 \(\mathbb{F}\) for field operations, and \(\mathbb{H}\) for hash evaluations.
 Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and
 verification costs, respectively. Let \(E_{\mathsf{link}}^\mathcal{P}(k,t)\) and \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
-Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
+Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\columnwidth}{@{}lcc@{}}
+\toprule
+\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+\midrule
+ABC encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+ABC commit
+& \(\mathcal{O}(nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& -- \\
+
+Intermediate
+& \(\mathcal{O}(k^2)\,\mathbb{F}\)
+& -- \\
+
+XYZ encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+XYZ commit
+& \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& -- 
+\\
+Merkle openings
+& \(\mathcal{O}(t\log n) \mathbb{H}\)
+& \(\mathcal{O}(t\log n)\mathbb{H} \) 
+\\
+% CP-SNARK
+% & \(
+% \mathcal{O}(tk)+E_{\mathsf{code}} +
+% E_{\mathsf{snark}}^\mathcal{P}
+% \)
+% & \(E_{\mathsf{snark}}^\mathcal{V}\) 
+CP-SNARK
+& \(\begin{array}{c}
+\mathcal{O}(tk)+E_{\mathsf{code}}\ \text{constraints}\\
+E_{\mathsf{snark}}^\mathcal{P}
+\end{array}\)
+& \(E_{\mathsf{snark}}^\mathcal{V}\)
+\\
+CP-Link
+& \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+& \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+\bottomrule
+\end{tabularx}
+\vspace{6pt}
+\caption{Asymptotic costs for \(\protocol\).}
+\label{tab:cost-summary}
+\end{table}
 
 
-% \paragraph{Prover work}
 \noindent\textbf{Prover work.}
 The prover first encodes the three input matrices and commits to the packed
 encoded matrix columns.  The ABC commitment phase consists of \(n\) Pedersen
@@ -630,7 +697,13 @@ length-\(k\) fold equations:
   \fold(\vect{x},\widehat{\mat{B}}[*,j]),\qquad
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \]
-Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. \\
+Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. 
+
+The intermediate-vector code-consistency checks add
+\(E_{\mathsf{code}}\) constraints. For the fixed-rate
+Reed--Solomon setting used in the experiments, \(n=2k\), so this extra cost is
+linear in \(k\) and the total online relation remains linear in \(k\) for fixed
+\(t\). \\
 
 % \paragraph{Verifier work}
 \noindent\textbf{Verifier work.}
@@ -643,9 +716,15 @@ using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} +
 \noindent\textbf{Comparison.}
 A naive SNARK arithmetization of matrix multiplication costs
 \(\mathcal{O}(k^3)\) constraints, while a Freivalds-based SNARK baseline computes
-the vector-matrix products inside the circuit and costs \(\mathcal{O}(k^2)\) constraints.  \(\protocol\) moves the vector-matrix products to native prover work and checks only sampled encoded-column relations inside the CP-SNARK.  
+the vector-matrix products inside the circuit and costs \(\mathcal{O}(k^2)\) constraints.  
+% \(\protocol\) moves the vector-matrix products to native prover work and checks only sampled encoded-column relations inside the CP-SNARK.  
+% As a result, the main circuit constraint count is \(\mathcal{O}(tk)\).
+\(\protocol\) moves the vector-matrix products to native prover work and checks
+sampled encoded-column relations plus intermediate code-consistency equations
+inside the CP-SNARK.
 As a result, the main circuit constraint count is
-\(\mathcal{O}(tk)\).
+\(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
+fixed-rate code used in our implementation.
 
 
 \begin{figure*}[p]

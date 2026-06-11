@@ -89,9 +89,12 @@ choose different sampled blocks after seeing \(I\) without breaking the
 opening or linking layer.
 
 \paragraph{Freivalds randomization}
-The matrix root \(\rt_{ABC}\) is fixed before \(r\) is derived.  In the
-committed statement, \(\rt_{ABC}\) binds to row-wise encoded matrices
-\(\mat{A},\mat{B},\mat{C}\).  Suppose
+The matrix root \(\rt_{ABC}\) is fixed before \(r\) is derived. 
+% In the committed statement, \(\rt_{ABC}\) binds to row-wise encoded matrices
+% \(\mat{A},\mat{B},\mat{C}\).  
+In the committed statement, \(\rt_{ABC}\) binds to row-wise encodings of matrices
+\(\mat{A},\mat{B},\mat{C}\).
+Suppose
 \(\mat{A}\mat{B}\neq\mat{C}\), and let
 \(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
 \(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
@@ -183,8 +186,11 @@ This proves Theorem~\ref{thm:security}.
 This appendix specifies the Reed--Solomon instantiation of
 \(\mathsf{EncCheck}_{\mathcal{C}}\) used in
 Section~\ref{sec:snark-relation}.  Let
+% \[
+%  D=\{\omega_1,\ldots,\omega_n\}\subset\mathbb{F}
+% \]
 \[
-  D=\{\omega_1,\ldots,\omega_n\}\subset\mathbb{F}
+D=\{\omega_0,\ldots,\omega_{n-1}\}\subset\mathbb{F}
 \]
 be the public evaluation domain.  A message
 \(\vect{v}=(v_0,\ldots,v_{k-1})\in\mathbb{F}^k\) defines the degree-\(<k\)

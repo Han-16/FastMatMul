@@ -36,7 +36,9 @@ arithmetic outside the SNARK and commits to the relevant intermediate values.
 The verifier then checks only a small number of lightweight algebraic relations
 that are sufficient to detect inconsistencies.
 
-The technical core of this approach is \emph{proximity testing over linear error-correcting codes}. By encoding each matrix row-wise using a systematic linear code \(\mathcal{C}\) with relative distance \(\delta\), the vector-matrix products
+The technical core of this approach is \emph{proximity testing over linear error-correcting codes}. 
+By encoding each matrix row-wise using a  linear code \(\mathcal{C}\) with relative distance \(\delta\), 
+the vector-matrix products
 \[
     \vect{x}=\vect{r}\mat{A}, \qquad
     \vect{y}=\vect{x}\mat{B}, \qquad
@@ -45,13 +47,19 @@ The technical core of this approach is \emph{proximity testing over linear error
 can be checked column by column in the encoded domain. The linearity of \(\mathcal{C}\) ensures that a single inner product, or ``fold,'' over one codeword column is sufficient to check one coordinate of the encoded product.
 If the prover cheats in any of these relations, the corresponding codewords disagree on at least a \(\delta\)-fraction of positions, and a random query detects the inconsistency with probability at least \(\delta\).
 
-The key point is that the SNARK circuit does not take the full matrices as witnesses. Instead, it receives only \(t\) sampled columns and checks local algebraic relations on those columns, including fold computations and the codeword encoding consistency of the intermediate vectors \(\vect{x}, \vect{y}\), and \(\vect{z}\). 
+The key point is that the SNARK circuit does not take the full matrices as witnesses. 
+%Instead, it receives only \(t\) sampled columns and checks local algebraic relations on those columns, including fold computations and the codeword encoding consistency of the intermediate vectors \(\vect{x}, \vect{y}\), and \(\vect{z}\). 
+Instead, it checks fold equations on \(t\) sampled encoded columns, and
+separately checks that the committed encoded views of the intermediate vectors
+\(\vect{x}, \vect{y}\), and \(\vect{z}\) are valid codewords for those vectors.
 We use a commit-and-prove SNARK to commit to the sampled block witnesses used
 inside the circuit. Together with the SNARK proof, the prover sends Merkle
 membership proofs for the queried leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\),
 as well as CP-Link proofs showing that the SNARK-side sampled blocks and the
 opened Pedersen leaves contain the same data.
-By verifying these proofs, the verifier is assured that the values used inside the circuit are consistent with the committed data fixed before the query positions were derived.
+% By verifying these proofs, the verifier is assured that the values used inside the circuit are consistent with the committed data fixed before the query positions were derived.
+By verifying these proofs, the verifier checks, under the backend assumptions, that the values used inside the circuit are consistent with the committed data fixed before the query positions were derived.
+
 As a result, the in-circuit checking cost is \(\mathcal{O}(tk)\), while the
 additional opening and linking work is
 \(\mathcal{O}(t \log n) + E_{\mathsf{link}}(k)\). Since \(t\) is the number of
@@ -62,7 +70,10 @@ protocol has linear in-circuit cost in the matrix dimension.
 We present \(\protocol\), a protocol for efficiently proving matrix multiplication statements. Our contributions are as follows. 
 \begin{itemize} 
     \item \textbf{A code-based protocol for matrix multiplication.} We propose \(\protocol\), which combines Freivalds' randomized reduction with proximity testing over linear error-correcting codes. 
-    Instead of computing vector-matrix products inside the SNARK circuit, \(\protocol\) encodes the matrices and intermediate vectors as codewords and checks only randomly sampled codeword positions. 
+    Instead of computing vector-matrix products inside the SNARK circuit, \(\protocol\) encodes the matrices and intermediate vectors as codewords and 
+    % checks only randomly sampled codeword positions.
+    checks randomly sampled fold equations, and verifies code consistency for the
+intermediate-vector encodings.
     By exploiting the linearity of the code, each sampled position can be verified through local fold relations, reducing the in-circuit checking cost from \(\mathcal{O}(k^2)\) to \(\mathcal{O}(tk)\), which is linear in the matrix dimension for fixed \(t\). 
     \item \textbf{Soundness analysis.} We prove the soundness of \(\protocol\). In particular, we show that if \(\mat{A}\mat{B}\ne\mat{C}\), then any prover that commits to inconsistent encoded values is detected with probability determined by the code distance and the number of sampled positions. 
     The analysis also accounts for the Merkle openings and CP-Link proofs that bind the values checked inside the SNARK circuit to the data committed before proof generation. 

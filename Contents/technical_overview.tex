@@ -95,7 +95,7 @@ linear in \(k\) for fixed \(t\).
 \subsection{Encoding and Proximity Testing}
 \label{sec:overview-encoding}
 
-Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a systematic linear code
+Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code
 with relative distance \(\delta\).  For a matrix
 \(\mat{M}\in\mathbb{F}^{k\times k}\), the prover row-wise encodes \(\mat{M}\)
 as $\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
@@ -140,6 +140,13 @@ checks the above equations only for \(j\in I\), together with the equality
 \[
   \widehat{\vect{y}}[j]=\widehat{\vect{z}}[j].
 \]
+The SNARK also checks that
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are valid
+encodings of the intermediate vectors
+\(\vect{x},\vect{y},\vect{z}\). These code-consistency checks are separate from
+the sampled fold checks and prevent the prover from using arbitrary length-\(n\)
+words as the intermediate encoded views.
+
 This is a proximity test: if a claimed vector relation is false, then the two
 corresponding codewords are distinct.  Since the code has relative distance
 \(\delta\), distinct codewords disagree on at least a \(\delta\)-fraction of
@@ -158,8 +165,10 @@ derived.  After the challenge is fixed, the prover computes the intermediate
 vectors, commits to their encoded symbols, and fixes a second Merkle root before
 the sampled positions are derived.
 
-The SNARK circuit itself only checks field equations on the sampled values.  It
-does not verify Pedersen openings or Merkle paths internally.  Instead, the
+% The SNARK circuit itself only checks field equations on the sampled values.
+The SNARK circuit itself checks field equations: the sampled fold and equality
+checks, together with the code-consistency checks for the intermediate vectors.
+It does not verify Pedersen openings or Merkle paths internally.  Instead, the
 commit-and-prove SNARK commits to the sampled witness blocks used by the
 circuit, and the prover supplies:
 \begin{itemize}

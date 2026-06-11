@@ -104,24 +104,39 @@ soundness arguments use only binding. In this work, we use two types of
 commitments: Merkle tree commitments and Pedersen vector commitments.
 
 \subsubsection{Merkle tree commitments}
-A Merkle tree commitment over a collision-resistant hash function
-$H: \{0,1\}^* \to \{0,1\}^\lambda$ is a vector commitment for a vector
-$\vect{v}=(\vect{v}[1],\ldots,\vect{v}[n]) \in \mathbb{F}^n$.
-It consists of the following algorithms.
+% A Merkle tree commitment over a collision-resistant hash function
+% $H: \{0,1\}^* \to \{0,1\}^\lambda$ is a vector commitment for a vector
+% $\vect{v}=(\vect{v}[1],\ldots,\vect{v}[n]) \in \mathbb{F}^n$.
+% It consists of the following algorithms.
+
+A Merkle tree commitment over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ is a vector commitment for a sequence $\vect{v}=(\vect{v}[j])_{j\in[n]}$.
+The leaves may be randomized or deterministic. We write
+\(\merkleC(\vect{v};\vect{o})\) for randomized leaves and
+\(\merkleC(\vect{v};\bot)\) for deterministic leaves.
 
 \begin{itemize}
 \item $\rt \gets \merkleC(\vect{v};\vect{o})$:
 outputs a root hash $\rt$ obtained by constructing a binary hash tree with
 randomized leaves
-$
-  \ell_j = H(\vect{v}[j], \vect{o}[j])
-  \qquad \text{for } j\in[n].
-$
+% $
+%   \ell_j = H(\vect{v}[j], \vect{o}[j])
+%   \qquad \text{for } j\in[n].
+% $
+\[
+\ell_j =
+\begin{cases}
+  H(\vect{v}[j], \vect{o}[j]) & \text{if } \vect{o}\neq\bot,\\
+  H(\vect{v}[j]) & \text{if } \vect{o}=\bot.
+\end{cases}
+\]
+
 Internal nodes are computed by hashing their two children.
 
 \item $(\vect{v}[j],o_j,\pi_j) \gets \merkleO(\vect{v},\vect{o},j)$:
 outputs the leaf value $\vect{v}[j]$, its opening randomness $o_j$, and its
 authentication path $\pi_j$ for position $j\in[n]$.
+In the deterministic case \(\vect{o}=\bot\), we omit the randomness and write
+\((\vect{v}[j],\pi_j)\gets\merkleO(\vect{v},j)\).
 
 \item $b \gets \merkleV(\rt,j,\vect{v}[j],\vect{o}[j],\pi_j)$:
 recomputes the randomized leaf
@@ -130,6 +145,8 @@ $
 $
 and outputs $b=1$ if the authentication path is consistent with root $\rt$ at
 position $j$, and outputs $b=0$ otherwise.
+In the deterministic case, we write
+\(\merkleV(\rt,j,\vect{v}[j],\pi_j)\).
 \end{itemize}
 
 
