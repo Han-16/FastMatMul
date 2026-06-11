@@ -661,23 +661,25 @@ As a result, the main circuit constraint count is
     \text{for each } j\in[n]: \\ 
     \quad \vect{m}_{ABC,j} \coloneqq \big( \widehat{\mat{A}}[*,j]\, \|\,\widehat{\mat{B}}[*,j]\, \|\,\widehat{\mat{C}}[*,j] \big) \in\mathbb{F}^{3k} \\
     \quad o_{ABC,j}\sample\mathbb{F} \\
-    \quad \cm_{ABC,j} \gets \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}) \\
-    \rt_{ABC} \gets \merkleC((\cm_{ABC,j})_{j\in[n]};\bot) \\
-    \< \sendmessageright*[1.3cm]{\rt_{ABC}} \< \\ 
-    \< \< r \sample \FF  \\
-    \< \sendmessageleft*[1.3cm]{r} \<  \\
+    \quad \cm_{ABC,j} \gets \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}) 
+    \\
+    \rt_{ABC} \gets \merkleC((\cm_{ABC,j})_{j\in[n]};\bot) 
+    \< \sendmessageright*[1.3cm]{\rt_{ABC}} 
+    \\
+    \< \sendmessageleft*[1.3cm]{r} \<  r \sample \FF 
+    \\
     \vect{r}\coloneqq(1,r,\ldots,r^{k-1}) \\ 
-    \vect{x}\gets\vect{r}\mat{A}, \qquad \vect{y}\gets\vect{x}\mat{B}, \qquad \vect{z}\gets\vect{r}\mat{C} \\ 
-    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}) \\ 
+    \vect{x}\gets\vect{r}\mat{A}, \qquad \vect{y}\gets\vect{x}\mat{B}, \qquad \vect{z}\gets\vect{r}\mat{C} 
+    \\ \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}) \\ 
     \text{for each } j\in[n]: \\ 
     \quad \vect{m}_{XYZ,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j] \big) \in\mathbb{F}^{3} \\ 
     \quad o_{XYZ,j}\sample\mathbb{F} \\ 
     \quad \cm_{XYZ,j} \gets \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}) \\ 
-    \rt_{XYZ} \gets \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot) \\
-    \< \sendmessageright*[1.3cm]{\rt_{XYZ}} \< \\
-    \< \< I=(j_1,\ldots,j_t)\sample[n]^t \\ 
-    \< \< \alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D \\
-    \< \sendmessageleft*[1.3cm]{I, \alpha_x, \alpha_y, \alpha_z} \<  \\
+    \rt_{XYZ} \gets \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot) \< \sendmessageright*[1.3cm]{\rt_{XYZ}} \< \\
+    \< \< I=(j_1,\ldots,j_t)\sample[n]^t 
+    \\ 
+    \< \sendmessageleft*[1.3cm]{I, \alpha_x, \alpha_y, \alpha_z} \< \alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D 
+    \\
     \mathcal{T}\coloneqq(ABC,XYZ) \\
     \text{For every } T\in\mathcal{T}\text{ and every } j\in I,\\ 
     \quad \pi_{\mathsf{mem},j}^{T} \gets \merkleO((\cm_{T,\ell})_{\ell\in[n]},j) \\[0.3ex]
@@ -712,10 +714,10 @@ As a result, the main circuit constraint count is
         \pi_{\cp},
         (\widetilde{\cm}_{T})_{T\in\mathcal{T}},
         \{(\cm_{T,j},\pi_{\mathsf{mem},j}^{T})\}_{T\in\mathcal{T},j\in I},
-        (\pi_{\mathsf{link}}^{T})_{T\in\mathcal{T}}
-        \big) \\
-    \< \sendmessageright*[1.3cm]{\pi_\protocol} \\ 
-    \< \< \text{Parse } \pi_{\protocol} \\
+(\pi_{\mathsf{link}}^{T})_{T\in\mathcal{T}}
+        \big)  \< \sendmessageright*[1.3cm]{\pi_\protocol}  \<
+   \text{Parse } \pi_{\protocol} 
+   \\
     \< \< \stmt_{\cp} \gets \big( \stmt,(\widetilde{\cm}_{T})_{T\in\mathcal{T}} \big) \\
     \< \< b_{\cp} \gets \bPi_{\cp}.\verify \big( \para, \stmt_{\cp}, \pi_{\cp}) \\
     \< \< \text{For every } T\in\mathcal{T}: \\

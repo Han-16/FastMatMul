@@ -101,6 +101,64 @@ $2^{13}$ & 3{,}330{,}789 & -- & 151.61\,s & -- & 7\,ms & -- & 67{,}268\,B & -- \
 \label{tab:lamp-vs-freivalds}
 \end{table*}
 
+\subsection{Batching Matrix-Multiplication Claims}
+\label{sec:eval-batch}
+
+We also evaluate a batched setting with multiple independent claims
+\(\mat{A}_i\mat{B}_i=\mat{C}_i\).  The number of claims is the number of such
+matrix products proved together.  On the matrix side, the prover packs all
+\(\mat{A}_i,\mat{B}_i,\mat{C}_i\) interleaved symbols at the same codeword
+position into one Pedersen leaf and builds one Merkle tree.  Thus the number of
+opened Merkle positions is unchanged by the number of claims.  On the intermediate
+vector side, the encoded \(\vect{x}_i,\vect{y}_i,\vect{z}_i\) values can be
+aggregated by a random linear combination, which keeps the vector commitment
+cost small.
+
+Table~\ref{tab:lamp-batch} reports the component costs for fixed
+\(\log k=7\).  The constraint count and Groth16 proving time grow with the
+number of checked products, as expected.  In contrast, the Merkle proof size
+stays around \(22\) KB across all claim counts, showing that the sampled Merkle
+membership material does not scale with the number of matrix products once the
+batched matrix leaves are committed together.
+
+\begin{table*}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c c cc ccc ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Claims}}
+& \multirow{2}{*}{\textbf{Constraints}}
+& \multicolumn{2}{c}{\textbf{Commit Time}}
+& \multicolumn{3}{c}{\textbf{Prove Time}}
+& \multicolumn{3}{c}{\textbf{Verify Time}}
+& \multicolumn{3}{c}{\textbf{Proof Size}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+& & Matrix & Vector
+& Merkle & Groth16 & CP-Link
+& Groth16 & Merkle & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+1  & 54{,}069  & 0.10\,s & 0.01\,s & 1\,ms & 0.64\,s & 0.02\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}592\,B & 260\,B & 128\,B \\
+2  & 105{,}349 & 0.15\,s & 0.01\,s & 1\,ms & 1.17\,s & 0.04\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}528\,B & 260\,B & 128\,B \\
+3  & 156{,}629 & 0.20\,s & 0.01\,s & 1\,ms & 1.66\,s & 0.05\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}272\,B & 260\,B & 128\,B \\
+4  & 207{,}909 & 0.23\,s & 0.01\,s & 1\,ms & 2.12\,s & 0.07\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}272\,B & 260\,B & 128\,B \\
+5  & 259{,}189 & 0.27\,s & 0.02\,s & 1\,ms & 2.55\,s & 0.09\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}272\,B & 260\,B & 128\,B \\
+6  & 310{,}469 & 0.32\,s & 0.02\,s & 1\,ms & 2.95\,s & 0.10\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}144\,B & 260\,B & 128\,B \\
+7  & 361{,}749 & 0.37\,s & 0.02\,s & 1\,ms & 3.32\,s & 0.12\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}464\,B & 260\,B & 128\,B \\
+8  & 413{,}029 & 0.40\,s & 0.03\,s & 1\,ms & 3.78\,s & 0.15\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}528\,B & 260\,B & 128\,B \\
+9  & 464{,}309 & 0.43\,s & 0.02\,s & 1\,ms & 4.15\,s & 0.13\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}464\,B & 260\,B & 128\,B \\
+10 & 515{,}589 & 0.48\,s & 0.02\,s & 1\,ms & 4.53\,s & 0.14\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}464\,B & 260\,B & 128\,B \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{Batching multiple matrix-multiplication claims
+\(\mat{A}_i\mat{B}_i=\mat{C}_i\) at fixed \(k=2^7\).}
+\label{tab:lamp-batch}
+\end{table*}
+
 \subsection{Comparison with a Freivalds Baseline}
 \label{sec:eval-freivalds}
 
