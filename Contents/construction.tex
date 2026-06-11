@@ -131,7 +131,8 @@ The prover first encodes the matrices row-wise:
   \widehat{\mat{B}}=\enc(\mat{B}),
   \widehat{\mat{C}}=\enc(\mat{C})\).
 }
-For each codeword position \(j\in[n]\), it packs the three encoded columns into
+For each codeword position \(j\in[n]\), it packs the three \(k\)-dimensional
+interleaved symbols, equivalently the three encoded columns, into
 {\footnotesize
 \(\vect{m}_{ABC,j}
   \coloneqq
@@ -174,7 +175,8 @@ It then encodes the intermediate vectors:
   \widehat{\vect{y}}=\enc(\vect{y}),
   \widehat{\vect{z}}=\enc(\vect{z})\).
 }
-For each \(j\in[n]\), the prover packs the encoded vector symbols into
+The encoded intermediate vectors form a \(3\)-fold interleaved codeword.  For
+each \(j\in[n]\), the prover packs its \(j\)-th interleaved symbol into
 {\footnotesize
 \(\vect{m}_{XYZ,j}
   \coloneqq
@@ -215,6 +217,55 @@ are encodings of
 the claimed intermediate vectors. For the Reed--Solomon code used in our
 implementation, this check is the barycentric out-of-domain consistency test
 recalled in Appendix~\ref{app:rs-barycentric}.
+
+
+\subsection{The Online Relation}
+\label{sec:snark-relation}
+The online relation is the arithmetic relation proved inside the
+inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
+Instead, it checks only the field equations that certify the sampled encoded
+positions are consistent with the Freivalds reduction.
+
+The public statement contains the Merkle roots and verifier-sampled
+challenges:
+  $\stmt
+  =
+  \big(
+    \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z
+  \big)$.
+The complete SNARK witness is
+  $\wit=(\comwit,\omega)$,
+where the committed part of the witness is
+  $\comwit
+  =
+  \big(
+    (\vect{m}_{ABC,j})_{j\in I},
+    (\vect{m}_{XYZ,j})_{j\in I}
+  \big),$
+and the remaining private witness is
+  $\omega
+  =
+  \big(
+    \vect{x},\vect{y},\vect{z},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
+  \big).$
+The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
+prover first computes the SNARK-side witness commitments
+\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) using
+\(\bPi_{\cp}.\com\), and then proves the online relation with witness
+\(\wit=(\comwit,\omega)\).  These witness commitments are not checked against
+the Merkle roots inside the circuit.  Instead, they are connected to the
+externally committed Merkle leaves by the offline relation in
+Section~\ref{sec:openings-and-cplink}.
+For the CP-Link statements below, let \(\ck_{\cp,T}\) denote the public
+commitment key used by the CP-SNARK witness commitment
+\(\widetilde{\cm}_{T}\), for \(T\in\{ABC,XYZ\}\).
+Write
+  $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
+when the out-of-domain code-consistency check accepts that
+\(\widehat{\vect{v}}\) is consistent with \(\enc(\vect{v})\) at the public
+point \(\alpha\).  The online relation is defined in
+Figure~\ref{relation:online}.
 
 \begin{figure}[t]
 \begin{tcolorbox}[colback=white, colframe=black]
@@ -280,54 +331,6 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
 \label{relation:online}
 \end{figure}
 \FloatBarrier
-
-\subsection{The Online Relation}
-\label{sec:snark-relation}
-The online relation is the arithmetic relation proved inside the
-inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
-Instead, it checks only the field equations that certify the sampled encoded
-positions are consistent with the Freivalds reduction.
-
-The public statement contains the Merkle roots and verifier-sampled
-challenges:
-  $\stmt
-  =
-  \big(
-    \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z
-  \big)$.
-The complete SNARK witness is
-  $\wit=(\comwit,\omega)$,
-where the committed part of the witness is
-  $\comwit
-  =
-  \big(
-    (\vect{m}_{ABC,j})_{j\in I},
-    (\vect{m}_{XYZ,j})_{j\in I}
-  \big),$
-and the remaining private witness is
-  $\omega
-  =
-  \big(
-    \vect{x},\vect{y},\vect{z},
-    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
-  \big).$
-The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
-prover first computes the SNARK-side witness commitments
-\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) using
-\(\bPi_{\cp}.\com\), and then proves the online relation with witness
-\(\wit=(\comwit,\omega)\).  These witness commitments are not checked against
-the Merkle roots inside the circuit.  Instead, they are connected to the
-externally committed Merkle leaves by the offline relation in
-Section~\ref{sec:openings-and-cplink}.
-For the CP-Link statements below, let \(\ck_{\cp,T}\) denote the public
-commitment key used by the CP-SNARK witness commitment
-\(\widetilde{\cm}_{T}\), for \(T\in\{ABC,XYZ\}\).
-Write
-  $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
-when the out-of-domain code-consistency check accepts that
-\(\widehat{\vect{v}}\) is consistent with \(\enc(\vect{v})\) at the public
-point \(\alpha\).  The online relation is defined in
-Figure~\ref{relation:online}.
 
 
 The first three checks certify that
@@ -423,7 +426,9 @@ CP-Link proofs connecting the CP-SNARK witness commitments
 \(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) to the corresponding
 external Pedersen leaves.
 
-The CP-Link relation is interpreted blockwise.  For
+The CP-Link relation is interpreted blockwise.  Each block
+\(\vect{m}_{T,j}\) is the serialized interleaved symbol opened at position
+\(j\) for the corresponding committed object \(T\).  For
 \(T\in\{ABC,XYZ\}\), define the ordered sampled message vector
 \[
   \vect{M}_{T,I}

@@ -62,9 +62,10 @@ column reports the serialized CP-Link proof.
 The breakdown shows the expected division of labor in \(\protocol\).  The
 Groth16 proving time grows roughly linearly with \(k\), reflecting the
 \(\mathcal{O}(tk)\) online relation.  Commitment generation is also visible,
-especially for \(\rt_{ABC}\), because each sampled codeword position contains
-three length-\(k\) encoded matrix columns before they are packed into Pedersen
-leaves.  Verification remains small: the verifier checks one Groth16 proof,
+especially for \(\rt_{ABC}\), because each leaf contains the three
+\(k\)-dimensional interleaved symbols of
+\(\widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}}\) at one codeword
+position.  Verification remains small: the verifier checks one Groth16 proof,
 sampled Merkle memberships, and CP-Link proofs, with total verification time
 below \(10\) ms in all single-matrix rows.
 

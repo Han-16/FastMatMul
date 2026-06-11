@@ -1,18 +1,78 @@
 \section{Related Work}
 \label{sec:related}
 
-Our work complements verifiable ML systems such as
-SafetyNets~\cite{ghodsi2017safetynets}, Mystique~\cite{weng2021mystique},
-zkCNN~\cite{liu2021zkcnn}, vCNN~\cite{lee2024vcnn}, and
-zkML~\cite{chen2024zkml}; sumcheck/GKR-based VC~\cite{goldwasser2015delegating};
-dedicated matrix-verification protocols~\cite{cong2024zkmatrix,
-cong2026dualmatrix,zhang2025zkvc,bennett2023matrix}; and code-based
-SNARK/proximity systems~\cite{ames2017ligero,golovnev2023brakedown,
-xie2022orion,ben2018fast}.
-Unlike full-circuit ML systems or polynomial-commitment matrix
-arguments~\cite{kate2010constant}, $\protocol$ is a dedicated multiplication
-checking layer over committed encoded data and is orthogonal to succinct
-backends, including universal/updatable-SRS and inner-product-style
-systems~\cite{maller2019sonic,chiesa2020marlin,bunz2018bulletproofs}.
-The security theorem accounts for SNARK soundness, opening and linking
-soundness, Freivalds failure, and proximity-sampling error.
+\paragraph{Verifiable machine learning and general VC}
+Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},
+Mystique~\cite{weng2021mystique}, zkCNN~\cite{liu2021zkcnn},
+vCNN~\cite{lee2024vcnn}, and zkML~\cite{chen2024zkml} all encounter matrix
+multiplication as a major arithmetic cost.
+These systems usually verify an entire inference pipeline, either by
+arithmetizing the computation directly or by using a general proof-system
+backend for arithmetic circuits.
+LAMP targets a narrower interface: it verifies one committed matrix-product
+claim over certified encoded roots.
+It is therefore a checking layer that can be composed with an ML or VC system
+that already maintains committed inputs, rather than a replacement for
+end-to-end zkML or general-purpose verifiable computation.
+
+\paragraph{Sum-check and GKR-based verification}
+The sum-check protocol~\cite{lund1992algebraic} and the GKR
+framework~\cite{goldwasser2015delegating} are standard tools for verifying
+arithmetic circuits and matrix-heavy computations through multilinear
+extensions and layered circuit checks.
+Subsequent systems improve the prover/verifier trade-offs and make these
+techniques practical in SNARK-like settings~\cite{thaler2013time,
+wahby2018doubly,setty2020spartan}.
+These approaches are highly relevant to matrix multiplication, especially when
+many products are batched or embedded in a larger arithmetic circuit.
+LAMP uses a different interface: the verifier starts from certified encoded
+matrix commitments and checks local codeword equations induced by Freivalds'
+randomization.
+We therefore use Freivalds-in-SNARK as the main experimental baseline because it
+checks the same committed-root statement in the same Groth16 measurement stack.
+A direct implementation-level comparison with sum-check/GKR systems would
+require normalizing the commitment model, batching strategy, setup, transcript,
+and verifier work, so we treat it as a separate systems comparison.
+
+\paragraph{Dedicated matrix-verification protocols}
+Dedicated matrix-verification protocols, including
+zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
+zkVC~\cite{zhang2025zkvc}, and coding-theoretic matrix checking by Bennett et
+al.~\cite{bennett2023matrix}, study proof systems or commitment interfaces
+specialized to matrix operations.
+These works explore trade-offs among polynomial commitments, batching, prover
+work, sparsity assumptions, and proof size.
+Our construction is closest in goal to this line, but exposes a different
+boundary: the input-certification layer is separated from the online
+multiplication checker, and the checked relation is reduced to sampled local
+fold equations over encoded commitments.
+This boundary is important for the claims in this paper: the artifact measures
+the online checking layer over certified roots and does not claim to close the
+raw-matrix-to-root pipeline.
+
+\paragraph{Code-based proximity systems}
+Code-based proof systems such as Ligero~\cite{ames2017ligero},
+Brakedown~\cite{golovnev2023brakedown}, Orion~\cite{xie2022orion}, and
+FRI-based systems~\cite{ben2018fast} use encoded views of computation traces,
+proximity testing, and committed codewords to obtain succinct verification.
+LAMP adopts this committed-codeword viewpoint but does not introduce a new
+general-purpose proof system.
+Its contribution is problem-specific: Freivalds randomization and linear-code
+folds turn a matrix-product statement into sampled local equations before
+arithmetization.
+The backend may be instantiated with different commitment and opening systems;
+our implementation uses Merkle-authenticated handles and a QA-NIZK/CP-Link layer
+to connect sampled Groth16 witness values to external openings.
+
+\paragraph{Commitment and SNARK backends}
+Polynomial commitments~\cite{kate2010constant}, inner-product arguments such as
+Bulletproofs~\cite{bunz2018bulletproofs}, and preprocessing SNARKs such as
+Sonic~\cite{maller2019sonic} and Marlin~\cite{chiesa2020marlin} provide
+different ways to bind large algebraic objects and verify succinct relations.
+LAMP is largely orthogonal to this choice.
+The security theorem only requires certified input roots, message binding for
+the intermediate vectors, position-binding openings, and sampled
+witness-to-leaf linking.
+This modularity is useful, but it also limits the scope of the current
+evaluation: changing the backend can change verifier time, proof size, setup
+cost, and the cost of certifying raw inputs.

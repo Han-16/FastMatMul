@@ -99,6 +99,9 @@ Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a systematic linear code
 with relative distance \(\delta\).  For a matrix
 \(\mat{M}\in\mathbb{F}^{k\times k}\), the prover row-wise encodes \(\mat{M}\)
 as $\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
+By Definition~\ref{def:interleaved-code}, this row-wise encoding can also be
+viewed as a \(k\)-fold interleaved codeword, where the \(j\)-th interleaved
+symbol is the encoded column \(\widehat{\mat{M}}[*,j]\).
 
 The key identity is the linearity of the code.  For any vector
 \(\vect{u}\in\mathbb{F}^k\),
@@ -149,10 +152,11 @@ probability governed by \(\delta\) and the number of sampled positions.
 The sampled checks above are meaningful only if the values used inside the
 SNARK are bound to data fixed before the relevant challenges are sampled.
 \(\protocol\) achieves this through a sampled-opening layer.
-The prover first commits to the encoded matrix columns and fixes a Merkle root
-before the Freivalds challenge is derived.  After the challenge is fixed, the
-prover computes the intermediate vectors, commits to their encoded symbols, and
-fixes a second Merkle root before the sampled positions are derived.
+The prover first commits to the interleaved symbols, equivalently the encoded
+matrix columns, and fixes a Merkle root before the Freivalds challenge is
+derived.  After the challenge is fixed, the prover computes the intermediate
+vectors, commits to their encoded symbols, and fixes a second Merkle root before
+the sampled positions are derived.
 
 The SNARK circuit itself only checks field equations on the sampled values.  It
 does not verify Pedersen openings or Merkle paths internally.  Instead, the

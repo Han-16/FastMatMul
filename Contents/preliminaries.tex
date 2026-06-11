@@ -36,6 +36,39 @@ For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the
 The $j$-th column of $\widehat{\mat{M}}$ is denoted by
 $\widehat{\mat{M}}[*,j] \in \mathbb{F}^k$ for each $j \in [n]$.
 
+\begin{definition}[Interleaved code]\label{def:interleaved-code}
+For an integer \(\ell\ge 1\), the \(\ell\)-fold interleaved code
+\(\mathcal{C}^{\langle \ell\rangle}\) is obtained by grouping \(\ell\)
+codewords of \(\mathcal{C}\) position by position.  More concretely, for
+codewords
+\[
+  \vect{c}^{(0)},\ldots,\vect{c}^{(\ell-1)}\in\mathcal{C},
+\]
+their interleaving is the word
+\(\vect{w}\in(\mathbb{F}^{\ell})^n\) whose \(j\)-th symbol is
+\[
+  \vect{w}[j]
+  =
+  \big(
+    \vect{c}^{(0)}[j],
+    \ldots,
+    \vect{c}^{(\ell-1)}[j]
+  \big)
+  \in\mathbb{F}^{\ell}
+  \quad\text{for }j\in[n].
+\]
+The code \(\mathcal{C}^{\langle \ell\rangle}\) is the set of all such
+interleavings.
+
+The row-wise encoding of a matrix is an interleaved codeword in this sense.
+Indeed, for \(\mat{M}\in\mathbb{F}^{k\times k}\), the rows
+\(\enc(\mat{M}[0,*]),\ldots,\enc(\mat{M}[k-1,*])\) are \(k\) codewords of
+\(\mathcal{C}\), and their interleaving is exactly
+\(\widehat{\mat{M}}\in\mathbb{F}^{k\times n}\).  The \(j\)-th interleaved
+symbol is the encoded column
+\(\widehat{\mat{M}}[*,j]\in\mathbb{F}^{k}\).
+\end{definition}
+
 The key property we exploit is \emph{linearity}: for any coefficients
 $r_0, \ldots, r_{k-1} \in \mathbb{F}$,
 \begin{equation}\label{eq:code-linearity}
