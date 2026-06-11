@@ -1,8 +1,302 @@
-\section{Artifact availability}
-An anonymized artifact repository containing the implementation, benchmark
-scripts, CSV results, and proof/evaluation materials is available at
-\url{...}. The repository is frozen for review and contains instructions for
-reproducing the main tables and figures.
+\section{SNARK Security Definitions}
+\label{app:snark-security}
+
+Let \(\relation=\{\relation_\lambda\}_{\lambda\in\mathbb{N}}\) be a family of
+NP relations.  A SNARK for \(\relation\) is a tuple of algorithms
+\(\bPi=(\setup,\prove,\verify)\), as defined in
+Section~\ref{sec:prelim-snark}.  We recall the standard security properties
+used in this work. \\
+
+\noindent\textbf{Completeness.}
+\(\bPi\) satisfies completeness if, for every security parameter \(\lambda\)
+and every \((\stmt,\wit)\in\relation_\lambda\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi.\verify(\para,\stmt,\pi)=1
+  \\[1mm]
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),
+  \quad
+  \pi\gets\bPi.\prove(\para,\stmt,\wit)
+\end{array}
+\right]
+\\
+&\hspace{2em}\ge 1-\textsf{negl}(\lambda).
+\end{aligned}
+\]
+If the probability is \(1\), we say that \(\bPi\) has perfect completeness. \\
+
+\noindent\textbf{Knowledge soundness.}
+\(\bPi\) satisfies knowledge soundness if, for every \(\ppt\) prover
+\(\mathcal{A}\), there exists an \(\ppt\) extractor
+\(\mathsf{Ext}^{\mathcal{A}}\) such that
+\[
+\begin{aligned}
+&\Pr\left[
+\begin{array}{l}
+  \bPi.\verify(\para,\stmt,\pi)=1 \\
+  \quad {}\wedge{}\,(\stmt,\wit)\notin\relation_\lambda
+\end{array}
+\;:\;
+\begin{array}{l}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  (\stmt,\pi)\gets\mathcal{A}(\para),\\
+  \wit\gets\mathsf{Ext}^{\mathcal{A}}(\para,\stmt)
+\end{array}
+\right] \\
+&\le \textsf{negl}(\lambda).
+\end{aligned}
+\]
+Equivalently, except with negligible probability, any prover that outputs an
+accepting proof for \(\stmt\) must know a witness \(\wit\) such that
+\((\stmt,\wit)\in\relation_\lambda\). \\
+
+
+\noindent\textbf{Zero knowledge.}
+\(\bPi\) satisfies zero knowledge if there exists a \(\ppt\) simulator
+\(\mathsf{Sim}\) such that, for every \(\ppt\) distinguisher
+\(\mathcal{D}\), the following two experiments are indistinguishable.
+
+\[
+\begin{aligned}
+\mathsf{Real}_{\bPi,\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  \pi\gets\bPi.\prove(\para,\stmt,\wit),\\
+  b\gets\mathcal{D}(\para,\stmt,\pi),\\
+  \text{return } b.
+\end{array}
+\right.
+\\[3mm]
+\mathsf{Ideal}_{\bPi,\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  \pi^\star\gets\mathsf{Sim}(\para,\stmt),\\
+  b\gets\mathcal{D}(\para,\stmt,\pi^\star),\\
+  \text{return } b.
+\end{array}
+\right.
+\end{aligned}
+\]
+
+For all \((\stmt,\wit)\in\relation_\lambda\),
+\[
+\left|
+  \Pr[\mathsf{Real}_{\bPi,\mathcal{D}}(\lambda)=1]
+  -
+  \Pr[\mathsf{Ideal}_{\bPi,\mathcal{D}}(\lambda)=1]
+\right|
+\le
+\textsf{negl}(\lambda).
+\]
+A SNARK satisfying zero knowledge is called a zk-SNARK.
+
+\section{CP-Link Security Definitions}
+\label{app:cplink-security}
+
+Let
+\(\relation_{\mathsf{link}}
+=\{\relation_{\mathsf{link},\lambda}\}_{\lambda\in\mathbb{N}}\)
+be the equality-link relation defined in Section~\ref{sec:prelim-cplink}.
+For commitment keys \(\ck_1,\ldots,\ck_t\), commitments
+\(\cm_1,\ldots,\cm_t\), message \(m\), and opening randomness
+\((o_i)_{i=1}^{t}\), the relation contains exactly the pairs
+\[
+\begin{aligned}
+\relation_{\mathsf{link},\lambda}
+=
+\Big\{
+&\big(
+((\ck_i,\cm_i)_{i=1}^{t}),
+(m,(o_i)_{i=1}^{t})
+\big)
+:\\
+&\cm_i=\com(\ck_i,m;o_i)
+\quad \text{for all } i\in[t]
+\Big\}.
+\end{aligned}
+\]
+A CP-Link proof system for \(\relation_{\mathsf{link}}\) is a tuple of
+algorithms
+\(\bPi_{\mathsf{link}}=(\setup,\prove,\verify)\), as defined in
+Section~\ref{sec:prelim-cplink}.  The corresponding linking language is
+\[
+  \mathcal{L}_{\mathsf{link},\lambda}
+  =
+  \left\{
+    \stmt_{\mathsf{link}}
+    :
+    \exists \wit_{\mathsf{link}}
+    \text{ such that }
+    (\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+    \in
+    \relation_{\mathsf{link},\lambda}
+  \right\}.
+\]
+Thus a statement is in \(\mathcal{L}_{\mathsf{link},\lambda}\) exactly when
+the public commitments can be opened to one common message.  The main security
+property for our protocol is link soundness.  If the CP-Link backend is
+implemented as a NIZK or QA-NIZK, as in our implementation, it may additionally
+satisfy witness zero knowledge~\cite{legosnark,qa-nizk}. \\
+
+\noindent\textbf{Link completeness.}
+\(\bPi_{\mathsf{link}}\) satisfies completeness if, for every security
+parameter \(\lambda\) and every
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+\in\relation_{\mathsf{link},\lambda}\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi_{\mathsf{link}}.\verify(
+    \para_{\mathsf{link}},
+    \stmt_{\mathsf{link}},
+    \pi_{\mathsf{link}}
+  )=1
+  \\[1mm]
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \wit_{\mathsf{link}}
+    )
+\end{array}
+\right]
+\\
+&\hspace{2em}\ge 1-\textsf{negl}(\lambda).
+\end{aligned}
+\]
+If the probability is \(1\), we say that
+\(\bPi_{\mathsf{link}}\) has perfect completeness. \\
+
+\noindent\textbf{Link soundness.}
+\(\bPi_{\mathsf{link}}\) satisfies link soundness with error
+\(\epsilon_{\mathsf{link}}(\lambda)\) if, for every \(\ppt\) adversary
+\(\mathcal{A}\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi_{\mathsf{link}}.\verify(
+    \para_{\mathsf{link}},
+    \stmt_{\mathsf{link}}^\star,
+    \pi_{\mathsf{link}}^\star
+  )=1
+  \\[1mm]
+  {}\wedge{}\ 
+  \stmt_{\mathsf{link}}^\star
+  \notin
+  \mathcal{L}_{\mathsf{link},\lambda}
+  \\[1mm]
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  (\stmt_{\mathsf{link}}^\star,\pi_{\mathsf{link}}^\star)
+    \gets
+    \mathcal{A}(\para_{\mathsf{link}})
+\end{array}
+\right]
+\\
+&\hspace{2em}\le \epsilon_{\mathsf{link}}(\lambda).
+\end{aligned}
+\]
+If \(\epsilon_{\mathsf{link}}(\lambda)=\textsf{negl}(\lambda)\), we say that
+\(\bPi_{\mathsf{link}}\) is link-sound.  Equivalently, except with probability
+\(\epsilon_{\mathsf{link}}(\lambda)\), an accepting CP-Link proof certifies the
+existence of one message \(m\) and openings \((o_i)_{i=1}^{t}\) such that every
+commitment \(\cm_i\) opens to \(m\). \\
+
+\noindent\textbf{Witness zero knowledge.}
+When privacy of the linked message and opening randomness is required, we say
+that \(\bPi_{\mathsf{link}}\) satisfies witness zero knowledge if there exists a
+\(\ppt\) simulator \(\mathsf{Sim}_{\mathsf{link}}\) such that, for every
+\(\ppt\) distinguisher \(\mathcal{D}\), the following two experiments are
+indistinguishable.
+
+\[
+\begin{aligned}
+\mathsf{Real}_{\mathsf{link},\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \wit_{\mathsf{link}}
+    ),\\
+  b\gets
+    \mathcal{D}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \pi_{\mathsf{link}}
+    ),\\
+  \text{return } b.
+\end{array}
+\right.
+\\[3mm]
+\mathsf{Ideal}_{\mathsf{link},\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}^\star
+    \gets
+    \mathsf{Sim}_{\mathsf{link}}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}
+    ),\\
+  b\gets
+    \mathcal{D}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \pi_{\mathsf{link}}^\star
+    ),\\
+  \text{return } b.
+\end{array}
+\right.
+\end{aligned}
+\]
+
+For all
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+\in\relation_{\mathsf{link},\lambda}\),
+\[
+\left|
+  \Pr[\mathsf{Real}_{\mathsf{link},\mathcal{D}}(\lambda)=1]
+  -
+  \Pr[\mathsf{Ideal}_{\mathsf{link},\mathcal{D}}(\lambda)=1]
+\right|
+\le
+\textsf{negl}(\lambda).
+\]
+This property says that the linking proof reveals no information about
+\(m\) or the openings \((o_i)_{i=1}^{t}\), beyond the public fact that the
+commitments are linkable.
+
 
 \section{Detailed Proof of Theorem~\ref{thm:security}}
 \label{app:security-proof}

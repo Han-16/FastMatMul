@@ -2,8 +2,8 @@
 \label{sec:conclusion}
 
 We proposed \(\protocol\), a new protocol for verifying matrix multiplication.
-The key idea is to move the expensive vector-matrix products outside the SNARK
-circuit and replace them with sampling-based proximity tests over linear
+The key idea is to move the expensive vector--matrix products outside the
+SNARK circuit and replace them with sampling-based proximity tests over linear
 codewords.  The prover first encodes and commits to the matrices, then computes
 the Freivalds intermediate vectors using a verifier-sampled random challenge.
 The prover then encodes and commits to these intermediate vectors, and the
@@ -12,28 +12,36 @@ Merkle openings and CP-Link proofs ensure that the values used inside the
 CP-SNARK are consistent with the committed data fixed before the sampling
 challenges are known.
 
-The security analysis follows this structure.  Assuming that \(\rt_{ABC}\)
-binds to valid row-wise encodings of \(\mat{A},\mat{B},\mat{C}\), any prover that
-convinces the verifier of a false statement \(\mat{A}\mat{B}\neq\mat{C}\) must
-either hit the Freivalds failure event, avoid every sampled codeword
-disagreement, or break one of the backend assumptions of \(\protocol\).  These
-assumptions include CP-SNARK soundness, commitment binding, CP-Link consistency,
-and code-consistency soundness.
-
-Our implementation confirms the intended tradeoff.  For a fixed number of
+Our implementation confirms the intended tradeoff.  For a fixed number \(t\) of
 queries, the main arithmetic relation has \(\mathcal{O}(tk)\) constraints
-rather than the \(\mathcal{O}(k^2)\) constraints of a Freivalds-in-SNARK
-baseline.  In the matrix benchmark at \(k=4{,}096\), \(\protocol\) reduces the
-constraint count by \(30.3\times\) and proof generation time by \(8.34\times\),
-while keeping verification below \(10\) ms.  The GPT-2 workload shows that
-\(\protocol\) can also be applied to matrix-heavy verifiable AI computation.
-When many multiplication claims appear together, the gains are smaller but
-remain meaningful.
+rather than the \(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.
+Thus, when \(t\) is fixed, the constraint count of \(\protocol\) grows linearly
+with the matrix dimension \(k\).  In the matrix benchmark at \(k=4{,}096\),
+\(\protocol\) reduces the constraint count by \(30.3\times\) and proving time
+by \(8.34\times\), while keeping verification below \(10\) ms.  We also show
+that, when proving multiple matrix products with the same structure, batching
+keeps the Merkle membership proof size almost unchanged.  This demonstrates
+that \(\protocol\) can amortize opening overhead effectively when multiple
+matrix-multiplication claims share the same leaf layout.
 
-The main remaining cost of \(\protocol\) is proof size.  Since sampled Merkle
-openings are included in the proof, this overhead becomes more visible as the
-number of matrix-multiplication claims increases.  A natural next step is to
-optimize the opening layer for workloads in which many matrix products appear
-in sequence.  In particular, batching or sharing Merkle openings and CP-Link
-proofs across multiple products may reduce proof size and verification overhead
-while preserving the linear in-circuit cost that \(\protocol\) provides.
+\(\protocol\) can also be applied to verifiable AI applications.  The gains are
+smaller for a GPT-2 layer, where the computation consists of rectangular matrix
+multiplications of different sizes and smaller matrix products inside each
+attention head.  In this setting, it is harder to pack multiple products into a
+single Pedersen leaf.  Nevertheless, \(\protocol\) achieves a \(2.30\times\)
+constraint reduction and a \(1.78\times\) proving-time improvement over the
+Freivalds baseline on the GPT-2 workload.
+
+The main remaining cost of \(\protocol\) is the proof size and the
+commitment/opening layer.  In particular, workloads with consecutive matrix
+products of different sizes require more commitments, causing sampled opening
+proofs and linking proofs to accumulate.  As future work, we plan to optimize
+the opening layer to reduce proof size, develop batching and sharing techniques
+for consecutive matrix products of different sizes, and exploit the fact that
+weights are mostly fixed in verifiable AI scenarios for batching optimizations.
+These directions may reduce proof size and verification overhead on more
+complex AI workloads while preserving the linear constraints provided by
+\(\protocol\).
+
+
+\newpage

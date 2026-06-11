@@ -1,7 +1,7 @@
 \section{Related Work}
 \label{sec:related}
 
-\noindent\textbf{Verifiable machine learning and general VC}
+\noindent\textbf{Verifiable machine learning and general VC.}
 Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},
 Mystique~\cite{weng2021mystique}, zkCNN~\cite{liu2021zkcnn},
 vCNN~\cite{lee2024vcnn}, and zkML~\cite{chen2024zkml} all encounter matrix
@@ -9,14 +9,14 @@ multiplication as a major arithmetic cost.
 These systems usually verify an entire inference pipeline, either by
 arithmetizing the computation directly or by using a general proof-system
 backend for arithmetic circuits.
-LAMP targets a narrower interface: it verifies one committed matrix-product
+\(\protocol\) targets a narrower interface: it verifies one committed matrix-product
 claim, or a batch of such claims, over committed encoded roots.
 It is therefore a checking layer that can be composed with an ML or VC system
 that already maintains committed inputs, rather than a replacement for
 end-to-end zkML or general-purpose verifiable computation.\\
 
 
-\noindent\textbf{Sum-check and GKR-based verification}
+\noindent\textbf{Sum-check and GKR-based verification.}
 The sum-check protocol~\cite{lund1992algebraic} and the GKR
 framework~\cite{goldwasser2015delegating} are standard tools for verifying
 arithmetic circuits and matrix-heavy computations through multilinear
@@ -26,7 +26,7 @@ techniques practical in SNARK-like settings~\cite{thaler2013time,
 wahby2018doubly,setty2020spartan}.
 These approaches are highly relevant to matrix multiplication, especially when
 many products are batched or embedded in a larger arithmetic circuit.
-LAMP uses a different interface: the verifier starts from committed encoded
+\(\protocol\) uses a different interface: the verifier starts from committed encoded
 matrix commitments and checks local codeword equations induced by Freivalds'
 randomization.
 We therefore use Freivalds-in-SNARK as the main experimental baseline because it
@@ -36,7 +36,7 @@ require normalizing the commitment model, batching strategy, setup, transcript,
 and verifier work, so we treat it as a separate systems comparison.\\
 
 
-\noindent\textbf{Dedicated matrix-verification protocols}
+\noindent\textbf{Dedicated matrix-verification protocols.}
 Dedicated matrix-verification protocols, including
 zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
 zkVC~\cite{zhang2025zkvc}, and coding-theoretic matrix checking by Bennett et

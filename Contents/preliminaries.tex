@@ -214,7 +214,9 @@ outputs $b=1$ if $\pi$ is accepted as a valid proof for $\stmt$, and outputs $b=
 \end{itemize}
 
 \begin{remark}[Security Properties]
-A SNARK scheme $\bPi$ satisfies completeness, if an honestly generated proof for any valid statement-witness pair $(\stmt,\wit)\in\relation$ is accepted by the verifier with overwhelming probability. It satisfies knowledge soundness if any PPT prover that produces an accepting proof for a statement $\stmt$ must know a valid witness $\wit$ such that $(\stmt,\wit)\in\relation$, except with negligible probability. This is formalized by the existence of an efficient knowledge extractor. A SNARK may additionally satisfy zero knowledge, meaning that the proof reveals no information beyond the truth of the statement. This is modeled by a simulator $\mathsf{Sim}$ that can generate a proof indistinguishable from a real proof without knowing a valid witness. A SNARK satisfying zero knowledge is called a zk-SNARK.
+We use the standard SNARK notions of completeness, knowledge soundness, and
+zero knowledge.  Appendix~\ref{app:snark-security} recalls these notions
+formally, including their negligible error bounds. 
 \end{remark}
 
 
@@ -251,6 +253,67 @@ $\bPi_{\cp}=(\setup,\com,\prove,\verify)$.
 
 
 
+% \subsection{CP-Link}
+% \label{sec:prelim-cplink}
+
+% A CP-Link proof is a proof system for linking commitments. In its basic
+% equality-link form, it proves that two or more commitments are commitments to
+% the same message, without revealing the message or the opening randomness.
+
+% Let $\com$ be a commitment scheme. For commitment keys
+% $\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation is defined as
+% \[
+% \begin{aligned}
+% \relation_{\mathsf{link}}
+% =
+% \Big\{
+% &\big(
+% ((\ck_i,\cm_i)_{i=1}^{t}),
+% (m,(o_i)_{i=1}^{t})
+% \big)
+% :\\
+% &\cm_i = \com(\ck_i,m;o_i)
+% \quad \text{for all } i\in[t]
+% \Big\}.
+% \end{aligned}
+% \]
+% A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all commitments $\cm_1,\ldots,\cm_t$ are commitments to the same message $m$.
+
+% We use CP-Link through the standard statement/witness interface for a linking
+% relation.  For the equality-link relation above, the public statement and
+% witness are
+% \[
+%   \stmt_{\mathsf{link}}
+%   =
+%   ((\ck_i,\cm_i)_{i=1}^{t}),
+%   \qquad
+%   \wit_{\mathsf{link}}
+%   =
+%   (m,(o_i)_{i=1}^{t}).
+% \]
+
+% A CP-Link proof system is a tuple of algorithms
+% $\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
+
+% \begin{itemize}
+% \item $\para_{\mathsf{link}} \gets
+% \bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})$:
+% generates public parameters for the linking relation.
+
+% \item $\pi_{\mathsf{link}} \gets
+% \bPi_{\mathsf{link}}.\prove(
+% \para_{\mathsf{link}},
+% \stmt_{\mathsf{link}},
+% \wit_{\mathsf{link}})$:
+% outputs a proof that the statement-witness pair satisfies the linking relation.
+
+% \item $b \gets
+% \bPi_{\mathsf{link}}.\verify(
+% \para_{\mathsf{link}},
+% \stmt_{\mathsf{link}},
+% \pi_{\mathsf{link}})$:
+% outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
+% \end{itemize}
 \subsection{CP-Link}
 \label{sec:prelim-cplink}
 
@@ -289,9 +352,6 @@ witness are
   =
   (m,(o_i)_{i=1}^{t}).
 \]
-More structured linking relations may link commitments to deterministic blocks
-or projections of a common message; in that case the projection maps are part of
-\(\relation_{\mathsf{link}}\), but the algorithmic interface is unchanged.
 
 A CP-Link proof system is a tuple of algorithms
 $\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
@@ -315,6 +375,14 @@ outputs a proof that the statement-witness pair satisfies the linking relation.
 \pi_{\mathsf{link}})$:
 outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
 \end{itemize}
+
+\begin{remark}[Security Properties]
+For the soundness of \(\protocol\), we require CP-Link soundness: an accepting
+linking proof should imply membership in \(\relation_{\mathsf{link}}\), except
+with error \(\epsilon_{\mathsf{link}}(\lambda)\).  If the linking backend is used
+to protect the linked message and openings, one may additionally require witness
+zero knowledge.  Appendix~\ref{app:cplink-security} states these properties.
+\end{remark}
 
 \subsection{Freivalds' Algorithm}
 \label{sec:prelim-freivalds}
