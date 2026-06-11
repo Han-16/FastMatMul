@@ -363,54 +363,6 @@ commitment \(\widetilde{\cm}_{T}\), and \(\ck_T\) is the external Pedersen
 commitment key for the Merkle leaves of type \(T\).
 
 
-\begin{figure}[t]
-\begin{tcolorbox}[colback=white, colframe=black]
-\pseudocodeblock[mode=text]{
-$\circ\;
-\relation_{\mathsf{LAMP}}^{\mathsf{off}}\big($
-    $
-      \rt_{ABC},\rt_{XYZ},I,
-      \widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ},
-      $ \\
-    $\qquad
-      \pi_{\mathsf{link}}^{ABC},\pi_{\mathsf{link}}^{XYZ},$ \\
-    $\qquad
-      (\cm_{ABC,j},\pi_{\mathsf{mem},j}^{ABC})_{j\in I},
-      (\cm_{XYZ,j},\pi_{\mathsf{mem},j}^{XYZ})_{j\in I}
-    \big):$ \\[0.5ex]
-    $\qquad \forall j\in I:$ \\
-    $\qquad \qquad
-        \merkleV(
-            \rt_{ABC},
-            j,
-            \cm_{ABC,j},
-            \pi_{\mathsf{mem},j}^{ABC}
-        ) = 1$ \\
-    $\qquad \qquad
-        \merkleV(
-            \rt_{XYZ},
-            j,
-            \cm_{XYZ,j},
-            \pi_{\mathsf{mem},j}^{XYZ}
-        ) = 1$ \\[0.5ex]
-    $\qquad
-        \bPi_{\mathsf{link}}.\verify(
-            \para_{\mathsf{link}},
-            \stmt_{\mathsf{link}}^{ABC},
-            \pi_{\mathsf{link}}^{ABC}
-        ) = 1$ \\
-    $\qquad
-        \bPi_{\mathsf{link}}.\verify(
-            \para_{\mathsf{link}},
-            \stmt_{\mathsf{link}}^{XYZ},
-            \pi_{\mathsf{link}}^{XYZ}
-        ) = 1$
-}
-\end{tcolorbox}
-\caption{The Offline Relation}
-\label{relation:lamp-off}
-\end{figure}
-\FloatBarrier
 
 \subsection{The Offline Relation}
 \label{sec:openings-and-cplink}
@@ -479,6 +431,55 @@ This blockwise interpretation is important: the CP-Link proof claims that the or
 
 
 The offline relation is defined in Figure~\ref{relation:lamp-off}.
+
+\begin{figure}[!t]
+\begin{tcolorbox}[colback=white, colframe=black]
+\pseudocodeblock[mode=text]{
+$\circ\;
+\relation_{\mathsf{LAMP}}^{\mathsf{off}}\big($
+    $
+      \rt_{ABC},\rt_{XYZ},I,
+      \widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ},
+      $ \\
+    $\qquad
+      \pi_{\mathsf{link}}^{ABC},\pi_{\mathsf{link}}^{XYZ},$ \\
+    $\qquad
+      (\cm_{ABC,j},\pi_{\mathsf{mem},j}^{ABC})_{j\in I},
+      (\cm_{XYZ,j},\pi_{\mathsf{mem},j}^{XYZ})_{j\in I}
+    \big):$ \\[0.5ex]
+    $\qquad \forall j\in I:$ \\
+    $\qquad \qquad
+        \merkleV(
+            \rt_{ABC},
+            j,
+            \cm_{ABC,j},
+            \pi_{\mathsf{mem},j}^{ABC}
+        ) = 1$ \\
+    $\qquad \qquad
+        \merkleV(
+            \rt_{XYZ},
+            j,
+            \cm_{XYZ,j},
+            \pi_{\mathsf{mem},j}^{XYZ}
+        ) = 1$ \\[0.5ex]
+    $\qquad
+        \bPi_{\mathsf{link}}.\verify(
+            \para_{\mathsf{link}},
+            \stmt_{\mathsf{link}}^{ABC},
+            \pi_{\mathsf{link}}^{ABC}
+        ) = 1$ \\
+    $\qquad
+        \bPi_{\mathsf{link}}.\verify(
+            \para_{\mathsf{link}},
+            \stmt_{\mathsf{link}}^{XYZ},
+            \pi_{\mathsf{link}}^{XYZ}
+        ) = 1$
+}
+\end{tcolorbox}
+\caption{The Offline Relation}
+\label{relation:lamp-off}
+\end{figure}
+\FloatBarrier
 
 By combining the Merkle membership checks with the CP-Link checks, we obtain the consistency chain described in Section~\ref{sec:overview-commit-link}.
 For each \(T\in\{ABC,XYZ\}\),
@@ -601,7 +602,7 @@ following CP-Link statement and witness:
 \]
 Thus the CP-Link API is used with the public linking parameters, the commitment
 keys and commitments as the statement, and the sampled messages together with
-their opening randomness as the witness.
+their opening randomness as the witness. \\
 
 % \paragraph{Cost model}
 \noindent\textbf{Cost model.}
@@ -617,7 +618,7 @@ We write \(\mathbb{G}\) for group operations used by Pedersen commitments,
 \(\mathbb{F}\) for field operations, and \(\mathbb{H}\) for hash evaluations.
 Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and
 verification costs, respectively. Let \(E_{\mathsf{link}}^\mathcal{P}(k,t)\) and \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
-Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components.
+Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
 
 \begin{table}[ht]
 \centering
