@@ -25,7 +25,7 @@ fixed and the code-consistency checks are linear, the constraint count of
 \(\protocol\) grows linearly with the matrix dimension \(k\).  
 In the matrix benchmark at \(k=4{,}096\),
 \(\protocol\) reduces the constraint count by \(30.3\times\) and proving time
-by \(8.34\times\), while keeping verification below \(10\) ms.  We also show
+by \(8.43\times\), while keeping verification around \(0.06\) s.  We also show
 that, when proving multiple matrix products with the same structure, batching
 keeps the Merkle membership proof size almost unchanged.  This demonstrates
 that \(\protocol\) can amortize opening overhead effectively when multiple
@@ -39,16 +39,8 @@ single Pedersen leaf.  Nevertheless, \(\protocol\) achieves a \(2.30\times\)
 constraint reduction and a \(1.78\times\) proving-time improvement over the
 Freivalds baseline on the GPT-2 workload.
 
-The main remaining cost of \(\protocol\) is the proof size and the
-commitment/opening layer.  In particular, workloads with consecutive matrix
-products of different sizes require more commitments, causing sampled opening
-proofs and linking proofs to accumulate.  As future work, we plan to optimize
-the opening layer to reduce proof size, develop batching and sharing techniques
-for consecutive matrix products of different sizes, and exploit the fact that
-weights are mostly fixed in verifiable AI scenarios for batching optimizations.
-These directions may reduce proof size and verification overhead on more
-complex AI workloads while preserving the linear constraints provided by
-\(\protocol\).
+The main remaining costs of \(\protocol\) are the sampled-opening proof size and the verification overhead of the pairing-based linking layer.
+In particular, workloads with consecutive matrix products of different sizes require more commitments, causing sampled opening proofs and linking checks to accumulate. As future work, we plan to optimize the opening and linking layers to reduce both proof size and verification overhead.  In particular, we plan to develop batching and sharing techniques for consecutive matrix products of different sizes, reduce the number of linking statements and pairing terms, and exploit the fact that weights are mostly fixed in verifiable AI scenarios for preprocessing and batching optimizations.  These directions may reduce the sampled-opening proof size and the cost of pairing-based link verification on more complex AI workloads while preserving the linear constraint provided by \(\protocol\).
 
 
 \newpage

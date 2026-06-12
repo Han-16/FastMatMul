@@ -71,9 +71,7 @@ Verification takes about \(0.06\) s for \(\protocol\), compared with
 verifying Merkle openings and the pairing-based CP-Link proofs in addition to
 the Groth16 proof. In the QA-Link instantiation, CP-Link verification is the
 dominant part of this overhead because the verifier evaluates the sampled link
-equations as a multi-pairing check. Nevertheless, verification remains below
-one tenth of a second, while the prover-side savings become substantial for
-large matrix dimensions.
+equations as a multi-pairing check. Across all measured matrix dimensions, verification stays at about \(0.06\) s, while the prover-side savings become substantial for large matrix dimensions.
 
 
 \begin{table*}[!t]
