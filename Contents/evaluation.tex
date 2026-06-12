@@ -1,7 +1,7 @@
 \section{Implementation and Evaluation}
 \label{sec:implementation}
 
-We implement \(\protocol\) and evaluate its performance.  The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is given in Appendix~\ref{app:cplink-instant}.
+We implement \(\protocol\)\footnote{The implementation is available at \url{https://anonymous.4open.science/r/LAMP-FE92/.}} and evaluate its performance. The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is given in Appendix~\ref{app:cplink-instant}.
 
 Our evaluation is organized around four questions.  First, does the number of  constraints of \(\protocol\) scales linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second, which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? \\
 
@@ -157,8 +157,7 @@ Table~\ref{tab:lamp-batch} reports the component costs at fixed \(k=2^7\).  As e
 \subsection{GPT-2 Workload}
 \label{sec:eval-gpt2}
 
-Table~\ref{tab:lamp-gpt2} evaluates \(\protocol\) as a verifiable AI
-application: a single GPT-2 layer with sequence length \(2^{10}\).
+Table~\ref{tab:lamp-gpt2} evaluates \(\protocol\) as a verifiable AI application: the matrix multiplications in a single GPT-2 layer with sequence length \(2^{10}\).
 The performance gain in this setting is smaller than in the square-matrix benchmark.  This is because the computation in a GPT-2 layer decomposes into several rectangular matrix multiplications and smaller smaller matrix products inside each attention head.
 In this structure, the matrices have different dimensions, making it difficult to pack multiple products into a single Pedersen commitment leaf.  
 As a result, the number of commitments increases, which also increases the size of the sampled opening proofs.
