@@ -86,7 +86,8 @@ properties.
 \end{itemize}
 \end{definition}
 
-\begin{theorem}[Completeness and soundness]\label{thm:security}
+\begin{theorem}[Completeness, soundness, and zero knowledge]
+\label{thm:security}
 Assume that the input root \(\rt_{ABC}\) is fixed before the Freivalds challenge
 and binds to valid row-wise encodings of fixed matrices
 \(\mat{A},\mat{B},\mat{C}\), as described above. Assume also that the
@@ -115,6 +116,19 @@ interactive \(\protocol\) scheme satisfies:
   \]
   Here \(t=|I|\) is the number of sampled codeword positions and \(\delta\) is
   the relative distance of the code \(\mathcal{C}\).
+  \item \textbf{Zero knowledge.}
+Assume that \(\bPi_{\cp}\) is zero knowledge,
+\(\bPi_{\mathsf{link}}\) is witness zero knowledge, and the Pedersen
+commitments are hiding.  Let
+\(\stmt_{\protocol}\) denote the public transcript data. Then there exists a simulator
+\(\mathsf{Sim}_{\protocol}\) such that, for every \(\ppt\) distinguisher
+\(\mathcal{D}\),
+\[
+\mathsf{View}_{\protocol}^{\mathcal{P},\mathcal{V}}
+(\stmt_{\protocol},\wit)
+\approx_c
+\mathsf{Sim}_{\protocol}(\stmt_{\protocol}).
+\]
 \end{enumerate}
 \end{theorem}
 
@@ -244,6 +258,8 @@ Union-bounding over the four checked relations gives \(4(1-\delta)^t\).
 
 Combining these events yields the stated bound.  Appendix~\ref{app:security-proof}
 gives the detailed bad-event decomposition and the Fiat--Shamir variant.
+
+Zero knowledge follows by a standard hybrid argument.  The CP-SNARK proof is replaced by the simulator of \(\bPi_{\cp}\), and the CP-Link proofs are replaced by the witness-zero-knowledge simulator of \(\bPi_{\mathsf{link}}\).  The hiding of the Pedersen commitments lets the simulator replace the SNARK-side witness commitments and the external leaf commitments to sampled witness blocks with commitments to dummy blocks.  Since the Merkle layer only authenticates these hiding leaf commitments, it reveals no additional information about the underlying messages.  Therefore the simulated transcript is computationally indistinguishable from a real execution.
 \end{proof}
 
 

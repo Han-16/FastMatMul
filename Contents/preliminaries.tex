@@ -226,7 +226,7 @@ $\wit := (\comwit,\omega)$ such that $(\stmt,\comwit,\omega)\in\relation$,
 where $\comwit$ is the committed part of the witness and $\omega$ is the
 remaining private witness.  The committed witness is bound separately by a
 witness commitment
-$\widetilde{\cm}=\com(\ck,\comwit;\tilde{o})$, where $\tilde{o}$ is the
+$\widetilde{\cm} = \com(\ck_S, m_0 || ... || m_{q-1}; \widetilde{o})$, where $\tilde{o}$ is the
 opening randomness.  Equivalently, the CP proof is verified with respect to the
 extended public statement $\stmt_{\cp}:=(\stmt,\widetilde{\cm})$.  When the
 context is clear, we write this extended statement simply as $\stmt$.
@@ -333,7 +333,7 @@ $\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation 
 (m,(o_i)_{i=1}^{t})
 \big)
 :\\
-&\cm_i = \com(\ck_i,m;o_i)
+&\cm_i = \com(\ck_E, m_i; o_i)
 \quad \text{for all } i\in[t]
 \Big\}.
 \end{aligned}
