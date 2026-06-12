@@ -102,23 +102,34 @@ A SNARK satisfying zero knowledge is called a zk-SNARK.
 Let
 \(\relation_{\mathsf{link}}
 =\{\relation_{\mathsf{link},\lambda}\}_{\lambda\in\mathbb{N}}\)
-be the equality-link relation defined in Section~\ref{sec:prelim-cplink}.
-For commitment keys \(\ck_1,\ldots,\ck_t\), commitments
-\(\cm_1,\ldots,\cm_t\), message \(m\), and opening randomness
-\((o_i)_{i=1}^{t}\), the relation contains exactly the pairs
+be the blockwise linking relation defined in Section~\ref{sec:prelim-cplink}.
+For a SNARK-side key \(\ck_S\), an external key \(\ck_E\), a SNARK-side
+commitment \(\widetilde{\cm}\), external commitments
+\(\cm_0,\ldots,\cm_{q-1}\), sampled blocks
+\((\vect{m}_i)_{i=0}^{q-1}\), and opening randomness
+\(\widetilde{o},o_0,\ldots,o_{q-1}\), define
 \[
 \begin{aligned}
-\relation_{\mathsf{link},\lambda}
-=
-\Big\{
-&\big(
-((\ck_i,\cm_i)_{i=1}^{t}),
-(m,(o_i)_{i=1}^{t})
-\big)
-:\\
-&\cm_i=\com(\ck_i,m;o_i)
-\quad \text{for all } i\in[t]
-\Big\}.
+\stmt_{\mathsf{link}}
+&=
+((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1})),\\
+\wit_{\mathsf{link}}
+&=
+((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
+\end{aligned}
+\]
+The relation \(\relation_{\mathsf{link},\lambda}\) contains exactly the pairs
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) satisfying
+\[
+\begin{aligned}
+\widetilde{\cm}
+&=
+\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+\cm_i
+&=
+\com(\ck_E,\vect{m}_i;o_i)
+\quad \text{for all } i=0,\ldots,q-1.
 \end{aligned}
 \]
 A CP-Link proof system for \(\relation_{\mathsf{link}}\) is a tuple of
@@ -139,10 +150,11 @@ Section~\ref{sec:prelim-cplink}.  The corresponding linking language is
   \right\}.
 \]
 Thus a statement is in \(\mathcal{L}_{\mathsf{link},\lambda}\) exactly when
-the public commitments can be opened to one common message.  The main security
-property for our protocol is link soundness.  If the CP-Link backend is
-implemented as a NIZK or QA-NIZK, as in our implementation, it may additionally
-satisfy witness zero knowledge~\cite{legosnark,qa-nizk}. \\
+the SNARK-side commitment opens to the ordered concatenation of sampled blocks
+and each external commitment opens to the corresponding block.  The main
+security property for our protocol is link soundness.  If the CP-Link backend
+is implemented as a NIZK or QA-NIZK, as in our implementation, it may
+additionally satisfy witness zero knowledge~\cite{legosnark,qa-nizk}. \\
 
 \noindent\textbf{Link completeness.}
 \(\bPi_{\mathsf{link}}\) satisfies completeness if, for every security
@@ -216,11 +228,14 @@ If the probability is \(1\), we say that
 If \(\epsilon_{\mathsf{link}}(\lambda)=\textsf{negl}(\lambda)\), we say that
 \(\bPi_{\mathsf{link}}\) is link-sound.  Equivalently, except with probability
 \(\epsilon_{\mathsf{link}}(\lambda)\), an accepting CP-Link proof certifies the
-existence of one message \(m\) and openings \((o_i)_{i=1}^{t}\) such that every
-commitment \(\cm_i\) opens to \(m\). \\
+existence of blocks \((\vect{m}_i)_{i=0}^{q-1}\), an aggregate opening
+\(\widetilde{o}\), and external openings \((o_i)_{i=0}^{q-1}\) such that
+\(\widetilde{\cm}\) opens to
+\(\vect{m}_0\|\cdots\|\vect{m}_{q-1}\) and each \(\cm_i\) opens to
+\(\vect{m}_i\). \\
 
 \noindent\textbf{Witness zero knowledge.}
-When privacy of the linked message and opening randomness is required, we say
+When privacy of the linked blocks and opening randomness is required, we say
 that \(\bPi_{\mathsf{link}}\) satisfies witness zero knowledge if there exists a
 \(\ppt\) simulator \(\mathsf{Sim}_{\mathsf{link}}\) such that, for every
 \(\ppt\) distinguisher \(\mathcal{D}\), the following two experiments are
@@ -294,8 +309,9 @@ For all
 \textsf{negl}(\lambda).
 \]
 This property says that the linking proof reveals no information about
-\(m\) or the openings \((o_i)_{i=1}^{t}\), beyond the public fact that the
-commitments are linkable.
+the blocks \((\vect{m}_i)_{i=0}^{q-1}\) or the openings
+\(\widetilde{o},o_0,\ldots,o_{q-1}\), beyond the public fact that the
+commitments are blockwise linkable.
 
 
 
@@ -356,9 +372,9 @@ the following events:
   \item \(\mathsf{Bad}_{\mathsf{open}}\): a Merkle opening or Pedersen leaf
   opening is accepted in a way that violates position binding or commitment
   binding;
-  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
-  SNARK-side sampled blocks are not the same messages as the opened Pedersen
-  leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
+	  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
+	  SNARK-side sampled blocks are not the corresponding blocks opened from the
+	  Pedersen leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
   \item \(\mathsf{Bad}_{\mathsf{code}}\): the probabilistic code-consistency
   checks accept encoded views that are not encodings of their corresponding
   intermediate vectors.

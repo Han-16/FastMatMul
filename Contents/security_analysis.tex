@@ -259,7 +259,15 @@ Union-bounding over the four checked relations gives \(4(1-\delta)^t\).
 Combining these events yields the stated bound.  Appendix~\ref{app:security-proof}
 gives the detailed bad-event decomposition and the Fiat--Shamir variant.
 
-Zero knowledge follows by a standard hybrid argument.  The CP-SNARK proof is replaced by the simulator of \(\bPi_{\cp}\), and the CP-Link proofs are replaced by the witness-zero-knowledge simulator of \(\bPi_{\mathsf{link}}\).  The hiding of the Pedersen commitments lets the simulator replace the SNARK-side witness commitments and the external leaf commitments to sampled witness blocks with commitments to dummy blocks.  Since the Merkle layer only authenticates these hiding leaf commitments, it reveals no additional information about the underlying messages.  Therefore the simulated transcript is computationally indistinguishable from a real execution.
+Zero knowledge follows by a standard hybrid argument. The CP-SNARK proof is
+simulated using the zero-knowledge simulator of \(\bPi_{\cp}\), and each
+CP-Link proof is simulated using the witness-zero-knowledge simulator of
+\(\bPi_{\mathsf{link}}\). The remaining public data consists only of Pedersen
+commitments, Merkle roots, and Merkle authentication paths. By Pedersen hiding,
+these commitments reveal no information about the committed witness values;
+the Merkle layer only authenticates the commitments as leaves and does not
+open the underlying values. Hence the simulated transcript is computationally
+indistinguishable from a real execution.
 \end{proof}
 
 

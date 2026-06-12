@@ -249,109 +249,48 @@ $\bPi_{\cp}=(\setup,\com,\prove,\verify)$.
     write verification as
     $\bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})$.
 \end{itemize}
-
-
-
-
-% \subsection{CP-Link}
-% \label{sec:prelim-cplink}
-
-% A CP-Link proof is a proof system for linking commitments. In its basic
-% equality-link form, it proves that two or more commitments are commitments to
-% the same message, without revealing the message or the opening randomness.
-
-% Let $\com$ be a commitment scheme. For commitment keys
-% $\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation is defined as
-% \[
-% \begin{aligned}
-% \relation_{\mathsf{link}}
-% =
-% \Big\{
-% &\big(
-% ((\ck_i,\cm_i)_{i=1}^{t}),
-% (m,(o_i)_{i=1}^{t})
-% \big)
-% :\\
-% &\cm_i = \com(\ck_i,m;o_i)
-% \quad \text{for all } i\in[t]
-% \Big\}.
-% \end{aligned}
-% \]
-% A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all commitments $\cm_1,\ldots,\cm_t$ are commitments to the same message $m$.
-
-% We use CP-Link through the standard statement/witness interface for a linking
-% relation.  For the equality-link relation above, the public statement and
-% witness are
-% \[
-%   \stmt_{\mathsf{link}}
-%   =
-%   ((\ck_i,\cm_i)_{i=1}^{t}),
-%   \qquad
-%   \wit_{\mathsf{link}}
-%   =
-%   (m,(o_i)_{i=1}^{t}).
-% \]
-
-% A CP-Link proof system is a tuple of algorithms
-% $\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
-
-% \begin{itemize}
-% \item $\para_{\mathsf{link}} \gets
-% \bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})$:
-% generates public parameters for the linking relation.
-
-% \item $\pi_{\mathsf{link}} \gets
-% \bPi_{\mathsf{link}}.\prove(
-% \para_{\mathsf{link}},
-% \stmt_{\mathsf{link}},
-% \wit_{\mathsf{link}})$:
-% outputs a proof that the statement-witness pair satisfies the linking relation.
-
-% \item $b \gets
-% \bPi_{\mathsf{link}}.\verify(
-% \para_{\mathsf{link}},
-% \stmt_{\mathsf{link}},
-% \pi_{\mathsf{link}})$:
-% outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
-% \end{itemize}
 \subsection{CP-Link}
 \label{sec:prelim-cplink}
 
-A CP-Link proof is a proof system for linking commitments. In its basic
-equality-link form, it proves that two or more commitments are commitments to
-the same message, without revealing the message or the opening randomness.
+A CP-Link proof is a proof system for linking commitments.  In the form used by
+\(\protocol\), it proves that one SNARK-side commitment to an ordered
+concatenation of sampled blocks is consistent with external commitments to the
+individual blocks, without revealing the blocks or the opening randomness.
 
-Let $\com$ be a commitment scheme. For commitment keys
-$\ck_1,\ldots,\ck_t$ and commitments $\cm_1,\ldots,\cm_t$, the linking relation is defined as
+Let $\com$ be a commitment scheme.  For a SNARK-side key \(\ck_S\), an external
+key \(\ck_E\), a SNARK-side commitment \(\widetilde{\cm}\), and external
+commitments \(\cm_0,\ldots,\cm_{q-1}\), the blockwise linking relation is
+defined over the statement and witness
 \[
 \begin{aligned}
-\relation_{\mathsf{link}}
-=
-\Big\{
-&\big(
-((\ck_i,\cm_i)_{i=1}^{t}),
-(m,(o_i)_{i=1}^{t})
-\big)
-:\\
-&\cm_i = \com(\ck_E, m_i; o_i)
-\quad \text{for all } i\in[t]
-\Big\}.
+\stmt_{\mathsf{link}}
+&=
+((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1})),\\
+\wit_{\mathsf{link}}
+&=
+((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
 \end{aligned}
 \]
-A proof for $\relation_{\mathsf{link}}$ convinces the verifier that all commitments $\cm_1,\ldots,\cm_t$ are commitments to the same message $m$.
+The pair \((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) is in
+\(\relation_{\mathsf{link}}\) if and only if
+\[
+\begin{aligned}
+\widetilde{\cm}
+&=
+\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+\cm_i
+&=
+\com(\ck_E,\vect{m}_i;o_i)
+\quad \text{for all } i=0,\ldots,q-1.
+\end{aligned}
+\]
+A proof for $\relation_{\mathsf{link}}$ convinces the verifier that the ordered
+blocks committed inside the CP-SNARK are exactly the blocks committed by the
+corresponding external commitments.
 
 We use CP-Link through the standard statement/witness interface for a linking
-relation.  For the equality-link relation above, the public statement and
-witness are
-\[
-  \stmt_{\mathsf{link}}
-  =
-  ((\ck_i,\cm_i)_{i=1}^{t}),
-  \qquad
-  \wit_{\mathsf{link}}
-  =
-  (m,(o_i)_{i=1}^{t}).
-\]
+relation.
 
 A CP-Link proof system is a tuple of algorithms
 $\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
@@ -380,7 +319,7 @@ outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
 For the soundness of \(\protocol\), we require CP-Link soundness: an accepting
 linking proof should imply membership in \(\relation_{\mathsf{link}}\), except
 with error \(\epsilon_{\mathsf{link}}(\lambda)\).  If the linking backend is used
-to protect the linked message and openings, one may additionally require witness
+to protect the linked blocks and openings, one may additionally require witness
 zero knowledge.  Appendix~\ref{app:cplink-security} states these properties.
 \end{remark}
 

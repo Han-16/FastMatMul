@@ -1,46 +1,40 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We proposed \(\protocol\), a new protocol for verifying matrix multiplication.
-The key idea is to move the expensive vector--matrix products outside the
-SNARK circuit and replace them with sampling-based proximity tests over linear
-codewords.  The prover first encodes and commits to the matrices, then computes
-the Freivalds intermediate vectors using a verifier-sampled random challenge.
-The prover then encodes and commits to these intermediate vectors, and the
-SNARK circuit proves only local fold relations at randomly sampled positions.
-Merkle openings and CP-Link proofs ensure that the values used inside the
-CP-SNARK are consistent with the committed data fixed before the sampling
-challenges are known.
+We proposed \(\protocol\), a protocol for verifying matrix multiplication by
+moving expensive vector--matrix products outside the SNARK circuit and checking
+them through sampled local tests over encoded data.  The prover commits to the
+encoded matrices and Freivalds intermediate vectors, while the SNARK circuit
+proves only the sampled fold relations.  Merkle openings and CP-Link proofs
+ensure that the values used inside the CP-SNARK are consistent with the
+externally committed data fixed before the sampling challenges are known.
 
 Our implementation confirms the intended tradeoff.  For a fixed number \(t\) of
-queries, 
-% the main arithmetic relation has \(\mathcal{O}(tk)\) constraints
-% rather than the \(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.
-% Thus, when \(t\) is fixed, the constraint count of \(\protocol\) grows linearly
-% with the matrix dimension \(k\). 
-the main arithmetic relation has
+queries, the main arithmetic relation has
 \(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints rather than the
 \(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.  Thus, when \(t\) is
 fixed and the code-consistency checks are linear, the constraint count of
-\(\protocol\) grows linearly with the matrix dimension \(k\).  
-In the matrix benchmark at \(k=4{,}096\),
-\(\protocol\) reduces the constraint count by \(30.3\times\) and proving time
-by \(8.43\times\), while keeping verification around \(0.06\) s.  We also show
-that, when proving multiple matrix products with the same structure, batching
-keeps the Merkle membership proof size almost unchanged.  This demonstrates
-that \(\protocol\) can amortize opening overhead effectively when multiple
-matrix-multiplication claims share the same leaf layout.
+\(\protocol\) grows linearly with the matrix dimension \(k\).  In the matrix
+benchmark at \(k=4{,}096\), \(\protocol\) reduces the constraint count by
+\(30.3\times\) and proving time by \(8.43\times\), while keeping verification
+around \(0.06\) s.  The batching experiment further shows that opening overhead
+can be amortized when multiple matrix-multiplication claims share the same leaf
+layout.
 
-\(\protocol\) can also be applied to verifiable AI applications.  The gains are
-smaller for a GPT-2 layer, where the computation consists of rectangular matrix
-multiplications of different sizes and smaller matrix products inside each
-attention head.  In this setting, it is harder to pack multiple products into a
-single Pedersen leaf.  Nevertheless, \(\protocol\) achieves a \(2.30\times\)
-constraint reduction and a \(1.78\times\) proving-time improvement over the
-Freivalds baseline on the GPT-2 workload.
+\(\protocol\) also applies to verifiable AI workloads.  On a GPT-2 layer, where
+the computation contains rectangular matrix multiplications of different sizes,
+the gains are smaller because fewer products can share the same committed leaf
+layout.  Even in this heterogeneous setting, \(\protocol\) achieves a
+\(2.30\times\) constraint reduction and a \(1.77\times\) proving-time
+improvement over the Freivalds baseline.
 
-The main remaining costs of \(\protocol\) are the sampled-opening proof size and the verification overhead of the pairing-based linking layer.
-In particular, workloads with consecutive matrix products of different sizes require more commitments, causing sampled opening proofs and linking checks to accumulate. As future work, we plan to optimize the opening and linking layers to reduce both proof size and verification overhead.  In particular, we plan to develop batching and sharing techniques for consecutive matrix products of different sizes, reduce the number of linking statements and pairing terms, and exploit the fact that weights are mostly fixed in verifiable AI scenarios for preprocessing and batching optimizations.  These directions may reduce the sampled-opening proof size and the cost of pairing-based link verification on more complex AI workloads while preserving the linear constraint provided by \(\protocol\).
+The main remaining costs are sampled-opening proof size and pairing-based link
+verification.  As future work, we plan to reduce opening and linking overhead,
+improve sharing across consecutive matrix products of different sizes, and
+exploit fixed model weights in verifiable AI scenarios for preprocessing and
+batching.  These optimizations may reduce proof size and verification time on
+more complex AI workloads while preserving the linear constraint growth of
+\(\protocol\).
 
 
 \newpage

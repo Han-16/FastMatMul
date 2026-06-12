@@ -36,7 +36,6 @@ circuit.''  The prover performs the expensive matrix arithmetic outside the
 SNARK and commits to the relevant encoded data and intermediate values.  The
 verifier then checks only a small number of lightweight algebraic relations
 that are sufficient to detect inconsistent claims.
-
 The technical core of this approach is proximity testing over linear
 error-correcting codes.  Let \(\mathcal{C}\) be a linear code with relative
 distance \(\delta\).  We encode each matrix row-wise and consider the Freivalds
