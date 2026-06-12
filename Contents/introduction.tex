@@ -67,10 +67,22 @@ These checks ensure, under the backend assumptions, that the values checked
 inside the circuit are consistent with commitments fixed before the verifier's
 sampling challenges.
 
-As a result, the main SNARK relation has \(\mathcal{O}(tk)\) constraints.
-For fixed \(t\), this is linear in the matrix dimension.  The sampled opening
-and linking layer adds \(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend
-work.  In our implementation, verification consists of \(\mathcal{O}(1)\) pairings for SNARK and CP-Link verification and \(\mathcal{O}(t\log n)\) hash operations for Merkle openings.\\
+% As a result, the main SNARK relation has \(\mathcal{O}(tk)\) constraints.
+% For fixed \(t\), this is linear in the matrix dimension.  The sampled opening
+% and linking layer adds \(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend
+% work.  In our implementation, verification consists of \(\mathcal{O}(1)\) pairings for SNARK and CP-Link verification and \(\mathcal{O}(t\log n)\) hash operations for Merkle openings.\\
+
+As a result, the main SNARK relation has
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints, where
+\(E_{\mathsf{code}}\) is the cost of checking that the
+intermediate vectors are valid encodings under the error-correcting code. For the fixed-rate Reed--Solomon setting used in our implementation,
+this remains linear in the matrix dimension for fixed \(t\).  The sampled
+opening and linking layer adds
+\(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend work.  In our
+implementation, verification consists of \(\mathcal{O}(1)\) pairings for SNARK
+and CP-Link verification and \(\mathcal{O}(t\log n)\) hash operations for
+Merkle openings.\\
+
 
 \noindent\textbf{Contributions.}
 We present \(\protocol\), a protocol for efficiently proving
@@ -81,8 +93,12 @@ matrix-multiplication statements.  Our contributions are as follows.
   over linear error-correcting codes.  Instead of computing vector--matrix
   products inside the SNARK circuit, the protocol checks sampled fold equations
   over encoded commitments and verifies code consistency for the intermediate
-  vectors.  For fixed \(t\), the main circuit cost is linear in \(k\), namely
-  \(\mathcal{O}(tk)\).
+  vectors. 
+% For fixed \(t\), the main circuit cost is linear in \(k\), namely
+  % \(\mathcal{O}(tk)\).
+  For fixed \(t\), the main circuit cost is
+  \(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
+  fixed-rate Reed--Solomon setting used in our implementation.
 
   \item \textbf{Soundness analysis.}
   We prove soundness for the committed-input setting.  If

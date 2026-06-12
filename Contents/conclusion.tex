@@ -13,10 +13,17 @@ CP-SNARK are consistent with the committed data fixed before the sampling
 challenges are known.
 
 Our implementation confirms the intended tradeoff.  For a fixed number \(t\) of
-queries, the main arithmetic relation has \(\mathcal{O}(tk)\) constraints
-rather than the \(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.
-Thus, when \(t\) is fixed, the constraint count of \(\protocol\) grows linearly
-with the matrix dimension \(k\).  In the matrix benchmark at \(k=4{,}096\),
+queries, 
+% the main arithmetic relation has \(\mathcal{O}(tk)\) constraints
+% rather than the \(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.
+% Thus, when \(t\) is fixed, the constraint count of \(\protocol\) grows linearly
+% with the matrix dimension \(k\). 
+the main arithmetic relation has
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints rather than the
+\(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.  Thus, when \(t\) is
+fixed and the code-consistency checks are linear, the constraint count of
+\(\protocol\) grows linearly with the matrix dimension \(k\).  
+In the matrix benchmark at \(k=4{,}096\),
 \(\protocol\) reduces the constraint count by \(30.3\times\) and proving time
 by \(8.34\times\), while keeping verification below \(10\) ms.  We also show
 that, when proving multiple matrix products with the same structure, batching

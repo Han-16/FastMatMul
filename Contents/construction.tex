@@ -525,7 +525,7 @@ bound by \(\rt_{ABC}\) and \(\rt_{XYZ}\).  This separation is what allows the SN
 % & -- \\
 
 % ABC commit
-% & \(\mathcal{O}(nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & \(\mathcal{O}(3nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
 % & -- \\
 
 % Intermediate
@@ -633,7 +633,7 @@ ABC encoding
 & -- \\
 
 ABC commit
-& \(\mathcal{O}(nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& \(\mathcal{O}(3nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
 & -- \\
 
 Intermediate
@@ -679,7 +679,7 @@ CP-Link
 \noindent\textbf{Prover work.}
 The prover first encodes the three input matrices and commits to the packed
 encoded matrix columns.  The ABC commitment phase consists of \(n\) Pedersen
-commitments to blocks of length \(k\), followed by a Merkle root over
+commitments to blocks of length \(3k\), followed by a Merkle root over
 the resulting leaves.  After the Freivalds challenge \(r\) is sampled, the
 prover computes the intermediate witnesses
   $\vect{x}=\vect{r}\mat{A},

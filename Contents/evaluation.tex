@@ -3,7 +3,7 @@
 
 We implement \(\protocol\)\footnote{The implementation is available at \url{https://anonymous.4open.science/r/LAMP-FE92/.}} and evaluate its performance. The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is given in Appendix~\ref{app:cplink-instant}.
 
-Our evaluation is organized around four questions.  First, does the number of  constraints of \(\protocol\) scales linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second, which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? \\
+Our evaluation is organized around four questions.  First, does the number of  constraints of \(\protocol\) scale linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second, which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? \\
 
 \noindent\textbf{Experimental setup.}
 We implement both \(\protocol\) and the Freivalds baseline in Go using gnark, with BN254 as the elliptic curve.  All experiments were run on a Linux server with an AMD EPYC 7B13 CPU with 32 cores and 254GB of memory.  We use a Reed--Solomon code of rate \(\rho=1/2\) and set the number of sampled positions to \(t=128\).\
@@ -150,7 +150,7 @@ Table~\ref{tab:lamp-breakdown} breaks down the measured cost of \(\protocol\) by
 
 \subsection{Batching Matrix-Multiplication Claims}
 \label{sec:eval-batch}
-We also evaluate a batched setting with multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\).  The number of claims is the number of matrix products proved together.  For each codeword position, the prover packs all interleaved symbols of \(\mat{A}_i,\mat{B}_i,\mat{C}_i\) into a single Pedersen leaf and builds one Merkle tree.  Therefore, the number of Merkle membership proof does not grow with the number of claims.
+We also evaluate a batched setting with multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\).  The number of claims is the number of matrix products proved together.  For each codeword position, the prover packs all interleaved symbols of \(\mat{A}_i,\mat{B}_i,\mat{C}_i\) into a single Pedersen leaf and builds one Merkle tree.  Therefore, the number of Merkle membership proofs does not grow with the number of claims.
 
 Table~\ref{tab:lamp-batch} reports the component costs at fixed \(k=2^7\).  As expected, the constraint count and Groth16 proving time grow with the number of checked matrix products.  In contrast, the Merkle proof size stays around \(22\) KB across all claim counts.  This shows that, once the batched matrix leaves are committed together, the sampled Merkle membership proof does not scale with the number of matrix products.  The small variation in Merkle proof size comes from the multi-opening implementation: the number of shared authentication nodes can vary slightly depending on the sampled index set. Verification time is the same as the \(k=2^7\) row in Table~\ref{tab:lamp-breakdown}, because the number of sampled positions and the verification procedure are unchanged.
 
@@ -158,7 +158,7 @@ Table~\ref{tab:lamp-batch} reports the component costs at fixed \(k=2^7\).  As e
 \label{sec:eval-gpt2}
 
 Table~\ref{tab:lamp-gpt2} evaluates \(\protocol\) as a verifiable AI application: the matrix multiplications in a single GPT-2 layer with sequence length \(2^{10}\).
-The performance gain in this setting is smaller than in the square-matrix benchmark.  This is because the computation in a GPT-2 layer decomposes into several rectangular matrix multiplications and smaller smaller matrix products inside each attention head.
+The performance gain in this setting is smaller than in the square-matrix benchmark.  This is because the computation in a GPT-2 layer decomposes into several rectangular matrix multiplications and smaller matrix products inside each attention head.
 In this structure, the matrices have different dimensions, making it difficult to pack multiple products into a single Pedersen commitment leaf.  
 As a result, the number of commitments increases, which also increases the size of the sampled opening proofs.
 
