@@ -618,6 +618,12 @@ We write \(\mathbb{G}\) for group operations used by Pedersen commitments,
 \(\mathbb{F}\) for field operations, and \(\mathbb{H}\) for hash evaluations.
 Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and
 verification costs, respectively. Let \(E_{\mathsf{link}}^\mathcal{P}(k,t)\) and \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
+For the QALink instantiation in Appendix~\ref{app:cplink-instant}, each of the
+two link statements has \(q=t\) external commitments, so
+\(E_{\mathsf{link}}^\mathcal{V}(k,t)\) includes \(2(t+2)\) Miller-loop inputs,
+batched into one final exponentiation, plus \(\mathcal{O}(t)\) group scalar
+multiplications for batching.
+
 Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
 
 \begin{table}[ht]
@@ -711,7 +717,11 @@ linear in \(k\) and the total online relation remains linear in \(k\) for fixed
 The verifier does not encode matrices, compute intermediate vectors, or build
 commitment roots.  Its work consists of CP-SNARK verification, verification of
 the sampled Merkle authentication paths, and CP-Link verification.  Therefore,
-using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} + E_{\mathsf{link}}^\mathcal{V}(k,t).$ \\
+% using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} + E_{\mathsf{link}}^\mathcal{V}(k,t).$ \\
+using the notation above, the verifier cost is
+$E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} +
+E_{\mathsf{link}}^\mathcal{V}(k,t)$, where the QALink verifier contributes
+\(\mathcal{O}(t)\) pairing terms. \\
 
 % \paragraph{Comparison}
 \noindent\textbf{Comparison.}

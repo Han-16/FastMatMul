@@ -53,12 +53,8 @@ prover cheats in one of the corresponding relations, the two relevant
 codewords disagree on at least a \(\delta\)-fraction of positions.  A random
 query therefore detects the inconsistency with probability at least \(\delta\).
 
-The key point is that the SNARK circuit never takes the full matrices as
-witnesses.  Instead, it checks fold equations on \(t\) sampled encoded columns,
-where \(t\) is independent of the matrix dimension \(k\).  It also checks that
-the committed encoded views of the intermediate vectors
-\(\vect{x},\vect{y},\vect{z}\) are valid codewords for those vectors.  To bind
-the circuit witnesses to the data fixed before the query positions are known,
+The key point is that the SNARK circuit never takes the full matrices as witnesses.  Instead, it checks fold equations on \(t\) sampled encoded columns, where \(t\) is independent of the matrix dimension \(k\).  It also checks that the committed encoded views of the intermediate vectors \(\vect{x},\vect{y},\vect{z}\) are valid codewords for those vectors.  
+To bind the circuit witnesses to the data fixed before the query positions are known,
 we use a commit-and-prove SNARK for the sampled block witnesses.  The prover
 also supplies Merkle membership proofs for the queried leaves under
 \(\rt_{ABC}\) and \(\rt_{XYZ}\), together with CP-Link proofs showing that the
@@ -79,9 +75,10 @@ intermediate vectors are valid encodings under the error-correcting code. For th
 this remains linear in the matrix dimension for fixed \(t\).  The sampled
 opening and linking layer adds
 \(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend work.  In our
-implementation, verification consists of \(\mathcal{O}(1)\) pairings for SNARK
-and CP-Link verification and \(\mathcal{O}(t\log n)\) hash operations for
-Merkle openings.\\
+implementation, verification consists of SNARK verification, CP-Link
+verification, and \(\mathcal{O}(t\log n)\) hash operations for Merkle openings;
+for the QALink instantiation, CP-Link verification includes
+\(\mathcal{O}(t)\) pairing terms batched into a multi-pairing check.\\
 
 
 \noindent\textbf{Contributions.}
@@ -94,8 +91,7 @@ matrix-multiplication statements.  Our contributions are as follows.
   products inside the SNARK circuit, the protocol checks sampled fold equations
   over encoded commitments and verifies code consistency for the intermediate
   vectors. 
-% For fixed \(t\), the main circuit cost is linear in \(k\), namely
-  % \(\mathcal{O}(tk)\).
+
   For fixed \(t\), the main circuit cost is
   \(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
   fixed-rate Reed--Solomon setting used in our implementation.

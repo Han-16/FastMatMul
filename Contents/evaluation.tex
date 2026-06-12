@@ -1,12 +1,13 @@
 \section{Implementation and Evaluation}
 \label{sec:implementation}
 
-We implement \(\protocol\)\footnote{The implementation is available at \url{https://anonymous.4open.science/r/LAMP-FE92/.}} and evaluate its performance. The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is given in Appendix~\ref{app:cplink-instant}.
+We implement \(\protocol\)\footnote{The implementation is available at \url{https://anonymous.4open.science/r/LAMP-38E3/.}} and evaluate its performance. The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is given in Appendix~\ref{app:cplink-instant}.
 
 Our evaluation is organized around four questions.  First, does the number of  constraints of \(\protocol\) scale linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second, which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? \\
 
 \noindent\textbf{Experimental setup.}
 We implement both \(\protocol\) and the Freivalds baseline in Go using gnark, with BN254 as the elliptic curve.  All experiments were run on a Linux server with an AMD EPYC 7B13 CPU with 32 cores and 254GB of memory.  We use a Reed--Solomon code of rate \(\rho=1/2\) and set the number of sampled positions to \(t=128\).\
+
 
 
 
@@ -27,13 +28,13 @@ We implement both \(\protocol\) and the Freivalds baseline in Go using gnark, wi
 & \(\protocol\) & Freivalds
 & \(\protocol\) & Freivalds \\
 \midrule
-$2^7$   & 54{,}069      & 49{,}610       & 0.76\,s  & 0.58\,s   & 6\,ms & 1\,ms & 22{,}404\,B & \multirow{6}{*}{196\,B} \\
-$2^8$   & 105{,}915     & 197{,}194      & 1.52\,s  & 2.03\,s   & 6\,ms & 1\,ms & 29{,}188\,B & \\
-$2^9$   & 209{,}995     & 788{,}810      & 3.14\,s  & 6.89\,s   & 6\,ms & 1\,ms & 35{,}204\,B & \\
-$2^{10}$ & 418{,}149   & 3{,}156{,}298  & 7.19\,s  & 25.63\,s  & 6\,ms & 2\,ms & 44{,}292\,B & \\
-$2^{11}$ & 834{,}075   & 12{,}622{,}154 & 17.33\,s & 102.07\,s & 6\,ms & 2\,ms & 51{,}012\,B & \\
-$2^{12}$ & 1{,}666{,}315 & 50{,}495{,}818 & 48.54\,s & 405.04\,s & 7\,ms & 2\,ms & 59{,}332\,B & \\
-$2^{13}$ & 3{,}330{,}789 & -- & 151.61\,s & -- & 7\,ms & -- & 67{,}268\,B & -- \\
+$2^7$    & 54{,}069      & 49{,}610       & 0.76\,s   & 0.58\,s   & 0.06\,s & 1\,ms & 22{,}852\,B & \multirow{6}{*}{196\,B} \\
+$2^8$    & 105{,}915     & 197{,}194      & 1.50\,s   & 2.03\,s   & 0.06\,s & 1\,ms & 29{,}380\,B & \\
+$2^9$    & 209{,}995     & 788{,}810      & 3.08\,s   & 6.89\,s   & 0.06\,s & 1\,ms & 36{,}292\,B & \\
+$2^{10}$ & 418{,}149     & 3{,}156{,}298  & 7.11\,s   & 25.63\,s  & 0.06\,s & 2\,ms & 43{,}332\,B & \\
+$2^{11}$ & 834{,}075     & 12{,}622{,}154 & 16.80\,s  & 102.07\,s & 0.06\,s & 2\,ms & 51{,}076\,B & \\
+$2^{12}$ & 1{,}666{,}315 & 50{,}495{,}818 & 48.06\,s  & 405.04\,s & 0.06\,s & 2\,ms & 58{,}564\,B & \\
+$2^{13}$ & 3{,}330{,}789 & --             & 150.24\,s & --        & 0.06\,s & --    & 66{,}756\,B & -- \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
@@ -60,16 +61,19 @@ computation in the baseline and the \(\mathcal{O}(tk)\) sampled fold check in
 \(\protocol\).
 At \(k=4{,}096\), \(\protocol\) reduces the number of constraints from
 \(50{,}495{,}818\) to \(1{,}666{,}315\), corresponding to a \(30.30\times\)
-reduction. The proving time also decreases from \(405.04\) s to \(48.54\) s.
+reduction. The proving time also decreases from \(405.04\) s to \(48.06\) s.
 At \(k=8{,}192\), the Freivalds baseline runs out of memory, while
 \(\protocol\) still completes with \(3{,}330{,}789\) constraints.
 
 The main cost of \(\protocol\) appears in verification and proof size.
-Verification takes \(6\)--\(7\) ms for \(\protocol\), compared with
+Verification takes about \(0.06\) s for \(\protocol\), compared with
 \(1\)--\(2\) ms for the Freivalds baseline. This additional overhead comes from
-verifying Merkle openings and CP-Link proofs in addition to the Groth16 proof.
-Nevertheless, the verification time remains within a few milliseconds, while
-the prover-side savings become substantial for large matrix dimensions.
+verifying Merkle openings and the pairing-based CP-Link proofs in addition to
+the Groth16 proof. In the QA-Link instantiation, CP-Link verification is the
+dominant part of this overhead because the verifier evaluates the sampled link
+equations as a multi-pairing check. Nevertheless, verification remains below
+one tenth of a second, while the prover-side savings become substantial for
+large matrix dimensions.
 
 
 \begin{table*}[!t]
@@ -90,13 +94,13 @@ the prover-side savings become substantial for large matrix dimensions.
 & Groth16 & Merkle & CP-Link
 & Merkle & Groth16 & CP-Link \\
 \midrule
-$2^7$   & 0.09\,s   & 0.01\,s & 1\,ms & 0.63\,s  & 0.02\,s & 2\,ms & 1\,ms & 3\,ms & 22{,}016\,B & \multirow{7}{*}{260\,B} & \multirow{7}{*}{128\,B} \\
-$2^8$   & 0.27\,s   & 0.02\,s & 1\,ms & 1.18\,s  & 0.05\,s & 2\,ms & 1\,ms & 3\,ms & 28{,}800\,B & & \\
-$2^9$   & 0.87\,s   & 0.04\,s & 1\,ms & 2.17\,s  & 0.07\,s & 2\,ms & 1\,ms & 3\,ms & 34{,}816\,B & & \\
-$2^{10}$ & 3.07\,s & 0.13\,s & 1\,ms & 3.88\,s  & 0.12\,s & 2\,ms & 1\,ms & 3\,ms & 43{,}904\,B & & \\
-$2^{11}$ & 9.61\,s & 0.41\,s & 1\,ms & 7.10\,s  & 0.21\,s & 2\,ms & 1\,ms & 3\,ms & 50{,}624\,B & & \\
-$2^{12}$ & 32.60\,s & 1.97\,s & 1\,ms & 13.55\,s & 0.42\,s & 2\,ms & 2\,ms & 3\,ms & 58{,}944\,B & & \\
-$2^{13}$ & 117.37\,s & 6.50\,s & 1\,ms & 26.81\,s & 0.93\,s & 2\,ms & 2\,ms & 3\,ms & 66{,}880\,B & & \\
+$2^7$    & 0.09\,s    & 0.01\,s & 1\,ms & 0.63\,s  & 0.02\,s & 2\,ms & 1\,ms & 0.05\,s & 22{,}464\,B & \multirow{7}{*}{260\,B} & \multirow{7}{*}{128\,B} \\
+$2^8$    & 0.25\,s    & 0.02\,s & 1\,ms & 1.18\,s  & 0.05\,s & 2\,ms & 1\,ms & 0.05\,s & 28{,}992\,B & & \\
+$2^9$    & 0.87\,s    & 0.03\,s & 1\,ms & 2.11\,s  & 0.07\,s & 2\,ms & 1\,ms & 0.06\,s & 35{,}904\,B & & \\
+$2^{10}$ & 3.09\,s    & 0.13\,s & 1\,ms & 3.78\,s  & 0.11\,s & 2\,ms & 1\,ms & 0.05\,s & 42{,}944\,B & & \\
+$2^{11}$ & 9.15\,s    & 0.45\,s & 1\,ms & 7.03\,s  & 0.17\,s & 2\,ms & 1\,ms & 0.05\,s & 50{,}688\,B & & \\
+$2^{12}$ & 32.32\,s   & 1.81\,s & 1\,ms & 13.60\,s & 0.33\,s & 2\,ms & 2\,ms & 0.05\,s & 58{,}176\,B & & \\
+$2^{13}$ & 116.78\,s  & 6.23\,s & 1\,ms & 26.51\,s & 0.72\,s & 2\,ms & 2\,ms & 0.05\,s & 66{,}368\,B & & \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
@@ -108,7 +112,15 @@ $2^{13}$ & 117.37\,s & 6.50\,s & 1\,ms & 26.81\,s & 0.93\,s & 2\,ms & 2\,ms & 3\
 \subsection{LAMP Component Breakdown}
 \label{sec:eval-lamp-breakdown}
 
-Table~\ref{tab:lamp-breakdown} breaks down the measured cost of \(\protocol\) by component.  Commit time includes both Pedersen leaf commitments and Merkle root generation.  For small dimensions, SNARK proving is the main bottleneck.  As \(k\) grows, however, commitment generation for the ABC and XYZ objects becomes dominant.  For example, at \(k=4{,}096\), commitment generation takes \(34.57\) s in total, while Groth16 proving takes \(13.55\) s and CP-Link proving takes \(0.42\) s.  On the verifier side, the cost remains small: the verifier checks one Groth16 proof, sampled Merkle membership proofs, and CP-Link proofs, keeping total verification time around \(6\)--\(7\) ms.
+Table~\ref{tab:lamp-breakdown} breaks down the measured cost of \(\protocol\)
+by component.  Commit time includes both Pedersen leaf commitments and Merkle
+root generation.  For small dimensions, SNARK proving is the main bottleneck.
+As \(k\) grows, however, commitment generation for the ABC and XYZ objects
+becomes dominant.  For example, at \(k=4{,}096\), commitment generation takes
+\(34.13\) s in total, while Groth16 proving takes \(13.60\) s and CP-Link
+proving takes \(0.33\) s.  On the verifier side, Groth16 and Merkle
+verification remain at a few milliseconds, while the pairing-based QA-Link
+check takes about \(0.05\)--\(0.06\) s.  Thus total verification remains about \(0.06\) s for all measured matrix dimensions.
 
 
 
@@ -129,16 +141,16 @@ Table~\ref{tab:lamp-breakdown} breaks down the measured cost of \(\protocol\) by
 & Merkle & Groth16 & CP-Link
 & Merkle & Groth16 & CP-Link \\
 \midrule
-1  & 54{,}069  & 0.10\,s & 0.01\,s & 1\,ms & 0.64\,s & 0.02\,s & 22{,}592\,B & \multirow{10}{*}{260\,B} & \multirow{10}{*}{128\,B} \\
-2  & 105{,}349 & 0.15\,s & 0.01\,s & 1\,ms & 1.17\,s & 0.04\,s & 22{,}528\,B & & \\
-3  & 156{,}629 & 0.20\,s & 0.01\,s & 1\,ms & 1.66\,s & 0.05\,s & 22{,}272\,B & & \\
-4  & 207{,}909 & 0.23\,s & 0.01\,s & 1\,ms & 2.12\,s & 0.07\,s & 22{,}272\,B & & \\
-5  & 259{,}189 & 0.27\,s & 0.02\,s & 1\,ms & 2.55\,s & 0.09\,s & 22{,}272\,B & & \\
-6  & 310{,}469 & 0.32\,s & 0.02\,s & 1\,ms & 2.95\,s & 0.10\,s & 22{,}144\,B & & \\
-7  & 361{,}749 & 0.37\,s & 0.02\,s & 1\,ms & 3.32\,s & 0.12\,s & 22{,}464\,B & & \\
-8  & 413{,}029 & 0.40\,s & 0.03\,s & 1\,ms & 3.78\,s & 0.15\,s & 22{,}528\,B & & \\
-9  & 464{,}309 & 0.43\,s & 0.02\,s & 1\,ms & 4.15\,s & 0.13\,s & 22{,}464\,B & & \\
-10 & 515{,}589 & 0.48\,s & 0.02\,s & 1\,ms & 4.53\,s & 0.14\,s & 22{,}464\,B & & \\
+1  & 54{,}069  & 0.11\,s & 0.01\,s & 1\,ms & 0.65\,s & 0.02\,s & 22{,}592\,B & \multirow{10}{*}{260\,B} & \multirow{10}{*}{128\,B} \\
+2  & 105{,}349 & 0.15\,s & 0.01\,s & 1\,ms & 1.18\,s & 0.04\,s & 22{,}528\,B & & \\
+3  & 156{,}629 & 0.19\,s & 0.02\,s & 1\,ms & 1.69\,s & 0.04\,s & 22{,}336\,B & & \\
+4  & 207{,}909 & 0.23\,s & 0.01\,s & 1\,ms & 2.14\,s & 0.07\,s & 21{,}696\,B & & \\
+5  & 259{,}189 & 0.30\,s & 0.02\,s & 1\,ms & 2.48\,s & 0.08\,s & 22{,}528\,B & & \\
+6  & 310{,}469 & 0.32\,s & 0.02\,s & 1\,ms & 2.96\,s & 0.08\,s & 22{,}272\,B & & \\
+7  & 361{,}749 & 0.34\,s & 0.02\,s & 1\,ms & 3.35\,s & 0.10\,s & 22{,}208\,B & & \\
+8  & 413{,}029 & 0.39\,s & 0.02\,s & 1\,ms & 3.75\,s & 0.12\,s & 22{,}272\,B & & \\
+9  & 464{,}309 & 0.42\,s & 0.02\,s & 1\,ms & 4.16\,s & 0.11\,s & 22{,}464\,B & & \\
+10 & 515{,}589 & 0.46\,s & 0.02\,s & 1\,ms & 4.60\,s & 0.12\,s & 22{,}208\,B & & \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
@@ -152,7 +164,17 @@ Table~\ref{tab:lamp-breakdown} breaks down the measured cost of \(\protocol\) by
 \label{sec:eval-batch}
 We also evaluate a batched setting with multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\).  The number of claims is the number of matrix products proved together.  For each codeword position, the prover packs all interleaved symbols of \(\mat{A}_i,\mat{B}_i,\mat{C}_i\) into a single Pedersen leaf and builds one Merkle tree.  Therefore, the number of Merkle membership proofs does not grow with the number of claims.
 
-Table~\ref{tab:lamp-batch} reports the component costs at fixed \(k=2^7\).  As expected, the constraint count and Groth16 proving time grow with the number of checked matrix products.  In contrast, the Merkle proof size stays around \(22\) KB across all claim counts.  This shows that, once the batched matrix leaves are committed together, the sampled Merkle membership proof does not scale with the number of matrix products.  The small variation in Merkle proof size comes from the multi-opening implementation: the number of shared authentication nodes can vary slightly depending on the sampled index set. Verification time is the same as the \(k=2^7\) row in Table~\ref{tab:lamp-breakdown}, because the number of sampled positions and the verification procedure are unchanged.
+Table~\ref{tab:lamp-batch} reports the component costs at fixed \(k=2^7\).
+As expected, the constraint count and Groth16 proving time grow with the number
+of checked matrix products.  In contrast, the Merkle proof size stays around
+\(22\) KB across all claim counts.  This shows that, once the batched matrix
+leaves are committed together, the sampled Merkle membership proof does not
+scale with the number of matrix products.  The small variation in Merkle proof
+size comes from the multi-opening implementation: the number of shared
+authentication nodes can vary slightly depending on the sampled index set.
+Verification time remains about \(0.06\)--\(0.07\) s across the batch-size
+range, because the number of sampled positions and the verification procedure
+are unchanged.
 
 \subsection{GPT-2 Workload}
 \label{sec:eval-gpt2}
