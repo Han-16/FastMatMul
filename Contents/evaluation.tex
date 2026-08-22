@@ -198,7 +198,8 @@ This effect also appears in verifier-side costs.  The Freivalds baseline
 verifies in \(0.49\) s, whereas \(\protocol\) uses more commitments and therefore
 requires the verifier to check more CP-Link proofs and Merkle membership proofs.
 As a result, verification takes \(6.52\) s for \(\protocol\), and the proof size
-increases to \(3{,}342{,}724\) B.  Thus, on this heterogeneous AI workload,
+increases from \(196\) B to \(3{,}342{,}724\) B (approximately \(3.34\) MB).
+Thus, on this heterogeneous AI workload,
 \(\protocol\) still reduces prover-side cost, while the sampled opening and
 linking layers become the main contributors to verification time and proof size.
 

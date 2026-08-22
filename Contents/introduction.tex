@@ -112,8 +112,11 @@ and proving time by \(8.43\times\), while verification remains independent of
 the matrix dimension and stays around \(0.06\,\text{s}\).  We also evaluate
   \(\protocol\) on a GPT-2 workload with sequence length \(2^{10}\), where it
   reduces the constraint count by \(2.3\times\) and proving time by
-  \(1.78\times\).  This shows that the approach extends beyond square matrix
-  benchmarks to matrix-heavy neural-network workloads.
+  \(1.77\times\).  This prover-side improvement comes with a verifier-side
+  trade-off: verification increases from \(0.49\) s to \(6.52\) s and proof
+  size from \(196\) B to \(3.34\) MB.  Thus, the GPT-2 result demonstrates
+  applicability to a matrix-heavy neural-network workload, but not an
+  end-to-end performance improvement.
 \end{itemize}
 
 \noindent\textbf{Paper organization.}
