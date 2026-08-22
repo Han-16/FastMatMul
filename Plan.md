@@ -58,7 +58,9 @@ Gate A 이후 Abstract, Introduction, Construction, Security Analysis, Evaluatio
 
 > 프로토콜은 커밋된 \(\widehat A,\widehat B,\widehat C\)가 실제로 코드 \(\mathcal C\)의 유효한 codeword임을 어디에서 보장하는가?
 
-현재 relation은 \(\widehat x,\widehat y,\widehat z\)에만 `EncCheck`를 적용하고, \(\widehat A,\widehat B,\widehat C\)가 유효한 row-wise encoding이라는 사실은 Theorem 6.2의 가정으로 둔다. 따라서 arbitrary `rtABC`에 대한 standalone soundness는 성립하지 않으며, 현재 일정에서는 프로토콜에 모든 입력 인코딩 검사를 추가하는 방식보다 **certified-input 모델을 명시하는 방식**을 기본 수정 방향으로 사용한다.
+현재 relation은 \(\widehat x,\widehat y,\widehat z\)에만 `EncCheck`를 적용하고, \(\widehat A,\widehat B,\widehat C\)가 유효한 row-wise encoding이라는 사실은 Theorem 6.2의 가정으로 둔다. 따라서 arbitrary `rtABC`에 대한 standalone soundness는 성립하지 않으며, 현재 일정에서는 프로토콜에 모든 입력 인코딩 검사를 추가하는 방식보다 **certified-input 모델을 명시하는 방식**을 우선안으로 검토한다. 이는 아직 공동저자 Gate A에서 확정할 사항이며, 확정 전까지 rebuttal 초안의 해당 문구도 제출 약속으로 간주하지 않는다.
+
+현재 sampled fold를 Brakedown식 입력 proximity test로 해석하는 것만으로는 이 문제를 해결할 수 없다. 특히 \(A=0\), \(C=0\)이면 \(x=0\)이므로 임의의 비-codeword \(\widehat B\)를 사용해도 \(B\)에 대한 기존 fold가 0이 되어 검사를 통과할 수 있다. 따라서 현재 프로토콜을 유지한다면 input certification 가정이 필요하며, self-contained soundness를 주장하려면 \(A,B,C\)의 모든 행에 독립적인 verifier challenge를 사용하는 별도의 proximity test와 그에 대한 extraction/composition proof가 필요하다.
 
 작업 순서는 다음과 같다.
 
@@ -67,10 +69,10 @@ Gate A 이후 Abstract, Introduction, Construction, Security Analysis, Evaluatio
 - `EncCheck`가 \(\widehat x,\widehat y,\widehat z\)에만 적용되는 이유와 fold argument가 요구하는 전제조건을 확인한다.
 - commitment root가 고정된 encoded words에만 binding하는지, 원본 행렬과 그 올바른 인코딩 관계에도 binding하는지 구분한다.
 - encoding-certification relation \(\mathcal{R}_{\mathsf{cert}}\)의 statement와 witness를 정의한다.
-- `rtABC`가 어떤 인증 proof 또는 trusted registration을 통과해야 하는지 명시한다.
-- 인증 주체가 malicious일 수 있는지, verifier가 무엇을 신뢰하는지 threat model을 정한다.
+- `rtABC`가 어떤 인증 proof 또는 trusted registration을 통과해야 하는지 명시한다. 두 방식을 혼합하지 않고, 최종 논문에서 실제로 채택한 인터페이스를 확정한다.
+- cryptographic certification을 선택하면 인증자가 malicious이어도 되는지와 \(\epsilon_{\mathsf{cert}}\)를 정의하고, trusted registration을 선택하면 등록자를 신뢰하는 것이 명시적 보안 가정이며 등록자 위반은 threat model 밖임을 밝힌다.
 - 인증을 통과하지 않은 arbitrary root는 LAMP theorem의 적용 대상이 아님을 명시한다.
-- certification soundness와 conditional LAMP soundness를 합성하여
+- cryptographic certification을 채택할 경우 certification soundness와 conditional LAMP soundness를 합성하여
   \[
     \epsilon_{\mathsf{total}}
     \le
@@ -78,12 +80,14 @@ Gate A 이후 Abstract, Introduction, Construction, Security Analysis, Evaluatio
     \epsilon_{\mathsf{LAMP}}
   \]
   형태의 정리를 제시한다.
+- trusted registration을 채택할 경우에는 위 오류 합성식을 그대로 사용하지 않고, 등록된 root의 유효성을 전제로 하는 조건부 정리와 신뢰 가정을 별도로 제시한다.
 - 직접적인 Reed--Solomon row certification은 fixed rate에서 \(\mathcal{O}(k(k+n))=\mathcal{O}(k^2)\) constraint를 추가한다는 점을 명시한다.
 - 현재 실험 결과는 certification을 제외한 online LAMP checker의 비용임을 Abstract, Evaluation 및 표 caption에 일관되게 표시한다.
 - 인증 비용을 amortize하려면 어떤 root가 몇 번 재사용되는지 설명하고, 재사용되지 않는 경우에는 amortized claim을 하지 않는다.
 - 현재 `rtABC`가 \(A,B,C\) 전체를 함께 묶기 때문에 동일 triple의 재사용 논리가 제한적임을 논의한다. 행렬별 root 분리는 장기 개선안으로 구분하고, 이번 수정에서 구현하지 않으면 구현한 것처럼 주장하지 않는다.
 - raw matrix가 동일 SNARK의 다른 relation에서 필요할 때의 bridge 비용과 AI model-weight provenance 문제를 제한사항으로 설명한다.
 - Abstract, Introduction, Construction, Security Analysis, Evaluation, Conclusion에서 standalone proof처럼 읽히는 과도한 문장을 모두 수정한다.
+- Gate A에서 certified-input 우선안을 채택하지 않으면, 독립적인 \(\gamma\leftarrow\mathbb F^{3k}\)로 전체 \(A,B,C\) 행의 random linear combination을 검사하는 Brakedown식 대안을 설계한다. 이 경우 closest-codeword extraction, error-set bound, matrix-product relation으로의 연결 증명을 추가하고 constraint/통신/실험을 다시 평가한다. 구현·증명 완료 전에는 이 대안의 soundness나 성능을 주장하지 않는다.
 
 **완료 조건:** 공동저자 전원이 동의하는 certified-input definition, revised theorem statement, composition argument, 비용 범위, 논문 핵심 수정 문단이 준비되어야 한다.
 
@@ -197,7 +201,7 @@ Certified-input 모델을 명시하는 것만으로는 LAMP 본체 코드를 변
 Text rebuttal은 Gate A와 핵심 논문 수정 초안이 완료된 뒤 작성한다. 최종 답변은 **650--700단어**를 목표로 하고 절대 750단어를 넘기지 않는다. 다음 구조를 사용한다.
 
 1. **Related-work positioning:** LAMP의 statement와 비용 모델이 기존 기법과 어떻게 다른지 설명하고 추가할 비교표/실험을 명시한다.
-2. **Validity of encoded matrices:** 현재 relation이 input encoding validity를 내부에서 보장하지 않음을 인정하고, certified-input interface, composition theorem, 비용 범위를 구체적으로 설명한다.
+2. **Validity of encoded matrices:** 현재 relation과 sampled folds가 input encoding validity를 내부에서 보장하지 않음을 인정하고, Gate A에서 확정한 certified-input interface, 해당 보안 정리, 비용 범위를 구체적으로 설명한다.
 3. **Original-to-encoded bridge:** 원본 행렬을 다른 circuit에서 사용할 때의 연결 방식과 비용을 답한다.
 4. **Security scope:** multi-round Fiat--Shamir와 trusted setup에 추가할 설명을 명시한다.
 5. **Measurements and corrections:** 수치 오류를 인정하고 GPT-2의 verifier/proof-size trade-off를 포함해 수정한다고 답한다.
