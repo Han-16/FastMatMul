@@ -4,8 +4,7 @@
 
 모든 리뷰어가 지적하신 바와 같이, 현재 원고에서는 LAMP와 기존 matrix multiplication proof 기법 간의 비교가 충분하지 않았습니다. 수정본에서는 zkMatrix, DualMatrix, zkMaP과의 개념적·실험적 비교를 강화하겠습니다.
 
-zkMatrix는 matrix multiplication을 inner-product relations로 표현하여 `O(k^2)`의 prover complexity와 `O(\log k)`의 verifier complexity 및 proof size를 달성합니다. DualMatrix는 prover complexity를 `O(K+k)`로 개선하지만, dense matrix의 경우 여전히 `O(k^2)`입니다. zkMaP은 KZG commitments를 사용하여 arithmetic circuit 없이 constant-size proof와 verifier time을 달성하지만, prover 측 계산에는 여전히 `O(k^2)`가 필요합니다.
-
+zkMatrix는 matrix multiplication을 inner-product relations로 표현하여 `O(k^2)`의 prover complexity와 `O(\log k)`의 verifier complexity 및 proof size를 달성합니다. 후속 연구인 DualMatrix는 prover complexity를 O(K+k)로 개선하며, 여기서 K는 non-zero entries의 개수를 의미합니다. Dense matrices에서는 K=\Theta(k^2)이므로 여전히 O(k^2)입니다. 
 LAMP 역시 `(x,y,z)`를 계산하는 데 `O(k^2)`의 field operations가 필요하지만, circuit complexity를 `O(k)` constraints로 줄이며, 이는 저희가 아는 한 현재 state of the art입니다. 저희의 Groth16 기반 구현에서는 proving cost가 `O(k\log k)`이고, proof size와 verifier complexity는 `O(\log k)`입니다.
 
 zkMatrix의 공개 구현체는 찾을 수 없었으며, zkMaP의 GitHub 링크는 만료된 상태였습니다. 저자들에게 코드를 요청하였으나 아직 답변을 받지 못했습니다. 따라서 공개된 DualMatrix 구현체와 실험적으로 비교하였으며, 독립적인 uniform challenge `s`를 추가한 수정 프로토콜을 기준으로 LAMP의 성능을 다시 측정하였습니다. 수정본에서는 Related Work에 DualMatrix를 추가하고 Section 7을 이에 맞게 업데이트하겠습니다.
@@ -31,3 +30,5 @@ Proximity test는 committed word가 valid codeword에 대해 `\delta`-close함�
 저희는 ECC나 code-based proximity testing 자체의 novelty를 주장하지 않습니다. Reviewer D가 지적한 바와 같이 Ligero, Brakedown, Orion 등에서도 관련 기법이 사용되었습니다.
 
 LAMP의 기여는 matrix multiplication의 구조를 활용하여 quadratic in-circuit computation을 sampled consistency checks로 대체하는 protocol construction에 있습니다. 이를 통해 constraints를 `O(k^2)`에서 `O(k)`로 줄입니다. LAMP는 matrix multiplication에 특화되어 있지만, matrix multiplication은 verifiable AI를 비롯한 다양한 응용에서 핵심적인 primitive이며, 특히 대규모 matrix operations가 반복되는 경우 proof-generation cost의 상당 부분을 차지할 수 있습니다.
+
+또한 Abstract와 본문 사이의 일부 수치 불일치를 확인하였으며, 수정본에서 이를 바로잡겠습니다.
