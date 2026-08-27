@@ -82,5 +82,5 @@ repository.
 - The paper is written in English and uses standard cryptographic notation.
 - The LaTeX build target is pdfLaTeX with BibTeX.
 - The benchmark byte counts in the paper are online proof bytes and exclude
-  raw input certification, proving/verifying keys, CRS material, and generator
+  original-input certification, proving/verifying keys, CRS material, and generator
   material unless explicitly stated otherwise.

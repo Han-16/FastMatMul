@@ -71,8 +71,8 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 
 - Formal theorem은 **public-coin interactive protocol**만 다룬다.
 - 구현된 multi-round Fiat--Shamir transform의 정식 ROM 분석은 future work로 제한한다.
-- `rtABC`가 특정 model weights에 해당한다는 provenance는 application-level 문제로 구분한다.
-- Raw matrices가 같은 SNARK의 다른 relation에도 사용된다면 decoded/encoded objects와 raw witnesses를 연결하는 별도 bridge와 그 비용을 명시한다.
+- Verifier가 `rtABC`가 의도한 model weights에 대한 commitment임을 확인하는 문제는 별도의 application-level issue로 구분한다.
+- Original matrices가 같은 SNARK circuit의 다른 relation에도 사용된다면 committed row-wise encodings에서 decode된 matrices와 original-matrix witnesses를 연결하는 별도 bridge와 그 비용을 명시한다.
 - “linear”은 전체 prover time이 아니라 fixed $t$에서의 핵심 in-circuit constraint complexity를 의미한다.
 
 ## 3. 추가 $B$ 검사의 비용 분석
@@ -100,7 +100,7 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 | 기존 연구 대비 위치가 불명확함 | LAMP, zkMatrix, DualMatrix, zkMaP의 statement와 비용 모델을 직접 비교하고 범용 code-based/zkML systems와 scope 차이를 설명 | Sec. 2, Sec. 7 | 출처가 연결된 비교표와 문단 | 이경태 |
 | 관련 연구와 실험 비교가 없음 | 재현 가능한 DualMatrix 결과를 조건·한계와 함께 추가하거나, 근거가 부족하면 complexity 비교만 제시 | Sec. 7 | raw log, commit hash, 실행 명령, 환경 | 한병규/이경태 |
 | $\widehat A,\widehat B,\widehat C$ validity가 불명확함 | $A/C$ structured lemma, 독립 $B$ test, extraction/composition theorem 추가 | Sec. 4--6, Appendix | 공동저자가 승인한 full proof | Protocol/Proof 담당 |
-| Original matrices를 circuit에서 사용할 때의 비용 | raw witness bridge, $O(k^2)$ 수준의 직접 검사 비용, AI weights/activations 예시와 provenance 범위 설명 | Sec. 5 또는 limitation, Sec. 7 | 명시적 construction과 비용식 | 이경태 |
+| Original matrices를 circuit에서 사용할 때의 비용 | original-matrix witness bridge, $O(k^2)$ 수준의 직접 검사 비용, AI weights/activations 예시와 model-commitment 확인 범위 설명 | Sec. 5 또는 limitation, Sec. 7 | 명시적 construction과 비용식 | 이경태 |
 | Theorem 6.2 proof가 짧음 | 수정 protocol에 대한 detailed proof 제공 | Sec. 6, Appendix | proof checklist 통과 | Protocol/Proof 담당 |
 | Fiat--Shamir와 setup 설명 부족 | interactive theorem과 implemented FS 범위를 분리하고 Groth16/QALink setup 의존성 설명 | Sec. 6--7, Appendix | section 간 주장 충돌 없음 | 이경태/Protocol 담당 |
 | 수치·표현 불일치 | `0.06 s`, `8.43x`, `1.77x`, $O(tk+E_{\mathsf{code}})$, $E_{\mathsf{link}}(k,t)$, GPT-2 trade-off, `196 B` 설명을 전역 점검 | Abstract, Intro, Sec. 5, Sec. 7, Conclusion | 전역 검색과 표 재계산 | 이경태 |
@@ -235,7 +235,7 @@ Text rebuttal의 각 미래형 약속을 최종 diff와 연결한다.
 | A/C structured proximity lemma | theorem/appendix diff | TODO |
 | Independent $B$ test | construction, code commit, experiment log | TODO |
 | Revised proximity/extraction theorem | Sec. 6와 full appendix proof | TODO |
-| Raw-matrix bridge와 provenance | construction/limitation diff | TODO |
+| Original-matrix bridge와 model-commitment 범위 | construction/limitation diff | TODO |
 | Interactive-only theorem과 setup 설명 | Sec. 6/7/Appendix diff | TODO |
 | 수치 수정, GPT-2 trade-off, `196 B` 설명 | 전역 검색, 표 재계산 | IN PROGRESS |
 | Encoding accounting, repetitions, variance/memory | raw CSV와 Sec. 7 diff | TODO |
