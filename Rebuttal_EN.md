@@ -1,12 +1,10 @@
-# IEEE S&P 2027 Text Rebuttal — Working Draft
-
 We thank all reviewers for their careful and constructive feedback. Below, we address the main concerns and summarize the corresponding revisions.
 
 ## Comparison with Prior Work
 
 As all reviewers noted, the current manuscript does not sufficiently compare LAMP with prior matrix multiplication proof techniques. We will strengthen the conceptual and experimental comparisons with zkMatrix, DualMatrix, and zkMaP.
 
-zkMatrix expresses matrix multiplication as inner-product relations, achieving `O(k^2)` prover complexity and `O(\log k)` verifier complexity and proof size. DualMatrix improves the prover complexity to `O(K+k)`, but this remains `O(k^2)` for dense matrices. zkMaP uses KZG commitments to achieve constant-size proofs and verifier time without an arithmetic circuit, while still requiring `O(k^2)` prover-side computation.
+zkMatrix expresses matrix multiplication as inner-product relations, achieving `O(k^2)` prover complexity and `O(\log k)` verifier complexity and proof size. DualMatrix improves the prover complexity to `O(K+k)`, where `K` denotes the number of non-zero entries. For dense matrices, `K=\Theta(k^2)`, so the complexity remains `O(k^2)`. zkMaP uses KZG commitments to achieve constant-size proofs and verifier time without an arithmetic circuit, while still requiring `O(k^2)` prover-side computation.
 
 LAMP also requires `O(k^2)` field operations to compute `(x,y,z)`, but reduces the circuit complexity to `O(k)` constraints, which is state of the art to the best of our knowledge. In our Groth16-based implementation, proving costs `O(k\log k)`, while proof size and verifier complexity are `O(\log k)`.
 
@@ -33,3 +31,5 @@ We will incorporate this additional test and update the corresponding soundness 
 We do not claim novelty for ECC or code-based proximity testing themselves. As Reviewer D noted, related techniques have been used in Ligero, Brakedown, and Orion.
 
 LAMP's contribution is a protocol construction that exploits the structure of matrix multiplication to replace quadratic in-circuit computation with sampled consistency checks, reducing the number of constraints from `O(k^2)` to `O(k)`. Although LAMP is specialized to matrix multiplication, matrix multiplication is a core primitive in many applications, including verifiable AI, where repeated large matrix operations can account for a substantial portion of proof-generation cost.
+
+We also identified numerical inconsistencies between the Abstract and the main text and will correct them in the revision.
