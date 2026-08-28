@@ -8,7 +8,7 @@
 
 LAMP 역시 `(x,y,z)`와 matrix commitments 계산에 `O(k^2)` operations가 필요하지만, circuit complexity를 `O(k)` constraints로 줄이며, 이는 저희가 아는 한 state-of-the-art입니다. Groth16 구현에서는 proving cost가 `O(k\log k)`이고, proof size와 verifier complexity는 `O(\log k)`입니다.
 
-직접적인 experimental comparison도 시도하였으나, zkMatrix의 공개 구현체를 찾을 수 없었고 zkMaP의 GitHub 링크도 만료되어 있었습니다. 따라서 공개된 DualMatrix 구현체를 가장 가까운 reproducible baseline으로 사용하여, `\hat{B}`에 대한 독립 challenge `s`를 포함한 수정 LAMP protocol과의 비교를 완료하였습니다. 수정본에서는 Related Work에 DualMatrix를 추가하고 Section 7에 추가 comparison table을 제시하겠습니다.
+직접적인 experimental comparison도 시도하였으나, zkMatrix의 공개 구현체를 찾을 수 없었고 zkMaP의 GitHub 링크도 만료되어 있었습니다. 따라서 공개된 DualMatrix 구현체를 가장 가까운 reproducible baseline으로 사용하여, `\hat{B}`에 대한 독립 challenge `s`를 포함한 수정 LAMP protocol과의 비교를 완료하였습니다. 수정본에서는 Related Work에 DualMatrix를 추가하고, Section 7에 experimental results와 LAMP, zkMatrix, DualMatrix, zkMaP의 asymptotic comparison table을 추가하겠습니다.
 
 ## Circuit 내부에서 Original Matrices를 사용하는 경우
 
@@ -22,7 +22,7 @@ LAMP는 `(x,y,z)`에 EncCheck를 적용하고, random folding으로 `(\hat{A},\h
 
 Proximity test는 committed word가 valid codeword에 `\delta`-close함을 보장하므로, 허용 거리 내에서는 일부 symbols가 변경되어도 통과할 수 있습니다. 그러나 이는 soundness failure가 아닙니다. Unique-decoding radius 내에서는 대응 codeword가 유일하며, 다른 matrix를 주장하려면 Reed-Solomon minimum distance 규모의 positions를 변경해야 합니다. 이러한 변경은 sampling-based checks가 높은 확률로 탐지합니다.
 
-수정본에서는 이 test를 반영하고 soundness analysis와 관련 proofs를 업데이트하겠습니다.
+수정본에서는 이 추가된 proximity test를 반영하고 soundness analysis와 관련 proofs를 업데이트하겠습니다.
 
 ## 추가 수정 사항
 
