@@ -25,29 +25,29 @@
    \mathbf v(r)=(1,r,\ldots,r^{k-1})
    \]
 
-   로 생성되는 fold를 유지하고, 이 검사가 row-wise Reed--Solomon encoding에 대해 제공하는 proximity/extraction lemma를 명시적으로 증명한다.
+   로 생성되는 fold를 유지한다. 이 structured random-folding 성질은 별도 lemma를 추가하지 않고 revised theorem의 soundness argument에서 직접 사용한다.
 2. $B$에는 $\mathbf x=\mathbf v(r)A$를 계수로 사용하는 기존 검사와 별개로, 독립적인 uniform challenge
 
    \[
-   \boldsymbol\gamma_B\sample\mathbb F^k
+   \mathbf s\sample\mathbb F^k
    \]
 
    를 추가한다.
 3. Prover는
 
    \[
-   \mathbf b_\gamma=\boldsymbol\gamma_B B,
+   \mathbf b_s=\mathbf s B,
    \qquad
-   \widehat{\mathbf b}_\gamma=\mathsf{Enc}(\mathbf b_\gamma)
+   \widehat{\mathbf b}_s=\mathsf{Enc}(\mathbf b_s)
    \]
 
    를 계산하고 query positions가 선택되기 전에 원본 벡터와 encoded view를 commitment로 고정한다.
-4. Circuit은 `EncCheck`로 $\widehat{\mathbf b}_\gamma$와 $\mathbf b_\gamma$의 encoding consistency를 검사하고, 각 $j\in I$에 대해
+4. Circuit은 `EncCheck`로 $\widehat{\mathbf b}_s$와 $\mathbf b_s$의 encoding consistency를 검사하고, 각 $j\in I$에 대해
 
    \[
-   \widehat{\mathbf b}_\gamma[j]
+   \widehat{\mathbf b}_s[j]
    =
-   \langle\boldsymbol\gamma_B,\widehat B[*,j]\rangle
+   \langle\mathbf s,\widehat B[*,j]\rangle
    \]
 
    을 검사한다.
@@ -59,8 +59,8 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 논문의 protocol figure, theorem 및 구현은 다음 순서를 동일하게 표현해야 한다.
 
 1. Prover가 $\rt_{ABC}$를 고정한다.
-2. Verifier가 $r$과 $\boldsymbol\gamma_B$를 독립적으로 생성한다.
-3. Prover가 $\mathbf x,\mathbf y,\mathbf z,\mathbf b_\gamma$ 및 각 encoded view를 계산한다.
+2. Verifier가 $r$과 $\mathbf s$를 독립적으로 생성한다.
+3. Prover가 $\mathbf x,\mathbf y,\mathbf z,\mathbf b_s$ 및 각 encoded view를 계산한다.
 4. Prover가 이 원본 벡터들과 encoded views를 binding commitment로 고정하고, 이후 CP-SNARK가 바로 그 committed values를 사용하도록 연결한다.
 5. 그 뒤에만 verifier가 query tuple $I$와 code-check points $\alpha_x,\alpha_y,\alpha_z,\alpha_B$를 생성한다.
 6. Prover가 CP-SNARK proof, sampled openings 및 CP-Link proofs를 생성한다.
@@ -71,8 +71,8 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 
 - Formal theorem은 **public-coin interactive protocol**만 다룬다.
 - 구현된 multi-round Fiat--Shamir transform의 정식 ROM 분석은 future work로 제한한다.
-- Verifier가 `rtABC`가 의도한 model weights에 대한 commitment임을 확인하는 문제는 별도의 application-level issue로 구분한다.
-- Original matrices가 같은 SNARK circuit의 다른 relation에도 사용된다면 committed row-wise encodings에서 decode된 matrices와 original-matrix witnesses를 연결하는 별도 bridge와 그 비용을 명시한다.
+- Verifier가 $\rt_{ABC}$가 의도한 model weights에 대한 commitment임을 확인하는 문제는 별도의 application-level issue로 구분한다.
+- Original matrices가 같은 SNARK circuit의 다른 relation에도 사용된다면 full-matrix commit-carrying SNARK variant와 그 $O(k^2)$ witness-commitment cost를 명시한다.
 - “linear”은 전체 prover time이 아니라 fixed $t$에서의 핵심 in-circuit constraint complexity를 의미한다.
 
 ## 3. 추가 $B$ 검사의 비용 분석
@@ -81,17 +81,16 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 
 | 항목 | 추가 비용 | 논문에 명시할 범위 |
 |---|---:|---|
-| $\mathbf b_\gamma=\boldsymbol\gamma_BB$ | $O(k^2)$ field operations | 서킷 밖 native prover work |
-| $\mathbf b_\gamma$ encoding | 실제 encoder 비용 $E_{\mathsf{enc}}(k,n)$ | 사용한 구현 경로와 timer 범위 |
+| $\mathbf b_s=\mathbf sB$ | $O(k^2)$ field operations | 서킷 밖 native prover work |
+| $\mathbf b_s$ encoding | 실제 encoder 비용 $E_{\mathsf{enc}}(k,n)$ | 사용한 구현 경로와 timer 범위 |
 | Encoded-vector commitment | 현재 packing 방식에 따른 $O(n)$ 수준의 추가 group/hash work | 기존 root 확장인지 별도 root인지 구분 |
 | Sampled $B$ fold | $O(tk)$ constraints | 서킷 내부 |
 | 추가 `EncCheck` | $E_{\mathsf{code}}(k,n)$ constraints | 서킷 내부 |
-| $\boldsymbol\gamma_B$ 생성·처리 | $O(k)$ verifier work | interactive transcript와 FS 구현을 구분 |
 | Setup/link | 변경된 circuit와 message layout에 따른 새 setup | Groth16 및 QALink configuration 명시 |
 
-기존에도 $\mathbf v(r)A$, $\mathbf xB$, $\mathbf v(r)C$ 등의 native computation과 input encoding/commitment가 $O(k^2)$이므로 전체 prover-side asymptotic complexity는 $O(k^2)$로 유지된다. Fixed $t$와 fixed code rate에서는 추가 circuit cost도 선형이지만, 상수 배 증가와 verifier의 $O(k)$ challenge 처리를 숨기지 않는다.
+기존에도 $\mathbf v(r)A$, $\mathbf xB$, $\mathbf v(r)C$ 등의 native computation과 input encoding/commitment가 $O(k^2)$이므로 전체 prover-side asymptotic complexity는 $O(k^2)$로 유지된다. Fixed $t$와 fixed code rate에서는 추가 circuit cost도 선형이지만 상수 배 증가는 숨기지 않는다.
 
-같은 연산을 `b_gamma` 계산과 encoded-row fold 양쪽에서 중복 계상하지 않는다. 실제 구현이 `b_gamma`를 먼저 계산한 뒤 encoding하는지, $\boldsymbol\gamma_B\widehat B$를 직접 계산하는지를 확인하고 측정표에 실제 경로만 기록한다.
+같은 연산을 `b_s` 계산과 encoded-row fold 양쪽에서 중복 계상하지 않는다. 실제 구현이 `b_s`를 먼저 계산한 뒤 encoding하는지, $\mathbf s\widehat B$를 직접 계산하는지를 확인하고 측정표에 실제 경로만 기록한다.
 
 ## 4. Reviewer concern 추적표
 
@@ -99,8 +98,8 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 |---|---|---|---|---|
 | 기존 연구 대비 위치가 불명확함 | LAMP, zkMatrix, DualMatrix, zkMaP의 statement와 비용 모델을 직접 비교하고 범용 code-based/zkML systems와 scope 차이를 설명 | Sec. 2, Sec. 7 | 출처가 연결된 비교표와 문단 | 이경태 |
 | 관련 연구와 실험 비교가 없음 | 재현 가능한 DualMatrix 결과를 조건·한계와 함께 추가하거나, 근거가 부족하면 complexity 비교만 제시 | Sec. 7 | raw log, commit hash, 실행 명령, 환경 | 한병규/이경태 |
-| $\widehat A,\widehat B,\widehat C$ validity가 불명확함 | $A/C$ structured lemma, 독립 $B$ test, extraction/composition theorem 추가 | Sec. 4--6, Appendix | 공동저자가 승인한 full proof | Protocol/Proof 담당 |
-| Original matrices를 circuit에서 사용할 때의 비용 | original-matrix witness bridge, $O(k^2)$ 수준의 직접 검사 비용, AI weights/activations 예시와 model-commitment 확인 범위 설명 | Sec. 5 또는 limitation, Sec. 7 | 명시적 construction과 비용식 | 이경태 |
+| $\widehat A,\widehat B,\widehat C$ validity가 불명확함 | $A/C$ structured folding argument, 독립 $B$ test, extraction/composition theorem 추가 | Sec. 4--6, Appendix | 공동저자가 승인한 full proof | Protocol/Proof 담당 |
+| Original matrices를 circuit에서 사용할 때의 비용 | full-matrix commit-carrying variant, $O(k^2)$ witness-commitment 비용, AI weights/activations 예시와 model-commitment 확인 범위 설명 | Sec. 5 또는 limitation, Sec. 7 | 명시적 construction과 비용식 | 이경태 |
 | Theorem 6.2 proof가 짧음 | 수정 protocol에 대한 detailed proof 제공 | Sec. 6, Appendix | proof checklist 통과 | Protocol/Proof 담당 |
 | Fiat--Shamir와 setup 설명 부족 | interactive theorem과 implemented FS 범위를 분리하고 Groth16/QALink setup 의존성 설명 | Sec. 6--7, Appendix | section 간 주장 충돌 없음 | 이경태/Protocol 담당 |
 | 수치·표현 불일치 | `0.06 s`, `8.43x`, `1.77x`, $O(tk+E_{\mathsf{code}})$, $E_{\mathsf{link}}(k,t)$, GPT-2 trade-off, `196 B` 설명을 전역 점검 | Abstract, Intro, Sec. 5, Sec. 7, Conclusion | 전역 검색과 표 재계산 | 이경태 |
@@ -111,16 +110,16 @@ Certified encoder를 우선안으로 두는 이전 계획과 $A,B,C$ 모두에 �
 
 ### 5.1 Construction 수정
 
-- $\boldsymbol\gamma_B,\mathbf b_\gamma,\widehat{\mathbf b}_\gamma,\alpha_B$를 statement, witness, commitment layout 및 protocol figure에 추가한다.
-- `b_gamma`를 기존 intermediate root에 packing할지 별도 root로 둘지 구현과 동일하게 명시한다.
-- $\mathbf x,\mathbf y,\mathbf z,\mathbf b_\gamma$와 full encoded views가 $I,\alpha$ 전에 고정되는 commitment를 정확히 열거한다.
+- $\mathbf s,\mathbf b_s,\widehat{\mathbf b}_s,\alpha_B$를 statement, witness, commitment layout 및 protocol figure에 추가한다.
+- `b_s`를 기존 intermediate root에 packing할지 별도 root로 둘지 구현과 동일하게 명시한다.
+- $\mathbf x,\mathbf y,\mathbf z,\mathbf b_s$와 full encoded views가 $I,\alpha$ 전에 고정되는 commitment를 정확히 열거한다.
 - CP-SNARK witness commitment, external commitments, Merkle leaves 및 CP-Link가 어떤 값을 연결하는지 타입과 순서를 맞춘다.
 - Fiat--Shamir 구현에서는 각 challenge의 domain separation과 입력 transcript를 표로 정리한다. Formal theorem은 interactive protocol에만 적용한다.
 
-### 5.2 필요한 lemma
+### 5.2 필요한 proof components
 
-1. **Structured $A/C$ proximity lemma:** $\mathbf v(r)$로 만든 fold가 invalid interleaved Reed--Solomon word를 검출하거나 하나의 decoded matrix에 binding한다는 조건과 오류확률을 증명한다.
-2. **Uniform $B$ proximity lemma:** 독립적인 $\boldsymbol\gamma_B\sample\mathbb F^k$가 $\widehat B$의 숨겨진 malformed component를 검출하고 decoded $B$를 추출할 수 있음을 증명한다.
+1. **Structured $A/C$ folding argument:** $\mathbf v(r)$로 만든 fold의 표준 random-folding 성질을 revised theorem의 soundness proof에 직접 적용한다.
+2. **Uniform $B$ proximity lemma:** 독립적인 $\mathbf s\sample\mathbb F^k$가 $\widehat B$의 숨겨진 malformed component를 검출하고 decoded $B$를 추출할 수 있음을 증명한다.
 3. **Pre-query binding lemma:** EncCheck와 sampled equations에 사용되는 원본/encoded intermediate values가 query 전에 고정되고 실제 circuit witness와 동일함을 증명한다.
 4. **Composition lemma:** 추출된 $A,B,C$, structured Freivalds check, sampled equations 및 backend soundness를 합성한다.
 
@@ -139,15 +138,15 @@ Code distance $\delta_{\mathcal C}$, proximity radius $\tau$, effective sampled 
 
 ### 6.1 구현
 
-- $\boldsymbol\gamma_B$ 생성, $\mathbf b_\gamma$ 계산, encoding 및 commitment를 구현한다.
+- $\mathbf s$ 생성, $\mathbf b_s$ 계산, encoding 및 commitment를 구현한다.
 - `EncCheck`와 sampled $B$-fold equation을 circuit에 추가한다.
 - Commitment/root packing, sampled openings, CP-Link statement 및 proof serialization을 수정한다.
 - 변경된 circuit와 block length에 맞춰 Groth16/QALink setup을 다시 생성한다.
 - 다음 회귀 테스트를 추가한다.
   - 올바른 $AB=C$ witness는 accept한다.
   - $A=0$ 또는 rank-deficient $A$에서도 malformed $B$는 reject한다.
-  - Commitment 뒤 $B$, $\mathbf b_\gamma$ 또는 encoded view를 바꾸면 reject한다.
-  - $\boldsymbol\gamma_B$는 $\rt_{ABC}$ 이후, $I$ 이전에 고정된다.
+  - Commitment 뒤 $B$, $\mathbf b_s$ 또는 encoded view를 바꾸면 reject한다.
+  - $\mathbf s$는 $\rt_{ABC}$ 이후, $I$ 이전에 고정된다.
   - $\mathbf x,\mathbf y,\mathbf z$와 encoded views의 기존 pre-query binding 경로가 유지된다.
 
 ### 6.2 측정 규격
@@ -157,7 +156,7 @@ Code distance $\delta_{\mathcal C}$, proximity radius $\tau$, effective sampled 
 - `k`, `t`, code rate, field/curve, security setting
 - code commit hash, 실행 명령, seed, `run_id`
 - constraints, setup/prove/verify time, serialized proof bytes
-- $\boldsymbol\gamma_BB$, encoding, commitment, Merkle, Groth16, CP-Link component time
+- $\mathbf sB$, encoding, commitment, Merkle, Groth16, CP-Link component time
 - peak RSS, success/OOM/timeout 및 exit status
 - $C=AB$ 생성 비용과 setup을 total에 포함했는지 여부
 
@@ -195,7 +194,7 @@ Code distance $\delta_{\mathcal C}$, proximity radius $\tau$, effective sampled 
 | Security Analysis | revised theorem, 명시적 error terms, interactive scope |
 | Evaluation | revised 결과, DualMatrix 근거, encoding accounting, 통계·memory, `196 B` 설명 |
 | Conclusion | prover/circuit 이점과 verifier/proof/setup 비용을 함께 요약 |
-| Appendix | A/C 및 B lemma, full composition proof, FS claim 축소, setup 세부사항 |
+| Appendix | A/C folding argument, B lemma, full composition proof, FS claim 축소, setup 세부사항 |
 
 비교표는 LAMP, zkMatrix, DualMatrix, zkMaP에 집중한다. Ligero, Brakedown, Blaze, Orion과 zkCNN, zkGPT, zkLLM은 동일한 end-to-end benchmark처럼 취급하지 않고 statement와 scope 차이를 prose로 설명한다.
 
@@ -205,7 +204,7 @@ Code distance $\delta_{\mathcal C}$, proximity radius $\tau$, effective sampled 
 |---|---|---|
 | **8/28** | protocol transcript와 commitment layout 동결, 역할 배정, reproducible build 방법 확인 | G0: 구현·논문·theorem의 순서가 일치해야 함 |
 | **8/29** | Construction/figure/relation 초안, lemma/theorem skeleton, $B$-test smoke run, comparison table 초안 | G1: `k=1024` proof 생성·검증 성공 |
-| **8/30** | A/C 및 B lemma 1차본, revised theorem 1차본, `k=1024` 3회 raw log, 비용 재계산 | G2: 근거 없는 수치·주장을 즉시 제거 |
+| **8/30** | B lemma와 revised theorem 1차본, `k=1024` 3회 raw log, 비용 재계산 | G2: 근거 없는 수치·주장을 즉시 제거 |
 | **8/31** | full proof, 대표 대형 실험, Sec. 2/4/5/6/7/Appendix 통합 | G3: protocol과 proof 내용 동결 |
 | **9/1** | 전체 실험·parameter 확정, 공동저자 technical review, rebuttal 약속과 diff 대조 | G4: 주장과 데이터 동결 |
 | **9/2** | clean PDF, diff PDF, 독립 열람, HotCRP 사전 업로드 | G5: 내부 제출 완료 |
@@ -232,10 +231,10 @@ Text rebuttal의 각 미래형 약속을 최종 diff와 연결한다.
 |---|---|---|
 | Related-work positioning과 comparison table | Sec. 2/7 diff, 출처표 | TODO |
 | DualMatrix 비교 및 비교 불가능성 설명 | raw logs, 환경, Sec. 7 diff | TODO |
-| A/C structured proximity lemma | theorem/appendix diff | TODO |
+| A/C structured folding argument | theorem/appendix diff | TODO |
 | Independent $B$ test | construction, code commit, experiment log | TODO |
 | Revised proximity/extraction theorem | Sec. 6와 full appendix proof | TODO |
-| Original-matrix bridge와 model-commitment 범위 | construction/limitation diff | TODO |
+| Full-matrix commit-carrying variant와 model-commitment 범위 | construction/limitation diff | TODO |
 | Interactive-only theorem과 setup 설명 | Sec. 6/7/Appendix diff | TODO |
 | 수치 수정, GPT-2 trade-off, `196 B` 설명 | 전역 검색, 표 재계산 | IN PROGRESS |
 | Encoding accounting, repetitions, variance/memory | raw CSV와 Sec. 7 diff | TODO |
@@ -255,12 +254,12 @@ Text rebuttal의 각 미래형 약속을 최종 diff와 연결한다.
 ## 12. Definition of Done
 
 - [ ] Reviewer primary asks가 모두 논문 section 및 diff와 연결됨
-- [ ] $A/C$ structured lemma와 독립 $B$ test만 active input-validity 설계로 사용됨
+- [ ] $A/C$ structured folding argument와 독립 $B$ test만 active input-validity 설계로 사용됨
 - [ ] Protocol figure, theorem, implementation transcript의 challenge/commit/query 순서가 동일함
-- [ ] $\mathbf x,\mathbf y,\mathbf z,\mathbf b_\gamma$ 및 encoded views의 pre-query binding과 CP witness linkage가 명시됨
+- [ ] $\mathbf x,\mathbf y,\mathbf z,\mathbf b_s$ 및 encoded views의 pre-query binding과 CP witness linkage가 명시됨
 - [ ] Revised theorem과 full proof가 exact-codeword assumption 없이 추출된 $A,B,C$의 relation을 분석함
 - [ ] Failure bound, $t$, code rate 및 목표 security level이 일치함
-- [ ] 추가 $O(k^2)$ native work, linear circuit cost, $O(k)$ verifier work, setup과 proof-size 변화가 모두 반영됨
+- [ ] 추가 $O(k^2)$ native work, linear circuit cost, setup과 proof-size 변화가 모두 반영됨
 - [ ] 모든 revised 성능 수치가 추가 $B$ 검사를 포함한 raw log로 재현됨
 - [ ] DualMatrix 직접 수치가 raw evidence에 연결되거나 최종 원고에서 제거됨
 - [ ] Abstract부터 Conclusion까지 수치와 scope가 일치함
