@@ -18,11 +18,11 @@ LAMP 역시 `(x,y,z)`와 matrix commitments 계산에 `O(k^2)` operations가 필
 
 Reviewers C와 D께서는 `(\hat{A},\hat{B},\hat{C})`와 `(x,y,z)`의 encoding consistency 보장이 명확하지 않다고 지적하셨습니다. 이를 재검토한 결과, 기존 proximity test를 강화할 필요가 있음을 확인하였습니다.
 
-LAMP는 `(x,y,z)`에 EncCheck를 적용하고, random folding으로 `(\hat{A},\hat{B},\hat{C})`의 proximity를 검사합니다. `A`와 `C`의 경우, non-zero malformed component는 random challenge `r`에 대한 non-zero degree-bounded polynomial을 유도하므로 negligible probability로만 0이 됩니다. 반면 `B`의 malformed component `D`가 `AD=0`을 만족하면 모든 `r`에 대해 `xD=rAD=0`이므로 기존 test로는 탐지할 수 없습니다. 따라서 독립적인 uniform random challenge `s`를 도입하고 `s\hat{B}`에 대한 proximity test를 추가합니다. `(x,y,z)`의 encodings는 기존과 동일하게 Appendix D의 Barycentric Reed-Solomon Consistency Check로 검증합니다.
+LAMP는 `(x,y,z)`에 EncCheck를 적용하고, random folding으로 `(\hat{A},\hat{B},\hat{C})`의 proximity를 검사합니다. `A`와 `C`의 경우, non-zero malformed component는 random challenge `r`에 대한 non-zero degree-bounded polynomial을 유도하므로 negligible probability로만 0이 됩니다. 반면 `B`의 malformed component `D`가 `AD=0`을 만족하면 모든 `r`에 대해 `xD=rAD=0`이므로 기존 test로는 탐지할 수 없습니다. 따라서 행렬을 commit한 후 `r`과 동시에 독립적인 uniform random challenge `s`를 도입하고 `s\hat{B}`에 대한 proximity test를 추가합니다. `(x,y,z)`의 encodings는 기존과 동일하게 Appendix D의 Barycentric Reed-Solomon Consistency Check로 검증합니다.
 
 Proximity test는 committed word가 valid codeword에 `\delta`-close함을 보장하므로, 허용 거리 내에서는 일부 symbols가 변경되어도 통과할 수 있습니다. 그러나 이는 soundness failure가 아닙니다. Unique-decoding radius 내에서는 대응 codeword가 유일하며, 다른 matrix를 주장하려면 Reed-Solomon minimum distance 규모의 positions를 변경해야 합니다. 이러한 변경은 sampling-based checks가 높은 확률로 탐지합니다.
 
-수정본에서는 이 추가된 proximity test를 반영하고 soundness analysis와 관련 proofs를 업데이트하겠습니다.
+수정본에서는 이 test를 반영하고 soundness analysis와 관련 proofs를 업데이트하겠습니다.
 
 ## 추가 수정 사항
 
@@ -31,6 +31,6 @@ Proximity test는 committed word가 valid codeword에 `\delta`-close함을 보�
 * Abstract와 본문의 수치 불일치 및 오탈자를 수정하겠습니다.
 * Section 7에 setup cost와 proof size를 추가하고, Groth16의 proof size가 constraint 수와 무관하게 constant-size임을 명시하겠습니다.
 * "Linear Verification"이 prover time이 아니라 matrix multiplication relation의 linear circuit complexity를 의미함을 명확히 하겠습니다.
-* 관련 proofs를 보강하겠습니다.
+* Fiat-Shamir를 포함한 관련 proofs를 보강하겠습니다.
 * LAMP의 memory usage를 측정하여 Section 7에 보고하겠습니다.
 * GPT-2 실험 관련 trade-offs를 명확히 하겠습니다.
