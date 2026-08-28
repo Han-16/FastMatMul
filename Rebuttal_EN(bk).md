@@ -4,7 +4,7 @@ We thank all reviewers for their careful and constructive feedback. Below, we ad
 
 As all reviewers noted, the current manuscript does not sufficiently compare LAMP with prior matrix multiplication proof techniques. We will strengthen the conceptual and experimental comparisons with zkMatrix, DualMatrix, and zkMaP.
 
-zkMatrix expresses matrix multiplication as inner-product relations, achieving `O(k^2)` prover complexity and `O(\log k)` verifier complexity and proof size. DualMatrix improves the prover complexity to `O(K+k)`, where `K` is the number of non-zero entries. For dense matrices, `K=\Theta(k^2)`, so the complexity remains `O(k^2)`.
+zkMatrix expresses matrix multiplication as inner-product relations, achieving O(k^2) prover complexity and O(\log k) verifier complexity and proof size. DualMatrix, a follow-up work by the authors of zkMatrix, improves the prover complexity to O(K+k), where K denotes the number of non-zero entries. For dense matrices, K=\Theta(k^2), so the complexity remains O(k^2).
 
 LAMP also requires `O(k^2)` field operations to compute `(x,y,z)`, but reduces circuit complexity to `O(k)` constraints, which is, to the best of our knowledge, state of the art. In our Groth16-based implementation, proving costs `O(k\log k)`, while proof size and verifier complexity are `O(\log k)`.
 
@@ -35,3 +35,6 @@ LAMP's contribution is a protocol construction that exploits matrix multiplicati
 
 ## Additional Revisions
 In addition to the revisions discussed above, we will correct the minor numerical inconsistencies between the Abstract and the main text. We will also expand Section 7 to include a discussion of the setup cost and proof size.
+
+
+
