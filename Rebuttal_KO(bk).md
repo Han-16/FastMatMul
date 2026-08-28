@@ -32,5 +32,5 @@ Proximity test는 committed word가 valid codeword에 `\delta`-close함을 보�
 * Groth16의 proof size는 constraint 수와 무관하므로 Freivalds의 proof size는 `196B`가 맞습니다. 수정본의 Section 7에서는 proof size와 함께 Groth16 및 QALink의 setup cost에 대해서도 논의하겠습니다.
 * "Linear Verification"이 prover time이 아니라 matrix multiplication relation의 linear circuit complexity를 의미함을 명확히 하겠습니다.
 * multi-round Fiat-Shamir transformation에 대한 정식 ROM 증명은 future work로 남기되, 수정본에서는 관련 proofs를 더욱 보강하겠습니다.
-* LAMP의 memory usage를 측정하여 Section 7에 보고하겠습니다.
+* Encoding time은 commit time에 포함되어 있습니다. 수정본의 Section 7에서는 encoding time과 LAMP의 memory usage를 명확히 보고하고, 각 실험의 repetition count도 함께 명시하겠습니다.
 * GPT-2 실험 관련 trade-offs를 명확히 명시하겠습니다.
