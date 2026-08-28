@@ -14,7 +14,7 @@ Circuit 내부에서 원본 행렬을 사용하는 경우
 
 Committed matrix encodings의 유효성
 
-Reviewer C와 D의 지적대로 현재 정리는 committed row-wise encodings의 유효성을 증명하지 않고 가정합니다. 구조적으로 LAMP는 x, y, z에 EncCheck를 적용하고, random folding으로 hat(A), hat(B), hat(C)의 proximity를 검사합니다. A와 C에서는 nonzero malformed component가 random r에 관한 nonzero degree-bounded polynomial을 만들기 때문에 negligible한 확률로만 0이 됩니다. 반면 B에서 malformed component D가 AD=0을 만족하면 모든 r에 대해 xD=v(r)AD=0이므로 기존 검사로는 이를 탐지할 수 없습니다.
+Reviewer C와 D의 지적대로 현재 정리는 committed row-wise encodings의 유효성을 증명하지 않고 가정합니다. 구조적으로 LAMP는 x, y, z에 EncCheck를 적용하고, random folding으로 hat(A), hat(B), hat(C)의 proximity를 검사합니다. A와 C에서는 nonzero malformed component가 random r에 관한 nonzero degree-bounded polynomial을 만들기 때문에 negligible한 확률로만 0이 됩니다. 반면 B에서 malformed component D가 AD=0을 만족하면 모든 r에 대해 xD=rAD=0이므로 기존 검사로는 이를 탐지할 수 없습니다.
 
 따라서 rt_ABC가 고정된 뒤 기존 Freivalds challenge r과 동시에 B를 위한 독립적인 uniform challenge s를 추출하겠습니다. Query set과 code-check points가 추출되기 전에 prover는 b_s=sB의 encoding을 x, y, z의 encodings와 함께 commit합니다. Appendix D의 Barycentric Reed–Solomon Consistency Check(EncCheck)는 b_s를 검사하고 sampled fold equations는 이를 rt_ABC에 고정된 hat(B)와 연결합니다. 수정된 theorem에는 proximity radius, extraction argument 및 전체 soundness bound를 명시하겠습니다. Unique-decoding radius 안의 close word는 여전히 하나의 decoded row를 결정합니다.
 
