@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{c rr rr rr r}
+\toprule
+\multirow{2}{*}{$\log k$}
+  & \multicolumn{2}{c}{\textbf{Constraints}}
+  & \multicolumn{2}{c}{\textbf{Prove Time (s)}}
+  & \multicolumn{2}{c}{\textbf{Verify Time}}
+  & \multirow{2}{*}{\textbf{$\fmQA$ Online Proof}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+  & $\fmQA$ & Freivalds
+  & $\fmQA$ & Freivalds
+  & $\fmQA$ & Freivalds
+  & \\
+\midrule
+7  & 54{,}069      & 49{,}610       & 0.76   & 0.58   & 0.01\,s & 1\,ms & 22{,}404\,B \\
+8  & 105{,}915     & 197{,}194      & 1.52   & 2.03   & 0.01\,s & 1\,ms & 29{,}188\,B \\
+9  & 209{,}995     & 788{,}810      & 3.14   & 6.89   & 0.01\,s & 1\,ms & 35{,}204\,B \\
+10 & 418{,}149     & 3{,}156{,}298  & 7.19   & 25.63  & 0.01\,s & 2\,ms & 44{,}292\,B \\
+11 & 834{,}075     & 12{,}622{,}154 & 17.33  & 102.07 & 0.01\,s & 2\,ms & 51{,}012\,B \\
+12 & 1{,}666{,}315 & 50{,}495{,}818 & 48.54  & 405.04 & 0.01\,s & 2\,ms & 59{,}332\,B \\
+13 & 3{,}330{,}789 & ---            & 151.61 & ---    & 0.01\,s & ---   & 67{,}268\,B \\
+\bottomrule
+\end{tabular}
+\caption{Primary matrix-multiplication benchmark for $\fmQA$ and the optimized
+Freivalds SNARK baseline. $\fmQA$ is the current implementation of the
+sampled-opening backend with multi-column Merkle openings. Proving time excludes
+native matrix multiplication and setup; these are recorded separately in the
+artifact. The table measures the online multiplication-checking layer, including
+sampled RS evaluations, Merkle openings, SNARK-side witness commitments, and
+auxiliary opening/linking checks; online proof bytes exclude the sampled
+matrix-column witness values themselves, original-matrix encoding and input-root construction
+for $\cm_A,\cm_B,\cm_C$, and setup/key/CRS material.}
+\label{tab:meow-vs-freivalds}
+\end{table*}

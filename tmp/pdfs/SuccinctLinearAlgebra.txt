@@ -1,0 +1,2157 @@
+                  Succinct Proofs and Linear Algebra
+                       Alex Evans                       Guillermo Angeris
+                 aevans@baincapital.com              gangeris@baincapital.com
+
+                                       September 2023
+
+
+                                             Abstract
+          The intuitions behind succinct proof systems are often difficult to separate from
+      some of the deep cryptographic techniques that are used in their construction. In this
+      paper, we show that, using some simple abstractions, a number of commonly-used tools
+      used in the construction of succinct proof systems may be viewed as basic consequences
+      of linear algebra over finite fields. We introduce notation which considerably simplifies
+      these constructions and slowly build a toolkit of useful techniques that can be combined
+      to create different protocols. We also show a simple ‘probabilistic calculus’ which
+      specifies how to combine these tools and bounds on their resulting security. To show
+      the power of these abstractions and toolkit, we give a short proof of the security of
+      the FRI protocol. Along the way, we discuss some natural generalizations of protocols
+      in the literature and propose a conjecture related to proximity testing using linear
+      error-correcting codes that is of independent interest.
+
+
+Introduction
+Succinct proofs and arguments play an important role in ensuring privacy and integrity
+of computation, with many applications in blockchains among other fields. To understand
+succinct proofs, we may contrast them with ‘traditional’ computational proofs; i.e., providing
+a witness for a given statement. Traditional computational proofs may be viewed as a
+certificate that a certain computation was performed correctly. Succinct proofs, compared
+to computational ones, make the following tradeoff: they allow some very small probability
+of error that the proof incorrectly verifies (that is, the proof is accepted as good, even though
+the computation was done incorrectly) in exchange for a short, easy to verify certificate—
+often much shorter and faster to verify than the corresponding traditional proof would be.
+    Historically, succinct proofs leverage interaction and randomness to achieve their stated
+goal. Related to this idea of succinct proofs are the succinct noninteractive arguments of
+knowledge (SNARKs, for short), which are of growing practical interest [BCCT13,BSCG+ 13,
+BBB+ 18, Nit20, Tha22]. Common to both of these approaches is the use of randomness
+to reduce complicated statements to simpler ones, which is the focus of this work. Note
+
+
+                                                 1
+that practical implementations of these protocols often involve careful considerations around
+communication models or cryptographic assumptions, which we elide here.
+    Our goal in this paper is to provide a minimal framework for understanding the tools
+used in many protocols involving random reductions. To do this, we mostly limit ourselves to
+linear algebra over finite fields and some basic probability theory. These tools are sufficient
+to explain a surprising number of results and checks used throughout much of the literature.
+
+Other work. Other authors have noted that, indeed, some of the reductions may be
+generalized to any number of other domains. For example, a recent line of work, exemplified
+by [BCS21], [RZ21], and [KP22] provided a number of frameworks for thinking about some
+of the reductions used in succinct proofs. The papers [BCS21] and [KP22] are probably the
+closest in spirit to this work. Each paper shows that some reductions used in the literature
+may be understood from the perspective of module theory and focus mostly on the sumcheck
+protocol and its generalizations over spaces with tensor structure. Many of the statements
+we present in this paper similarly have natural module-theoretic generalizations which may
+be of possible interest, but we do not expand on this here.
+
+This work. In this paper we show that many of the tools and ‘checks’ used in succinct
+proofs can be viewed as a consequence of basic facts from linear algebra over finite fields.
+This perspective also suggests some generalizations. For example, one common operation in
+succinct proof systems is to check if a number of vectors all lie in some subspace, say V . It
+is possible to show that, with high probability, all vectors lie in this subspace V only when a
+uniformly random linear combination of the vectors lies in V . In this sense, we have reduced
+a potentially ‘very large’ problem (of checking that each vector lies in V ) to a much smaller
+problem (of checking a single vector lying in V ) using randomness; many protocols rely on
+this (and similar) reductions. We show that the ‘uniform random linear combination’ may
+be replaced with a more general construction: a uniformly chosen random row of a generator
+matrix for a linear code of large distance.
+
+
+1     Preliminaries and notation
+In this section, we discuss some basic facts from linear algebra, error correcting codes, and
+the conventions used in this paper. A reader that is very comfortable with linear algebra
+and the basics of error correcting codes should feel free to skim this material to understand
+the notation used in this paper and proceed directly to §1.4.
+
+1.1    Linear algebra
+In this paper, we will take the linear-algebraic standard for notation (versus, e.g., some
+standards in coding theory). In particular, all vectors are column vectors (unless otherwise
+specified) and matrix-vector products are written in that order. (We can then interpret
+matrix-vector products as linear combinations of the columns of the matrix, rather than the
+
+                                              2
+rows.) The presentation here is not intended to be an introduction to linear algebra—for
+that, we refer the reader to, e.g., [Axl14]—but is simply meant to be a refresher.
+
+Vectors and matrices. Given a finite field F we write Fn for the set of n-vectors with
+elements in F and write Fm×n for the set of matrices with m rows and n columns with
+elements in F. For example, we may have x ∈ Fn and A ∈ Fm×n , then
+                                              n
+                                              X
+                                       Ax =         x j aj ,
+                                              j=1
+
+where aj ∈ Fm is the jth column of A, which means that Ax is an m-vector. A common
+view will be to look at one specific element of the resulting vector Ax. For example, we may
+write the ith element as
+                                         (Ax)i = ãTi x,
+where ãi denotes the ith row of A (viewed as a column vector) and ãTi is the transpose of ãi
+(which is a row vector). We will identify the n-by-1 matrices with the n-vectors, when the
+meaning is clear.
+
+Vector spaces and subspaces. Any subset V ⊆ Fn which is itself a vector space (i.e.,
+V is closed under linear combinations of its elements) is called a subspace. (If V ′ ⊆ V and
+V ′ is a vector space, we say that V ′ is a subspace of V .) Examples of vector subspaces are,
+of course, Fn or the singleton {0}. Another important example is, given a vector x ∈ Fn ,
+the ray
+                                          {αx | α ∈ F}
+is a subspace. Some useful and important operations on vector spaces are sums and inter-
+sections. In particular, if U, V ⊆ Fn are both subspaces, then their sum (sometimes called
+their Minkowski sum), defined
+
+                              U + V = {u + v | u ∈ U, v ∈ V },                             (1)
+
+is also a subspace. (We purposefully overload the + operation for convenience.) Additionally,
+their intersection U ∩ V is also a subspace.
+
+Range and nullspace. Every matrix A ∈ Fm×n defines two vector subspaces. The first
+is its range (sometimes called the image of A) defined as
+
+                                   R(A) = {Ax | x ∈ Fn }.
+
+From its definition, R(A) ⊆ Fm . In English: the range of a matrix A is the set of all vectors
+that are linear combinations of the columns of A. The second vector space is its nullspace
+(sometimes called its kernel) written
+
+                                 N (A) = {x ∈ Fn | Ax = 0}.
+
+                                              3
+This is the set of vectors which are mapped to zero under the action of A. It is not hard
+to verify that both R(A) and N (A) are vector spaces (subspaces of Fm ). A matrix A is
+said to be injective if N (A) = {0} since, if y = Ax for some x ∈ Fn , then this vector x is
+unique. Similarly, we say that a set of n-vectors {ai } is linearly independent if, viewed as
+the columns of a matrix                                
+                                  A = a1 a2 . . . a n ,
+then the nullspace of A is only the zero vector. In other words, we say the {ai } are linearly
+independent if every nonzero linear combination of the vectors ai is nonzero.
+
+Representations of subspaces. A basic fact from linear algebra is that every subspace
+V ⊆ Fm can be written as the range of some injective matrix A ∈ Fm×n ,
+
+                                           V = R(A),
+
+where n is called the dimension of the subspace V . (The columns of A are called a basis for
+V .) Since A is injective, we have that m ≥ n. Similarly, the subspace V can be written as
+the nullspace of some matrix C ∈ Fk×m such that
+
+                                          V = N (C),
+
+and k = m − n. This matrix is sometimes called the parity check matrix, which is the
+terminology we adopt here. Another way of stating this definition of C is:
+
+                              x∈V       if, and only if, Cx = 0.                            (2)
+
+Polynomial evaluations. One particular example we will use constantly is the vector
+space consisting of the evaluations of a polynomial of small degree. In particular, let {αi } ⊆
+F, for i = 1, . . . , m, be some evaluation points and n ≥ 1 be some given number, then the
+set of polynomials of degree less than or equal to n − 1, evaluated at the points αi , forms a
+vector space V since it can be written as the range of the matrix
+                                                               
+                                       1 α1 α12 . . . α1n−1
+                                      1 α2 α2 . . . αn−1 
+                                                   2        2
+                                 A =  .. ..                 ..  .                          (3)
+                                                               
+                                                 .. . .
+                                      . .        .      .    . 
+                                                  2         n−1
+                                       1 αm αm       . . . αm
+
+(This matrix is called the Vandermonde matrix of degree n − 1 for the evaluation points
+αi .) To see this, note that every polynomial of degree at most n − 1, say f : F → F, can be
+written as
+                            f (β) = x1 + x2 β + x3 β 2 + · · · + xn β n−1 ,
+where x ∈ Fn . So, we may write
+
+                         f (αi ) = x1 + x2 αi + · · · + xn αin−1 = (Ax)i ,
+
+                                                4
+for any polynomial of degree at most n − 1. Because of this, the set of evaluations of all
+possible low-degree polynomials f , written as vectors (f (α1 ), . . . , f (αm )), is just
+                                             V = R(A).
+Finally, because we know that the range of any matrix is a subspace and since V is the range
+of the matrix A, then the set V must also be a subspace.
+
+Direct sums. If V ⊆ Fn is a subspace and T, U ⊆ V are subspaces of V satisfying the
+property that T ∩ U = {0} and V = T + U , where
+                                 T + U = {y + z | y ∈ T, z ∈ U },
+then we say that V is the direct sum [Axl14, §1] of T and U . We write this as V = T ⊕ U ,
+for shorthand. The interpretation of this is that, if x ∈ V , then it can be written uniquely
+as
+                                        x = y + z,
+where y ∈ T and z ∈ U . We may extend this definition to any number of subspaces, Vk ⊆ V
+with k = 1, . . . , s, and in this case we write
+                                      V = V1 ⊕ V2 ⊕ · · · ⊕ Vs ,
+if V = V1 + · · · + Vs and Vk ∩ Vl = {0} for every k ̸= l with k, l = 1, . . . , s.
+
+1.2     Linear error correcting codes
+In this section, we introduce some basic definitions from linear error correcting codes, along
+with some examples of codes that we use throughout. Though we will not use any deep
+results from error correcting codes, other than the definition of distance, we refer readers to
+the excellent series of lecture notes [Woo22] for more.
+
+1.2.1    Weight and distance
+The weight of a vector x ∈ Fn , defined
+                                       ∥x∥0 = |{i | xi ̸= 0}|,
+is the number of nonzero entries of a vector x. (This is often referred to as the Hamming
+weight, but we simply use the term weight for this paper.) We write this as ∥ · ∥0 , as this is
+sometimes called the ℓ0 -‘norm’, since it satisfies the triangle inequality
+                                     ∥x + y∥0 ≤ ∥x∥0 + ∥y∥0 ,
+for any y ∈ Fn . It also satisfies definiteness in that ∥x∥0 = 0 if and only if x = 0, and
+satisfies 0-homogeneity in that, for any α ∈ F with α ̸= 0,
+                                           ∥αx∥0 = ∥x∥0 .
+(This ‘norm’ is not a true norm as norms must usually be 1-homogeneous.) Using this
+‘norm’, the distance between two vectors x and y can then be written as ∥x − y∥0 .
+
+                                                  5
+Notation. We overload this norm notation for convenience to also work over sets: given a
+set S ⊆ Fn , we write
+                                 ∥S∥0 = min ∥x∥0 ,
+                                              x∈S
+
+such that the weight of a set S is the minimum weight of any vector in the set. This notation
+is quite convenient: writing, as in (1),
+
+                                 x − S = {x − y | y ∈ S},
+
+we may then view
+                                 ∥x − S∥0 = min ∥x − y∥0 ,
+                                              y∈S
+
+as the minimum distance between x and any vector in the set S.
+
+1.2.2   Linear codes
+A linear code is defined as a matrix G ∈ Fm×n . (Technically, many matrices G may generate
+the same code, which is usually defined as R(G), but we ignore the distinction here.) We
+say that n is the message length and m is the block length of the code given by G. This is
+called a linear code since we can take a message x ∈ Fn , which is simply an n-vector over
+the field F, and encode it by applying the matrix G to get a length m codeword, Gx. It is
+linear since the codeword corresponding to any linear combination of messages is just the
+same linear combination of the individual codewords.
+
+Distance. The main definition that we will use throughout this paper is the distance of
+the code G, defined
+                                d = minn
+                                            ∥Gx∥0 ,
+                                         x∈F \{0}
+
+where ∥z∥0 denotes the number of nonzero entries in z ∈ Fm . This is called the distance
+since any two distinct messages x, y ∈ Fn with x ̸= y will differ in at least d places after
+being encoded; i.e.,
+                            ∥Gx − Gy∥0 = ∥G(x − y)∥0 ≥ d,
+since x − y ̸= 0.
+    Note that G has linearly dependent columns (i.e., nontrivial nullspace) if, and only if,
+the distance d = 0. In other words, if the distance d > 0 then G is injective; this implies
+that the distance d can be positive only when m ≥ n.
+
+Discussion. At the highest level, we may view codes with large distance d as those which
+encode ‘errors’ in the original message in many places. More specifically, if we have some
+expected message, say x ∈ Fn , but, instead, receive a corrupted message x + δ where δ ∈ Fn
+has a small (but nonzero) number of corruptions, we know that
+
+                              ∥G(x + δ) − Gx∥0 = ∥Gδ∥0 ≥ d.
+
+
+                                              6
+So if d is roughly of the size of m (where m is the size of the codeword) then, if we expect
+message x, but instead receive x̃ = x + δ, it only suffices to check that Gx (the encoded
+expected message) differs from Gx̃ (the encoded received message) in a few entries, to ‘catch’
+the fact that x̃ ̸= x. This rather simple fact, and its consequences, will be the basis for the
+entire remainder of the paper.
+
+1.3     Examples of linear codes
+There are a number of important linear codes that are used in the broader literature. We
+show a few examples, along with some properties, here.
+
+1.3.1   Repeated code
+A very simple (and silly) family of codes are the k-repeated codes, given by the matrix
+G ∈ Fkn×n , defined                         
+                                             In
+                                            .. 
+                                       G =  . ,
+                                             In
+where In ∈ Fn×n is the identity matrix of size n × n. This code simply takes some message
+x of length n, repeats it k times, and stacks the result into a vector of size kn; i.e., given
+some vector x ∈ Fn :                           
+                                                x
+                                               .. 
+                                        Gx =  .  ,
+                                                x
+where the vector x is stacked k times
+
+Distance. This code has distance d = k, which is easy to see from its definition.
+
+1.3.2   Reed–Solomon codes
+A more interesting (and common) choice of codes are the Reed–Solomon codes. Assuming a
+message of length n and given some block size m ≥ n, we may pick any subset of evaluation
+points {α1 , . . . , αm } ⊆ F. We can then define the matrix as G ∈ Fm×n in the following way:
+
+                                          Gij = αij−1 ,
+
+for i = 1, . . . , m, and j = 1, . . . , n. (The definition here is exactly the definition of the
+Vandemonde matrix given in (3), written in index notation.)
+
+
+
+
+                                               7
+Distance. Since a nonzero degree d polynomial has at most d roots (over any field F) then
+the distance of this code is at least m − n + 1 since
+                                                n
+                                                X
+                                      (Gx)i =         xj αij−1 ,
+                                                j=1
+
+is a degree at most n − 1 polynomial with coefficients xj , evaluated at each of the αi . It is
+not hard to construct a polynomial of degree n − 1 which has exactly m − n + 1 zeros when
+evaluated over the points α1 , . . . , αm , which makes the distance of this code exactly equal to
+m − n + 1.
+
+1.3.3   Hadamard code
+Another common code is the Hadamard code, which is defined by a matrix G ∈ Fm×n whose
+rows contain all possible tuples from Fn . (Here, then, m = |F|n .) Drawing a row uniformly
+at random corresponds to drawing a uniformly random tuple from Fn .
+
+Distance. The distance of this code is d = |F|n − |F|n−1 . To see this, consider any row i
+of G, which we write as y. Then, given a message x ̸= 0, we have that at least one index,
+say j, has xj ̸= 0. So, if the ith symbol of Gx is zero, we have
+
+                                (Gx)i = y T x = yj xj + ỹ T x̃ = 0,
+
+where x̃ is the vector x with entry j removed, and similarly for y. We can write this as
+
+                                        yj = −x−1   T
+                                               j (ỹ x̃).
+
+Note that any choice of ỹ fixes yj from the above equation. Since there are |F|n−1 possible
+options for ỹ satisfying this condition, then there are at most |F|n−1 possible symbols of
+Gx that are zero, or, equivalently, at least |F|n − |F|n−1 symbols that are nonzero in Gx,
+whenever x ̸= 0.
+
+1.4     Probabilistic implications
+It will be useful to define some basic notation which will clean up the proofs that follow. In
+particular, this notation can be seen as compact way of expressing logical statements (such
+as implications) in a probabilistic setting, where there is some probability that a statement
+is not true. Even in this case, we will show that analogues of the basic rules of logic still
+hold.
+
+Implications. Given two statements Pr and Qr′ (in other words, two Boolean functions
+taking on values 0 or 1) that depend on random variables r and r′ drawn from some set, we
+write
+                                       Pr =⇒ Qr′ ,
+                                                p
+
+
+                                                 8
+if Pr(Pr ∧ ¬Qr′ ) ≤ p over randomness r and r′ ; i.e., if the probability that Pr is true, yet
+Qr′ is not, is no larger than some value p. In general, we make no assumptions about the
+distribution of r and r′ except that it should be explicit in the text. Almost universally,
+in the remainder of this work, we will either have r = r′ or r and r′ independently and
+uniformly drawn from some set. When it is clear from context what the randomness is over,
+we will sometimes write this as Pr implies Qr′ with error (at most) p.
+    The basic idea behind this notation is to think of p as the probability that the statement
+is ‘wrong’. If p = 0, then this reduces exactly to the usual definition in propositional logic,
+while, if p is very small, we can think of the statements as being ‘almost equivalent’ under the
+randomness. In general, this relation will satisfy many similar rules to those of propositional
+logic, with additional ‘error’ terms that satisfy some basic rules we discuss below.
+
+Chaining implications. Given three statements with
+                              Pr =⇒ Qr′ ,          and Qr′ =⇒
+                                                            ′
+                                                              Tr′′ ,
+                                      p                        p
+
+over randomness r, r′ , and r′′ , then
+                                               Pr =⇒′ Tr′′ .
+                                                  p+p
+
+This is not hard to see from the union bound, but we provide the easy (if verbose) proof in
+appendix A. Note that, since ‘normal’ implication can be written as =⇒ , then this bound
+                                                                      0
+says, if
+                           Pr =⇒ Qr′ , and Qr′ implies Tr′′ ,
+                                  p
+
+then Pr =⇒ Tr′′ . (In the ‘usual’ logical implications, we will have that r′ = r′′ .)
+           p
+
+
+Contrapositives. It is also similarly easy to see that, if
+                                               Pr =⇒ Qr ,
+                                                    p
+
+then
+                                              ¬Qr =⇒ ¬Pr ,
+                                                    p
+
+from the definition.
+
+Conjunctions. Another interesting point is, given some ‘deterministic’ claim Q (that does
+not depend on randomness; it is either true or false), and the following implications
+                                Pr =⇒ Q,           and Tr′ =⇒
+                                                            ′
+                                                              Q,
+                                          p                    p
+
+then, if r and r′ are independent, we have
+                                              Pr , Tr′ =⇒
+                                                        ′
+                                                          Q.
+                                                        pp
+
+
+                                                    9
+This follows essentially from the definition of independence and the probabilistic implications
+above. In English: if we have two claims we can independently verify, each of which implies
+Q with low probability of error p and p′ , then verifying both (with independent randomness)
+must imply Q with much lower probability of error pp′ . A special case of this is: repeating a
+check with independent and identical randomness decreases the probability of failure of the
+check from p to p2 .
+
+Discussion. While the notation (and some of the basic implications) described here look
+simple, they will reduce the complexity of the discussions by allowing us to talk about, and
+compose, statements in a very compact way, without requiring additional overhead. We
+will make constant use of the rules described here throughout the remainder of this paper.
+Interestingly, as far as the authors know, this subject has only been explored in the context
+of data analysis and inference, as a special case of fuzzy logic implications [BJ08], but, to
+the authors’ knowledge, little of it has been used in the general proof setting (along with its
+implications).
+
+
+2       The structure of checks
+This section explains the general model and assumptions that go into many of the tools used
+in succinct proof systems, along with explaining how randomness is useful in making these
+tools practical. Those familiar with the structure of succinct proof systems should feel free
+to skim this section and proceed to the next section directly.
+    We will start this section with a very simple example, known as the zero check and its
+variation, the sparsity check, both of which we analyze later in more detail. This will then
+help motivate the remainder of the section and show how claims that are expensive to verify
+may be successively ‘reduced’ to smaller claims that are cheaper to verify.
+
+2.1     The zero check
+In the examples that follow, we seek to answer the following question: given two vectors x
+and y (say, in Fn ), are the two vectors equal? Of course, we may verify whether x = y by
+checking if each of their n elements are equal. Indeed, this is the best we can hope to do if
+we must be absolutely certain whether x = y, yet only have access to x and y by querying
+individual entries of each vector. If n is large—in many practical cases, n is on the order
+of 220 or so—this could prove to be an expensive procedure if fetching each element incurs
+some reasonable cost.
+
+2.1.1    Sparse checks
+One ‘relaxation’ of the above question is to check if, instead, x is ‘close to’ y. That is, we
+would like to guarantee that
+                                      ∥x − y∥0 ≤ q,                                         (4)
+
+
+                                              10
+for some threshold q ≥ 0, set ahead of time. From before, if we must be absolutely certain
+that x and y are no more than q apart from each other, we must check that at least n − q
+entries of x and y are equal. (We recommend the reader convince themselves of this before
+proceeding.)
+    In practice, though, we rarely care that a statement is perfectly true. For example, if
+a statement is false with probability no more than 2−100 , it might as well be true for all
+intents and purposes. Of course, this assumes that the probability is measured over some
+‘reasonable’ notion of randomness, but we will see that this can be achieved in what follows.
+
+Probabilistic sparse checks. Perhaps the simplest ‘check’ is to uniformly randomly draw
+indices r ∼ {1, . . . , n} and verify that xr = yr at each of these indices. If the desired
+condition (4) is not true, that is, if ∥x − y∥0 ≥ q + 1, then the probability that a uniformly
+randomly chosen index lands on one of the entries with xr ̸= yr is at least
+                                                 q+1
+                                            1−       .
+                                                  n
+If we repeat this procedure ℓ times, uniformly and independently drawing indices from
+1, . . . , n, the probability that we never ‘catch’ at least one of the indices for which xr ̸= yr is
+easily bounded from above by
+                                                       ℓ
+                                                  q+1
+                                              1−           .
+                                                    n
+To guarantee a probability of failure no more than p, then, it suffices to repeat the experiment
+                                                     
+                                            n         1
+                                       ℓ≥       log
+                                          q+1         p
+
+times. (We have used the fact that log(1−x) ≤ −x in this bound.) If n is large (say n = 220 )
+and q = n/10, yet we wish the probability of failure to be no more than 2−100 then, repeating
+the experiment
+                                          ℓ ≈ 700
+times suffices. In other words, only about 700 queries to elements of x and y are needed
+to verify the claim. On the other hand, checking that this condition holds exactly requires
+checking that n − q entries are equal, which is still on the order of about a million queries.
+While this particular observation is not ‘deep’ in any meaningful sense, the basic idea is
+generalized to a much broader setting in §3.2.
+
+2.1.2   Models and the ‘exact’ zero check
+In the second setting, we wish to check whether x is exactly equal to y with high probability.
+Checking exact equality with high probability using the procedure described previously es-
+sentially boils down to setting the threshold q = 0, which means that the number of queries
+is roughly n. (Indeed, a simple argument shows that, to guarantee any probability of failure
+
+                                                 11
+smaller than 1, p < 1, we always need on the order of n queries.) This means that a new
+interaction model is required if we want to do better than n queries, which we cover in a
+brief aside below.
+
+Direct access model. As a baseline, we can view the communication model discussed up
+until this point as a simple direct access model. In that model, x and y are vectors stored in
+some drive handed to us, say. We then pay some fixed cost for each query, which accesses
+a single element of x or y. The drive is assumed to be ‘truthful’ in that it simply relays
+information about x and y as queried. (Such a guarantee is not obvious: for example, one
+could easily imagine a malicious ‘smart’ drive that attempts to adapt its responses based on
+the previous queries we made.)
+
+Coding model. We can propose a different model by slightly generalizing the direct access
+model, which we call the coding model. In this model, instead, we are handed a black box.
+This black box has a fixed code matrix G ∈ Fm×n , known to us, along with some message
+x ∈ Fn , unknown to us. We then are allowed to query some index i for symbol (Gx)i from
+the encoded message Gx, paying a fixed cost for each query performed. The direct access
+model is the special case where the code matrix G is the identity G = I, such that querying
+the ith symbol of Gx is the same as querying the ith symbol from the message x.
+
+Model discussion. We note that these models assume that the queries are answered
+truthfully; i.e., that the black boxes being handed to us answer queries in a way consistent
+with their definitions above. This, of course, seems like a very difficult restriction. Indeed, if
+a stranger (or, more specifically, a paper author) hands us such a black box on the street with
+a promise that it satisfies these definitions, we should be extremely skeptical of these promises
+and the authors more generally. Luckily, in many practical cases, we can replace black boxes
+with cryptographic protocols that have certain guarantees. For example, the direct access
+model can be replaced with a Merkle commitment [KL21, §6.6.2], while the coding model
+can be replaced with any number of possible polynomial commitments [KZG10] (when the
+matrix G corresponds to a Reed–Solomon code), inner product commitments [BCC+ 16] (for
+general matrices G), among many others.
+
+Probabilistic zero check. Now that we have defined the coding model, we will show
+that, surprisingly, we can construct a simple procedure in this model to check if x ∈ Fn is
+equal to y ∈ Fn that succeeds with high probability, assuming that the code matrix G has
+relatively large distance, using only a single query.
+    To see this, let G ∈ Fm×n be a m-by-n matrix with distance d. The procedure is as
+follows:
+
+  1. Uniformly randomly sample an index r from 1, . . . , m
+
+  2. Query the rth symbol of Gx and Gy to receive (Gx)r and (Gy)r
+
+
+                                               12
+  3. Verify that (Gx)r = (Gy)r
+
+If x = y, then this procedure correctly verifies this fact. On the other hand, if x ̸= y, the
+probability that (Gx)r = (Gy)r is very small. Since
+
+                                (Gx)r − (Gy)r = (G(x − y))r ,
+
+and x − y ̸= 0, then G(x − y) has at least d nonzero entries, by the definition of distance.
+The probability that a uniformly randomly chosen index r lands in one of those entries is at
+least d/m, or, conversely, the probability that r ‘misses’ one of these nonzero entries is at
+most 1 − d/m. If d is very close to m, then this probability is nearly zero. To make concrete
+what ‘nearly zero’ means, consider a Reed–Solomon code matrix (see §1.3.2) whose subset of
+evaluations is every element of F (such that m = |F|). If n = 220 (as our previous example)
+and |F| = 2255 − 19 (as in some standard protocols [BS23, §15.3.3]), then d = m − n + 1, so
+the probability that this procedure errs is no more than
+                                             d
+                                        1−     ≈ 2−235 ,
+                                             m
+which is effectively zero for all practical purposes.
+
+2.2    Succinctness and zero knowledge
+The procedures above have two interesting properties. First, in a very general sense, we
+started with the task of checking whether two potentially very long vectors, x and y, are
+equal. By using some randomness, we have reduced this task to a much smaller one: checking
+whether a small number of values are equal to one another. This latter ‘simple’ claim, if
+true, lets us claim the ‘global’ statement that the two vectors x and y, each composed of
+many field elements (in fact, n of them), must be equal or ‘close’. The second interesting
+point is that, in a certain sense, we learn very little about the vectors x and y (with a small
+modification, it is possible to ensure we actually learn practically nothing) other than the
+original fact we wished to verify.
+    We will focus almost universally on the first part: taking a large claim and reducing it
+to a much smaller one, such that it suffices only to verify the smaller claim, which, in turn,
+implies the original one with high probability. The second part, while interesting in its own
+right, is mostly avoided in the remainder of this text. We refer the reader to [Tha22] for
+(much) more.
+
+Reductions. In a certain sense, we may view the above procedures in §2.1 as a type of
+‘lossy’ reduction. The procedures begin with a certain very large claim, and this claim is
+reduced to a much simpler one that is easier to verify, but in doing so, we accept some
+probability of failure. (This probability of failure cannot be avoided [BS23, §20] and is
+essential in making the reduction ‘easier’ than the original problem.) Indeed, any reduction
+we present here can be split into three steps: first, we are handed some black box, we then
+
+                                               13
+query the black box, and finally we verify that its result is consistent with some statement.
+Ideally, verifying the result in the last step is much easier than the original claim we wished
+to show; in some cases, though, it is only marginally easier. In these cases, we can then
+replace this last step with another reduction (and accept some additional error for doing so)
+that is also marginally easier, and so on, until the claim has been reduced to a very simple
+one, which also has a very small probability of error. This is the basic structure of a number
+of succinct proof systems, a few of which we generalize here.
+
+Size of the generator. Another important point that could be raised is that, for example,
+the matrix in §2.1.2 is very large: the number of rows of G is m = |F|, which is on the order
+of 2255 , far too large to fit in any computer. The important thing to keep in mind is that
+the whole matrix should never be constructed. The only way that the matrix G is ‘accessed’
+is in finding a specific symbol, say r of the encoding, (Gx)r , which means that it suffices to
+only construct the rth row of G, written g̃rT , which we can use to compute the symbol by
+noting that
+                                          (Gx)r = g̃rT x.
+Indeed, in many of the checks that follow, we only need the ability to query the inner product
+of the message x with a single row of the matrix G, even when this matrix is very large.
+
+
+3     Standard checks
+In the remainder of this paper, we will build up a library of such ‘checks’, beginning with the
+zero checks presented above. Using the probabilistic implications presented in §1.4, it will
+then be possible to compose these checks in a variety of ways to achieve certain outcomes.
+Along the way, we will give natural linear-algebraic generalizations of many checks and tools
+commonly used in succinct proof systems, along with some conjectures that greatly generalize
+a number of standard protocols.
+
+3.1    Classic checks
+In this section we focus on what we call the ‘classic’ checks: those which check exact inclusion,
+exact equality, and so on. This should be compared to the ‘sparse checks’ presented later
+in this section, which only seek to verify that vectors are ‘close enough’ to others. This is
+presented first as some of the tools used in the checks here are used in the later section.
+    For the remainder of the section, G ∈ Fm×n will be a matrix representing a linear code
+with message length n and block length m. We will assume that the distance of this code is
+d ≥ 0. It will sometimes be convenient to consider the rows of G, which we write as g̃rT for
+the rth row.
+
+
+
+
+                                               14
+3.1.1   Zero check
+This is a rewriting of the zero check presented in §2.1.2, using the notation defined in §1.4.
+One particular reduction of interest is to note that checking that two vectors are equal is,
+roughly speaking, the same as checking if a single vector is nonzero. In particular, checking
+that x = y is identical to checking that x − y = 0, and, using the linearity of G, as in the
+proof given in §2.1.2, it suffices only to check this latter claim.
+
+Check. Given a linear code with generator G ∈ Fm×n and distance d, we wish to show that
+x = 0 with high probability, by checking a much smaller claim. We can write the procedure
+specified in §2.1.2 compactly using this notation. For any x ∈ Fn , the following is true
+
+                                 (Gx)r = 0       =⇒      x = 0,                           (5)
+                                                     p
+
+
+where the randomness is over r, uniformly sampled from {1, . . . , m}, and p ≤ 1 − d/m. (The
+reverse direction is obviously always true.) Parsing the symbols in expression (5) carefully,
+it may be read as: if (Gx)r = 0, for a uniformly randomly chosen r in 1, . . . , m, then the
+probability that x ̸= 0 is no more than p. In other words, it suffices to check that a single
+random symbol of the encoding of x is zero to conclude that x is the zero vector, with high
+probability (at least 1 − p). Note that this is exactly the claim we showed in §2.1.2, but the
+notation here is considerably more compact. As a useful exercise, note that the check (5)
+can also be written
+                                  g̃rT x = 0   =⇒      x = 0,                              (6)
+                                                 p
+
+where g̃rT denotes the rth row of G.
+
+Example. A special case of this relation, used in a number of zero knowledge protocols, is
+known as the polynomial zero check [Tha22, §2.2]. This check says that, given a polynomial
+f : F → F of degree no more than n − 1, if we uniformly randomly sample a point r ∈ F
+and find that f (r) = 0, then, with probability at least 1 − (n − 1)/|F|, we know that f = 0
+everywhere. We may write this in the above notation as:
+
+                                 f (r) = 0      =⇒       f = 0,
+                                                 p
+
+
+where p ≤ (n − 1)/|F|. Note that this is the special case of the check provided in (5), where
+the coefficients of the polynomial f are represented as a vector x ∈ Fn such that
+
+                              f (β) = x1 + x2 β + · · · + xn β n−1 ,
+
+for β ∈ F, and the matrix G ∈ Fm×n is the Reed–Solomon code matrix §1.3.2 where every
+field element in F is an evaluation point. This means that m = |F|, and, using the probability
+bound in (5) we find
+                                     d        |F| − n + 1   n−1
+                            p≤1−        =1−               =       ,
+                                     m            |F|        |F|
+
+                                               15
+where the first equality uses the distance of a Reed–Solomon code d = m − n + 1. This
+matches the bound of the original polynomial zero check (cf., [Tha22, §2.1]) exactly, as
+expected.
+
+3.1.2   Matrix zero check
+We may check that a matrix X ∈ Fk×n is zero by reducing the claim to checking that a
+single k-vector is zero.
+
+Check. Let X be an k × n matrix, with columns x1 , . . . , xk . We may then check that X
+is zero by noting that
+
+                         Gr1 x1 + · · · + Grn xn = 0     =⇒       X = 0,                  (7)
+                                                           p
+
+
+where the randomness is again over r, uniformly sampled from {1, . . . , m}, and we have that
+p = 1 − d/m. We may view the check (7) as uniformly randomly drawing a row of G, say
+g̃rT , using this row to take a linear combination of the columns of X, and checking that the
+result is zero; we may write this as,
+
+                                  X g̃r = 0     =⇒       X = 0,                           (8)
+                                                 p
+
+where, again, g̃r is a uniformly randomly selected row of G, viewed as a column vector, and
+p ≤ 1 − d/m.
+
+Proof. The proof follows by reducing this case to the previously presented zero check. Let
+x̃T1 , . . . , x̃Tk be the k rows of the matrix X:
+                                                     
+                                                     x̃T1
+                                                     .. 
+                                                X =  . .
+                                                     x̃Tk
+
+Now, let’s say that for uniformly randomly chosen r from 1, . . . , m, we have that the left-
+hand-side of the claim (7) is true,
+
+                                  Gr1 x1 + · · · + Grn xn = 0,                            (9)
+
+then, this is the same as saying that
+
+                                (Gx̃1 )r = 0, . . . , (Gx̃k )r = 0.
+
+(All we have done is reinterpret the sum (9) in terms of the rows of X, as opposed to the
+columns.) From before, we know that each of these has
+
+                                (Gx̃j )r = 0     =⇒       x̃j = 0,
+                                                     p
+
+
+                                                16
+where p ≤ 1 − d/m, for j = 1, . . . , k. But then, if every row of X is zero, x̃j = 0, this implies
+X = 0, which gives the result that
+
+                          Gr1 x1 + · · · + Grn xn = 0     =⇒    X = 0,
+                                                           p
+
+with the same p as above, p ≤ 1 − d/m.
+
+Example. This reduction is very similar to a number of ‘common’ checks: for example,
+to check that a list of vectors is zero, many protocols [BCMS20, KST22] will take a uni-
+formly random linear combination of these vectors and check that the result of this linear
+combination is zero. We note that this is exactly the special case of the check (7) when the
+matrix G is a Hadamard code matrix (see §1.3.3), in which case randomly drawing a row
+of G corresponds exactly to randomly drawing a uniform vector in Fn and so the check (7)
+corresponds to taking a uniformly random linear combination of the columns of X. In this
+case, we recover the ‘standard’ error bound:
+                                       d     |F|n − |F|n−1    1
+                            p≤1−         =1−         n
+                                                           =     ,
+                                       m          |F|        |F|
+where we have used the fact that the Hadamard code of message length n with field F has
+block size m = |F|n and distance d = |F|n − |F|n−1 , as shown in §1.3.3.
+
+3.1.3   Reduced matrix zero check
+The previous section §3.1.2 showed that we can reduce checking that a matrix is zero to
+checking that a single vector is zero. We also have, from §3.1.1, a way to reduce checking
+that a vector is zero to checking that a single field element is zero. The natural next step is to
+join the two checks together and therefore reduce checking that a matrix is zero to checking
+that a single field element is zero, with some additional error. Recalling the previous set up,
+we assume that we are interested in checking that some matrix X ∈ Fk×n is zero.
+                                                                          ′
+Check. For this check, we introduce a second code matrix G′ ∈ Fm ×k (which will serve as
+our second check’s code matrix) with distance d′ ≥ 0. The check can then be written:
+                               k
+                                        !!
+                              X
+                         G′      Gri xi      =0     =⇒′    X = 0,
+                                                          p+p
+                                 i=1           r′
+
+where xi denotes the ith column of X, while r is uniformly randomly drawn from 1, . . . , m
+and r′ is uniformly randomly drawn from 1, . . . , m′ . Here, p ≤ 1 − d/m and p′ ≤ 1 − d′ /m′
+Another way of writing this check is, letting g̃rT denote the rth row of G and g̃r′T′ denote the
+r′ th row of G′ ,
+                              g̃r′T′ X g̃r = 0   =⇒′    X = 0.                              (10)
+                                                    p+p
+
+We will use this more compact statement to prove the claim.
+
+                                                17
+Proof. The check is essentially also the proof of its correctness, using the notation and
+implications of §1.4, along with the proofs presented previously. Starting with the left hand
+side of (10)
+                              g̃r′T′ (X g̃r ) = 0 =⇒
+                                                   ′
+                                                      X g̃r = 0,
+                                                     p
+
+using the basic zero check (6), where p′ ≤ 1 − d′ /m′ and r′ uniformly randomly selected from
+1, . . . , m′ . Note that this statement is true for any r. Now, from the matrix check (8), we
+know that
+                                     X g̃r = 0    =⇒     X = 0,
+                                                 p
+
+where r is uniformly randomly selected from 1, . . . , m. Using the chained implications of §1.4,
+we therefore have that
+                              g̃r′T′ (X g̃r ) = 0 =⇒′     X = 0.
+                                                     p+p
+
+where r and r′ are uniformly and independently chosen from 1, . . . , m and 1, . . . , m′ , respec-
+tively, while p and p′ are as defined above, which is what we wished to prove.
+
+Discussion. We may view the check above as a type of ‘generalized Schwartz–Zippel’
+lemma [Tha22, §3.4], for arbitrary linear codes. Indeed, when the matrices G and G′ are
+Reed–Solomon code matrices and every field element is an evaluation point, we may interpret
+the check as exactly evaluating a bivariate polynomial, with coefficients X, at two uniformly
+randomly chosen points in F. In this case, m = m′ = |F|, and, since the matrix X ∈ Fk×n ,
+then this means that n − 1 is the max degree of the first variable and k − 1 is the max degree
+of the second. The bound here then says that, if the polynomial is nonzero (i.e., if X ̸= 0)
+then the probability that the polynomial, evaluated at a uniformly randomly chosen point
+in F2 , evaluates to zero is no more than
+
+                                                d′
+                                                
+                          ′         d                   (n − 1) + (k − 1)
+                     p+p ≤ 1−           + 1− ′ =                          ,
+                                   m            m               |F|
+
+exactly matching the bound of Schwartz–Zippel. Here, we have used the fact that d =
+m − n + 1 for Reed–Solomon codes (and similarly for d′ ). Surprisingly, it is not hard to show
+that this bound is loose (and therefore Schwartz–Zippel is, as well) except when the codes
+are trivial, and it is possible to do better by using the fact that the codes are linear. In this
+case, the bound can be improved by an additive factor of around (1 − d/m)(1 − d′ /m′ ) which
+is very small when d/m and d′ /m′ are very close to 1. (See appendix B.3.)
+
+Generalization. A natural question is, of course, can we generalize this procedure from
+vectors and matrices to some sort of higher-order mathematical structure? A natural idea
+would be to introduce tensors and so on, but there is a slightly simpler approach which we
+can explore via the Kronecker product. (See appendix B.1 for a definition.) In particular,
+we may identify the k × n matrix X with a (long) vector x ∈ Fkn by stacking the columns
+
+
+
+                                                18
+of X. The procedure above, performed over X, is equivalent to running the following check
+over the vector x,
+                          ((G′ ⊗ G)x)r′′ = 0   =⇒      x = 0,
+                                                           p
+         ′
+where G ⊗ G is the Kronecker product of G and G′ , and r′′ is uniformly randomly chosen
+from 1, . . . , mm′ , while p ≤ 1 − dd′ /mm′ . Indeed, this ‘equivalence’ gives us a tighter bound,
+which we show in appendix B.2, than the one derived above. Of course, given any higher
+order tensor of s dimensions,      say, (nj ) for j = 1, . . . , s, we may always ‘stack’ the tensor into
+a vector x of size j nj and apply a similar procedure, given codes Gj of dimension Fmj ×nj
+                      Q
+for each j = 1, . . . , s. This leads to a ‘general check’
+
+                            ((G1 ⊗ G2 ⊗ · · · ⊗ Gs )x)r = 0 =⇒ x = 0,
+                                                                   p
+                                               Q
+where r is uniformly sampled from 1, . . . ,       j mj , while
+
+                                                     s
+                                                     Y dj
+                                           p≤1−                .
+                                                     j=1
+                                                         mj
+
+If the matrices Gj are Vandemonde matrices, where every element in the field F is an
+evaluation point, then Schwartz–Zippel would imply that
+                                s          Ps
+                                        dj        j=1 (nj − 1)
+                               X
+                           p≤       1−        =                .
+                               j=1
+                                        mj           |F|
+
+Note that nj − 1 denotes the degree of the jth variable, so the sum can be recognized as the
+total degree of the s-variate polynomial. On the other hand, this bound would imply,
+                             Qs                         s 
+                               j=1 (|F| − nj + 1)
+                                                                        
+                                                      Y          nj − 1
+                    p≤1−                          =1−       1−            .
+                                      |F|s            j=1
+                                                                  |F|
+
+These two values are, of course, very close if nj ≪ |F|, but the latter is always a better
+bound unless nj = 1 for all but one index j.
+
+3.1.4    Vector subspace check
+Finally, we can construct the most general form of the above checks by strengthening the
+procedures slightly. We may verify that the columns of a matrix X ∈ Fk×n all belong to
+some vector subspace V ⊆ Fk by verifying that only one vector belongs in such a subspace.
+
+Check. Using the same set up as the matrix zero check §3.1.2, let xi ∈ Fk denote the ith
+column of the matrix X. The subspace check may be written as follows:
+
+                 Gr1 x1 + · · · + Grn xn ∈ V       =⇒      xi ∈ V for i = 1, . . . , n,             (11)
+                                                    p
+
+
+                                                   19
+where r is chosen uniformly at random from 1, . . . , m, and p ≤ 1 − d/m. In a similar way to
+the previous, we may interpret this check as picking a random row of G, say g̃rT , uniformly
+over all rows, and then using this row as the coefficients of a linear combination of the
+columns of X. We may equivalently write this statement as
+
+                                    X g̃r ∈ V       =⇒        X ∈ Vn ,                            (12)
+                                                    p
+
+where Vn is the set of k × n matrices whose columns lie in the vector space V .
+
+Proof. The proof follows nearly immediately from the original matrix zero check. Since V
+is a vector space, we know there exists a parity check matrix C ∈ Fs×n such that y ∈ V if,
+and only if, Cy = 0, from (2). Given this, consider the left hand side of (11). If this is true,
+then
+              Gr1 x1 + · · · + Grn xn ∈ V implies C(Gr1 x1 + · · · + Grn xn ) = 0.
+We may rewrite the right hand side of this expression to:
+
+                                 Gr1 (Cx1 ) + · · · + Grn (Cxn ) = 0,
+
+for any r. But, note that, if r is chosen uniformly at random from 1, . . . , m, then, from the
+matrix zero check §3.1.2, we know
+
+             Gr1 (Cx1 ) + · · · + Grn (Cxn ) = 0         =⇒      Cxi = 0, for i = 1, . . . , n,
+                                                         p
+
+where p ≤ 1 − d/m. By definition of the parity check matrix C, the right hand side of this
+expression can be written
+                               Cxi = 0 implies xi ∈ V,
+for each i = 1, . . . , n. Putting it all together gives the final result:
+
+                 Gr1 x1 + · · · + Grn xn ∈ V        =⇒        xi ∈ V for i = 1, . . . , n.
+                                                    p
+
+
+Discussion and extensions. We may view this check as a generalization of the matrix
+zero check, which is the special case of this check when the subspace V = {0} (and therefore
+one possible parity check matrix for this subspace would be C = I). We may also ask if it is
+possible to extend the above check in a similar way to the reduced matrix zero check §3.1.3.
+Indeed, using the check (12) and the definition of the parity check matrix C, we can write
+the left hand side as
+                           X g̃r ∈ V if, and only if, CX g̃r = 0,
+where g̃r is the rth row of G, viewed as a column vector. Given a second code matrix
+         ′
+G′ ∈ Fm ×s with distance d′ , we can reduce checking the right hand side of this statement,
+whether CXgr = 0, to a ‘simpler’ check over a single field element, since:
+
+                                g̃r′T′ CX g̃r = 0   =⇒
+                                                     ′
+                                                               CXgr = 0,
+                                                     p
+
+
+                                                    20
+where p′ ≤ 1 − d′ /m′ and g̃rT′ is a uniformly randomly sampled row of G′ . (This follows from
+the zero check (6), using the code generated by G′ .) The remainder of the check proceeds
+in the same way as (11) and has total error no more than p + p′ . If it is easy to efficiently
+compute the matrix vector product C T g̃r′ ′ (it need not be, as this product may be large),
+then this check may be achieved with an inner product commitment.
+
+3.2     Sparse checks
+In this section, we present what we call the sparse checks. In comparison to the previous
+section §3.1, which mostly dealt with whether a vector is, say, all zero, or included in some
+vector space, this section deals with notions related to the sparsity of a vector or the distance
+from a vector to a vector space.
+    As in the previous section, we assume that G ∈ Fm×n is a matrix generating a code with
+block size m, for messages of size n. We let d ≥ 0 be the distance of this code, as defined
+previously. As before, this definition will be used for the remainder of the section.
+
+3.2.1   Sparsity check
+The first useful tool is the fact that we can check whether a given vector x ∈ Fk is sparse,
+that is, if most of its entries are equal to zero.
+
+Check and proof. The simplest idea is to check that a randomly chosen entry of x ∈ Fk
+is zero: if this is true, then, with some probability, the vector x must be somewhat sparse.
+Writing this out, we have,
+                                   xr = 0   =⇒      ∥x∥0 ≤ q,
+                                              p
+
+with probability p ≤ 1 − (q + 1)/k, where r is uniformly randomly sampled from 1, . . . , k.
+To see this, note that if xr = 0 yet, ∥x∥0 > q, then x has at least q + 1 nonzero entries. The
+probability we land on one of these is at least (q + 1)/k so the probability we land on none
+is no more than 1 − (q + 1)/k, as given above.
+    If the vector x is very sparse, then q is much smaller than k and this check is unlikely to
+succeed with high probability. Of course, we can simply repeat the check over a number of
+uniformly randomly-chosen indices S ⊆ {1, . . . , k} of some fixed size, then
+
+                                  xS = 0     =⇒     ∥x∥0 ≤ q,
+                                              p
+
+
+with p ≤ (1 − (q + 1)/k)|S| , by a nearly identical argument. (The analysis can be made
+slightly tighter by noting that S does not have repeated indices, but we usually assume that
+q ≪ k.)
+
+Discussion. This is the same argument as the one presented in §2.1.1 except with the
+notation of §1.4. The main idea here is that we may take a check that succeeds with
+
+
+                                               21
+relatively small probability and repeat it. Assuming that the samples are uniformly random
+and independent, this, of course, decreases the probability that the check fails.
+    Additionally, and for fun, we may combine this check with the previous zero check
+of §3.1.1. If |S| = n, then, using the definition of G at the beginning of this subsection,
+                         (GxS )r = 0          =⇒
+                                               ′
+                                                         xS = 0          =⇒          ∥x∥0 ≤ q,
+                                              p                              p
+
+with p′ ≤ 1 − d/m over a uniformly chosen r from 1, . . . , m, and S a uniform random subset
+of {1, . . . , k} and p is the same as above. This means that
+                                      (GxS )r = 0           =⇒′         ∥x∥0 ≤ q,
+                                                            p+p
+
+where r is chosen from 1, . . . , m and S ⊆ {1, . . . n} are both uniformly randomly chosen.
+
+3.2.2   Matrix sparsity check
+Another simple idea is to note that we can reduce the sparsity check for a list of vectors into
+a single sparsity check for a single vector. In particular, given a matrix X ∈ Fk×n , whose
+columns are vectors xi ∈ Fk for i = 1, . . . , n, the following check holds:
+                  k
+                  X
+                         Gri xi       ≤q      =⇒            X has at most q nonzero rows,
+                                                  p
+                   i=1            0
+
+where p = (q + 1)(1 − d/m) . Note that this implies that each vector has ∥xi ∥0 ≤ q for
+i = 1, . . . , k, but is, in general, a stronger statement. For example, this implies something
+roughly like: either all vectors are extremely sparse, or their nonzero entries are aligned.
+
+Proof. We will give a simple bound on the probability that the inequality fails. In partic-
+ular, given some X with at least q + 1 nonzero rows, we need to show that the probability
+that
+                                      Xk
+                                         Gri xi ≤ q                                   (13)
+                                                  i=1             0
+is small, for a uniformly randomly chosen r (from 1, . . . , m). To see this, we will reduce the
+matrix sparsity check to the zero check provided in §3.1.1.
+    First, consider the expression in (13). We may remove rows of X to get some shorter
+matrix X̂. Note that
+                                 Xk             Xk
+                                     Gri x̂i ≤      Gri xi ,
+                                        i=1             0         i=1            0
+
+for any choice of r, where x̂i denotes the ith column of the shorter matrix X̂. So, the
+probability that the event (13) happens is at most the probability that the event
+                                                  k
+                                                  X
+                                                        Gri x̂i       ≤ q,
+                                                  i=1             0
+
+                                                            22
+happens over a uniform choice of r from 1, . . . , m.
+    Now, let X have more than q nonzero rows. We may pick any q + 1 nonzero rows of X
+to get the matrix X̂ ∈ F(q+1)×k . Since every row of X̂ is nonzero, if
+                                          k
+                                          X
+                                                Gri x̂i       ≤ q,
+                                          i=1             0
+
+
+then there is at least one row of X̂, say x̃Tj , which satisfies
+
+                                           (Gx̃j )r = 0.
+
+Of course, this happens with probability at most 1 − d/m by the zero check in (5). Finally,
+since there are q + 1 possible choices of rows, we have that
+                                                       
+                                                      d
+                                    p ≤ (q + 1) 1 −       ,
+                                                     m
+
+by the union bound, as required.
+
+Discussion. While likely not very useful by itself, we can think of this particular check as
+a type of ‘lemma’ which we can strengthen slightly to be part of the following check: the
+subspace distance check.
+
+3.2.3   Subspace distance check
+An important consequence of the sparsity check above is the ability to check that a matrix
+X ∈ Fk×n has columns close to a vector subspace V ⊆ Fk , by reducing this to checking only
+that a single vector is close to the subspace V .
+
+Definitions. For this check, we have to introduce a few more definitions, similar in spirit
+to the previous ones. First, we will define the distance of a subspace V as
+
+                                        d′ = min ∥x∥0 .
+                                                x∈V \{0}
+
+
+(Note that this is the definition of distance of a code G whenever V = R(G) and G is
+injective.) Now, we define what it means for a matrix X to be q-close to a vector subspace
+V . Let Y be any matrix whose columns lie in V , then we say X is q-close to V if there
+exists some matrix Y , meeting the above conditions, such that X − Y has at most q nonzero
+rows. Conversely, we say X is q-far from V if, for every matrix Y with columns in V , the
+difference X − Y has at least q nonzero rows.
+
+
+
+
+                                                   23
+Check. We can now state the subspace distance check : let q < d′ /2 then
+                       n
+                       X
+                             Gri xi − V       ≤q   =⇒       X is q-close to V ,              (14)
+                                                        p
+                       i=1                0
+
+where p ≤ (q + 1)(1 − d/m). We leave the general case of this check as an open conjecture,
+proving only the special case of n = 2 and q < d′ /4 below, which we use later in this paper.
+    We note that this conjecture, in particular, generalizes some of the work from [AHIV17],
+which shows the special case where G is the Hadamard code (see §1.3.3) and q < d′ /3, with
+the same probability of error. (This work was extended for a different code G, with slightly
+higher error probability, in [DP23].) In the special case that V is the subspace generated by
+Reed–Solomon codes, the bound is slightly improved to q < d′ /2, but the probability p is
+slightly different [BCI+ 23]. We show the ‘easy’ part of the general proof in appendix C.1,
+but leave the second part of this proof as an open conjecture we call the distance-preserving
+encoding conjecture. See the appendix C.2 for more details.
+
+Proof outline. As mentioned previously, we provide a proof of the special case where
+n = 2 and q < d′ /4, which we use in the next section to generalize the FRI protocol and
+provide a simple proof of its security. Let
+
+                             R = {r ∈ {1, . . . , m} | ∥Xgr − V ∥0 ≤ q}.
+
+In other words, R is the set of indices at which the left hand side of the check (14) passes, and
+|R|/m is the probability that the check indeed passes (independent of whether X is q-close
+to V ). We will break the proof up into two cases. First, we will show that, if |R| > m − d
+(equivalently, if the probability that the left hand side of the check is true is greater than
+1 − d/m), then for all z ∈ F2 we have
+
+                                     ∥Xz − V ∥0 ≤ 2q < d′ /2.
+
+That is, there is no linear combination of columns of X which can certify that the matrix X is
+more than d′ /2-far from V . (The remaining case, if |R| ≤ m − d, would mean we are done by
+definition.) We will then show that, if this is true, then the check given in (14) is correct with
+high probability. It is interesting that, at a very high level, the structure of the proof given
+here is similar to that of [AHIV17], but the mechanics of the actual proof are surprisingly
+different. We share more notes on the similarities (and differences) in appendix C.2.
+
+Proof, part one. Since, by assumption, |R| > m − d, this means that at least two rows
+with indices r, r′ ∈ R, are linearly independent. To see this, assume the contrary. Let g̃r be
+a nonzero row of G for r ∈ R, and, by assumption, for each other row, g̃r′ with r′ ∈ R, there
+exists some α, β, not both zero, such that αg̃r + βg̃r′ = 0. Let x ∈ F2 be a nonzero vector
+satisfying g̃rT x = 0, then we also have that g̃rT′ x = 0. This would, in turn, imply that Gx is
+
+
+                                                   24
+zero at more than m − d indices, so the distance of G must be smaller than d, contradicting
+the assumption. Now, let g̃r and g̃r′ be two linearly independent rows, with r, r′ ∈ R, then
+
+                 ∥X(αg̃r + βg̃r′ ) − V ∥0 ≤ ∥X g̃r − V ∥0 + ∥X g̃r′ − V ∥0 ≤ 2q.
+
+But since g̃r and g̃r′ are linearly independent, then every vector z ∈ F2 can be written as a
+linear combination of these two vectors, z = αgr + βgr′ . This means that every vector z ∈ F2
+has
+                                        ∥Xz − V ∥0 ≤ 2q,
+whenever |R| > m − d.
+
+Proof, part two. Now, if |R| > m − d, we will show that the current check reduces to the
+matrix sparsity check, which would show that p ≤ |R|/m ≤ (q + 1)(1 − d/m) if X is more
+than q-far from V , as required. From the assumption that |R| > m − d and part one of the
+proof, we know that for any z ∈ F2 , we have
+
+                                         ∥Xz − V ∥0 ≤ 2q.                                        (15)
+
+Since we know that q < d′ /4, then we may write the columns of X, x1 and x2 , uniquely as
+
+                                            xi = yi + ξi ,
+
+where yi ∈ V and ∥ξi ∥0 ≤ 2q, using the fact any linear combination of the columns of X is
+a distance of at most 2q from V , see (15), and 2q < d′ /2, so we are in the unique decoding
+radius; i.e., there is only one possible yi ∈ V and ξi which satisfy this property. Of course,
+note that, since yi ∈ V , then any linear combination of these vectors is also in V . This
+means:
+              ∥Xz − V ∥0 = ∥z1 (y1 + ξ1 ) + z2 (y2 + ξ2 ) − V ∥0 = ∥z1 ξ1 + z2 ξ2 − V ∥.
+So it suffices to consider only the latter quantity.
+    As before, let R denote the set of indices 1, . . . , m over which the left hand side of the
+check (14) is true (independent of the right hand side). Using the above, this is the same as
+defining R as
+                      R = {r ∈ {1, . . . , m} | ∥Gr1 ξ1 + Gr2 ξ2 − V ∥0 ≤ q}.
+For each r, we have a corresponding unique ȳr ∈ V such that
+
+                                    ∥Gr1 ξ1 + Gr2 ξ2 − ȳr ∥0 ≤ q,                               (16)
+
+as q < d′ /4. Now, consider any pair r, r′ ∈ R and note that, by definition
+
+               ∥Gr1 ξ1 + Gr2 ξ2 − ȳr ∥0 ≤ q     and ∥Gr′ 1 ξ1 + Gr′ 2 ξ2 − ȳr′ ∥0 ≤ q.
+
+Since scaling any vector by any constant does not increase the distance, we scale the first
+term by Gr′ 1 and the second by Gr1 respectively. This gives:
+
+         ∥Gr′ 1 (Gr1 ξ1 + Gr2 ξ2 − ȳr )∥0 ≤ q   and ∥Gr1 (Gr′ 1 ξ1 + Gr′ 2 ξ2 − ȳr′ )∥0 ≤ q.
+
+                                                   25
+Adding both of these terms and using the triangle inequality gives:
+
+                      ∥(Gr′ 1 Gr2 − Gr1 Gr′ 2 )ξ2 − (Gr′ 1 ȳr − Gr1 ȳr′ )∥0 ≤ 2q.
+
+Applying the reverse triangle inequality to the terms above gives the following claim about
+ȳr and ȳr′ ,
+
+               ∥Gr′ 1 ȳr − Gr1 ȳr′ ∥0 ≤ 2q + ∥(Gr′ 1 Gr2 − Gr1 Gr′ 2 )ξ2 ∥0 ≤ 4q < d′ .
+
+So, since V has distance d′ we must have that the two vectors are equal; i.e.,
+
+                                          Gr′ 1 ȳr = Gr1 ȳr′ .
+
+Repeating this argument, but multiplying the inequalities with Gr2 and Gr′ 2 instead, gives
+
+                                          Gr′ 2 ȳr = Gr2 ȳr′ .
+
+so, in particular, we may take a linear combination of these two equalities; i.e., for any s ∈ F
+we have
+                             (Gr′ 1 + sGr′ 2 )ȳr = (Gr1 + sGr2 )ȳr′ .                      (17)
+Now, either for all r ∈ R we have that ȳr = 0 or there is at least one r̂ ∈ R such that ȳr̂ ̸= 0.
+In the former case, this is the same as saying, from (16),
+
+                                       ∥Gr1 ξ1 + Gr2 ξ2 ∥0 ≤ q,
+
+for all r ∈ R. From the matrix sparsity check presented in §3.2.2, if this is true, then, since
+ξi = xi − yi ,
+
+            ∥Gr1 ξ1 + Gr2 ξ2 ∥0 ≤ q      =⇒       X − Y has at most q nonzero rows,
+                                           p
+
+
+where Y ∈ Fk×2 is the matrix with columns y1 and y2 . Equivalently, if X − Y has more than
+q nonzero rows, then |R|/m ≤ (q + 1)(1 − d/m).
+   We will show that the remaining case, where some ȳr̂ ̸= 0, is impossible. Let r̂ ∈ R be
+an index such that ȳr̂ ̸= 0, and let r ∈ R be any other index. Set s ∈ F in (17) such that
+
+                                          Gr̂1 + sGr̂2 = 0.
+
+Using the equality (17), every r ∈ R must satisfy
+
+                             (Gr1 + sGr2 )ȳr̂ = (Gr̂1 + sGr̂2 )ȳr = 0,
+
+but, since ȳr̂ ̸= 0, then Gr1 + sGr2 = 0 for every r ∈ R. But, from the beginning of this
+section, we have assumed that |R| > m − d, so the distance of G is at most m − |R| < d,
+which contradicts our assumption on the distance of G.
+
+
+                                                   26
+4     A distance check protocol
+We will use some of the checks presented above to present a protocol that successively re-
+duces checking that some (potentially very large) vector is close to a subspace, to checking
+that an appropriately-chosen smaller vector is close to a vector subspace. This construction
+is essentially a linear-algebraic generalization of the Fast Reed–Solomon Interactive Oracle
+Proof of Proximity [BBHR18] (also called FRI) to vector spaces with certain recursive sub-
+structure. Along the way, we will give basic bounds on its probability of error and give a way
+of practically implementing the protocol, along with some basic query complexity bounds.
+
+4.1    A basic reduction
+In the simple protocol, we would like to reduce checking that a particular vector y is close
+to some vector subspace V ⊆ Fn to the fact that it is close to a (smaller) vector subspace
+V ′ ⊆ Fk . We will start first with the ‘exact inclusion’ case (i.e., checking that y ∈ V ), which
+is easier to write, and then develop the ‘distance check’ (i.e., whether ∥y − V ∥0 is not too
+large) as a generalization.
+
+Set up. We will assume that the vector space V has the following recursive substructure:
+
+                                V = T1 V ′ ⊕ T2 V ′ ⊕ · · · ⊕ Tℓ V ′ ,
+
+where Ti ∈ Fn×k are some given matrices. Here, ⊕ denotes the fact that V is a direct sum
+of the indicated subspaces (as defined in §1.1), and we have defined, for i = 1, . . . , ℓ,
+
+                                     Ti V ′ = {Ti x | x ∈ V ′ },
+
+which will be very convenient notation in what follows. This implies that any vector y ∈ V
+can be written uniquely as
+                                           Xℓ
+                                       y=     Ti xi ,
+                                                i=1
+              ′
+where xi ∈ V . (This is, roughly speaking, saying that V has some sort of recursive substruc-
+ture; examples include the fact that F2k ∼ Fk × Fk among others.) Similar to the previous
+section, we will assume that we are given some matrix G ∈ Fm×n that generates a code with
+                                  ′
+distance d, and a matrix G′ ∈ Fm ×k that generates a code with distance d′ .
+
+Aside. While this substructure may seem like a very strong requirement, we note that it
+always exists for any vector space V . If, for example, V is of even dimension, say 2k for
+some k, then there exists a matrix A ∈ Fn×2k such that R(A) = V . In this case, we define
+the matrices T1 , T2 ∈ Fn×k such that
+                                                  
+                                      A = T1 T2 ,
+
+
+                                                 27
+and V ′ = Fk . (That is, the matrix T1 contains the first k columns of A, while the matrix T2
+contains the last k columns.) This would then show that
+                                               V = T1 V ′ ⊕ T2 V ′ .
+Note that we do not require the matrices Ti to be injective, so a similar argument would work
+for cases where the dimension of V is odd. Of course, in many cases, much more structure
+can be exploited, but this varies on a case-by-case basis.
+
+4.1.1   Exact inclusion reduction
+Indeed, we may reduce the claim of checking that y ∈ V to the (hopefully easier) single
+claim of checking that a single element is in the smaller vector space V ′ . To do this, note
+that y ∈ V if, and only if, there exist xi ∈ V ′ such that
+                                                           ℓ
+                                                           X
+                                                   y=            Ti xi .                        (18)
+                                                           i=1
+
+In other words, to verify that y ∈ V , it suffices to be given xi ∈ Fk , verify that xi ∈ V ′
+for each i = 1, . . . , ℓ, and verify that (18) holds. Consider the claims in reverse order.
+Claim (18) can be verified by using a zero check (§3.1.1); i.e., letting g̃rT denote a uniformly
+chosen random row of G,
+                                        ℓ
+                                        X                                       ℓ
+                                                                                X
+                             g̃rT y =         g̃rT Ti xi     =⇒            y=         Ti xi ,
+                                                                 p
+                                        i=1                                     i=1
+
+where p ≤ 1 − d/m. Similarly, we may reduce the first claim of verifying that xi ∈ V ′ for
+each i to verifying a single inclusion via the vector subspace check of §3.1.4:
+                     ℓ
+                     X
+                            G′r′ i xi ∈ V ′       =⇒
+                                                   ′
+                                                             xi ∈ V ′ , for i = 1, . . . , ℓ.
+                                                    p
+                      i=1
+
+Here, as shown in the check, p′ ≤ 1 − d′ /m′ and r′ is uniformly randomly chosen from
+1, . . . , m′ . Combining these two statements gives the final result.
+
+Discussion. In a sense, all we are doing is exploiting the structure we assumed about the
+space V to reduce checking whether y ∈ V , to (a) checking whether y is equal to some linear
+combination of vectors, and (b) checking whether these individual vectors are each in the
+smaller subspace V ′ . The former we may perform via a zero check, while the latter we may
+perform via a vector subspace check. If both of these checks are cheaper to perform than
+the original, then, in a sense, we have reduced the problem to a simpler one.
+    On the other hand, unless we have some interesting cryptographic primitives (such as
+homomorphic inner product commitments [BCC+ 16], e.g.), it is not immediately clear how
+to make this protocol practically useful. To this end, we generalize this basic building block
+to the distance check, which will, in turn, yield a practical protocol.
+
+                                                           28
+4.1.2   Distance reduction
+In this check, we will attempt to show that the provided vector y is not too far away from
+V ⊆ Fn . Because of this, the exact choice of basis Ti ∈ Fn×k matters.
+
+Basis alignment. To this end, we will define a notion of alignment for the basis T1 , . . . , Tℓ ,
+as follows. We say the Ti are basis aligned if, given any X ∈ Fk×ℓ , a matrix with columns
+xi , that is q-close to V , we have that
+
+                                 ∥T1 x1 + · · · + Tℓ xℓ − V ∥0 ≤ q ′ ,
+
+for some fixed q ′ . (We must specify the q and q ′ in the definition, of course.) The inter-
+pretation of this statement is that, if the at-most-q ‘errors’ in the columns of X are aligned
+(where ‘errors’ are the number of indices where at least one column of X differs from any
+closest vector in V ′ ), then the total number of errors over the larger vector space must be
+similarly small; i.e., at most q ′ .
+     While this seems like a strong restriction, we note that just the sparsity of the matrices
+Ti would imply this claim. For example, if the matrices Ti are diagonal, we would have that
+q ′ ≤ q, or, if each Ti is nonzero in at most two rows, and the Ti all have the same sparsity
+pattern, we would have that q ′ ≤ 2q, and so on. We use this fact in the protocol presented
+below and provide a simple proof along with some basic conditions in appendix D.
+
+Reduction. Given a set of matrices Ti which are basis aligned in the sense above (and
+using the same notation q and q ′ as defined above), then note that, if X is q-close to V , and
+
+                                ∥y − (T1 x1 + · · · + Tℓ xℓ )∥0 ≤ q ′′ ,                     (19)
+
+then
+                                        ∥y − V ∥0 ≤ q ′ + q ′′ ,
+via the triangle inequality. To test the first claim (that X is q-close to V ), we may apply the
+subspace distance check of §3.2.3, while the second (19), can be tested via the sparsity check
+of §3.2.1; both combined imply that the original vector y is indeed close to V . To write this
+out explicitly, first set
+                                     ỹ = T1 x1 + · · · + Tℓ xℓ ,                           (20)
+for notational convenience. Then, assuming the conjecture of §3.2.3 holds for general codes
+G ∈ Fm×ℓ with distance d, we have
+
+                ∥Gr1 x1 + · · · + Grℓ xℓ − V ′ ∥0 ≤ q      =⇒       X is q-close to V ′ ,
+                                                             p
+
+
+where p ≤ (q + 1)(1 − d/m) and r is uniformly sampled from 1, . . . , m. We also have that
+
+                                yS = ỹS     =⇒
+                                              ′
+                                                        ∥y − ỹ∥0 ≤ q ′′ ,
+                                               p
+
+
+
+                                                   29
+where S ⊆ {1, . . . , n} is uniformly randomly sampled, while p′ ≤ (1 − (q ′′ + 1)/n)|S| . Com-
+bining these two statements, we have that
+
+       yS = ỹS and ∥Gr1 x1 + · · · + Grℓ xℓ − V ′ ∥0 ≤ q            =⇒′   ∥y − V ∥0 ≤ q ′ + q ′′ .
+                                                                     p+p
+
+
+Here, as before, we have that S ⊆ {1, . . . , n} is uniformly randomly sampled, r is uniformly
+sampled from 1, . . . , m, and ỹ is as defined in (20), while p ≤ (q + 1)(1 − d/m) and p′ ≤
+(1 − (q ′′ + 1)/n)|S| . Note, again, that this is just the natural generalization of the reduction
+presented previously in §4.1.1, except where we care about proximity rather than exact
+inclusion into the vector space.
+
+Discussion. At a high level, we have just reduced checking that a potentially very large
+vector y is close to a vector space to checking that (a) two vectors are close to each other
+(via random sampling) and (b) that a linear combination of much smaller vectors is close
+to some subspace V ′ . If this subspace also has a similar recursive substructure; i.e., if there
+exist matrices Ti′ and a subspace V ′′ such that
+
+                                   V ′ = T1′ V ′′ ⊕ · · · ⊕ Ts′ V ′′ ,
+
+then, instead of directly checking that
+
+                               ∥Gr1 x1 + · · · + Grℓ xℓ − V ′ ∥0 ≤ q,
+
+we may set y ′ = Gr1 x1 + · · · + Grℓ xℓ and repeat the above procedure again, except over y ′
+and V ′ , making the appropriate replacements.
+   Unfortunately, the general reduction presented prior to this discussion paragraph depends
+on the unsolved conjecture of §3.2.3 (though special cases have been solved). In what follows,
+we will use the special case where ℓ = 2, shown earlier, to construct a linear-algebraic
+generalization of the FRI protocol, along with its security proof.
+
+4.2    The FRI protocol
+In this section we will, using the statements above, present a small generalization of the FRI
+protocol along with a proof of its security.
+
+Set up. In FRI, we have the following construction: ℓ = 2 and the matrices T1 , T2 ∈ Fn×n
+are the identity (T1 = I) and diagonal, respectively. (We will define T2 in what follows.)
+    In this scenario, the vector space V is the set of evaluations of polynomials of degree
+≤ s at some fixed set of points {α1 , . . . , αn } ⊆ Fn . (This forms a vector space by the same
+reasoning as §1.1.) The ‘smaller’ vector space V ′ is the set of evaluations of polynomials
+of degree ≤ s with only even-degree terms, over the same set of fixed points. (This is a
+
+
+
+
+                                                  30
+vector space, as summing two polynomials with only even-degree terms results in another
+polynomial with terms of only even degree, as does scaling these polynomials.) Setting
+                                                       
+                                      α1 0 . . . 0
+                                      0 α2 . . . 0 
+                                T2 =  ..            ..  ,
+                                                       
+                                            .. . .
+                                     .      .     .  . 
+                                       0 0 . . . αn
+we may then write
+                                       V = T1 V ′ ⊕ T2 V ′ .
+This decomposition has the following interpretation: we may decompose the vector space of
+polynomials of degree ≤ s into two parts: the set of polynomials of degree ≤ s with only
+even-degree terms, and the set of polynomials of degree ≤ s with only odd-degree terms.
+(The latter, of course, is just the set of polynomials with only even-degree terms, multiplied
+pointwise by the polynomial f (β) = β.)
+
+Squared evaluations. It is worth noticing that, since β 2 = (−β)2 for any β ∈ F, in
+many cases, the set of squared evaluation points, {αi2 }, is much smaller than the set of all
+evaluation points {αi }. (If the {αi } form a subfield of F, it is about half, unless F is a binary
+field.) In fact, if the evaluation points are chosen such that αi+n/2 = −αi for i = 1, . . . , n/2,
+then the number of unique evaluation points is halved, and we may assume that V ′ ⊆ Fn/2 .
+In this case, we may write the decomposition with the following matrices:
+                                                          
+                                           I              D
+                                    T1 =      , T2 =           ,
+                                           I            −D
+
+where D = diag(α1 , . . . , αn/2 ) and T1 , T2 ∈ Fn×(n/2) , where V ′ is the set of all evaluations
+of polynomials (of degree ≤ s) at the points {αi2 } for i = 1, . . . , n/2. This gives yet another
+way of writing
+                                        V = T1 V ′ ⊕ T2 V ′ .
+Note that these matrices are aligned in that, letting the matrix [x1 x2 ] be q-close to V ′ , then
+                                   ∥T1 x1 + T2 x2 − V ∥0 ≤ 2q,
+so, in the notation above, we have q ′ = 2q.
+
+Reduction step. From here it is easy to (a) read off the algorithm for reducing the queries
+to a smaller subspace, given the prior discussion, and (b) to read off its probability of error.
+From the previous discussion in §4.1.2, we know
+      ∥Gr1 x1 + Gr2 x2 − V ′ ∥0 ≤ q and yS = (T1 x1 + T2 x2 )S      =⇒′     ∥y − V ∥0 ≤ 3q,
+                                                                    p+p
+
+over uniformly randomly chosen r = 1, . . . , m and S ⊆ {1, . . . , n}, where p ≤ (q+1)(1−d/m)
+and p′ ≤ (1 − (q + 1)/n)|S| , and we have used the fact that q ′ = 2q, so q + q ′ = 3q.
+
+                                                31
+Complete reduction. At a high level, we may view the above check as: we begin by
+wishing to check that some vector is q-close to a subspace (of whatever dimension) embedded
+in Fn . We then reduce this to checking that some other vector is in a subspace of Fn/2 , while
+incurring some additional error term p + p′ (as given above) by doing so. We may continue
+to perform this procedure, say, k times, until we are left with verifying that some vector,
+                   k
+embedded in Fn/2 , lies in a subspace. (We assume n is divisible by 2k in what follows.)
+If n/2k is small, then every subspace must be similarly ‘small’, and it suffices to simply
+directly verify that this last vector is part of the subspace directly. If so, this will imply that
+the original vector (embedded in the ‘large’ vector space Fn ) must be similarly close to the
+original vector space V with high probability, controlled by the above terms, which is what
+we desired to check in the first place.
+    Now, consider the first ‘step’ of the protocol. In order to have that y is 3q-close to V , we
+must have that
+                  ∥Gr1 x1 + Gr2 x2 − V ′ ∥0 ≤ q and ∥y − (T1 x1 + T2 x2 )∥ ≤ q,
+with high probability. If we then set
+                                        y ′ = Gr1 x1 + Gr2 x2 ,
+then, to guarantee that y ′ is q-close to V ′ = T1′ V ′′ ⊕ T2′ V ′′ (i.e., to guarantee the left hand
+side of the first step) we must have that
+               ∥Gr1 x′1 + Gr2 x′2 − V ′′ ∥0 ≤ q/3 and ∥y ′ − (T1′ x′1 + T2′ x′2 )∥ ≤ q/3,
+with high probability. Repeating this process, we see that at the kth round, we must have
+that both queries must ensure that the respective vectors are no more than q/3k -far from
+the vector space. By some basic accounting, using the implications of §1.4, it is not hard to
+show that the probability of error is at most
+                      k                         k              |S |
+                                                      q/3i + 1 i
+                                             X
+                     X     q              d
+                             +1      1−       +     1−                 ,
+                     i=1
+                          3i             m      i=1
+                                                          n/2i
+
+where |Si | is the size of the randomly drawn subset for round i. The first term in this sum
+is easily bounded from above since
+                                      k 
+                                      X   q         3
+                                               + 1  ≤ q + k.
+                                      i=1
+                                            3i       2
+
+The second term is slightly trickier, but, since log(1 − λ) ≤ −λ for 0 ≤ λ < 1, then for any
+nonnegative γ,
+                                    (1 − λ)γ ≤ exp(−γλ),
+which means that the right-hand-term, inside of the sum, is bounded above by
+                                    |S |              i        !
+                            q/3i + 1 i
+                       
+                                                     q 2
+                         1−               ≤ exp −            |Si | .
+                              n/2i                   n 3
+
+                                                  32
+Setting |Si | = η(3/2)i , for some η ≥ 0 to be established, simplifies the expression slightly to
+                               k              |S |
+                             X        q/3i + 1 i              q
+                                  1−        i
+                                                     ≤ k exp  −η     ,
+                              i=1
+                                        n/2                      n
+
+which means the probability of error is bounded above by
+                                          
+                            3              d           q
+                              q+k      1−      + k exp −η   .
+                            2              m              n
+
+Concrete instance. The parameters presented above are relatively abstract. If we set G
+to be the matrix whose rows are all of the pairs (1, α) for each α ∈ F (as in the original FRI
+protocol [BBHR18]) we know that 1 − d/m = 1/|F|, from §1.3.2. We may similarly choose
+q to be, say, q = n/8. If the field size is relatively large compared to n (we will say that
+n = 232 for this instance and the field size is, say |F| ≈ 2128 ) then, to have an error of around
+2−80 after k = 28 rounds, we must have
+                                             η
+                                      k exp −        ≤ 2−80 ,
+                                                 8
+which means that we may set η = 470. This gives a total error probability of slightly above
+2−80 .
+
+Query complexity. In this model, the number of queries that must be made to either the
+vector y or its constituents x1 or x2 at round i is given by |Si | = η(3/2)i . This means that
+the total number of queries is
+                                 k              k+1      !
+                                X                3
+                                    |Si | = 2η          −1 .
+                                i=1
+                                                 2
+
+With the provided parameters, the total number of queries is then ∼ 226 , which is much
+smaller than naı̈vely querying all n − q ≈ 232 possible entries to verify the claim. Indeed, it
+is not hard to show that, if n/2k remains constant, along with all of the other parameters,
+then, as n grows, this difference becomes arbitrarily large. (This is easy to see: the query
+complexity grows as (3/2)k log(k) whereas the message size grows as 2k , which marks an
+exponential(!) gap between the two as k, or, equivalently, n, becomes large. Some care has
+to be taken as n becomes roughly the size of the field, but we usually assume n ≪ |F|.)
+
+Optimizing constants. Note that, in the above construction, we did not make use of
+the freedom that many parameters, such as the distances between different elements, could
+be arbitrarily chosen. Indeed, we did not optimize for any constants at all, and, using
+the bounds presented here, the proof system would be unlikely to be useful for practical
+applications. We suspect that using the framework presented here, but with much more
+careful accounting, it is possible to achieve similar constants as those derived by directly
+analyzing the protocols [BBHR18].
+
+                                               33
+5    Conclusion
+In this paper, we have shown that a number of the basic tools used in succinct proof systems
+may be recast, almost entirely, in terms of linear algebra and error correcting codes. This
+continues a long line of tradition in the cryptography space which attempts to separate
+out and individually consider the components which make up a succinct proof system. For
+example, it was possible to mostly elide the use of cryptography by pushing most of the
+cryptographic complexity into the models of §2.1.2. Focusing on just the reductions used
+here then leads to a clean abstraction which may be considered in its own right. Indeed,
+an interesting consequence of this line of work is that it suggests natural generalizations of
+known statements, leading to, say, the conjecture provided in §3.2.3. In a certain sense,
+this work also suggests the following high level idea: one may, in many cases, replace a very
+specific notion of randomness (such as, say, random linear combinations) with the much more
+structured ‘randomness’ coming from rows of the generator matrix for an error correcting
+code of large distance. In many ways, the main point of this paper is to show that even
+this notion of randomness not only preserves most ‘natural’ properties of objects in vector
+spaces, but indeed serves as a way of verifying these properties.
+
+
+Acknowledgements
+The authors would like to thank Tarun Chitra and Kobi Gurkan for their comments and
+suggestions, many of which we have incorporated.
+
+
+References
+[AHIV17]    Scott Ames, Carmit Hazay, Yuval Ishai, and Muthuramakrishnan Venkitasub-
+            ramaniam. Ligero: Lightweight sublinear arguments without a trusted setup. In
+            Proceedings of the 2017 ACM SIGSAC Conference on Computer and Commu-
+            nications Security, pages 2087–2104, Dallas Texas USA, October 2017. ACM.
+
+[Axl14]     Sheldon Axler. Linear Algebra Done Right. Springer, New York, 2014.
+
+[BBB+ 18]   Benedikt Bünz, Jonathan Bootle, Dan Boneh, Andrew Poelstra, Pieter Wuille,
+            and Greg Maxwell. Bulletproofs: Short proofs for confidential transactions and
+            more. In 2018 IEEE Symposium on Security and Privacy (SP), pages 315–334,
+            2018.
+
+[BBHR18] Eli Ben-Sasson, Iddo Bentov, Yinon Horesh, and Michael Riabzev. Fast Reed-
+         Solomon Interactive Oracle Proofs of Proximity. pages 1–17, 2018.
+
+[BCC+ 16]   Jonathan Bootle, Andrea Cerulli, Pyrros Chaidos, Jens Groth, and Christophe
+            Petit. Efficient zero-knowledge arguments for arithmetic circuits in the discrete
+            log setting. In Marc Fischlin and Jean-Sébastien Coron, editors, Advances in
+
+                                             34
+            Cryptology – EUROCRYPT 2016, volume 9666, pages 327–357. Springer Berlin
+            Heidelberg, Berlin, Heidelberg, 2016.
+[BCCT13] Nir Bitansky, Ran Canetti, Alessandro Chiesa, and Elan Tromer. Recursive
+         Composition and Bootstrapping for SNARKs and Proof–Carrying Data. In
+         STOC’13: Proceedings of the Forty-Fifth Annual ACM Symposium on Theory
+         of Computing, June 2013.
+[BCI+ 23]   Eli Ben-Sasson, Dan Carmon, Yuval Ishai, Swastik Kopparty, and Shubhangi
+            Saraf. Proximity Gaps for Reed–Solomon Codes. Journal of the ACM, page
+            3614423, August 2023.
+[BCMS20] Benedikt Bünz, Alessandro Chiesa, Pratyush Mishra, and Nicholas Spooner.
+         Recursive Proof Composition from Accumulation Schemes. In Rafael Pass and
+         Krzysztof Pietrzak, editors, Theory of Cryptography, volume 12551, pages 1–18.
+         Springer International Publishing, Cham, 2020.
+[BCS21]     Jonathan Bootle, Alessandro Chiesa, and Katerina Sotiraki. Sumcheck argu-
+            ments and their applications. In Advances in Cryptology – CRYPTO 2021: 41st
+            Annual International Cryptology Conference, CRYPTO 2021, Virtual Event,
+            August 16–20, 2021, Proceedings, Part I, page 742–773, Berlin, Heidelberg, 2021.
+            Springer-Verlag.
+[BF23]      Benedikt Bunz and Ben Fisch. Multilinear Schwartz-Zippel mod N and Lattice-
+            Based Succinct Arguments. 2023.
+[BJ08]      Michal Baczyński and Balasubramaniam Jayaram. Fuzzy Implications, volume
+            231 of Studies in Fuzziness and Soft Computing. Springer Berlin Heidelberg,
+            Berlin, Heidelberg, 2008.
+[BS23]      Dan Boneh and Victor Shoup. A Graduate Course in Applied Cryptography.
+            2023.
+[BSCG+ 13] Eli Ben-Sasson, Alessandro Chiesa, Daniel Genkin, Eran Tromer, and Madars
+           Virza. Snarks for c: Verifying program executions succinctly and in zero knowl-
+           edge. In Advances in Cryptology–CRYPTO 2013: 33rd Annual Cryptology Con-
+           ference, Santa Barbara, CA, USA, August 18-22, 2013. Proceedings, Part II,
+           pages 90–108. Springer, 2013.
+[DP23]      Benjamin E. Diamond and Jim Posen. Proximity testing with logarithmic
+            randomness. Cryptology ePrint Archive, Paper 2023/630, 2023. https:
+            //eprint.iacr.org/2023/630.
+[KL21]      Jonathan Katz and Yehuda Lindell. Introduction to Modern Cryptography.
+            Chapman & Hall/CRC Cryptography and Network Security Series. CRC Press
+            Taylor & Francis Group, Boca Raton London New York, third edition edition,
+            2021.
+
+                                            35
+[KP22]    Abhiram Kothapalli and Bryan Parno. Algebraic Reductions of Knowledge.
+          2022.
+
+[KST22]   Abhiram Kothapalli, Srinath Setty, and Ioanna Tzialla. Nova: Recursive Zero-
+          Knowledge Arguments from Folding Schemes. In Yevgeniy Dodis and Thomas
+          Shrimpton, editors, Advances in Cryptology – CRYPTO 2022, volume 13510,
+          pages 359–388. Springer Nature Switzerland, Cham, 2022.
+
+[KZG10]   Aniket Kate, Gregory Zaverucha, and Ian Goldberg. Constant-size commitments
+          to polynomials and their applications. In Advances in Cryptology–ASIACRYPT
+          2010: 16th International Conference on the Theory and Application of Cryptol-
+          ogy and Information Security, Singapore, December 5-9, 2010. Proceedings 16,
+          pages 177–194. Springer, 2010.
+
+[Nit20]   Anca Nitulescu. Zk-SNARKs: A Gentle Introduction. 2020.
+
+[RZ21]    Carla Ràfols and Arantxa Zapico. An Algebraic Framework for Universal and
+          Updatable SNARKs. In Tal Malkin and Chris Peikert, editors, Advances in
+          Cryptology – CRYPTO 2021, volume 12825, pages 774–804. Springer Interna-
+          tional Publishing, Cham, 2021.
+
+[Tha22]   Justin Thaler. Proofs, Arguments, and Zero-Knowledge. Foundations and
+          Trends® in Privacy and Security, 4(2–4):117–660, 2022.
+
+[Woo22]   Mary Wootters. CS250/EE387 Lecture Notes. Stanford University, 2022. On-
+          line.
+
+[Woo23]   Mary Wootters. Personal communication, 2023.
+
+
+
+
+                                         36
+A     Chaining probabilistic implications
+Given two statements Pr =⇒ Qr′ and Qr′ =⇒
+                                        ′
+                                          Tr′′ , we will show that
+                            p                     p
+
+                                         Pr =⇒′ Tr′′ .
+                                             p+p
+
+where the randomness is, as before, over r, r′ , and r′′ , with no assumptions on their depen-
+dence. Using the definitions for the given notation, this claim may be written as, knowing
+
+                      Pr(Pr ∧ ¬Qr′ ) ≤ p,    and      Pr(Qr′ ∧ ¬Tr′′ ) ≤ p′
+
+implies that
+                                   Pr(Pr ∧ ¬Tr′′ ) ≤ p + p′ .
+
+Proof. To see this, we may use basic logical implications. Note that, for any r, r′ , and r′′ ,
+the following implications are true
+
+                      Pr ∧ ¬Tr′′   implies (Pr ∧ ¬Qr′ ) ∨ (Qr′ ∧ ¬Tr′′ ).
+
+This follows from the fact that Pr and ¬Tr′′ . Since Qr′ is either true or false, and both of
+the previous statements are true, then, necessarily, one of the statements in the disjunction
+must be true. Since this is true for any r, r′ , and r′′ , we then have that
+
+    Pr(Pr ∧ ¬Tr′′ ) ≤ Pr((Pr ∧ ¬Qr′ ) ∨ (Qr′ ∧ ¬Tr′′ )) ≤ Pr(Pr ∧ ¬Qr′ ) + Pr(Qr′ ∧ ¬Tr′′ ),
+
+where the last inequality follows from the union bound. Using the definitions in the statement
+of the claim above gives the result.
+
+
+B     Kronecker product of codes
+B.1     Kronecker product
+                                              ′
+Given two matrices G ∈ Fm×n and G′ ∈ Fm ×k , we define their Kronecker product, written
+            ′
+G′ ⊗ G ∈ Fmm ×nk , as                                   
+                                    G′11 G . . . G′1k G
+                         G′ ⊗ G =  ...      ..      ..  .
+                                  
+                                                .     . 
+                                     ′             ′
+                                    Gm′ 1 G . . . Gm′ k G
+This definition may be interpreted in a number of ways. The simplest, perhaps, is to note
+that, for a list of vectors x1 , . . . , xk ∈ Fn , not all zero, then
+                                                
+                                                x1
+                                                .. 
+                                        ′
+                                   (G ⊗ G)  .  = vec(G′ X T GT ),                  (21)
+                                                xk
+
+                                              37
+where vec(G′ X T GT ) is a vector corresponding to stacking the columns of G′ X T GT into one
+large vector, while                                     
+                                   X = x1 x2 . . . x k ,
+is a matrix with columns xi for i = 1, . . . , k. If the matrices G and G′ define codes, we may
+view the right hand side of (21) as performing the following series of steps. First, we encode
+the columns of X using G, giving a big matrix GX. Then, we take the transpose of this
+matrix and encode its columns, using G′ , i.e., G′ (GX)T = G′ X T G. (Equivalently, this is
+just encoding the rows of GX to get a new matrix (GX)G′T and taking the transpose of the
+result.) Finally, we stack the columns of the resulting matrix G′ X T GT into one large vector,
+which gives the final result.
+
+Tensor interpretation. In a certain sense, this may be viewed as the natural ‘structure
+preserving map’ which takes operations on tensors and maps them to corresponding opera-
+tions on vectors. Specifically, given a matrix X ∈ Fn×k , which may be viewed as a rank 2
+tensor, there is an invertible linear map X → vec(X) which gives a ‘vector’ element Fnk .
+(There are many such maps; here, we take a simple one, which is just stacking the columns
+of X into one large vector.) Applying linear operations to the matrix X then corresponds
+to a linear operation on vec(X). In the case that these operations are ‘axis’ aligned, i.e.,
+that these linear operations only apply column-wise or row-wise on X, then the Kronecker
+product of the operators (in the tensor space, which deals with the matrix X) is the corre-
+sponding linear operator in the vector representation (which deals with the vector vec(X)).
+It is not hard to see that this generalizes to arbitrary-rank tensors, though we do not show
+this here.
+
+B.2     Kronecker product distance
+                                              ′
+Given two codes G ∈ Fm×n and G′ ∈ Fm ×k with distance d and d′ , respectively, we will
+                                                                  ′
+show that the distance of the Kronecker product G′ ⊗ G ∈ Fmm ×nk is at least dd′ . To see
+this, we will use a simple counting argument. Consider a list of vectors x1 , . . . , xk ∈ Fn , not
+all zero, then                          
+                                        x1
+                                        .. 
+                                 ′
+                              (G ⊗ G)  .  = vec(G′ X T GT ),                                 (22)
+                                        xk
+where vec(G′ X T GT ) is a vector corresponding to stacking the columns of G′ X T GT , while
+                                                        
+                                   X = x1 x2 . . . x k ,
+
+is a matrix with columns xi for i = 1, . . . , k. Since ∥vec(G′ X T GT )∥0 is just the number
+of nonzero entries of the matrix G′ X T GT , we will only consider the latter object. Defining
+
+
+
+
+                                                  38
+X̃ = X T GT , we can then rewrite G′ X T GT as
+                                                             
+                                                      (Gx1 )T
+                             G′ X T GT = G′ X̃ = G′  ...  .
+                                                             
+                                                      (Gxk )T
+
+Since at least one index i has xi ̸= 0, then, at least d columns of X̃ will be nonzero, since
+the distance of G is d by assumption. This implies that each of the (at least) d nonzero
+columns of X̃ will be encoded into a vector of weight at least d′ , since G′ has distance d′ ,
+which means that we have at least dd′ nonzero entries in G′ X T GT ; or, in other words, that
+the distance of G′ ⊗ G is at least dd′ .
+
+B.3     Tightness
+The derivation presented in the reduced matrix zero check §3.1.3 is strictly weaker than the
+one above as it does not use the linearity properties of the encoding. We show that the
+bound on the probability of failure derived there, which is
+
+                                           d      d′
+                                      1−     + 1 − ′,
+                                           m      m
+(using the same m and m′ and d, d′ as above) is essentially always worse than the bound
+derived here, of
+                                           dd′
+                                      1−       .                                    (23)
+                                          mm′
+To see this, note that
+                                               d′
+                                               
+                                    d
+                               1−         1 − ′ ≥ 0,                                (24)
+                                    m          m
+which, after rearranging, implies that
+
+                                     d    d′     dd′
+                                1−     +1− ′ ≥1−     .
+                                     m    m      mm′
+Whenever the quantity in the left hand side of (24) is positive, which always true unless
+d = m or d = m′ , the latter quantity holds strictly. In general, we find that chained
+implications yield much simpler proofs at the expense of some potential error. (Roughly
+speaking: chained implications assume that the worst-case errors are disjoint, since the
+argument used is a union-bound one. This is not true, e.g., in the case of linear codes, from
+the proof above.) It is of course, not hard to show that (23) is the best we can hope for
+since, given x ∈ Fn which has Gx with weight d and x′ ∈ Fk which has G′ x′ with weight d′ ,
+then x′ ⊗ x ∈ Fnk will result in a codeword
+
+                             (G′ ⊗ G)(x′ ⊗ x) = (G′ x′ ) ⊗ (Gx),
+
+
+                                             39
+with weight dd′ . (The equality follows from the definition (22), as does the weight.) It is not
+hard to show that the matrix X with vec(X) = x′ ⊗ x is given by
+
+                                                  X = xx′T ,
+
+which gives the result.
+
+
+C     Subspace distance check
+This appendix section contains some notes on the subspace distance check and the associated
+distance-preserving encoding conjecture. We use the same definitions and notation as §3.2.3
+for the remainder of this appendix section. As a reminder, we are attempting to check if
+some matrix X ∈ Fk×n has columns that are q-close to some vector subspace V ⊆ Fk whose
+distance is at least d′ , given some code matrix G ∈ Fm×n with distance at least d. We assume
+that q < d′ /2 and rewrite the check below for convenience:
+                       n
+                       X
+                                Gri xi − V       ≤q     =⇒      X is q-close to V ,        (25)
+                                                            p
+                          i=1                0
+
+where the randomness is over r uniformly randomly chosen from 1, . . . , m, and the error
+probability p ≤ (q + 1)(1 − d/m). This, as before, may be viewed as a generalization of
+the Ligero distance check [AHIV17] to the case where the randomness is not provided by a
+uniformly random vector in Fn , but is instead a uniformly randomly chosen row of a code
+generator matrix G.
+
+C.1     Easy case
+We may split the proof of the check presented in the paper into two cases. In the first, we
+assume that X is less than d′ /2-far from the vector space V ; that is, there exists a matrix
+Y ∈ Fk×n , with columns in V such that X − Y has less than d′ /2 nonzero rows. (This is
+the part of the proof we present below.) In the second case, we assume that X is at least
+d′ /2-far from V . This means that, for any matrix Y whose columns lie in V , the matrix
+X − Y has at least d′ /2 nonzero rows. (In a certain sense, that the columns of X are ‘far’
+from the vector space V .)
+
+First case proof. This part assumes that X is less than d′ /2-far from V . This means that
+there exists a matrix Y such that its columns yi lie in V , yi ∈ V , and X − Y has less than
+d′ /2 nonzero rows. First, set
+                                             n
+                                             X
+                                       ȳr =   Gri yi ,                                  (26)
+                                                      i=1
+
+
+
+
+                                                      40
+for each r = 1, . . . , m. We will show that this is the unique closest vector in the subspace V
+to the left hand side of the claim (25):
+                                                             m
+                                                             X
+                                                   x̄r =           Gri xi ,                              (27)
+                                                             i=1
+
+where xi is the ith column of X. This is not hard to see: since X − Y has less than d′ /2
+nonzero rows, then any linear combination of the columns of X − Y must have less than d′ /2
+nonzero entries; i.e.,
+                                 Xm
+                                    Gri (xi − yi ) < d′ /2,
+                                             i=1                          0
+but the term inside of the norm can be split into
+                                        m
+                                        X                    m
+                                                             X
+                                              Gri xi −             Gri yi         < d′ /2,
+                                        i=1                  i=1              0
+
+where the second sum can be recognized as ȳr ∈ V . Since the distance of V is at least d′ ,
+then this vector is within the unique decoding radius and is therefore the unique vector in
+V closest to x̄r ; i.e., for any choice of r,
+                                m
+                                X                                  m
+                                                                   X
+                                        Gri xi − V           =            Gri (xi − yi )             .
+                                i=1                      0          i=1                          0
+
+Armed with this fact, if
+                                               m
+                                               X
+                                                     Gri xi − V               ≤ q,
+                                               i=1                        0
+then
+                             m
+                             X                                     m
+                                                                   X
+                                    Gri (xi − yi )           =            Gri xi − V             ≤ q.
+                              i=1                        0         i=1                       0
+But, from the folded sparsity check above, we have that
+            m
+            X
+                   Gri (xi − yi )       ≤q         =⇒         X − Y has at most q nonzero rows,
+                                                     p
+             i=1                    0
+
+with p ≤ (q + 1)(1 − d/m) when r is uniformly randomly selected from 1, . . . , m. In other
+words, that X − Y have at most q nonzero rows, or, alternatively that X is q-close to V , as
+required.
+
+
+
+
+                                                              41
+Strengthening this proof. Wootters [Woo23] proved a slightly stronger version of this
+case in private communication: instead of assuming that X is less than d′ /2-far from V , it
+suffices to assume that X is less than (d′ − q)-far from V , which is at least as good (and often
+much better) than the original proof, as q < d′ /2 by assumption. Similar to the previous,
+we let Y be a matrix whose columns lie in V and X − Y has at most d′ − q nonzero rows.
+The proof is very similar to the above and we reproduce it here for completeness, using the
+same notation and definitions given above.
+    Let the left hand side of (25) be satisfied, i.e.,
+                                             n
+                                             X
+                                                   Gri xi − V             ≤ q,
+                                             i=1                      0
+
+then we will show that the unique vector closest to the linear combination of the columns of
+X above is ȳr , as defined in (26). To see this, let y ∈ V be any vector in the subspace, then,
+if y ̸= ȳr , we have
+                     ∥x̄r − y∥0 ≥ ∥y − ȳr ∥0 − ∥x̄r − ȳr ∥0 > d′ − (d′ − q) ≥ q,
+where x̄r is also as defined previously in (27), so no other y ∈ V is closer to x̄r than ȳr . The
+first inequality follows from the reverse triangle inequality, while the second follows from the
+fact that V has distance d′ , so ∥y − ȳr ∥ ≥ d′ , and the fact that X − Y has less than d′ − q
+nonzero entries, by assumption on X. So:
+                             n
+                             X                                  n
+                                                                X
+                                    Gri (xi − yi )         =          Gri xi − V       ≤ q,
+                              i=1                      0        i=1                0
+
+but, from the matrix sparsity check, we know that this implies
+             m
+             X
+                   Gri (xi − yi )       ≤q    =⇒           X − Y has at most q nonzero rows,
+                                                   p
+             i=1                    0
+
+when r is uniformly randomly drawn from 1, . . . , m, and where p ≤ (q + 1)(1 − d/m). In
+English, this simply says that X is q-close to V , as required.
+
+C.2     Distance-preserving encoding conjecture
+The remaining case then, is to prove that, if X is at least (d′ − q)-far from V , then the
+probability that
+                                  Xn
+                                      Gri xi − V ≤ q,
+                                             i=1                      0
+with respect to a uniformly randomly drawn r from 1, . . . , m, and where q < d′ /2 is very
+low. Indeed, we conjecture that the probability this is true, call it p, satisfies
+                                                      
+                                                     d
+                                  p ≤ (q + 1) 1 −         ,
+                                                    m
+
+                                                           42
+where d is the distance of the code generated by G ∈ Fm×n . We may write this in the
+notation of §1.4 as
+                   n
+                   X
+                         Gri xi − V       ≤q     =⇒      X is (d′ − q)-close to V ,
+                                                  p
+                   i=1                0
+
+where p ≤ (q + 1)(1 − d/m). (Note that this claim is always ‘easier’ than the original claim
+since d < d′ /2.)
+
+Notes. Such a statement is similar in spirit to that of [AHIV17]. In a certain sense, the
+above statement means that we may replace the uniform randomness of the check presented
+in [AHIV17] with the much more structured ‘randomness’ coming from picking a uniformly
+random row of an error correcting code matrix G with reasonable distance. For example,
+an interesting statement, similar in spirit to those used in the proof of the Hadamard case
+in [AHIV17], is the following. Given any nonzero vector y ∈ R(X), let V ⊥ ⊆ R(X) be the
+space such that any vector v ∈ R(X) may be written uniquely as
+                                               v = αy + z,
+for some z ∈ V ⊥ and α ∈ F. (In other words, V ⊥ is the remainder of the basis completion
+of the matrix containing only the column y; in some cases the subspace V ⊥ is called the
+rejection of the ray given by y.) Then, for a randomly drawn row g̃r of G, if
+                                           X g̃r = αr y + zr ,
+where zr ∈ V ⊥ and αr ∈ F, then the probability that αr = 0 is no more than 1 − d/m.
+In other words, given any possible ‘direction’ y in the range of X, we know that, with high
+probability, any structured linear combination of the columns of X always has a component
+in this direction. Unfortunately, unlike the proof of [AHIV17], we do not know much about
+the relationship between zr and αr , which makes it difficult to conclude something about the
+probability that a given vector is far from R(X). (In their proof, αr and zr are known to be
+independent variables, with respect to the randomness r.) We may view this statement as
+saying that the structured linear combinations given by a uniformly sampled row, g̃r , are, in
+a sense, ‘good testers’ of the range of X.
+
+
+D     Basis alignment
+In this appendix we prove that certain matrices Ti ∈ Fn×k for i = 1, . . . , ℓ, which share
+sparsity patterns, satisfy the basis alignment property. That is: if X ∈ Fk×ℓ is q-close to V ′
+and xi denotes the ith column of X, then we have that
+                                 ∥T1 x1 + · · · + Tℓ xℓ − V ∥0 ≤ q ′ ,                    (28)
+for some reasonably small q ′ . The proofs are essentially mechanical, and we encourage readers
+to work them out before reading this appendix as an exercise in definitions.
+
+                                                   43
+Warm up. The easiest nontrivial case to see is when the Ti are diagonal matrices and the
+vector space V satisfies
+                              V = T1 V ′ ⊕ · · · ⊕ Tℓ V ′ .
+In this case it is not hard to show that the inequality (28) holds for q ′ = q. To see this, let
+X be q-close to V ; that is, there exists a matrix Y , with columns in V , such that X − Y has
+at most q nonzero rows. Let xi denote the ith column of X and ξi denote the ith column of
+X − Y , then
+                     ∥T1 x1 + · · · + Tℓ xℓ − V ∥0 = ∥T1 ξ1 + · · · + Tℓ ξℓ − V ∥0 .
+This holds since, by definition, the columns of Y are vectors in V and we can write ξi = xi −yi
+where yi is the ith column of Y . Now, since 0 ∈ V , then the right hand side of the previous
+expression can be bounded from above by
+
+                       ∥T1 ξ1 + · · · + Tℓ ξℓ − V ∥0 ≤ ∥T1 ξ1 + · · · + Tℓ ξℓ ∥0 .
+
+Finally, since the Ti are diagonal, then Ti ξi only scales the entries of ξi (potentially by zeroing
+them out) so:
+
+            ∥T1 ξ1 + · · · + Tℓ ξℓ ∥0 ≤ |{j | there exists some i such that (ξi )j ̸= 0}|.
+
+(We recommend parsing the right hand side of this expression carefully.) In other words, the
+left hand side is bounded above by the number of rows of X − Y which are nonzero. Since
+we assumed that X was q-close to V , that means that X − Y has at most q nonzero rows,
+so we have:
+                              ∥T1 ξ1 + · · · + Tℓ ξℓ − V ∥0 ≤ q,
+as we wanted to prove.
+
+Basic example. One useful example of this is when α1 , . . . , αn ∈ F denotes some evalua-
+tion points, while V ′ denotes the vector space of evaluations of polynomials (at the αi ) whose
+terms are all of even degree ≤ 2k, and V is the vector space of evaluations of polynomials of
+degree ≤ 2k + 1. In other words, we set
+                                                              
+                                         1 α12 α14 . . . α12k
+                             V ′ = R  ... ...    .. . .    ..  ,
+                                     
+                                                    .     .   . 
+                                               2     4
+                                         1 αn αn . . . αn2k
+
+while                                                    
+                                      1 α1 α12 . . . α12k
+                              V = R  ... ... .. . .   ..  .
+                                    
+                                                .     .  . 
+                                      1 αn αn2 . . . αn2k
+(Note that the matrix whose range is V ′ only has the even powers, while V has all powers.)
+We can then write
+                                     V = V ′ ⊕ DV ′ ,
+
+                                                   44
+where                                                    
+                                          α1 0 . . . 0
+                                          0 α2 . . . 0 
+                                     D =  ..          ..  .
+                                                         
+                                              .. . .
+                                         .    .     . . 
+                                           0 0 . . . αn
+It is not hard to see since, first DV ′ corresponds to the set of evaluations of polynomials
+whose terms are of odd degree ≤ 2k + 1. Since we may write
+
+                                           V = IV ′ ⊕ DV ′ ,
+
+where I is the identity matrix, then both I and D are diagonal and we have that these
+matrices are basis aligned such that
+
+                                          ∥x + Dy − V ∥ ≤ q,
+
+if [x y], the n × 2 matrix with columns x and y, is q-close to V ′ .
+
+General case. The general case is written as follows. Let Ti ∈ Fn×k be matrices such that
+each column has at most c nonzero entries and all of the Ti share the same sparsity pattern.
+Then, if X ∈ Fk×ℓ is q-close to V ′ , we have that
+
+                                  ∥T1 x1 + · · · + Tℓ xℓ − V ∥0 ≤ cq.
+
+The proof of this statement is very similar to the previous. Since X is q-close to V ′ , then
+there exists some Y ∈ Fk×ℓ , whose columns lie in V ′ , such that X − Y has at most q nonzero
+rows. Let ξi denote the ith column of X − Y , then, by the same reasoning as the previous,
+
+                    ∥T1 x1 + · · · + Tℓ xℓ − V ∥0 = ∥T1 ξ1 + · · · + Tℓ ξℓ − V ∥0 .
+
+Again, we note that since 0 ∈ V , we have that
+
+                       ∥T1 ξ1 + · · · + Tℓ ξℓ − V ∥0 ≤ ∥T1 ξ1 + · · · + Tℓ ξℓ ∥0 ,
+
+which means we only have to bound the latter quantity. We can bound this quantity since,
+letting τij be the jth column of Ti ,
+                                            k
+                                          ℓ X
+                                          X                              k
+                                                                         X ℓ
+                                                                           X
+            ∥T1 ξ1 + · · · + Tℓ ξℓ ∥0 =             τij (ξi )j       ≤               τij (ξi )j       ≤ cq.
+                                          i=1 j=1                0       j=1   i=1                0
+
+The equality follows by definitions of the τij and ξi . The first inequality follows from the
+triangle inequality. Finally, the last inequality follows since, by assumption, for fixed j, the
+vectors τij share the same sparsity pattern for each i. Since this is true and each column of
+Ti (and therefore each vector τij ) has at most c nonzero entries, then the result follows from
+the fact that there are at most q indices j such that at least one index i has (ξi )j ̸= 0, by
+definition of the ξi .
+
+                                                     45
+

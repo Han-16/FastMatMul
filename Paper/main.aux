@@ -1,0 +1,154 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{groth2016size,plonk,maller2019sonic,chiesa2020marlin}
+\citation{transformer,bert,GPT3}
+\citation{freivalds1977probabilistic}
+\providecommand \oddpage@label [2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{thaler2013time}
+\citation{cong2024zkmatrix}
+\citation{cong2026dualmatrix}
+\citation{zkMaP}
+\citation{cong2024zkmatrix}
+\citation{cong2026dualmatrix}
+\citation{zkMaP}
+\citation{lee2024vcnn}
+\citation{pvCNN}
+\citation{zhang2025zkvc}
+\citation{liu2021zkcnn}
+\citation{zkGPT}
+\citation{zkLLM}
+\citation{weng2021mystique}
+\citation{chen2024zkml}
+\citation{FRI}
+\citation{STIR,WHIR}
+\citation{basefold}
+\citation{ames2017ligero}
+\citation{golovnev2023brakedown}
+\citation{blaze}
+\citation{orion}
+\citation{restoring_orion}
+\citation{bensasson2023proximity,diamond2024logarithmic}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Preliminaries}{2}{section.3}\protected@file@percent }
+\newlabel{sec:prelim}{{3}{2}{Preliminaries}{section.3}{}}
+\citation{gnark,legosnark}
+\citation{freivalds1977probabilistic}
+\citation{schwartz1980fast,zippel1979probabilistic}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Asymptotic comparison with dedicated committed-matrix-multiplication proofs. A dash means that the approach does not use a separate arithmetic circuit for the matrix-multiplication relation. For DualMatrix, \(K=\Theta (k^2)\) on dense matrices.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:related-matrix-comparison}{{1}{3}{Asymptotic comparison with dedicated committed-matrix-multiplication proofs. A dash means that the approach does not use a separate arithmetic circuit for the matrix-multiplication relation. For DualMatrix, \(K=\Theta (k^2)\) on dense matrices}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Linear Codes and Folding}{3}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:prelim-codes}{{3.1}{3}{Linear Codes and Folding}{subsection.3.1}{}}
+\newlabel{def:interleaved-code}{{3.1}{3}{Interleaved code}{theorem.3.1}{}}
+\newlabel{eq:code-linearity}{{1}{3}{Linear Codes and Folding}{equation.1}{}}
+\newlabel{def:fold}{{2}{3}{Linear Codes and Folding}{equation.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Commitment and Proof Interfaces}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:prelim-commitments}{{3.2}{3}{Commitment and Proof Interfaces}{subsection.3.2}{}}
+\newlabel{sec:prelim-snark}{{3.2}{3}{Commitment and Proof Interfaces}{subsection.3.2}{}}
+\newlabel{sec:prelim-cplink}{{3.2}{3}{Commitment and Proof Interfaces}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Structured Freivalds Check}{3}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:prelim-freivalds}{{3.3}{3}{Structured Freivalds Check}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Overview of LAMP}{3}{section.4}\protected@file@percent }
+\newlabel{sec:tech-overview}{{4}{3}{Overview of LAMP}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Problem Statement and Relation Reduction Chain}{3}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:overview-reduction-chain}{{4.1}{3}{Problem Statement and Relation Reduction Chain}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Encoding and Proximity Testing}{4}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:overview-encoding}{{4.2}{4}{Encoding and Proximity Testing}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Sampled-Opening Layer}{4}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:overview-commit-link}{{4.3}{4}{Sampled-Opening Layer}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}The LAMP Protocol}{4}{section.5}\protected@file@percent }
+\newlabel{sec:construction}{{5}{4}{The LAMP Protocol}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}The Composite LAMP Relation}{5}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:relation-chain}{{5.1}{5}{The Composite LAMP Relation}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Commitment Layout and Public Challenges}{5}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:commitment-challenge}{{5.2}{5}{Commitment Layout and Public Challenges}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}The Online Relation}{5}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:snark-relation}{{5.3}{5}{The Online Relation}{subsection.5.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The Online Relation}}{6}{figure.1}\protected@file@percent }
+\newlabel{relation:online}{{1}{6}{The Online Relation}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}The Offline Relation}{6}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:openings-and-cplink}{{5.4}{6}{The Offline Relation}{subsection.5.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The Offline Relation}}{6}{figure.2}\protected@file@percent }
+\newlabel{relation:lamp-off}{{2}{6}{The Offline Relation}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Protocol Algorithms and Complexity}{6}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:protocol-complexity}{{5.5}{6}{Protocol Algorithms and Complexity}{subsection.5.5}{}}
+\citation{ames2017ligero,golovnev2023brakedown}
+\citation{bensasson2023proximity}
+\citation{diamond2024logarithmic}
+\citation{bensasson2023proximity}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Asymptotic costs for \(\textsf  {LAMP}\).}}{7}{table.2}\protected@file@percent }
+\newlabel{tab:cost-summary}{{2}{7}{Asymptotic costs for \(\protocol \)}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Security Analysis}{7}{section.6}\protected@file@percent }
+\newlabel{sec:security}{{6}{7}{Security Analysis}{section.6}{}}
+\newlabel{def:lamp-backend-assumptions}{{6.1}{7}{Backend assumptions}{theorem.6.1}{}}
+\newlabel{thm:security}{{6.2}{7}{Completeness, soundness, and zero knowledge}{theorem.6.2}{}}
+\citation{gnark,legosnark}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Implementation and Evaluation}{8}{section.7}\protected@file@percent }
+\newlabel{sec:implementation}{{7}{8}{Implementation and Evaluation}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Matched Freivalds Baseline}{8}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:eval-freivalds}{{7.1}{8}{Matched Freivalds Baseline}{subsection.7.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Comparison with Dedicated Matrix Proofs}{8}{subsection.7.2}\protected@file@percent }
+\newlabel{sec:eval-dedicated}{{7.2}{8}{Comparison with Dedicated Matrix Proofs}{subsection.7.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Component Costs and Application Workloads}{8}{subsection.7.3}\protected@file@percent }
+\newlabel{sec:eval-components}{{7.3}{8}{Component Costs and Application Workloads}{subsection.7.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{8}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{8}{Conclusion}{section.8}{}}
+\bibstyle{IEEEtran}
+\bibdata{Styles/bibliography}
+\bibcite{groth2016size}{1}
+\bibcite{plonk}{2}
+\bibcite{maller2019sonic}{3}
+\bibcite{chiesa2020marlin}{4}
+\bibcite{transformer}{5}
+\bibcite{bert}{6}
+\bibcite{GPT3}{7}
+\bibcite{freivalds1977probabilistic}{8}
+\bibcite{thaler2013time}{9}
+\bibcite{cong2024zkmatrix}{10}
+\bibcite{cong2026dualmatrix}{11}
+\bibcite{zkMaP}{12}
+\bibcite{lee2024vcnn}{13}
+\bibcite{pvCNN}{14}
+\bibcite{zhang2025zkvc}{15}
+\bibcite{liu2021zkcnn}{16}
+\bibcite{zkGPT}{17}
+\@writefile{toc}{\contentsline {section}{References}{9}{section*.1}\protected@file@percent }
+\bibcite{zkLLM}{18}
+\bibcite{weng2021mystique}{19}
+\bibcite{chen2024zkml}{20}
+\bibcite{FRI}{21}
+\bibcite{STIR}{22}
+\bibcite{WHIR}{23}
+\bibcite{basefold}{24}
+\bibcite{ames2017ligero}{25}
+\bibcite{golovnev2023brakedown}{26}
+\bibcite{blaze}{27}
+\bibcite{orion}{28}
+\bibcite{restoring_orion}{29}
+\bibcite{bensasson2023proximity}{30}
+\bibcite{diamond2024logarithmic}{31}
+\bibcite{gnark}{32}
+\bibcite{legosnark}{33}
+\bibcite{schwartz1980fast}{34}
+\bibcite{zippel1979probabilistic}{35}
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Detailed Proof of Theorem~\ref {thm:security}}{10}{section*.2}\protected@file@percent }
+\newlabel{app:security-proof}{{A}{10}{\appendixname \nobreakspace \thesectiondis \\* Detailed Proof of Theorem~\ref {thm:security}}{section*.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Perfect completeness}{10}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Bad-event decomposition}{10}{section*.4}\protected@file@percent }
+\citation{bensasson2023proximity}
+\@writefile{toc}{\contentsline {paragraph}{\relax Input proximity and extraction}{11}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Freivalds randomization}{11}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Sampled relation checks}{11}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Combining the bounds}{11}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Zero knowledge}{11}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Fiat--Shamir variant}{11}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: Barycentric Reed--Solomon Consistency Check}{12}{section*.11}\protected@file@percent }
+\newlabel{app:rs-barycentric}{{B}{12}{\appendixname \nobreakspace \thesectiondis \\* Barycentric Reed--Solomon Consistency Check}{section*.11}{}}
+\newlabel{lem:rs-barycentric-soundness}{{B.1}{12}{Barycentric code-consistency soundness}{theorem.Appendix.B.1}{}}
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  C: CP-Link Instantiation}{12}{section*.12}\protected@file@percent }
+\newlabel{app:cplink-instant}{{C}{12}{\appendixname \nobreakspace \thesectiondis \\* CP-Link Instantiation}{section*.12}{}}
+\gdef \@abspage@last{12}

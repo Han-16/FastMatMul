@@ -1,0 +1,2946 @@
+\documentclass[conference,compsoc]{IEEEtran}
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL old\Paper\main.tex   Fri Aug 21 11:47:08 2026
+%DIF ADD new\Paper\main.tex   Fri Aug 21 11:27:28 2026
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage[n,advantage,operators,sets,
+  adversary,landau,probability,notions,
+  logic,ff,mm,primitives,events,complexity,
+  oracles,asymptotics,keys]{cryptocode}
+\usepackage{amsfonts}   
+\usepackage{mathtools} 
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{placeins}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage[inline]{enumitem}
+\usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage{amsmath}
+
+% 공통으로 사용할 예쁜 블록 스타일 정의
+\newtcbox{\myblock}[1][]{
+  colback=blue!5!white,    % 배경색 (연한 파란색)
+  colframe=blue!60!black,  % 테두리색
+  fontupper=\sffamily,     % 깔끔한 고딕(Sans-serif) 폰트
+  nobeforeafter, 
+  center, 
+  tcbox raise base,
+  arc=4pt,                 % 둥근 모서리 반지름
+  boxrule=1pt,             % 테두리 두께
+  top=4pt, bottom=4pt, left=8pt, right=8pt % 내부 여백
+}
+%% ── Commitment & Merkle ──────────────────────────────────────────────────────
+\newcommand{\para}{\textsf{pp}}
+\newcommand{\cm}{\textsf{cm}}
+\newcommand{\rt}{\textsf{rt}}
+\newcommand{\cmmt}{\textsf{cm}_{\textsf{mt}}}
+\newcommand{\merkleC}{\textsf{MT.Com}}
+\newcommand{\merkleV}{\textsf{MT.Verify}}
+\newcommand{\merkleO}{\textsf{MT.Open}}
+\newcommand{\pedersen}{\textsf{P.CM}}
+\newcommand{\ck}{\textsf{ck}}
+\newcommand{\pedC}{\textsf{Ped.Com}}
+\newcommand{\pedO}{\textsf{Ped.Open}}
+\newcommand{\pedV}{\textsf{Ped.Verify}}
+
+%% ── Algebra ──────────────────────────────────────────────────────────────────
+\newcommand{\mat}{\mathbf}          % matrix: \mat{A}
+\newcommand{\vect}{\mathbf}         % vector: \vect{x}
+%% \enc is already defined by cryptocode's 'primitives' module (as encryption).
+%% We redefine it here to mean the linear-code encoding operator instead.
+\renewcommand{\enc}{\mathsf{Enc}}   % encoding operator (overrides cryptocode)
+
+%% ── SNARK ────────────────────────────────────────────────────────────────────
+\newcommand{\snarkP}{\textsf{SNARK.P}}
+\newcommand{\snarkV}{\textsf{SNARK.V}}
+\newcommand{\bPi}{{\bf \Pi}}
+\newcommand{\setup}{{\sf Setup}}
+\newcommand{\com}{{\sf Com}}
+\newcommand{\prove}{{\sf Prove}}
+\renewcommand{\verify}{{\sf Verify}}
+\newcommand{\relation}{{\mathcal{R}}}
+\newcommand{\cp}{{\mathsf{cp}}}
+\renewcommand{\pk}{{\textsf{pk}}}
+\renewcommand{\vk}{{\textsf{vk}}}
+\renewcommand{\ck}{{\textsf{ck}}}
+
+
+
+%% ── SNARK statement / witness (replaces \mathbb{x}, \mathbb{w}) ─────────────
+%% \mathbb works only for uppercase.
+%% We use \mathsf to distinguish SNARK instances from vector \vect{x} (\mathbf{x}).
+\newcommand{\stmt}{\mathsf{x}}      % SNARK public statement
+\newcommand{\wit}{\mathsf{w}}       % SNARK witness
+\newcommand{\comwit}{\mathsf{u}}
+
+%% ── Misc ─────────────────────────────────────────────────────────────────────
+\newcommand{\fold}{\textsf{Fold}}
+\newcommand{\Hash}{\textsf{Hash}}
+\newcommand{\vecBindV}{\textsf{Vec.Bind}}
+\newcommand{\cpLinkP}{\textsf{CPLink.Prove}}
+\newcommand{\cpLinkV}{\textsf{CPLink.Verify}}
+\newcommand{\protocol}{\textsf{LAMP}}   % protocol name
+\newcommand{\fmMerkle}{\protocol_{\mathsf{Merkle}}}
+\newcommand{\fmKZG}{\protocol_{\mathsf{KZG}}}
+\newcommand{\fmCPLink}{\protocol_{\mathsf{CPLink}}}
+\newcommand{\fmQA}{\protocol_{\mathsf{QA}}}
+
+%% ── Sets of objects (avoid \mathcal{V} collision with verifier) ──────────────
+%% Vector set is written explicitly in text to avoid notation collision.
+
+%% ── Theorem environments ─────────────────────────────────────────────────────
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+%% Some conference templates provide \Description for accessibility metadata.
+\providecommand{\Description}[1]{}
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF CFONT PREAMBLE %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{DIFADD}{RGB}{17,34,51} %DIF PREAMBLE
+\DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{{\protect\color{DIFADD} \sf #1}} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{{\protect\color{red} \scriptsize #1}} %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\providecommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\providecommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\providecommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF COLORLISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_CFONT %DIF PREAMBLE
+  moredelim=[il][\color{red}\scriptsize]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\sffamily]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}[1][]{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}[1][]{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+\lstset{extendedchars=\true,inputencoding=utf8}
+
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+
+\title{LAMP: Linear Verification of Matrix Multiplication via Proximity Testing}
+
+\author{\IEEEauthorblockN{Anonymous Submission}}
+
+\maketitle
+
+\begin{abstract}
+Verifiable computation systems often need to prove large matrix multiplication
+statements, but a direct SNARK arithmetization of a \(k \times k\) product
+requires \(\mathcal{O}(k^3)\) constraints. Freivalds' randomized check reduces
+the algebraic computation to vector-matrix products, but proving those products
+inside a SNARK still costs \(\mathcal{O}(k^2)\) constraints.
+
+We present \(\protocol\), a matrix-multiplication checking protocol that combines
+Freivalds' randomized check with proximity testing over linear error-correcting
+codes. The prover commits to encoded matrices and intermediate vectors before
+the sampled query positions are derived. The CP-SNARK circuit then checks only the sampled codeword positions and commits to the values used inside the circuit, while Merkle openings and CP-Link proofs ensure consistency between the in-circuit witnesses and the externally committed values. We prove soundness \DIFaddbegin \DIFadd{of the public-coin interactive protocol }\DIFaddend for this committed-input setting under the soundness of the SNARK backend, the binding of the commitments, the correctness of the CP-Link checks, and the distance of the code.
+
+For a fixed number \(t\) of sampled positions, the main in-circuit SNARK
+relation has  \DIFaddbegin \DIFadd{\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints, which is linear
+in \(k\) for fixed \(t\) in our fixed-rate Reed--Solomon instantiation.  }\DIFaddend Merkle
+openings and CP-Link  \DIFaddbegin \DIFadd{add
+\(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend work}\DIFaddend . We implement
+\(\protocol\) in Go and compare it with a Freivalds-based SNARK circuit. In the
+matrix benchmark at \(k=2^{12}\), \(\protocol\) reduces the constraint count by
+\(30.3\times\) and shortens proof generation time by  \DIFaddbegin \DIFadd{\(8.43\times\)}\DIFaddend ; verification
+stays  \DIFaddbegin \DIFadd{around \(0.06\) }\DIFaddend seconds in the measured range.  \DIFaddbegin \DIFadd{On a GPT-2 layer,
+\(\protocol\) shortens proving time by
+\(1.77\times\), but verification increases from \(0.49\) s to \(6.52\) s and
+proof size increases from \(196\) B to \(3.34\) MB; this workload therefore
+exhibits a prover-side rather than an end-to-end improvement.
+}\DIFaddend 
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+Verifiable computation, SNARKs, Proximity testing, Linear codes, Freivalds' algorithm, Merkle trees, Commitment linking
+\end{IEEEkeywords}
+
+%% Section 1: Introduction
+\section{Introduction}
+\label{sec:intro}
+
+Matrix multiplication is a core computational primitive underlying many large-scale computations, including numerical linear algebra, signal processing, computer graphics, and artificial intelligence.  Consequently, many applications require verifiability for matrix products while keeping the underlying matrices private.  Zero-knowledge proofs provide a cryptographic mechanism for this goal:
+a prover can convince a verifier that a statement is correct without revealing any secret information that witnesses the statement.
+
+Applying general-purpose ZKP systems directly to large matrix multiplication, however, remains expensive.  Succinct proof systems such as ~\cite{groth2016size, plonk, maller2019sonic, chiesa2020marlin} prove relations after the computation has been represented as an arithmetic circuit or a similar algebraic constraint system.  
+A standard arithmetization of a \(k\times k\) matrix product \(\mat{A}\mat{B}=\mat{C}\) computes every output
+entry and therefore uses \(\mathcal{O}(k^3)\) arithmetic constraints.  This is
+already impractical for moderate \(k\), and it is especially problematic for
+Transformer-based neural networks~\cite{transformer, bert, GPT3}, whose projection and attention layers often
+contain matrix multiplications with dimension \(k\ge 1{,}000\). \\
+
+\noindent\textbf{The \(\mathcal{O}(k^2)\) barrier.}
+Freivalds' classical randomized check~\cite{freivalds1977probabilistic} reduces
+matrix-product verification from a cubic computation to a quadratic one.  Given
+matrices \(\mat{A},\mat{B},\mat{C}\) and a random vector \(\vect{r}\), the
+verifier checks
+\[
+  \vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}
+\]
+instead of recomputing the full product.  This reduces the verification cost
+from \(\mathcal{O}(k^3)\) to \(\mathcal{O}(k^2)\).  The resulting
+\(\mathcal{O}(k^2)\)-size circuit is an improvement, but it is still expensive:
+for example, at \(k=2^{12}\), it already requires \(50.5\) million R1CS
+constraints and \(405.04\,\text{s}\) of proving time with Groth16.  Thus, a large gap remains
+between the \(\mathcal{O}(k^2)\) SNARK cost and practical large-scale
+matrix-multiplication verification. \\
+
+\noindent\textbf{Our insight: from computation to checking.}
+We observe that the \(\mathcal{O}(k^2)\) barrier is not inherent to the
+verification problem itself.  It arises because existing SNARK-based approaches
+still \emph{compute} the vector--matrix products inside the circuit.  Our key
+idea is to move from ``computing inside the circuit'' to ``\emph{checking} inside the
+circuit.''  The prover performs the expensive matrix arithmetic outside the
+SNARK and commits to the relevant encoded data and intermediate values.  The
+verifier then checks only a small number of lightweight algebraic relations
+that are sufficient to detect inconsistent claims.
+The technical core of this approach is proximity testing over linear
+error-correcting codes.  Let \(\mathcal{C}\) be a linear code with relative
+distance \(\delta\).  We encode each matrix row-wise and consider the Freivalds
+intermediate vectors
+\[
+  \vect{x}=\vect{r}\mat{A},\qquad
+  \vect{y}=\vect{x}\mat{B},\qquad
+  \vect{z}=\vect{r}\mat{C}.
+\]
+The linearity of \(\mathcal{C}\) lets us check these vector--matrix products in
+the encoded domain, column by column.  For one encoded column, a single inner
+product, or \emph{fold}, checks one coordinate of the encoded product \DIFaddbegin \DIFadd{, and
+random queries detect inconsistent relations according to the code distance}\DIFaddend .
+
+The key point is that the SNARK circuit never takes the full matrices as
+witnesses.  Instead, it checks fold equations on \(t\) sampled encoded columns,
+where \(t\) is independent of the matrix dimension \(k\) \DIFaddbegin \DIFadd{, and checks the
+encoding consistency }\DIFaddend of the intermediate vectors .
+To bind the circuit witnesses to the data fixed before the query positions are known,
+we use a commit-and-prove SNARK for the sampled block witnesses.  The prover
+also supplies Merkle  \DIFaddbegin \DIFadd{openings and }\DIFaddend CP-Link proofs  \DIFaddbegin \DIFadd{that bind the sampled circuit
+witnesses to the pre-query commitments}\DIFaddend .
+
+% As a result, the main SNARK relation has \(\mathcal{O}(tk)\) constraints.
+% For fixed \(t\), this is linear in the matrix dimension.  The sampled opening
+% and linking layer adds \(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend
+% work.  In our implementation, verification consists of \(\mathcal{O}(1)\) pairings for SNARK and CP-Link verification and \(\mathcal{O}(t\log n)\) hash operations for Merkle openings.\\
+
+As a result, the main SNARK relation has
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints, where
+\(E_{\mathsf{code}}\) is the cost of checking that the
+intermediate vectors are valid encodings under the error-correcting code. For the fixed-rate Reed--Solomon setting used in our implementation,
+this remains linear in  \DIFaddbegin \DIFadd{\(k\) }\DIFaddend for fixed \(t\).   \DIFaddbegin \DIFadd{Here ``linear'' refers only to
+the main in-circuit constraint count: native vector--matrix products and
+encoded-matrix commitments still require \(\mathcal{O}(k^2)\) prover work.}\DIFaddend \\
+
+
+\noindent\textbf{Contributions.}
+We present \(\protocol\), a protocol for efficiently proving
+matrix-multiplication statements.  Our contributions are as follows.
+\begin{itemize}
+  \item \textbf{A code-based matrix-product checking protocol.}
+  \(\protocol\) combines Freivalds' randomized reduction with proximity testing
+  over linear error-correcting codes.  Instead of computing vector--matrix
+  products inside the SNARK circuit, the protocol checks sampled fold equations
+  over encoded commitments and verifies code consistency for the intermediate
+  vectors. 
+
+  For fixed \(t\), the main circuit cost is
+  \(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
+  fixed-rate Reed--Solomon setting used in our implementation.
+
+  \item \textbf{Soundness analysis.}
+  We prove soundness  \DIFaddbegin \DIFadd{of the public-coin interactive protocol for committed
+  inputs, accounting for input proximity, sampled relation checks, and the
+  commitment-linking backend}\DIFaddend .
+
+  \item \textbf{Implementation and evaluation.}
+  We implement \(\protocol\) in Go and compare it with a Freivalds-based SNARK
+  circuit for matrix dimensions \(k=2^7\) through \(2^{13}\).  At
+\(k=2^{12}\), \(\protocol\) reduces the constraint count by \(30.3\times\)
+and proving time by \(8.43\times\), while verification remains independent of
+the matrix dimension and stays around \(0.06\,\text{s}\).  We also evaluate
+  \(\protocol\) on a GPT-2 workload with sequence length \(2^{10}\), where it
+  reduces the constraint count by \(2.3\times\) and proving time by
+   \DIFaddbegin \DIFadd{\(1.77\times\).  This prover-side improvement comes with a verifier-side
+  trade-off: verification increases from \(0.49\) s to \(6.52\) s and proof
+  size from \(196\) B to \(3.34\) MB.  Thus, the GPT-2 result demonstrates
+  applicability to a }\DIFaddend matrix-heavy neural-network  \DIFaddbegin \DIFadd{workload, but not an
+  end-to-end performance improvement}\DIFaddend .
+\end{itemize}
+
+
+
+ %% Section 2: Related Work
+\section{Related Work}
+\label{sec:related}
+
+\noindent\textbf{Matrix multiplication.}
+Several proof systems have studied how to verify matrix multiplication more
+efficiently than by arithmetizing the full cubic computation. Thaler's
+sum-check-based protocol~\cite{thaler2013time} shows that matrix multiplication
+can be verified with quadratic prover work by reducing the claim to checks over
+low-degree extensions. This avoids the naive \(\mathcal{O}(n^3)\) arithmetic
+cost, but the verifier's work still grows linearly with the matrix dimension,
+which is costly when the goal is succinct verification for large committed
+matrices.
+More recent protocols design proof systems directly for committed matrix
+multiplication. zkMatrix~\cite{cong2024zkmatrix} reduces committed
+ \DIFaddbegin \DIFadd{\(k\times k\) }\DIFaddend matrix multiplication to  inner-product relations and  \DIFaddbegin \DIFadd{adapts
+Bulletproofs-style arguments, achieving \(\mathcal{O}(k^2)\) prover work and
+\(\mathcal{O}(\log k)\) proof size and verifier work. Its follow-up,
+DualMatrix~\cite{cong2026dualmatrix}, reduces the field-operation cost to
+\(\mathcal{O}(K+k)\), where \(K\) is the number of nonzero matrix entries, while
+using \(\mathcal{O}(k)\) group operations. For dense matrices,
+\(K=\Theta(k^2)\). }\DIFaddend zkMaP~\cite{zkMaP} instead uses KZG commitments to obtain
+ \DIFaddbegin \DIFadd{\(\mathcal{O}(k^2)\) prover work, a constant-size proof, and constant verifier
+work without placing the matrix product in an arithmetic circuit.
+}
+
+\DIFadd{Table~\ref{tab:related-matrix-comparison} separates total prover work from
+in-circuit constraints. This distinction is central to \(\protocol\): computing
+the intermediate vectors and encoded-column commitments still requires
+\(\mathcal{O}(k^2)\) total prover work, but the matrix-multiplication relation
+inside the CP-SNARK uses only
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints. For fixed \(t\) and
+\(n=\Theta(k)\), its Merkle-dominated proof size and verifier work are
+\(\mathcal{O}(\log k)\). Thus, the table does not claim an unconditional
+end-to-end advantage over every prior system; it identifies the different cost
+boundary improved by \(\protocol\).
+}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lcccc}
+\toprule
+\DIFaddFL{\textbf{System} }& \DIFaddFL{\textbf{Total prover work} }& \DIFaddFL{\textbf{Main circuit constraints}
+}& \DIFaddFL{\textbf{Proof size} }& \DIFaddFL{\textbf{Verifier work} }\DIFaddendFL \\
+\midrule
+\DIFaddFL{zkMatrix~\cite{cong2024zkmatrix}
+}& \DIFaddFL{\(\mathcal{O}(k^2)\) }& \DIFaddFL{-- }& \DIFaddFL{\(\mathcal{O}(\log k)\)
+}& \DIFaddFL{\(\mathcal{O}(\log k)\) }\\
+\DIFaddFL{DualMatrix~\cite{cong2026dualmatrix}
+}& \DIFaddFL{\(\mathcal{O}(K+k)\,\mathbb{F}+\mathcal{O}(k)\,\mathbb{G}\) }& \DIFaddFL{--
+}& \DIFaddFL{\(\mathcal{O}(\log k)\) }& \DIFaddFL{\(\mathcal{O}(\log k)\) }\\
+\DIFaddFL{zkMaP~\cite{zkMaP}
+}& \DIFaddFL{\(\mathcal{O}(k^2)\) }& \DIFaddFL{-- }& \DIFaddFL{\(\mathcal{O}(1)\)
+}& \DIFaddFL{\(\mathcal{O}(1)\) }\\
+\DIFaddFL{\(\protocol\)
+}& \DIFaddFL{\(\mathcal{O}(k^2)\)
+}& \DIFaddFL{\(\mathcal{O}(tk+E_{\mathsf{code}})\)
+}& \DIFaddFL{\(\mathcal{O}(\log k)\) for fixed \(t\)
+}& \DIFaddFL{\(\mathcal{O}(\log k)\) for fixed \(t\) }\\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{4pt}
+\caption{\DIFaddFL{Asymptotic comparison with dedicated committed-matrix-multiplication
+proofs. A dash means that the approach does not use a separate arithmetic
+circuit for the matrix-multiplication relation. For DualMatrix,
+\(K=\Theta(k^2)\) on dense matrices.}}
+\label{tab:related-matrix-comparison}
+\end{table*}
+\DIFaddend 
+
+\DIFaddbegin \DIFadd{We found no public zkMatrix implementation, and the zkMaP artifact link was
+unavailable. We therefore use the public DualMatrix implementation as the
+closest reproducible dedicated baseline in Section~\ref{sec:implementation}.
+Our Freivalds-in-Groth16 baseline is not state of the art; it uses the same
+Groth16 stack to isolate the effect of moving vector--matrix products out of
+the circuit. }\\
+
+\DIFaddend \noindent\textbf{Verifiable AI.}
+Matrix multiplication is also a dominant cost in verifiable machine-learning
+systems. Systems such as vCNN~\cite{lee2024vcnn}, pvCNN~\cite{pvCNN}, and
+zkVC~\cite{zhang2025zkvc} optimize verifiable inference for convolutional neural
+networks by reducing the number of multiplication constraints induced by
+QAP-based representations. Other systems use sum-check-style techniques.
+zkCNN~\cite{liu2021zkcnn} proposes a sum-check-based protocol for proving
+convolutions with linear prover time. In addition, zkGPT~\cite{zkGPT} and
+zkLLM~\cite{zkLLM} introduce protocols specialized for LLM architectures and
+use sum-check protocols to prove the correctness of linear layers efficiently.
+Meanwhile, Mystique~\cite{weng2021mystique} and zkML~\cite{chen2024zkml} use
+Freivalds' randomized checks. \\
+
+\noindent\textbf{Code-based proximity testing.}
+\(\protocol\) also builds on the use of linear error-correcting codes and proximity
+tests in succinct proof systems. FRI~\cite{FRI} and related
+works~\cite{STIR,WHIR} construct proximity IOPs for
+Reed--Solomon codewords. Recent work further extends this viewpoint to more
+general foldable codes~\cite{basefold}.
+Our proximity layer is closer in spirit to the local codeword tests used in
+Ligero~\cite{Ligero}, Brakedown~ \DIFaddbegin \DIFadd{\cite{golovnev2023brakedown}}\DIFaddend , and
+Blaze~\cite{blaze}. In particular, our use of in-circuit encoding checks is
+similar in spirit to Orion~\cite{orion} . \DIFaddbegin \DIFadd{Follow-up work on Orion's
+soundness~\cite{restoring_orion} illustrates why codeword-validity and
+proximity conditions must be discharged explicitly rather than left as input
+assumptions.  Our analysis uses the proximity-gap viewpoint for
+Reed--Solomon and interleaved codes~\cite{bensasson2023proximity,diamond2024interleaved}
+to state the input-extraction error separately from the sampled relation error.
+We do not claim novelty for code-based proximity testing itself;
+our contribution is a matrix-specific reduction that combines these tools with
+Freivalds' check and commitment linking to reduce in-circuit matrix-product
+constraints.
+}\DIFaddend 
+
+% \noindent\textbf{Verifiable machine learning and general VC.}
+% Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},
+% Mystique~\cite{weng2021mystique}, zkCNN~\cite{liu2021zkcnn},
+% vCNN~\cite{lee2024vcnn}, and zkML~\cite{chen2024zkml} all encounter matrix
+% multiplication as a major arithmetic cost.
+% These systems usually verify an entire inference pipeline, either by
+% arithmetizing the computation directly or by using a general proof-system
+% backend for arithmetic circuits.
+% \(\protocol\) targets a narrower interface: it verifies one committed matrix-product
+% claim, or a batch of such claims, over committed encoded roots.
+% It is therefore a checking layer that can be composed with an ML or VC system
+% that already maintains committed inputs, rather than a replacement for
+% end-to-end zkML or general-purpose verifiable computation.\\
+
+
+% \noindent\textbf{Sum-check and GKR-based verification.}
+% The sum-check protocol~\cite{lund1992algebraic} and the GKR
+% framework~\cite{goldwasser2015delegating} are standard tools for verifying
+% arithmetic circuits and matrix-heavy computations through multilinear
+% extensions and layered circuit checks.
+% Subsequent systems improve the prover/verifier trade-offs and make these
+% techniques practical in SNARK-like settings~\cite{thaler2013time,
+% wahby2018doubly,setty2020spartan}.
+% These approaches are highly relevant to matrix multiplication, especially when
+% many products are batched or embedded in a larger arithmetic circuit.
+% \(\protocol\) uses a different interface: the verifier starts from committed encoded
+% matrix commitments and checks local codeword equations induced by Freivalds'
+% randomization.
+% We therefore use Freivalds-in-SNARK as the main experimental baseline because it
+% checks the same committed-root statement in the same Groth16 measurement stack.
+% A direct implementation-level comparison with sum-check/GKR systems would
+% require normalizing the commitment model, batching strategy, setup, transcript,
+% and verifier work, so we treat it as a separate systems comparison.\\
+
+
+% \noindent\textbf{Dedicated matrix-verification protocols.}
+% Dedicated matrix-verification protocols, including
+% zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
+% zkVC~\cite{zhang2025zkvc}, and coding-theoretic matrix checking by Bennett et
+% al.~\cite{bennett2023matrix}, study proof systems or commitment interfaces
+% specialized to matrix operations.
+% These works explore trade-offs among polynomial commitments, batching, prover
+% work, sparsity assumptions, and proof size.
+% Our construction is closest in goal to this line, but exposes a different
+% boundary: the input-certification layer is separated from the online
+% multiplication checker, and the checked relation is reduced to sampled local
+% fold equations over encoded commitments.
+% This boundary is important for the claims in this paper: our evaluation measures the online checking layer over committed roots and does not claim to close the
+%DIF >  original-matrix-to-root pipeline.
+
+
+% % \section{Related Work}
+% % \label{sec:related}
+
+% % \noindent\textbf{Verifiable ML and general VC.}
+% % Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},
+% % Mystique~\cite{weng2021mystique}, zkCNN~\cite{liu2021zkcnn},
+% % vCNN~\cite{lee2024vcnn}, and zkML~\cite{chen2024zkml} all spend much of their
+% % proof cost on linear layers and matrix multiplication.  Recent systems also
+% % use zero-knowledge proofs for model evaluation and fairness
+% % claims~\cite{south2024verifiable,zhang2025fairzk}, and CP-SNARKs have been
+% % studied for zkML with committed model data~\cite{lycklama2025artemis}.  These
+% % systems usually prove a full inference, training step, or model property,
+% % often using a general SNARK backend such as Groth16~\cite{groth2016size}.
+% % \(\protocol\) has a narrower goal: it checks one committed matrix product, or a
+% % batch of such products, over committed encoded roots.  Thus, \(\protocol\) is
+% % a matrix-checking layer that can be used inside a larger VC or zkML system; it
+% % is not an end-to-end verifiable inference system.\\
+
+% % \noindent\textbf{Sum-check and GKR-based verification.}
+% % The sum-check protocol~\cite{lund1992algebraic} and the GKR
+% % framework~\cite{goldwasser2015delegating} are standard ways to verify
+% % arithmetic circuits using multilinear extensions and layered checks.  Later
+% % systems improved the prover and verifier costs and made these ideas practical
+% % in SNARK-like settings, including time-optimal circuit-evaluation
+% % protocols~\cite{thaler2013time}, doubly-efficient
+% % SNARKs~\cite{wahby2018doubly}, and Spartan~\cite{setty2020spartan}.  These
+% % systems are natural when many matrix operations are part of one large
+% % arithmetic circuit.  \(\protocol\) takes a different route.  It starts from
+% % committed encoded matrix roots and checks local codeword equations produced by
+% % Freivalds' randomization.  We therefore use Freivalds-in-SNARK as the main
+% % experimental baseline: it checks the same committed-root statement with the
+% % same Groth16 backend.  A direct comparison with sum-check/GKR systems would
+% % also need to match the commitment model, batching method, setup, transcript,
+% % and verifier work.\\
+
+% % \noindent\textbf{Dedicated matrix-verification protocols.}
+% % Classical randomized matrix checking starts with Freivalds'
+% % algorithm~\cite{freivalds1977probabilistic}, which reduces a matrix-product
+% % claim to a randomized vector check.  This idea also appears in SNARK-based
+% % verifiable ML baselines~\cite{ghodsi2017safetynets}.  Recent dedicated
+% % matrix-verification protocols include
+% % zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
+% % zkVC~\cite{zhang2025zkvc}, and coding-theoretic matrix checking by Bennett et
+% % al.~\cite{bennett2023matrix}.  These works study proof systems and commitment
+% % methods for matrix operations, with different choices for batching, prover
+% % work, sparsity, and proof size.  \(\protocol\) is closest to this line of
+% % work.  The main difference is which costs we include.  We separate input
+% % certification from the online multiplication checker, and the online checker
+% % tests only sampled fold equations over encoded commitments.  Our evaluation
+% % therefore measures the online checking layer over committed roots; it does not
+%DIF >  % claim to measure the full cost of building the roots from original matrices.\\
+
+% % \noindent\textbf{Technical ingredients.}
+% % \(\protocol\) also uses tools from code-based proximity testing and
+% % commitment linking.  These are technical ingredients, not the main comparison
+% % class.  Code-based proof systems such as Ligero~\cite{ames2017ligero},
+% % FRI-based protocols~\cite{ben2018fast}, Orion~\cite{xie2022orion}, and
+% % Brakedown~\cite{golovnev2023brakedown} show how committed codewords and local
+% % checks can support succinct verification.  Commit-and-prove
+% % SNARKs~\cite{gnark,legosnark}, recent CP-SNARK systems for
+% % zkML~\cite{lycklama2025artemis}, and QA-NIZK-style linking
+% % proofs~\cite{jutla2013shorter,qa-nizk} provide ways to prove that sampled
+% % SNARK witnesses match externally committed data.
+
+
+%% Section 3: Preliminaries
+\section{Preliminaries}
+\label{sec:prelim}
+
+ \DIFaddbegin \DIFadd{Throughout, \(\mathbb{F}\) is a prime field and \(\lambda\) is }\DIFaddend the security
+parameter.   Matrices are denoted by bold uppercase letters  and vectors by bold
+lowercase letters \DIFaddbegin \DIFadd{.  For \(\mat{M}\)}\DIFaddend , we write  \DIFaddbegin \DIFadd{\(\mat{M}[i,*]\) and
+\(\mat{M}[*,j]\) for its \(i\)}\DIFaddend -th  \DIFaddbegin \DIFadd{row and \(j\)}\DIFaddend -th column.  We  \DIFaddbegin \DIFadd{use
+\([n]=\{0,\ldots,n-1\}\), \(I\sample[n]^t\) for \(t\) uniform query
+positions, and \(r\sample\mathbb{F}\) for a uniform field element}\DIFaddend .
+
+\subsection{Linear  Codes \DIFaddbegin \DIFadd{and Folding}\DIFaddend }
+\label{sec:prelim-codes}
+
+ \DIFaddbegin \DIFadd{Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code with
+generator matrix \(\mat{G}\), rate \(\rho=k/n\), }\DIFaddend and  \DIFaddbegin \DIFadd{relative distance
+\(\delta\).  We write \(\enc(\vect{m})=\vect{m}\mat{G}\).  A matrix
+\(\mat{M}\in\mathbb{F}^{k\times k}\) is encoded row-wise as
+\(\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}\).
+}\DIFaddend 
+
+\begin{definition}[Interleaved code]\label{def:interleaved-code}
+ \DIFaddbegin \DIFadd{The }\DIFaddend \(\ell\)-fold interleaved code  \DIFaddbegin \DIFadd{\(\mathcal{C}^{\langle\ell\rangle}\)
+groups }\DIFaddend \(\ell\) codewords  position by position.   \DIFaddbegin \DIFadd{Its }\DIFaddend \(j\)-th symbol is  \DIFaddbegin \DIFadd{an
+element of \(\mathbb{F}^{\ell}\).  In particular, a }\DIFaddend row-wise  \DIFaddbegin \DIFadd{encoded
+\(k\times k\) matrix is a }\DIFaddend \(k\) \DIFaddbegin \DIFadd{-fold interleaved codeword whose }\DIFaddend \(j\)-th
+ \DIFaddbegin \DIFadd{symbol is \(\widehat{\mat{M}}[*,j]\)}\DIFaddend .
+\end{definition}
+
+ \DIFaddbegin \DIFadd{For coefficients \(r_0,\ldots,r_{k-1}\in\mathbb{F}\), code linearity gives
+}\begin{equation}\DIFadd{\label{eq:code-linearity}
+  \sum_{i=0}^{k-1}r_i\widehat{\mat{M}}[i,*]
+  =\enc\!\left(\sum_{i=0}^{k-1}r_i\mat{M}[i,*]\right).
+}\end{equation}\DIFaddend 
+ \DIFaddbegin \DIFadd{For \(\vect{r},\vect{c}\in\mathbb{F}^k\), define
+}\begin{equation}\DIFadd{\label{def:fold}
+  \fold(\vect{r},\vect{c})\coloneqq
+  \langle\vect{r},\vect{c}\rangle.
+}\end{equation}\DIFaddend 
+ \DIFaddbegin \DIFadd{Thus \(\fold(\vect{r},\widehat{\mat{M}}[*,j])\) is the \(j\)}\DIFaddend -th  \DIFaddbegin \DIFadd{coordinate
+of \(\enc(\vect{r}\mat{M})\).  Our implementation uses a Reed--Solomon code;
+Appendix~\ref{app:rs-barycentric} gives its concrete consistency check}\DIFaddend .
+
+\subsection{Commitment  \DIFaddbegin \DIFadd{and Proof Interfaces}\DIFaddend }
+\label{sec:prelim-commitments}
+ \DIFaddbegin 
+
+\DIFadd{We use Merkle trees as position-binding vector }\DIFaddend commitments and Pedersen
+ \DIFaddbegin \DIFadd{commitments as hiding, computationally binding, and additively homomorphic
+commitments.  We write \(\merkleC\), \(\merkleO\), and \(\merkleV\) for
+Merkle commitment, opening, and verification, }\DIFaddend and  \DIFaddbegin \DIFadd{\(\pedC\) for Pedersen
+commitment}\DIFaddend .   \DIFaddbegin \DIFadd{Merkle leaves in our construction are Pedersen commitments}\DIFaddend ,  \DIFaddbegin \DIFadd{so
+the tree itself uses deterministic leaves}\DIFaddend .
+
+ \DIFaddbegin \label{sec:prelim-snark}
+\DIFaddend A commit-and-prove SNARK (CP-SNARK)~ \DIFaddbegin \DIFadd{\cite{gnark,legosnark} proves an NP
+relation while binding a designated witness part \(\comwit\) to a public
+witness commitment \(\widetilde{\cm}=\bPi_{\cp}.\com(\para,\comwit;
+\widetilde{o})\).  We use the interface
+\(\bPi_{\cp}=(\setup,\com,\prove,\verify)\)}\DIFaddend .
+
+ \label{sec:prelim-cplink}
+ CP-Link  \DIFaddbegin \DIFadd{proves that a }\DIFaddend SNARK-side commitment to an ordered concatenation of
+sampled blocks  \DIFaddbegin \DIFadd{contains the same messages as the corresponding external
+Pedersen commitments.  For blocks \((\vect{m}_i)_{i=0}^{q-1}\), it links
+}\[
+\DIFadd{\begin{aligned}
+  \widetilde{\cm}
+  &=\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+  \cm_i&=\com(\ck_E,\vect{m}_i;o_i)\quad(i\in[q]).
+\end{aligned}
+}\]\DIFaddend 
+The  \DIFaddbegin \DIFadd{construction requires }\DIFaddend CP-SNARK  \DIFaddbegin \DIFadd{soundness and zero knowledge, commitment
+binding and hiding, }\DIFaddend and  CP-Link soundness  \DIFaddbegin \DIFadd{and }\DIFaddend witness zero knowledge \DIFaddbegin \DIFadd{; these
+assumptions are summarized in Definition~\ref{def:lamp-backend-assumptions}.
+}\DIFaddend 
+
+\subsection{\DIFaddbegin \DIFadd{Structured }\DIFaddend Freivalds  \DIFaddbegin \DIFadd{Check}\DIFaddend }
+\label{sec:prelim-freivalds}
+
+Freivalds' algorithm~\cite{freivalds1977probabilistic}  \DIFaddbegin \DIFadd{verifies
+\(\mat{A}\mat{B}=\mat{C}\) by checking
+\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\).  We use the compact structured
+challenge \(\vect{r}=(1,r,\ldots,r^{k-1})\) for
+\(r\sample\mathbb{F}\).  If
+\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq0\), a nonzero column of \(\mat{D}\)
+defines a nonzero }\DIFaddend univariate polynomial in  \DIFaddbegin \DIFadd{\(r\) }\DIFaddend of degree at most  \DIFaddbegin \DIFadd{\(k-1\).
+By Schwartz--Zippel~\cite{schwartz1980fast,zippel1979probabilistic},
+}\[
+  \DIFadd{\Pr[\vect{r}\mat{D}=0]\le\frac{k-1}{|\mathbb{F}|}.
+}\]
+\DIFaddend 
+
+
+%% Section 4: Technical Overview
+\section{Overview of LAMP}
+\label{sec:tech-overview}
+
+This section gives a technical overview of \(\protocol\) before the formal
+construction in Section~\ref{sec:construction}.  The main message is that
+\(\protocol\) does not ask the SNARK circuit to compute a matrix product.
+Instead, the prover commits to encoded data, and the circuit checks only a
+small number of local consistency equations at randomly sampled codeword
+positions.
+
+\subsection{Problem Statement and Relation Reduction Chain}
+\label{sec:overview-reduction-chain}
+
+The starting point is the matrix multiplication relation
+\[
+  \mat{A}\mat{B}=\mat{C},
+  \qquad
+  \mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}.
+\]
+A direct SNARK arithmetization of this relation computes every entry of
+\(\mat{A}\mat{B}\).  This requires \(k^3\) scalar multiplications and therefore
+\(\mathcal{O}(k^3)\) arithmetic constraints.  This is the original relation:
+\[
+\relation_{\mathsf{orig}}
+=
+\left\{
+(\mat{A},\mat{B},\mat{C}) :
+\mat{A}\mat{B}=\mat{C}
+\right\}.
+\]
+
+Freivalds' algorithm reduces the cubic check to a vector-matrix check.  The
+classical algorithm samples a challenge vector \(\vect{r}\in\mathbb{F}^k\) and checks
+  $\vect{r}\mat{A}\mat{B}
+  =
+  \vect{r}\mat{C}.$
+
+In \(\protocol\), the verifier derives one scalar \(r\) and uses the structured
+vector \((1,r,\ldots,r^{k-1})\), which keeps the public challenge compact.
+\DIFaddbegin \DIFadd{At the same transcript point, it derives an independent scalar \(s\) and the
+structured vector \(\vect{s}=(1,s,\ldots,s^{k-1})\).  This second challenge is
+used only to test the committed encoding of \(\mat{B}\).
+}\DIFaddend Equivalently, the prover introduces intermediate vectors
+\[
+  \vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C},
+\]
+and the verifier checks \(\vect{y}=\vect{z}\).  This gives the Freivalds
+relation
+\[
+\begin{aligned}
+\relation_{\mathsf{Fr}}
+=
+\Big\{
+&(\mat{A},\mat{B},\mat{C},\vect{x},\vect{y},\vect{z}) :
+\\
+&\vect{x}=\vect{r}\mat{A},\quad
+  \vect{y}=\vect{x}\mat{B},\quad
+  \vect{z}=\vect{r}\mat{C},\quad
+  \vect{y}=\vect{z}
+\Big\}.
+\end{aligned}
+\]
+This removes the cubic matrix-matrix computation, but a SNARK circuit that
+computes \(\vect{r}\mat{A}\), \(\vect{x}\mat{B}\), and \(\vect{r}\mat{C}\)
+directly still performs \(\mathcal{O}(k^2)\) scalar multiplications.
+
+\(\protocol\) applies one more reduction.  Rather than computing the full
+vector-matrix products inside the circuit, it checks the products only at
+randomly sampled positions in an encoded domain.  The prover performs the
+expensive native computation outside the SNARK, commits to the encoded
+matrices and intermediate vectors, and the SNARK checks local equations of the
+form
+\[
+  \enc(\vect{x})[j]
+  =
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]),
+\]
+\[
+\begin{aligned}
+  \enc(\vect{y})[j]
+  &=
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),\\
+  \enc(\vect{z})[j]
+  &=
+  \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+\end{aligned}
+\]
+\DIFaddbegin \DIFadd{The prover additionally computes \(\vect{b}=\vect{s}\mat{B}\), encodes it as
+\(\widehat{\vect{b}}=\enc(\vect{b})\), and the circuit checks
+}\[
+  \DIFadd{\widehat{\vect{b}}[j]
+  =
+  \fold(\vect{s},\widehat{\mat{B}}[*,j]).
+}\]
+\DIFadd{This additional fold tests the committed encoding of \(\mat{B}\) independently
+of the product relation.
+}\DIFaddend Only the queried columns
+\(\widehat{\mat{A}}[*,j]\), \(\widehat{\mat{B}}[*,j]\),
+\(\widehat{\mat{C}}[*,j]\) are used by the circuit.  Thus, for \(t\) queried
+positions, the fold part of the circuit has cost \(\mathcal{O}(tk)\), which is
+linear in \(k\) for fixed \(t\).
+
+\subsection{Encoding and Proximity Testing}
+\label{sec:overview-encoding}
+
+Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code
+with relative distance \(\delta\).  For a matrix
+\(\mat{M}\in\mathbb{F}^{k\times k}\), the prover row-wise encodes \(\mat{M}\)
+as $\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
+By Definition~\ref{def:interleaved-code}, this row-wise encoding can also be
+viewed as a \(k\)-fold interleaved codeword, where the \(j\)-th interleaved
+symbol is the encoded column \(\widehat{\mat{M}}[*,j]\).
+
+The key identity is the linearity of the code.  For any vector
+\(\vect{u}\in\mathbb{F}^k\),
+\[
+  \big(
+  \fold(\vect{u},\widehat{\mat{M}}[*,1]),
+  \ldots,
+  \fold(\vect{u},\widehat{\mat{M}}[*,n])
+  \big)
+  =
+  \enc(\vect{u}\mat{M}).
+\]
+Therefore, one coordinate of the encoded vector-matrix product can be checked
+using one encoded column.  For example, if
+\(\vect{x}=\vect{r}\mat{A}\), then for every \(j\in[n]\),
+\[
+  \widehat{\vect{x}}[j]
+  =
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]).
+\]
+Similarly, if \(\vect{y}=\vect{x}\mat{B}\) and
+\(\vect{z}=\vect{r}\mat{C}\), then
+\[
+  \widehat{\vect{y}}[j]
+  =
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),
+  \qquad
+  \widehat{\vect{z}}[j]
+  =
+  \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+\]
+
+The prover commits to the encoded objects before the query positions are
+sampled.  After the query set \(I=(j_1,\ldots,j_t)\) is derived, the SNARK
+checks the above equations only for \(j\in I\), together with the equality
+\[
+  \widehat{\vect{y}}[j]=\widehat{\vect{z}}[j].
+\]
+The SNARK also checks that
+ \DIFaddbegin \DIFadd{\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+\widehat{\vect{b}}\) }\DIFaddend are valid
+encodings of the intermediate vectors
+ \DIFaddbegin \DIFadd{\(\vect{x},\vect{y},\vect{z},\vect{b}\)}\DIFaddend . These code-consistency checks are separate from
+the sampled fold checks and prevent the prover from using arbitrary length-\(n\)
+words as the intermediate encoded views.
+
+This is a proximity test: if a claimed vector relation is false, then the two
+corresponding codewords are distinct.  Since the code has relative distance
+\(\delta\), distinct codewords disagree on at least a \(\delta\)-fraction of
+positions.  Random sampling therefore detects an inconsistent relation with
+probability governed by \(\delta\) and the number of sampled positions.
+
+\subsection{Sampled-Opening Layer}
+\label{sec:overview-commit-link}
+
+The sampled checks above are meaningful only if the values used inside the
+SNARK are bound to data fixed before the relevant challenges are sampled.
+\(\protocol\) achieves this through a sampled-opening layer.
+The prover first commits to the interleaved symbols, equivalently the encoded
+matrix columns, and fixes a Merkle root before the Freivalds  \DIFaddbegin \DIFadd{and independent
+input-proximity challenges are }\DIFaddend derived.  After the  \DIFaddbegin \DIFadd{challenges are }\DIFaddend fixed, the prover computes the intermediate
+vectors, commits to their encoded symbols, and fixes a second Merkle root before
+the sampled positions are derived.
+
+% The SNARK circuit itself only checks field equations on the sampled values.
+The SNARK  \DIFaddbegin \DIFadd{checks only the sampled field equations and intermediate-vector
+encoding checks.  Merkle openings authenticate }\DIFaddend the external Pedersen  \DIFaddbegin \DIFadd{leaves,
+and }\DIFaddend CP-Link  \DIFaddbegin \DIFadd{binds those leaves to the sampled blocks used by the CP-SNARK.
+Consequently, the expensive authentication and linking checks remain outside
+the circuit.  }\DIFaddend Section~\ref{sec:security}  \DIFaddbegin \DIFadd{gives the formal soundness argument}\DIFaddend .
+
+
+%% Section 5: Our Construction
+\section{The LAMP Protocol}
+\label{sec:construction}
+
+Section~\ref{sec:tech-overview} reduced the original matrix-multiplication
+relation to the Freivalds relation and then to sampled encoded checks.  This
+section formalizes the relation checked by \(\protocol\).  The important point is
+that \(\protocol\) is not a single arithmetic-circuit relation: the arithmetic
+checks are proved by an inner CP-SNARK, while Merkle membership and CP-Link are
+verified outside the circuit.
+
+\subsection{The Composite LAMP Relation}
+\label{sec:relation-chain}
+
+Let \(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\), and let
+\(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code with
+relative distance \(\delta\).  The target matrix-multiplication relation is
+\[
+  \mathcal{R}_{\mathsf{orig}}
+  =
+  \{(\mat{A},\mat{B},\mat{C}) :
+    \mat{A}\mat{B}=\mat{C}\}.
+\]
+The verifier does not receive the  \DIFaddbegin \DIFadd{original }\DIFaddend matrices as public input.  Instead, the
+prover commits to row-wise encodings of the matrices and proves that the
+committed objects satisfy the multiplication relation.
+
+The relation checked by \(\protocol\) is the composite relation
+\[
+  \mathcal{R}_{\mathsf{LAMP}}
+  =
+  \mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}
+  \land
+  \mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}} .
+\]
+Here \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\) is the online relation proved by the CP-SNARK after the Freivalds challenge, query positions, and code-check points are sampled.  The relation \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) is the offline relation: it captures the values fixed by commitments before the online queries are known, and the verifier checks it through Merkle openings and CP-Link proofs.
+Sections~\ref{sec:snark-relation} and~\ref{sec:openings-and-cplink} define
+these two relations explicitly.
+The circuit checks field equations on sampled encoded values, while the auxiliary verifier checks that those values are the ones bound by the pre-query commitments.
+
+\DIFaddbegin \noindent\DIFadd{\textbf{Using the original matrices in an application circuit.}
+The standard construction avoids placing all matrix entries in the CP-SNARK
+witness: the external roots bind the encoded matrices, and the CP-SNARK commits
+only to the \(\mathcal{O}(tk)\) sampled values used online.  If an application
+circuit already uses \(\mat{A},\mat{B},\mat{C}\), it can instead commit to all
+\(\mathcal{O}(k^2)\) entries and reuse those witness variables in the
+\(\protocol\) checks.  This removes the separate Merkle/CP-Link bridge to the
+application circuit while preserving
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) multiplication-check constraints; binding
+the commitment to the intended application data remains application-specific.
+}
+
+\DIFaddend % \subsection{Commitment Layout and Public Challenges}
+% \label{sec:commitment-challenge}
+% The prover first encodes the matrices row-wise:
+% {\footnotesize
+% \(\widehat{\mat{A}}=\enc(\mat{A}),
+%   \widehat{\mat{B}}=\enc(\mat{B}),
+%   \widehat{\mat{C}}=\enc(\mat{C})\).
+% }
+% For each codeword position \(j\in[n]\), it packs the three encoded columns into
+% {\footnotesize
+% \(\vect{m}_{ABC,j}
+%   \coloneqq
+%   \big(
+%     \widehat{\mat{A}}[*,j]\,
+%     \|\,\widehat{\mat{B}}[*,j]\,
+%     \|\,\widehat{\mat{C}}[*,j]
+%   \big)
+%   \in\mathbb{F}^{3k}\).
+% }
+% Using a Pedersen commitment key \(\ck_{ABC}\), the prover samples
+% \(o_{ABC,j}\sample\mathbb{F}\) and computes
+% {\footnotesize
+% \(\cm_{ABC,j}
+%   \gets
+%   \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j})\).
+% }
+% The matrix root is the Merkle commitment to these Pedersen commitments:
+% {\footnotesize
+% \(\rt_{ABC}
+%   \gets
+%   \merkleC((\cm_{ABC,j})_{j\in[n]};\bot)\).
+% }
+% The root \(\rt_{ABC}\) is fixed before the Freivalds challenge is derived.
+% After receiving \(\rt_{ABC}\), the verifier samples \(r\sample\mathbb{F}\). 
+% The prover sets {\footnotesize \(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\)}
+% and computes
+% {\footnotesize
+% \(\vect{x}=\vect{r}\mat{A},
+%   \vect{y}=\vect{x}\mat{B},
+%   \vect{z}=\vect{r}\mat{C}\).
+% }
+% It then encodes the intermediate vectors:
+% {\footnotesize
+% \(\widehat{\vect{x}}=\enc(\vect{x}),
+%   \widehat{\vect{y}}=\enc(\vect{y}),
+%   \widehat{\vect{z}}=\enc(\vect{z})\).
+% }
+% For each \(j\in[n]\), the prover packs the encoded vector symbols into
+% {\footnotesize
+% \(\vect{m}_{XYZ,j}
+%   \coloneqq
+%   \big(
+%     \widehat{\vect{x}}[j]\,
+%     \|\,\widehat{\vect{y}}[j]\,
+%     \|\,\widehat{\vect{z}}[j]
+%   \big)
+%   \in\mathbb{F}^{3}\).
+% }
+% Using a Pedersen commitment key \(\ck_{XYZ}\), the prover samples
+% \(o_{XYZ,j}\sample\mathbb{F}\), computes
+% {\footnotesize
+% \(\cm_{XYZ,j}
+%   \gets
+%   \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j})\),
+% }
+% and sends the vector-symbol root
+% {\footnotesize
+% \(\rt_{XYZ}
+%   \gets
+%   \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot)\)
+% }
+% to the verifier.
+% Only after receiving \(\rt_{XYZ}\) does the verifier sample the query tuple
+% {\footnotesize \(I=(j_1,\ldots,j_t)\sample [n]^t\).}
+% It also samples public code-check points
+% {\footnotesize
+% \(\alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D\),
+% }
+% where \(D\) is the
+% code evaluation domain.  These points are used by the circuit to check that
+% {\footnotesize
+% \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\)
+% }
+% are encodings of
+% the claimed intermediate vectors.  For the Reed--Solomon code used in our implementation, this check is the barycentric out-of-domain consistency test recalled in Appendix~\ref{app:rs-barycentric}. 
+\subsection{Commitment Layout and Public Challenges}
+\label{sec:commitment-challenge}
+
+The prover first encodes the matrices row-wise:
+{\footnotesize
+\(\widehat{\mat{A}}=\enc(\mat{A}),
+  \widehat{\mat{B}}=\enc(\mat{B}),
+  \widehat{\mat{C}}=\enc(\mat{C})\).
+}
+For each codeword position \(j\in[n]\), it packs the three \(k\)-dimensional
+interleaved symbols, equivalently the three encoded columns, into
+{\footnotesize
+\(\vect{m}_{ABC,j}
+  \coloneqq
+  \big(
+    \widehat{\mat{A}}[*,j]\,
+    \|\,\widehat{\mat{B}}[*,j]\,
+    \|\,\widehat{\mat{C}}[*,j]
+  \big)
+  \in\mathbb{F}^{3k}\).
+}
+Using a Pedersen commitment key \(\ck_{ABC}\), the prover samples
+\(o_{ABC,j}\sample\mathbb{F}\) and computes
+{\footnotesize
+\(\cm_{ABC,j}
+  \gets
+  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j})\).
+}
+The matrix root is the Merkle commitment to these Pedersen commitments:
+{\footnotesize
+\(\rt_{ABC}
+  \gets
+  \merkleC((\cm_{ABC,j})_{j\in[n]};\bot)\).
+}
+Here and below, \(\bot\) indicates that no additional randomness is used in the
+Merkle tree, since the leaves are Pedersen commitments that already provide
+hiding. The root \(\rt_{ABC}\) is fixed before the Freivalds challenge is
+derived.
+
+After receiving \(\rt_{ABC}\), the verifier  \DIFaddbegin \DIFadd{independently samples
+\(r,s\sample\mathbb{F}\)}\DIFaddend .  The prover sets
+{\footnotesize
+\(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\) \DIFaddbegin \DIFadd{and
+\(\vect{s}=(1,s,s^2,\ldots,s^{k-1})\)}\DIFaddend }
+and computes
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\vect{x}=\vect{r}\mat{A},
+  \vect{y}=\vect{x}\mat{B},
+  \vect{z}=\vect{r}\mat{C},
+  \vect{b}=\vect{s}\mat{B}\)}\DIFaddend .
+}
+It then encodes the intermediate vectors:
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\widehat{\vect{x}}=\enc(\vect{x}),
+  \widehat{\vect{y}}=\enc(\vect{y}),
+  \widehat{\vect{z}}=\enc(\vect{z}),
+  \widehat{\vect{b}}=\enc(\vect{b})\)}\DIFaddend .
+}
+The encoded intermediate vectors form a  \DIFaddbegin \DIFadd{\(4\)}\DIFaddend -fold interleaved codeword.  For
+each \(j\in[n]\), the prover packs its \(j\)-th interleaved symbol into
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\vect{m}_{XYZB,j}
+  \coloneqq
+  \big(
+    \widehat{\vect{x}}[j]\,
+    \|\,\widehat{\vect{y}}[j]\,
+    \|\,\widehat{\vect{z}}[j]\,
+    \|\,\widehat{\vect{b}}[j]
+  \big)
+  \in\mathbb{F}^{4}\)}\DIFaddend .
+}
+Using a Pedersen commitment key  \DIFaddbegin \DIFadd{\(\ck_{XYZB}\)}\DIFaddend , the prover samples
+ \DIFaddbegin \DIFadd{\(o_{XYZB,j}\sample\mathbb{F}\)}\DIFaddend , computes
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\cm_{XYZB,j}
+  \gets
+  \pedC(\ck_{XYZB},\vect{m}_{XYZB,j};o_{XYZB,j})\)}\DIFaddend ,
+}
+and sends the vector-symbol root
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\rt_{XYZB}
+  \gets
+  \merkleC((\cm_{XYZB,j})_{j\in[n]};\bot)\)
+}\DIFaddend }
+to the verifier.
+
+\DIFaddbegin \DIFadd{The fourth vector supplies an independent fold of the committed encoding of
+\(\mat{B}\); its soundness role is analyzed in Section~\ref{sec:security}.
+}
+
+\DIFaddend Only after receiving  \DIFaddbegin \DIFadd{\(\rt_{XYZB}\) }\DIFaddend does the verifier sample the query tuple
+{\footnotesize \(I=(j_1,\ldots,j_t)\sample [n]^t\).}
+It also samples public code-check points
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\alpha_x,\alpha_y,\alpha_z,\alpha_b\sample\mathbb{F}\setminus D\)}\DIFaddend ,
+}
+where \(D\) is the
+code evaluation domain. These points are used by the circuit to check that
+{\footnotesize
+ \DIFaddbegin \DIFadd{\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+\widehat{\vect{b}}\)
+}\DIFaddend }
+are encodings of
+the claimed intermediate vectors. For the Reed--Solomon code used in our
+implementation, this check is the barycentric out-of-domain consistency test
+recalled in Appendix~\ref{app:rs-barycentric}.
+
+
+\subsection{The Online Relation}
+\label{sec:snark-relation}
+The online relation is the arithmetic relation proved inside the
+inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
+Instead, it checks only the field equations that certify the sampled encoded
+positions are consistent with the Freivalds reduction.
+
+The public statement contains the Merkle roots and verifier-sampled
+challenges:
+ \DIFaddbegin \[
+\DIFadd{\stmt = \big( \rt_{ABC},\rt_{XYZB},r,s,I,\alpha_x,\alpha_y,\alpha_z,\alpha_b
+  \big).
+}\]\DIFaddend 
+The roots are included in the statement to bind the CP-SNARK proof to the same
+transcript and offline checks; the online field equations themselves do not
+evaluate Merkle paths.
+
+The complete SNARK witness is
+  $\wit=(\comwit,\omega)$,
+where the committed part of the witness is
+ \DIFaddbegin \[
+\DIFadd{\comwit = \big( (\vect{m}_{ABC,j})_{j\in I},(\vect{m}_{XYZB,j})_{j\in I} \big),
+}\]\DIFaddend 
+and the remaining private witness is
+   \DIFaddbegin \DIFadd{$\omega
+  =
+  \big(
+    \vect{x},\vect{y},\vect{z},\vect{b},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+    \widehat{\vect{b}}
+  \big).$
+}\DIFaddend The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
+prover first computes the SNARK-side witness commitments
+\(\widetilde{\cm}_{ABC}\) and  \DIFaddbegin \DIFadd{\(\widetilde{\cm}_{XYZB}\) }\DIFaddend using
+\(\bPi_{\cp}.\com\), and then proves the online relation with witness
+\(\wit=(\comwit,\omega)\).  These witness commitments are not checked against
+the Merkle roots inside the circuit.  Instead, they are connected to the
+externally committed Merkle leaves by the offline relation in
+Section~\ref{sec:openings-and-cplink}.
+For the CP-Link statements below, let \(\ck_{\cp,T}\) denote the public
+commitment key used by the CP-SNARK witness commitment
+\(\widetilde{\cm}_{T}\), for  \DIFaddbegin \DIFadd{\(T\in\{ABC,XYZB\}\)}\DIFaddend .
+Write
+  $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
+when the out-of-domain code-consistency check accepts that
+\(\widehat{\vect{v}}\) is consistent with \(\enc(\vect{v})\) at the public
+point \(\alpha\).  The online relation is defined in
+Figure~\ref{relation:online}.
+
+\begin{figure}[t]
+\begin{tcolorbox}[colback=white, colframe=black]
+ \DIFaddbeginFL \pseudocodeblock[mode=text]{
+$\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
+    $\qquad$parse \\
+    $\qquad \qquad \stmt =
+      \big(
+        \rt_{ABC},\rt_{XYZB},r,s,I,\alpha_x,\alpha_y,\alpha_z,\alpha_b
+      \big)$ \\
+    $\qquad \qquad \wit=(\comwit,\omega)$ \\
+    $\qquad \qquad \comwit =
+      \big(
+        (\vect{m}_{ABC,j})_{j\in I},
+        (\vect{m}_{XYZB,j})_{j\in I}
+      \big)$ \\
+    $\qquad \qquad \omega =
+      \big(
+        \vect{x},\vect{y},\vect{z},\vect{b},
+        \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+        \widehat{\vect{b}}
+      \big)$ \\[0.5ex]
+    $\qquad \vect{r}\gets(1,r,\ldots,r^{k-1})$ \\[0.5ex]
+    $\qquad \vect{s}\gets(1,s,\ldots,s^{k-1})$ \\[0.5ex]
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{x}},\vect{x};\alpha_x)=1$ \\
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{y}},\vect{y};\alpha_y)=1$ \\
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{z}},\vect{z};\alpha_z)=1$ \\
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{b}},\vect{b};\alpha_b)=1$ \\[0.5ex]
+    $\qquad \forall j\in I:$ \\
+    $\qquad \qquad$parse
+      $\vect{m}_{ABC,j}$ as
+      $\big(
+        \widehat{\mat{A}}[*,j]\,
+        \|\,\widehat{\mat{B}}[*,j]\,
+        \|\,\widehat{\mat{C}}[*,j]
+      \big)$ \\
+    $\qquad \qquad$parse
+      $\vect{m}_{XYZB,j}$ as
+      $\big(
+        \widehat{\vect{x}}[j]\,
+        \|\,\widehat{\vect{y}}[j]\,
+        \|\,\widehat{\vect{z}}[j]\,
+        \|\,\widehat{\vect{b}}[j]
+      \big)$ \\[0.5ex]
+    $\qquad \qquad
+      \widehat{\vect{x}}[j]
+      =
+      \fold(\vect{r},\widehat{\mat{A}}[*,j])$ \\
+    $\qquad \qquad
+      \widehat{\vect{y}}[j]
+      =
+      \fold(\vect{x},\widehat{\mat{B}}[*,j])$ \\
+    $\qquad \qquad
+      \widehat{\vect{z}}[j]
+      =
+      \fold(\vect{r},\widehat{\mat{C}}[*,j])$ \\
+    $\qquad \qquad
+      \widehat{\vect{b}}[j]
+      =
+      \fold(\vect{s},\widehat{\mat{B}}[*,j])$ \\
+    $\qquad \qquad
+      \widehat{\vect{y}}[j]
+      =
+      \widehat{\vect{z}}[j]$
+}
+\DIFaddendFL \end{tcolorbox}
+\caption{The Online Relation}
+\label{relation:online}
+\end{figure}
+\FloatBarrier
+
+
+The  \DIFaddbegin \DIFadd{encoding checks validate the four intermediate views, and the remaining
+equations check the sampled folds and \(\widehat{\vect{y}}[j]=
+\widehat{\vect{z}}[j]\).  Binding }\DIFaddend these sampled values  \DIFaddbegin \DIFadd{to }\DIFaddend the pre-query  \DIFaddbegin \DIFadd{roots
+is the role of the offline relation}\DIFaddend .
+
+\DIFaddbegin \subsection{\DIFadd{The Offline Relation}}
+\label{sec:openings-and-cplink}
+
+\DIFaddend For compactness, Figure~\ref{relation:lamp-off} writes the CP-Link statement
+for  \DIFaddbegin \DIFadd{\(T\in\{ABC,XYZB\}\) }\DIFaddend as
+\[
+  \stmt_{\mathsf{link}}^T
+  \coloneqq
+  \big(
+    (\ck_{\cp,T},\widetilde{\cm}_{T}),
+    (\ck_T,\cm_{T,j})_{j\in I}
+  \big),
+\]
+where \(\ck_{\cp,T}\) is the witness-commitment key used by the CP-SNARK
+commitment \(\widetilde{\cm}_{T}\), and \(\ck_T\) is the external Pedersen
+commitment key for the Merkle leaves of type \(T\).
+
+ The offline relation connects the sampled witnesses used by the
+CP-SNARK to the commitments that were fixed before the query positions were
+sampled.  The term ``offline'' indicates that these checks are performed outside the SNARK circuit. In our system, it also reflects that the committed data are fixed before the online sampled checks are carried out.
+
+For each queried position \(j\in I\), the verifier receives Merkle openings for the external Pedersen leaves $\cm_{ABC,j}$ and  \DIFaddbegin \DIFadd{$\cm_{XYZB,j}$}\DIFaddend .
+The Merkle openings certify that these leaves are contained in the roots
+\(\rt_{ABC}\) and  \DIFaddbegin \DIFadd{\(\rt_{XYZB}\)}\DIFaddend , respectively.  In addition, the verifier checks
+CP-Link proofs connecting the CP-SNARK witness commitments
+\(\widetilde{\cm}_{ABC}\) and  \DIFaddbegin \DIFadd{\(\widetilde{\cm}_{XYZB}\) }\DIFaddend to the corresponding
+external Pedersen leaves.
+
+ \DIFaddbegin \DIFadd{For each \(T\in\{ABC,XYZB\}\), }\DIFaddend CP-Link  \DIFaddbegin \DIFadd{proves that }\DIFaddend the  \DIFaddbegin \DIFadd{SNARK-side commitment
+contains the ordered concatenation
+\(\vect{m}_{T,j_1}\|\cdots\|\vect{m}_{T,j_t}\) committed }\DIFaddend by the corresponding
+external  \DIFaddbegin \DIFadd{leaves.  Appendix~\ref{app:cplink-instant} gives the concrete
+blockwise relation.
+}\DIFaddend 
+
+
+The offline relation is defined in Figure~\ref{relation:lamp-off}.
+
+\begin{figure}[!t]
+\begin{tcolorbox}[colback=white, colframe=black]
+ \DIFaddbeginFL \pseudocodeblock[mode=text]{
+$\circ\;
+\relation_{\mathsf{LAMP}}^{\mathsf{off}}\big($
+    $
+      \rt_{ABC},\rt_{XYZB},I,
+      \widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZB},
+      $ \\
+    $\qquad
+      \pi_{\mathsf{link}}^{ABC},\pi_{\mathsf{link}}^{XYZB},$ \\
+    $\qquad
+      (\cm_{ABC,j},\pi_{\mathsf{mem},j}^{ABC})_{j\in I},
+      (\cm_{XYZB,j},\pi_{\mathsf{mem},j}^{XYZB})_{j\in I}
+    \big):$ \\[0.5ex]
+    $\qquad \forall j\in I:$ \\
+    $\qquad \qquad
+        \merkleV(
+            \rt_{ABC},
+            j,
+            \cm_{ABC,j},
+            \pi_{\mathsf{mem},j}^{ABC}
+        ) = 1$ \\
+    $\qquad \qquad
+        \merkleV(
+            \rt_{XYZB},
+            j,
+            \cm_{XYZB,j},
+            \pi_{\mathsf{mem},j}^{XYZB}
+        ) = 1$ \\[0.5ex]
+    $\qquad
+        \bPi_{\mathsf{link}}.\verify(
+            \para_{\mathsf{link}},
+            \stmt_{\mathsf{link}}^{ABC},
+            \pi_{\mathsf{link}}^{ABC}
+        ) = 1$ \\
+    $\qquad
+        \bPi_{\mathsf{link}}.\verify(
+            \para_{\mathsf{link}},
+            \stmt_{\mathsf{link}}^{XYZB},
+            \pi_{\mathsf{link}}^{XYZB}
+        ) = 1$
+}
+\DIFaddendFL \end{tcolorbox}
+\caption{The Offline Relation}
+\label{relation:lamp-off}
+\end{figure}
+\FloatBarrier
+
+ \DIFaddbegin \DIFadd{Together, CP-Link and Merkle membership establish
+\(\widetilde{\cm}_{T}\leftrightarrow(\cm_{T,j})_{j\in I}
+\leftrightarrow\rt_T\) for \(T\in\{ABC,XYZB\}\).  Hence the }\DIFaddend CP-SNARK  \DIFaddbegin \DIFadd{checks
+values bound by the pre-query roots without verifying Pedersen openings or
+Merkle paths inside the circuit}\DIFaddend .
+
+% \begin{table}[t]
+% \centering
+% \footnotesize
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabularx}{\columnwidth}{@{}lcc@{}}
+% \toprule
+% \textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+% \midrule
+% ABC encoding
+% & \(E_{\enc}(k,n)\)
+% & -- \\
+
+% ABC commit
+% & \(\mathcal{O}(3nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & -- \\
+
+% Intermediate
+% & \(\mathcal{O}(k^2)\,\mathbb{F}\)
+% & -- \\
+
+% XYZ encoding
+% & \(E_{\enc}(k,n)\)
+% & -- \\
+
+% XYZ commit
+% & \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & -- 
+% \\
+% Merkle openings
+% & \(\mathcal{O}(t\log n) \mathbb{H}\)
+% & \(\mathcal{O}(t\log n)\mathbb{H} \) 
+% \\
+% % CP-SNARK
+% % & \(
+% % \mathcal{O}(tk)+E_{\mathsf{code}} +
+% % E_{\mathsf{snark}}^\mathcal{P}
+% % \)
+% % & \(E_{\mathsf{snark}}^\mathcal{V}\) 
+% CP-SNARK
+% & \(\begin{array}{c}
+% \mathcal{O}(tk)+E_{\mathsf{code}}\ \text{constraints}\\
+% E_{\mathsf{snark}}^\mathcal{P}
+% \end{array}\)
+% & \(E_{\mathsf{snark}}^\mathcal{V}\)
+% \\
+% CP-Link
+% & \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+% & \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+% \bottomrule
+% \end{tabularx}
+% \vspace{6pt}
+% \caption{Asymptotic costs for \(\protocol\).}
+% \label{tab:cost-summary}
+% \end{table}
+
+\subsection{Protocol Algorithms and Complexity}
+\label{sec:protocol-complexity}
+Figure~\ref{fig:protocol} presents the public-coin version of
+\(\protocol\).  The protocol can be made non-interactive via the
+Fiat--Shamir transform, by deriving  \DIFaddbegin \DIFadd{\((r,s)\) }\DIFaddend after \(\rt_{ABC}\) and deriving
+ \DIFaddbegin \DIFadd{\(I,\alpha_x,\alpha_y,\alpha_z,\alpha_b\) after \(\rt_{XYZB}\)}\DIFaddend .
+
+The proof consists of the CP-SNARK proof, the sampled leaf commitments and
+Merkle openings, and the CP-Link proofs.  The sampled matrix-column blocks and
+vector-symbol blocks are private CP-SNARK witnesses; they are not serialized as
+public proof material.
+The public statement contains the roots
+ \DIFaddbegin \DIFadd{\(\rt_{ABC},\rt_{XYZB}\) }\DIFaddend and the verifier-sampled challenges. \\
+
+For  \DIFaddbegin \DIFadd{each \(T\in\mathcal{T}=\{ABC,XYZB\}\), the }\DIFaddend CP-Link statement  \DIFaddbegin \DIFadd{contains
+the SNARK-side witness commitment and the \(t\) corresponding external leaf
+commitments; the witness contains their messages and opening randomness}\DIFaddend .\\
+
+% \paragraph{Cost model}
+\noindent\textbf{Cost model.}
+We report the cost of  \protocol.  The computation of the claimed output matrix \(C=AB\) is outside this cost model.
+We do count the work performed by the \protocol prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
+
+Let \(E_{\enc}(k,n)\) denote \DIFaddbegin \DIFadd{the }\DIFaddend cost of the corresponding encoding phase.
+Let \(E_{\mathsf{code}}=E_{\mathsf{code}}(k,n)\) denote the constraint cost of the intermediate
+code-consistency checks; for the Reed--Solomon check in
+Appendix~\ref{app:rs-barycentric}, this is \(\mathcal{O}(k+n)\) after
+domain-dependent coefficients are precomputed.
+We write \(\mathbb{G}\) for group operations used by Pedersen commitments,
+\(\mathbb{F}\) for field operations, and \(\mathbb{H}\) for hash evaluations.
+Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and
+verification costs, respectively. Let \(E_{\mathsf{link}}^\mathcal{P}(k,t)\) and \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
+For the QALink instantiation in Appendix~\ref{app:cplink-instant}, each of the
+two link statements has \(q=t\) external commitments, so
+\(E_{\mathsf{link}}^\mathcal{V}(k,t)\) includes \(2(t+2)\) Miller-loop inputs,
+batched into one final exponentiation, plus \(\mathcal{O}(t)\) group scalar
+multiplications for batching.
+
+Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\columnwidth}{@{}lcc@{}}
+\toprule
+\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+\midrule
+ABC encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+ABC commit
+& \(\mathcal{O}(3nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& -- \\
+
+Intermediate
+& \(\mathcal{O}(k^2)\,\mathbb{F}\)
+& -- \\
+
+ \DIFaddbeginFL \DIFaddFL{XYZB }\DIFaddendFL encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+ \DIFaddbeginFL \DIFaddFL{XYZB }\DIFaddendFL commit
+& \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& -- 
+\\
+Merkle openings
+& \(\mathcal{O}(t\log n) \mathbb{H}\)
+& \(\mathcal{O}(t\log n)\mathbb{H} \) 
+\\
+% CP-SNARK
+% & \(
+% \mathcal{O}(tk)+E_{\mathsf{code}} +
+% E_{\mathsf{snark}}^\mathcal{P}
+% \)
+% & \(E_{\mathsf{snark}}^\mathcal{V}\) 
+CP-SNARK
+& \(\begin{array}{c}
+\mathcal{O}(tk)+E_{\mathsf{code}}\ \text{constraints}\\
+E_{\mathsf{snark}}^\mathcal{P}
+\end{array}\)
+& \(E_{\mathsf{snark}}^\mathcal{V}\)
+\\
+CP-Link
+& \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+& \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+\bottomrule
+\end{tabularx}
+\vspace{6pt}
+\caption{Asymptotic costs for \(\protocol\).}
+\label{tab:cost-summary}
+\end{table}
+
+
+\noindent\textbf{Prover work.}
+The prover first encodes the three input matrices and commits to the packed
+encoded matrix columns.  The ABC commitment phase consists of \(n\) Pedersen
+commitments to blocks of length \(3k\), followed by a Merkle root over
+the resulting leaves.  After the  \DIFaddbegin \DIFadd{independent challenges \((r,s)\) are }\DIFaddend sampled, the
+prover computes the intermediate witnesses
+   \DIFaddbegin \DIFadd{$\vect{x}=\vect{r}\mat{A},
+  \vect{y}=\vect{x}\mat{B},
+  \vect{z}=\vect{r}\mat{C},
+  \vect{b}=\vect{s}\mat{B},$
+}\DIFaddend which costs \(\mathcal{O}(k^2)\) field operations.  This is distinct from the
+excluded native computation of \(C=AB\).  The prover then encodes
+ \DIFaddbegin \DIFadd{\(\vect{x},\vect{y},\vect{z},\vect{b}\)}\DIFaddend , commits to their encoded symbols, opens the
+sampled Merkle paths, proves the online CP-SNARK relation, and produces the
+CP-Link proofs.
+
+For each queried position \(j\in I\), the CP-SNARK circuit checks  \DIFaddbegin \DIFadd{four
+}\DIFaddend length-\(k\) fold equations:
+ \DIFaddbegin \[
+\DIFadd{\begin{aligned}
+  &\fold(\vect{r},\widehat{\mat{A}}[*,j]),\quad
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),\\
+  &\fold(\vect{r},\widehat{\mat{C}}[*,j]),\quad
+  \fold(\vect{s},\widehat{\mat{B}}[*,j]).
+\end{aligned}
+}\]\DIFaddend 
+Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. 
+
+The intermediate-vector code-consistency checks add
+\(E_{\mathsf{code}}\) constraints. For the fixed-rate
+Reed--Solomon setting used in the experiments, \(n=2k\), so this extra cost is
+linear in \(k\) and the total online relation remains linear in \(k\) for fixed
+\(t\). \\
+
+% \paragraph{Verifier work}
+\noindent\textbf{Verifier work.}
+The verifier does not encode matrices, compute intermediate vectors, or build
+commitment roots.  Its work consists of CP-SNARK verification, verification of
+the sampled Merkle authentication paths, and CP-Link verification.  Therefore,
+% using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} + E_{\mathsf{link}}^\mathcal{V}(k,t).$ \\
+using the notation above, the verifier cost is
+$E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} +
+E_{\mathsf{link}}^\mathcal{V}(k,t)$, where the QALink verifier contributes
+\(\mathcal{O}(t)\) pairing terms. \\
+
+% \paragraph{Comparison}
+\noindent\textbf{Comparison.}
+A naive SNARK arithmetization of matrix multiplication costs
+\(\mathcal{O}(k^3)\) constraints, while a Freivalds-based SNARK baseline computes
+the vector-matrix products inside the circuit and costs \(\mathcal{O}(k^2)\) constraints.  
+% \(\protocol\) moves the vector-matrix products to native prover work and checks only sampled encoded-column relations inside the CP-SNARK.  
+% As a result, the main circuit constraint count is \(\mathcal{O}(tk)\).
+\(\protocol\) moves the vector-matrix products to native prover work and checks
+sampled encoded-column relations plus intermediate code-consistency equations
+inside the CP-SNARK.
+As a result, the main circuit constraint count is
+\(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
+fixed-rate code used in our implementation.
+
+
+\begin{figure*}[p]
+\centering
+\scriptsize
+\begingroup
+\setlength{\fboxsep}{2pt}
+ \DIFaddbeginFL \resizebox{0.98\textwidth}{!}{%
+\fbox{%
+\procedure[]{\protocol}{%
+    \mathcal{P}(\mat{A},\mat{B},\mat{C}) \< \< \mathcal{V} \\
+    \widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}} \gets \enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C}) \in \mathbb{F}^{k \times n} \< \< \\
+    \text{for each } j\in[n]: \\ 
+    \quad \vect{m}_{ABC,j} \coloneqq \big( \widehat{\mat{A}}[*,j]\, \|\,\widehat{\mat{B}}[*,j]\, \|\,\widehat{\mat{C}}[*,j] \big) \in\mathbb{F}^{3k} \\
+    \quad o_{ABC,j}\sample\mathbb{F} \\
+    \quad \cm_{ABC,j} \gets \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}) 
+    \\
+    \rt_{ABC} \gets \merkleC((\cm_{ABC,j})_{j\in[n]};\bot) 
+    \< \sendmessageright*[1.3cm]{\rt_{ABC}} 
+    \\
+    \< \sendmessageleft*[1.3cm]{r,s} \<  r,s \sample \FF 
+    \\
+    \vect{r}\coloneqq(1,r,\ldots,r^{k-1}) \\ 
+    \vect{s}\coloneqq(1,s,\ldots,s^{k-1}) \\
+    \vect{x}\gets\vect{r}\mat{A}, \quad \vect{y}\gets\vect{x}\mat{B}, \quad \vect{z}\gets\vect{r}\mat{C}, \quad \vect{b}\gets\vect{s}\mat{B}
+    \\ \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},\widehat{\vect{b}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}),\enc(\vect{b}) \\ 
+    \text{for each } j\in[n]: \\ 
+    \quad \vect{m}_{XYZB,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j]\, \|\,\widehat{\vect{b}}[j] \big) \in\mathbb{F}^{4} \\ 
+    \quad o_{XYZB,j}\sample\mathbb{F} \\ 
+    \quad \cm_{XYZB,j} \gets \pedC(\ck_{XYZB},\vect{m}_{XYZB,j};o_{XYZB,j}) \\ 
+    \rt_{XYZB} \gets \merkleC((\cm_{XYZB,j})_{j\in[n]};\bot) \< \sendmessageright*[1.3cm]{\rt_{XYZB}} \< \\
+    \< \< I=(j_1,\ldots,j_t)\sample[n]^t 
+    \\ 
+    \< \sendmessageleft*[1.3cm]{I, \alpha_x, \alpha_y, \alpha_z, \alpha_b} \< \alpha_x,\alpha_y,\alpha_z,\alpha_b\sample\mathbb{F}\setminus D 
+    \\
+    \mathcal{T}\coloneqq(ABC,XYZB) \\
+    \text{For every } T\in\mathcal{T}\text{ and every } j\in I,\\ 
+    \quad \pi_{\mathsf{mem},j}^{T} \gets \merkleO((\cm_{T,\ell})_{\ell\in[n]},j) \\[0.3ex]
+    \stmt \coloneqq
+      \big(\rt_{ABC},\rt_{XYZB},r,s,I,\alpha_x,\alpha_y,\alpha_z,\alpha_b\big) \\
+    \comwit \coloneqq
+      \big((\vect{m}_{T,j})_{j\in I}\big)_{T\in\mathcal{T}}, \quad
+    \omega \coloneqq
+      \big(
+      \vect{x},\vect{y},\vect{z},\vect{b},
+      \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},\widehat{\vect{b}}
+      \big) \\
+    \wit \coloneqq \big(\comwit,\omega\big) \\
+    \text{For every } T\in\mathcal{T},\\
+    \quad \widetilde{\cm}_{T} \gets
+      \bPi_{\cp}.\com(\para,(\vect{m}_{T,j})_{j\in I};\widetilde{o}_{T}) \\
+    \stmt_{\cp} \gets
+      \big(
+      \stmt,
+      (\widetilde{\cm}_{T})_{T\in\mathcal{T}}
+      \big) \\
+    \pi_{\cp} \gets \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit) \\
+    \text{For every } T\in\mathcal{T},\\
+    \quad \pi_{\mathsf{link}}^{T} \gets
+      \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}^T,
+      \wit_{\mathsf{link}}^T) \\
+    \pi_{\protocol}
+        \coloneqq
+        \big(
+        \pi_{\cp},
+        (\widetilde{\cm}_{T})_{T\in\mathcal{T}},
+        \{(\cm_{T,j},\pi_{\mathsf{mem},j}^{T})\}_{T\in\mathcal{T},j\in I},
+(\pi_{\mathsf{link}}^{T})_{T\in\mathcal{T}}
+        \big)  \< \sendmessageright*[1.3cm]{\pi_\protocol}  \<
+   \text{Parse } \pi_{\protocol} 
+   \\
+    \< \< \stmt_{\cp} \gets \big( \stmt,(\widetilde{\cm}_{T})_{T\in\mathcal{T}} \big) \\
+    \< \< b_{\cp} \gets \bPi_{\cp}.\verify \big( \para, \stmt_{\cp}, \pi_{\cp}) \\
+    \< \< \text{For every } T\in\mathcal{T}: \\
+    \< \< \qquad \text{For every } j\in I: \\
+    \< \< \qquad \qquad b_{\mathsf{mem},j}^{T} \gets
+      \merkleV( \rt_{T}, j, \cm_{T,j}, \pi_{\mathsf{mem},j}^{T}) \\
+    \< \< \qquad b_{\mathsf{link}}^{T} \gets
+      \bPi_{\mathsf{link}}.\verify \big(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}^T,
+      \pi_{\mathsf{link}}^{T}
+      \big) \\
+    \< \< \text{Accept iff }
+      b_{\cp}
+      \land
+      \bigwedge_{T\in\mathcal{T}}
+      \left(
+        b_{\mathsf{link}}^{T}
+        \land
+        \bigwedge_{j\in I} b_{\mathsf{mem},j}^{T}
+      \right)
+}
+}
+}
+\DIFaddendFL \endgroup
+\caption{The \protocol\ protocol}
+\label{fig:protocol}
+\end{figure*}
+
+
+%% Section 6: Security Analysis
+\section{Security Analysis}
+\label{sec:security}
+
+We  \DIFaddbegin \DIFadd{analyze }\DIFaddend the public-coin interactive  \DIFaddbegin \DIFadd{protocol.  The }\DIFaddend root \(\rt_{ABC}\)
+ \DIFaddbegin \DIFadd{fixes three arbitrary interleaved words before the scalar challenges are
+sampled; we do not assume that these words are valid encodings.  After
+\((r,s)\)}\DIFaddend , the prover  \DIFaddbegin \DIFadd{fixes }\DIFaddend the intermediate-vector  \DIFaddbegin \DIFadd{root before the query set
+}\DIFaddend \(I\) and the code-check points  \DIFaddbegin \DIFadd{are sampled}\DIFaddend .
+
+ \DIFaddbegin \DIFadd{For \(W\in\mathbb{F}^{k\times n}\), let
+\(\Delta(W,\mathcal{C}^{\langle k\rangle})\) be its relative column distance
+from the interleaved code.  We use the following code property; the full
+parameter discussion is given in Appendix~\ref{app:security-proof}.
+}
+
+\begin{definition}[Structured-fold proximity gap]
+\label{def:structured-proximity-gap}
+\DIFadd{For \(\vect{a}=(1,a,\ldots,a^{k-1})\), define
+\(\mathsf{FoldWord}(\vect{a},W)[j]=\fold(\vect{a},W[*,j])\).  The code has a
+\((k,\tau,\epsilon_{\mathsf{gap}})\) structured-fold proximity gap if every
+\(W\) at distance greater than \(\tau\) folds to a word within distance
+\(\tau\) of \(\mathcal{C}\) }\DIFaddend with probability at most
+ \DIFaddbegin \DIFadd{\(\epsilon_{\mathsf{gap}}\) over \(a\sample\mathbb{F}\).
+}\end{definition}
+\DIFaddend 
+
+ \DIFaddbegin \begin{definition}[Backend assumptions]
+\label{def:lamp-backend-assumptions}
+\DIFadd{The CP-SNARK, sampled openings, and CP-Link are sound with errors
+\(\epsilon_{\mathsf{cp}}\), \(\epsilon_{\mathsf{open}}\), and
+\(\epsilon_{\mathsf{link}}\), respectively.  The four intermediate-vector
+encoding checks have error \(\epsilon_{\mathsf{code}}\); for }\DIFaddend the
+Reed--Solomon  \DIFaddbegin \DIFadd{check of }\DIFaddend Appendix~\ref{app:rs-barycentric} \DIFaddbegin \DIFadd{,
+}\[
+  \DIFadd{\epsilon_{\mathsf{code}}
+  \le \frac{4(n-1)}{|\mathbb{F}|-n}.
+}\]
+\DIFadd{For zero knowledge, the CP-SNARK and CP-Link are zero knowledge and the
+Pedersen commitments are hiding.
+}\DIFaddend \end{definition}
+
+\begin{theorem}[Completeness, soundness, and zero knowledge]
+\label{thm:security}
+ \DIFaddbegin \DIFadd{Let \(\mathcal{C}\) have relative distance \(\delta\), fix
+\(0<\tau<\delta/2\), and assume Definition~\ref{def:structured-proximity-gap}
+and Definition~\ref{def:lamp-backend-assumptions}.  If \(\rt_{ABC}\) is fixed
+before \((r,s)\), then the interactive }\DIFaddend \(\protocol\)  \DIFaddbegin \DIFadd{protocol has perfect
+completeness and zero knowledge.  Moreover, for any PPT prover, let
+\(\mathsf{BadInput}\) denote the event that an input word is farther than
+\(\tau\) from the interleaved code or that the uniquely decoded matrices
+satisfy \(\mat{A}\mat{B}\ne\mat{C}\).  Then
+}\[
+\DIFadd{\begin{aligned}
+\Pr[\mathsf{Acc}\land\mathsf{BadInput}]
+&\le \epsilon_{\mathsf{cp}}+\epsilon_{\mathsf{open}}
+   +\epsilon_{\mathsf{link}}\\
+&\quad +\epsilon_{\mathsf{code}}+3\epsilon_{\mathsf{gap}}
+   +3(1-\tau)^t\\
+&\quad +\frac{k-1}{|\mathbb{F}|}
+   +4(1-\delta+\tau)^t .
+\end{aligned}
+}\]\DIFaddend 
+ \end{theorem}
+
+ \begin{proof}[Proof sketch]
+ \DIFaddbegin \DIFadd{Condition on the soundness }\DIFaddend of the CP-SNARK,  \DIFaddbegin \DIFadd{openings}\DIFaddend , CP-Link, and
+ \DIFaddbegin \DIFadd{intermediate encoding checks.  The roots then bind all words before \(I\), and
+the circuit uses their authenticated sampled symbols.
+}
+
+\DIFadd{The \(r\)-folds test the input words for \(\mat{A}\) and \(\mat{C}\).  The
+coefficient vector \(\vect{x}=\vect{r}\mat{A}\) need not be uniform, so the
+\(\vect{x}\)-weighted product equation alone does not give the same guarantee
+for \(\mat{B}\); the independent \(s\)-fold supplies that test.  By the
+structured-fold gap, any input farther than \(\tau\) from the code is rejected
+except for \(3\epsilon_{\mathsf{gap}}+3(1-\tau)^t\)}\DIFaddend .
+
+ \DIFaddbegin \DIFadd{Otherwise, \(\tau<\delta/2\) gives unique decoded matrices.  If their product
+relation is false, structured Freivalds fails }\DIFaddend with probability at most
+\((k-1)/|\mathbb{F}|\) \DIFaddbegin \DIFadd{.  Outside that event}\DIFaddend , at least one  \DIFaddbegin \DIFadd{sampled relation
+disagrees on a \((\delta-\tau)\)}\DIFaddend -fraction of positions,  \DIFaddbegin \DIFadd{contributing
+\(4(1-\delta+\tau)^t\).  }\DIFaddend Zero knowledge follows  \DIFaddbegin \DIFadd{from the simulators of the
+CP-SNARK and }\DIFaddend CP-Link  \DIFaddbegin \DIFadd{and the hiding of Pedersen commitments.  The complete
+bad-event decomposition appears in Appendix~\ref{app:security-proof}.
+}\DIFaddend \end{proof}
+
+\begin{remark}[Fiat--Shamir]
+The  \DIFaddbegin \DIFadd{implementation derives \((r,s)\)}\DIFaddend , \(I\), and the code-check points from
+domain-separated transcript hashes \DIFaddbegin \DIFadd{.  A formal analysis of this multi-round
+}\DIFaddend Fiat--Shamir transform  \DIFaddbegin \DIFadd{is outside the interactive theorem and left to future
+work}\DIFaddend .
+\end{remark}
+
+
+%% Section 7: Implementation and Evaluation 
+\section{Implementation and Evaluation}
+\label{sec:implementation}
+
+We implement \(\protocol\) and evaluate its performance. The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove
+interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK
+proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is
+given in Appendix~\ref{app:cplink-instant}.  The implementation is available at
+\url{https://anonymous.4open.science/r/LAMP-38E3/.}
+
+Our evaluation is organized around four questions.  First, does the number of constraints of \(\protocol\) scale linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second, which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? \\
+
+\noindent\textbf{Experimental setup.}
+We implement both \(\protocol\) and the Freivalds baseline in Go using gnark, with BN254 as the elliptic curve.  All experiments were run on a Linux server with an AMD EPYC 7B13 CPU with 32 cores and 254GB of memory.  We use a Reed--Solomon code of rate \(\rho=1/2\) and set the number of sampled positions to \(t=128\). \DIFaddbegin \\
+\DIFaddend 
+
+\DIFaddbegin \DIFadd{Groth16 requires a circuit-specific setup, while the QALink instantiation uses
+a configuration-dependent CRS determined by parameters including \(t\) and the
+linked block length. These setup procedures are offline preprocessing and are
+not included in the online proving and verification times reported below; when
+setup time is reported, we list it separately. Changing the circuit or these
+QALink parameters requires regenerating the corresponding setup material.}\\
+
+
+
+
+\DIFaddend \begin{table*}[!t]
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c cc cc cc cc}
+\toprule
+\multirow{2}{*}{\(\boldsymbol{k}\)}
+& \multicolumn{2}{c}{\textbf{Constraints}}
+& \multicolumn{2}{c}{\textbf{Prove Time}}
+& \multicolumn{2}{c}{\textbf{Verify Time}}
+& \multicolumn{2}{c}{\textbf{Proof Size}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+& \(\protocol\) & Freivalds
+& \(\protocol\) & Freivalds
+& \(\protocol\) & Freivalds
+& \(\protocol\) & Freivalds \\
+\midrule
+$2^7$    & 54{,}069      & 49{,}610       & 0.76\,s   & 0.58\,s   & 0.06\,s & 1\,ms & 22{,}852\,B & \multirow{6}{*}{196\,B} \\
+$2^8$    & 105{,}915     & 197{,}194      & 1.50\,s   & 2.03\,s   & 0.06\,s & 1\,ms & 29{,}380\,B & \\
+$2^9$    & 209{,}995     & 788{,}810      & 3.08\,s   & 6.89\,s   & 0.06\,s & 1\,ms & 36{,}292\,B & \\
+$2^{10}$ & 418{,}149     & 3{,}156{,}298  & 7.11\,s   & 25.63\,s  & 0.06\,s & 2\,ms & 43{,}332\,B & \\
+$2^{11}$ & 834{,}075     & 12{,}622{,}154 & 16.80\,s  & 102.07\,s & 0.06\,s & 2\,ms & 51{,}076\,B & \\
+$2^{12}$ & 1{,}666{,}315 & 50{,}495{,}818 & 48.06\,s  & 405.04\,s & 0.06\,s & 2\,ms & 58{,}564\,B & \\
+$2^{13}$ & 3{,}330{,}789 & --             & 150.24\,s & --        & 0.06\,s & --    & 66{,}756\,B & -- \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{\(\protocol\) compared with a Freivalds baseline.}
+\label{tab:lamp-vs-freivalds}
+\end{table*}
+
+
+\subsection{Comparison with a Freivalds Baseline}
+\label{sec:eval-freivalds}
+We compare \(\protocol\) with a Freivalds-based baseline implemented as a
+SNARK circuit. Table~\ref{tab:lamp-vs-freivalds} reports the number of
+constraints, proving time, verification time, and proof size for both systems.
+\DIFaddbegin \DIFadd{This baseline is not state of the art; because it uses the same Groth16 stack,
+it isolates the effect of moving the Freivalds vector--matrix products out of
+the circuit. The Freivalds proof remains \(196\) B at every dimension because a
+Groth16 proof is constant-size and does not grow with the number of circuit
+constraints. In contrast, a \(\protocol\) proof additionally contains sampled
+Merkle openings and CP-Link proofs.
+}\DIFaddend 
+
+For small dimensions, the fixed cost of
+\(\relation_{\mathsf{LAMP}}^{\mathsf{on}}\) dominates. In particular, at
+\(k=2^7\), \(\protocol\) uses slightly more constraints than the baseline.
+Starting from \(k=2^8\), however, the asymptotic advantage of \(\protocol\)
+becomes visible. As \(k\) doubles, the Freivalds baseline grows by roughly
+\(4\times\), whereas \(\protocol\) grows by roughly \(2\times\). This behavior
+matches the expected gap between the \(\mathcal{O}(k^2)\) vector--matrix
+computation in the baseline and the \(\mathcal{O}(tk)\) sampled fold check in
+\(\protocol\).
+At \(k=4{,}096\), \(\protocol\) reduces the number of constraints from
+\(50{,}495{,}818\) to \(1{,}666{,}315\), corresponding to a \(30.30\times\)
+reduction. The proving time also decreases from \(405.04\) s to \(48.06\) s.
+At \(k=8{,}192\), the Freivalds baseline runs out of memory, while
+\(\protocol\) still completes with \(3{,}330{,}789\) constraints.
+
+The main cost of \(\protocol\) appears in verification and proof size.
+Verification takes about \(0.06\) s for \(\protocol\), compared with
+\(1\)--\(2\) ms for the Freivalds baseline. This additional overhead comes from
+verifying Merkle openings and the pairing-based CP-Link proofs in addition to
+the Groth16 proof. In the QA-Link instantiation, CP-Link verification is the
+dominant part of this overhead because the verifier evaluates the sampled link
+equations as a multi-pairing check. Across all measured matrix dimensions, verification stays at about \(0.06\) s, while the prover-side savings become substantial for large matrix dimensions.
+
+
+\begin{table*}[!t]
+\centering
+% \scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c cc ccc ccc ccc}
+\toprule
+\multirow{2}{*}{\(\boldsymbol{k}\)}
+& \multicolumn{2}{c}{\textbf{Commit Time}}
+& \multicolumn{3}{c}{\textbf{Prove Time}}
+& \multicolumn{3}{c}{\textbf{Verify Time}}
+& \multicolumn{3}{c}{\textbf{Proof Size}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}\cmidrule(lr){10-12}
+& ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Groth16 & Merkle & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+$2^7$    & 0.09\,s    & 0.01\,s & 1\,ms & 0.63\,s  & 0.02\,s & 2\,ms & 1\,ms & 0.05\,s & 22{,}464\,B & \multirow{7}{*}{260\,B} & \multirow{7}{*}{128\,B} \\
+$2^8$    & 0.25\,s    & 0.02\,s & 1\,ms & 1.18\,s  & 0.05\,s & 2\,ms & 1\,ms & 0.05\,s & 28{,}992\,B & & \\
+$2^9$    & 0.87\,s    & 0.03\,s & 1\,ms & 2.11\,s  & 0.07\,s & 2\,ms & 1\,ms & 0.06\,s & 35{,}904\,B & & \\
+$2^{10}$ & 3.09\,s    & 0.13\,s & 1\,ms & 3.78\,s  & 0.11\,s & 2\,ms & 1\,ms & 0.05\,s & 42{,}944\,B & & \\
+$2^{11}$ & 9.15\,s    & 0.45\,s & 1\,ms & 7.03\,s  & 0.17\,s & 2\,ms & 1\,ms & 0.05\,s & 50{,}688\,B & & \\
+$2^{12}$ & 32.32\,s   & 1.81\,s & 1\,ms & 13.60\,s & 0.33\,s & 2\,ms & 2\,ms & 0.05\,s & 58{,}176\,B & & \\
+$2^{13}$ & 116.78\,s  & 6.23\,s & 1\,ms & 26.51\,s & 0.72\,s & 2\,ms & 2\,ms & 0.05\,s & 66{,}368\,B & & \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{Component-level measurements for \(\protocol\).}
+\label{tab:lamp-breakdown}
+\end{table*}
+
+\subsection{LAMP Component Breakdown}
+\label{sec:eval-lamp-breakdown}
+
+Table~\ref{tab:lamp-breakdown} breaks down the measured cost of \(\protocol\)
+by component.  Commit time includes  \DIFaddbegin \DIFadd{encoding, }\DIFaddend Pedersen leaf commitments\DIFaddbegin \DIFadd{, }\DIFaddend and
+Merkle root generation.  For small dimensions, SNARK proving is the main bottleneck.
+As \(k\) grows, however, commitment generation for the ABC and XYZ objects
+becomes dominant.  For example, at \(k=4{,}096\), commitment generation takes
+\(34.13\) s in total, while Groth16 proving takes \(13.60\) s and CP-Link
+proving takes \(0.33\) s.  On the verifier side, Groth16 and Merkle
+verification remain at a few milliseconds, while the pairing-based QA-Link
+check takes about \(0.05\)--\(0.06\) s.  Thus total verification remains about \(0.06\) s for all measured matrix dimensions.
+
+
+
+\begin{table*}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c c cc ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Claims}}
+& \multirow{2}{*}{\textbf{Constraints}}
+& \multicolumn{2}{c}{\textbf{Commit Time}}
+& \multicolumn{3}{c}{\textbf{Prove Time}}
+& \multicolumn{3}{c}{\textbf{Proof Size}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+& & ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+1  & 54{,}069  & 0.11\,s & 0.01\,s & 1\,ms & 0.65\,s & 0.02\,s & 22{,}592\,B & \multirow{10}{*}{260\,B} & \multirow{10}{*}{128\,B} \\
+2  & 105{,}349 & 0.15\,s & 0.01\,s & 1\,ms & 1.18\,s & 0.04\,s & 22{,}528\,B & & \\
+3  & 156{,}629 & 0.19\,s & 0.02\,s & 1\,ms & 1.69\,s & 0.04\,s & 22{,}336\,B & & \\
+4  & 207{,}909 & 0.23\,s & 0.01\,s & 1\,ms & 2.14\,s & 0.07\,s & 21{,}696\,B & & \\
+5  & 259{,}189 & 0.30\,s & 0.02\,s & 1\,ms & 2.48\,s & 0.08\,s & 22{,}528\,B & & \\
+6  & 310{,}469 & 0.32\,s & 0.02\,s & 1\,ms & 2.96\,s & 0.08\,s & 22{,}272\,B & & \\
+7  & 361{,}749 & 0.34\,s & 0.02\,s & 1\,ms & 3.35\,s & 0.10\,s & 22{,}208\,B & & \\
+8  & 413{,}029 & 0.39\,s & 0.02\,s & 1\,ms & 3.75\,s & 0.12\,s & 22{,}272\,B & & \\
+9  & 464{,}309 & 0.42\,s & 0.02\,s & 1\,ms & 4.16\,s & 0.11\,s & 22{,}464\,B & & \\
+10 & 515{,}589 & 0.46\,s & 0.02\,s & 1\,ms & 4.60\,s & 0.12\,s & 22{,}208\,B & & \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{Batching \(q\) independent matrix-multiplication claims
+\(\{\mat{A}_i\mat{B}_i=\mat{C}_i\}_{i\in[q]}\) at fixed \(k=2^7\).}
+\label{tab:lamp-batch}
+\end{table*}
+
+\subsection{Batching Matrix-Multiplication Claims}
+\label{sec:eval-batch}
+We also evaluate a batched setting with multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\).  The number of claims is the number of matrix products proved together.  For each codeword position, the prover packs all interleaved symbols of \(\mat{A}_i,\mat{B}_i,\mat{C}_i\) into a single Pedersen leaf and builds one Merkle tree.  Therefore, the number of Merkle membership proofs does not grow with the number of claims.
+
+Table~\ref{tab:lamp-batch} reports the component costs at fixed \(k=2^7\).
+As expected, the constraint count and Groth16 proving time grow with the number
+of checked matrix products.  In contrast, the Merkle proof size stays around
+\(22\) KB across all claim counts.  This shows that, once the batched matrix
+leaves are committed together, the sampled Merkle membership proof does not
+scale with the number of matrix products.  The small variation in Merkle proof
+size comes from the multi-opening implementation: the number of shared
+authentication nodes can vary slightly depending on the sampled index set.
+Verification time remains about \(0.06\)--\(0.07\) s across the batch-size
+range, because the number of sampled positions and the verification procedure
+are unchanged.
+
+\subsection{GPT-2 Workload}
+\label{sec:eval-gpt2}
+
+Table~\ref{tab:lamp-gpt2} evaluates \(\protocol\) as a verifiable AI
+application: the matrix multiplications in a single GPT-2 layer with sequence
+length \(2^{10}\).  This workload consists of several matrix multiplications
+arising from the attention and MLP components of the layer, with different
+matrix shapes and structures.
+\(\protocol\) reduces the constraint count from \(76{,}807{,}671\) to
+\(33{,}427{,}908\), a \(2.30\times\) reduction, and reduces proving time from
+\(408.69\) s to \(230.82\) s, a \(1.77\times\) improvement.  The gain is smaller
+than in the square-matrix benchmark because a GPT-2 layer decomposes into
+several rectangular matrix multiplications and smaller matrix products inside
+each attention head.  Since these products have different dimensions, the
+sampled opening layer cannot easily amortize all products through a single
+shared leaf layout.
+This effect also appears in verifier-side costs.  The Freivalds baseline
+verifies in \(0.49\) s, whereas \(\protocol\) uses more commitments and therefore
+requires the verifier to check more CP-Link proofs and Merkle membership proofs.
+As a result, verification takes \(6.52\) s for \(\protocol\), and the proof size
+increases \DIFaddbegin \DIFadd{from \(196\) B }\DIFaddend to \(3{,}342{,}724\) B \DIFaddbegin \DIFadd{(approximately \(3.34\) MB)}\DIFaddend .
+Thus, on this heterogeneous AI workload,
+\(\protocol\) still reduces prover-side cost, while the sampled opening and
+linking layers become the main contributors to verification time and proof size.
+
+\begin{table}[H]
+\centering
+% \footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}ccccc@{}}
+\toprule
+\textbf{System} & \textbf{Constraints} & \textbf{Prove} & \textbf{Verify} & \textbf{Proof Size} \\
+\midrule
+\(\protocol\) & 33{,}427{,}908 & 230.82\,s & 6.52\,s & 3{,}342{,}724\,B \\
+Freivalds & 76{,}807{,}671 & 408.69\,s & 0.49\,s & 196\,B \\
+\bottomrule
+\end{tabular*}
+\vspace{6pt}
+\caption{GPT-2 at sequence length \(2^{10}\).}
+\label{tab:lamp-gpt2}
+\end{table}
+
+
+%% Section 8: Conclusion
+\section{Conclusion}
+\label{sec:conclusion}
+
+We proposed \(\protocol\), a protocol for verifying matrix multiplication by
+moving expensive vector--matrix products outside the SNARK circuit and checking
+them through sampled local tests over encoded data.  The prover commits to the
+encoded matrices and Freivalds intermediate vectors, while the SNARK circuit
+proves only the sampled fold relations.  Merkle openings and CP-Link proofs
+ensure that the values used inside the CP-SNARK are consistent with the
+externally committed data fixed before the sampling challenges are known.
+
+Our implementation confirms the intended tradeoff.  For a fixed number \(t\) of
+queries, the main arithmetic relation has
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints rather than the
+\(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.  Thus, when \(t\) is
+fixed and the code-consistency checks are linear, the constraint count of
+\(\protocol\) grows linearly with the matrix dimension \(k\).  In the matrix
+benchmark at \(k=4{,}096\), \(\protocol\) reduces the constraint count by
+\(30.3\times\) and proving time by \(8.43\times\), while keeping verification
+around \(0.06\) s.  The batching experiment further shows that opening overhead
+can be amortized when multiple matrix-multiplication claims share the same leaf
+layout.
+
+ \DIFaddbegin \DIFadd{On the heterogeneous }\DIFaddend GPT-2  \DIFaddbegin \DIFadd{workload}\DIFaddend , \(\protocol\)  \DIFaddbegin \DIFadd{reduces constraints by
+}\DIFaddend \(2.30\times\)  \DIFaddbegin \DIFadd{and proving time by }\DIFaddend \(1.77\times\) \DIFaddbegin \DIFadd{, but verification increases
+from \(0.49\) s to \(6.52\) s and proof size from \(196\) B to \(3.34\) MB.
+Thus, this experiment demonstrates a prover-side trade-off rather than an
+end-to-end performance improvement}\DIFaddend .
+
+The main remaining costs are sampled-opening proof size and pairing-based link
+verification.  As future work, we plan to reduce opening and linking overhead,
+improve sharing across consecutive matrix products of different sizes, and
+exploit fixed model weights in verifiable AI scenarios for preprocessing and
+batching.  These optimizations may reduce proof size and verification time on
+more complex AI workloads while preserving the linear constraint growth of
+\(\protocol\).
+
+
+\newpage
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{Styles/bibliography}
+
+\appendices
+%DIF >  Standard SNARK and CP-Link definitions were included in an earlier draft.
+%DIF >  They are omitted from the revised paper because Section~\ref{sec:security}
+%DIF >  states exactly the backend properties used by the theorem.
+\DIFaddbegin \iffalse
+\DIFaddend \section{SNARK Security Definitions}
+\label{app:snark-security}
+
+Let \(\relation=\{\relation_\lambda\}_{\lambda\in\mathbb{N}}\) be a family of
+NP relations.  A SNARK for \(\relation\) is a tuple of algorithms
+\(\bPi=(\setup,\prove,\verify)\), as defined in
+Section~\ref{sec:prelim-snark}.  We recall the standard security properties
+used in this work. \\
+
+\noindent\textbf{Completeness.}
+\(\bPi\) satisfies completeness if, for every security parameter \(\lambda\)
+and every \((\stmt,\wit)\in\relation_\lambda\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi.\verify(\para,\stmt,\pi)=1
+  \\[1mm]
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),
+  \quad
+  \pi\gets\bPi.\prove(\para,\stmt,\wit)
+\end{array}
+\right]
+\\
+&\hspace{2em}\ge 1-\textsf{negl}(\lambda).
+\end{aligned}
+\]
+If the probability is \(1\), we say that \(\bPi\) has perfect completeness. \\
+
+\noindent\textbf{Knowledge soundness.}
+\(\bPi\) satisfies knowledge soundness if, for every \(\ppt\) prover
+\(\mathcal{A}\), there exists  \DIFaddbegin \DIFadd{a }\DIFaddend \(\ppt\) extractor
+\(\mathsf{Ext}^{\mathcal{A}}\) such that
+\[
+\begin{aligned}
+&\Pr\left[
+\begin{array}{l}
+  \bPi.\verify(\para,\stmt,\pi)=1 \\
+  \quad {}\wedge{}\,(\stmt,\wit)\notin\relation_\lambda
+\end{array}
+\;:\;
+\begin{array}{l}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  (\stmt,\pi)\gets\mathcal{A}(\para),\\
+  \wit\gets\mathsf{Ext}^{\mathcal{A}}(\para,\stmt)
+\end{array}
+\right] \\
+&\le \textsf{negl}(\lambda).
+\end{aligned}
+\]
+Equivalently, except with negligible probability, any prover that outputs an
+accepting proof for \(\stmt\) must know a witness \(\wit\) such that
+\((\stmt,\wit)\in\relation_\lambda\). \\
+
+
+\noindent\textbf{Zero knowledge.}
+\(\bPi\) satisfies zero knowledge if there exists a \(\ppt\) simulator
+\(\mathsf{Sim}\) such that, for every \(\ppt\) distinguisher
+\(\mathcal{D}\), the following two experiments are indistinguishable.
+
+\[
+\begin{aligned}
+\mathsf{Real}_{\bPi,\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  \pi\gets\bPi.\prove(\para,\stmt,\wit),\\
+  b\gets\mathcal{D}(\para,\stmt,\pi),\\
+  \text{return } b.
+\end{array}
+\right.
+\\[3mm]
+\mathsf{Ideal}_{\bPi,\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  \pi^\star\gets\mathsf{Sim}(\para,\stmt),\\
+  b\gets\mathcal{D}(\para,\stmt,\pi^\star),\\
+  \text{return } b.
+\end{array}
+\right.
+\end{aligned}
+\]
+
+For all \((\stmt,\wit)\in\relation_\lambda\),
+\[
+\left|
+  \Pr[\mathsf{Real}_{\bPi,\mathcal{D}}(\lambda)=1]
+  -
+  \Pr[\mathsf{Ideal}_{\bPi,\mathcal{D}}(\lambda)=1]
+\right|
+\le
+\textsf{negl}(\lambda).
+\]
+A SNARK satisfying zero knowledge is called a zk-SNARK.
+
+\section{CP-Link Security Definitions}
+\label{app:cplink-security}
+
+Let
+\(\relation_{\mathsf{link}}
+=\{\relation_{\mathsf{link},\lambda}\}_{\lambda\in\mathbb{N}}\)
+be the blockwise linking relation defined in Section~\ref{sec:prelim-cplink}.
+For a SNARK-side key \(\ck_S\), an external key \(\ck_E\), a SNARK-side
+commitment \(\widetilde{\cm}\), external commitments
+\(\cm_0,\ldots,\cm_{q-1}\), sampled blocks
+\((\vect{m}_i)_{i=0}^{q-1}\), and opening randomness
+\(\widetilde{o},o_0,\ldots,o_{q-1}\), define
+\[
+\begin{aligned}
+\stmt_{\mathsf{link}}
+&=
+((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1})),\\
+\wit_{\mathsf{link}}
+&=
+((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
+\end{aligned}
+\]
+The relation \(\relation_{\mathsf{link},\lambda}\) contains exactly the pairs
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) satisfying
+\[
+\begin{aligned}
+\widetilde{\cm}
+&=
+\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+\cm_i
+&=
+\com(\ck_E,\vect{m}_i;o_i)
+\quad \text{for all } i=0,\ldots,q-1.
+\end{aligned}
+\]
+A CP-Link proof system for \(\relation_{\mathsf{link}}\) is a tuple of
+algorithms
+\(\bPi_{\mathsf{link}}=(\setup,\prove,\verify)\), as defined in
+Section~\ref{sec:prelim-cplink}.  The corresponding linking language is
+\[
+  \mathcal{L}_{\mathsf{link},\lambda}
+  =
+  \left\{
+    \stmt_{\mathsf{link}}
+    :
+    \exists \wit_{\mathsf{link}}
+    \text{ such that }
+    (\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+    \in
+    \relation_{\mathsf{link},\lambda}
+  \right\}.
+\]
+Thus a statement is in \(\mathcal{L}_{\mathsf{link},\lambda}\) exactly when
+the SNARK-side commitment opens to the ordered concatenation of sampled blocks
+and each external commitment opens to the corresponding block.  The main
+security property for our protocol is link soundness.  If the CP-Link backend
+is implemented as a NIZK or QA-NIZK, as in our implementation, it may
+additionally satisfy witness zero knowledge~\cite{legosnark,qa-nizk}. \\
+
+\noindent\textbf{Link completeness.}
+\(\bPi_{\mathsf{link}}\) satisfies completeness if, for every security
+parameter \(\lambda\) and every
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+\in\relation_{\mathsf{link},\lambda}\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi_{\mathsf{link}}.\verify(
+    \para_{\mathsf{link}},
+    \stmt_{\mathsf{link}},
+    \pi_{\mathsf{link}}
+  )=1
+  \\[1mm]
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \wit_{\mathsf{link}}
+    )
+\end{array}
+\right]
+\\
+&\hspace{2em}\ge 1-\textsf{negl}(\lambda).
+\end{aligned}
+\]
+If the probability is \(1\), we say that
+\(\bPi_{\mathsf{link}}\) has perfect completeness. \\
+
+\noindent\textbf{Link soundness.}
+\(\bPi_{\mathsf{link}}\) satisfies link soundness with error
+\(\epsilon_{\mathsf{link}}(\lambda)\) if, for every \(\ppt\) adversary
+\(\mathcal{A}\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi_{\mathsf{link}}.\verify(
+    \para_{\mathsf{link}},
+    \stmt_{\mathsf{link}}^\star,
+    \pi_{\mathsf{link}}^\star
+  )=1
+  \\[1mm]
+  {}\wedge{}\ 
+  \stmt_{\mathsf{link}}^\star
+  \notin
+  \mathcal{L}_{\mathsf{link},\lambda}
+  \\[1mm]
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  (\stmt_{\mathsf{link}}^\star,\pi_{\mathsf{link}}^\star)
+    \gets
+    \mathcal{A}(\para_{\mathsf{link}})
+\end{array}
+\right]
+\\
+&\hspace{2em}\le \epsilon_{\mathsf{link}}(\lambda).
+\end{aligned}
+\]
+If \(\epsilon_{\mathsf{link}}(\lambda)=\textsf{negl}(\lambda)\), we say that
+\(\bPi_{\mathsf{link}}\) is link-sound.  Equivalently, except with probability
+\(\epsilon_{\mathsf{link}}(\lambda)\), an accepting CP-Link proof certifies the
+existence of blocks \((\vect{m}_i)_{i=0}^{q-1}\), an aggregate opening
+\(\widetilde{o}\), and external openings \((o_i)_{i=0}^{q-1}\) such that
+\(\widetilde{\cm}\) opens to
+\(\vect{m}_0\|\cdots\|\vect{m}_{q-1}\) and each \(\cm_i\) opens to
+\(\vect{m}_i\). \\
+
+\noindent\textbf{Witness zero knowledge.}
+When privacy of the linked blocks and opening randomness is required, we say
+that \(\bPi_{\mathsf{link}}\) satisfies witness zero knowledge if there exists a
+\(\ppt\) simulator \(\mathsf{Sim}_{\mathsf{link}}\) such that, for every
+\(\ppt\) distinguisher \(\mathcal{D}\), the following two experiments are
+indistinguishable.
+
+\[
+\begin{aligned}
+\mathsf{Real}_{\mathsf{link},\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \wit_{\mathsf{link}}
+    ),\\
+  b\gets
+    \mathcal{D}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \pi_{\mathsf{link}}
+    ),\\
+  \text{return } b.
+\end{array}
+\right.
+\\[3mm]
+\mathsf{Ideal}_{\mathsf{link},\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}^\star
+    \gets
+    \mathsf{Sim}_{\mathsf{link}}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}
+    ),\\
+  b\gets
+    \mathcal{D}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \pi_{\mathsf{link}}^\star
+    ),\\
+  \text{return } b.
+\end{array}
+\right.
+\end{aligned}
+\]
+
+For all
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+\in\relation_{\mathsf{link},\lambda}\),
+\[
+\left|
+  \Pr[\mathsf{Real}_{\mathsf{link},\mathcal{D}}(\lambda)=1]
+  -
+  \Pr[\mathsf{Ideal}_{\mathsf{link},\mathcal{D}}(\lambda)=1]
+\right|
+\le
+\textsf{negl}(\lambda).
+\]
+This property says that the linking proof reveals no information about
+the blocks \((\vect{m}_i)_{i=0}^{q-1}\) or the openings
+\(\widetilde{o},o_0,\ldots,o_{q-1}\), beyond the public fact that the
+commitments are blockwise linkable.
+
+
+
+
+\DIFaddbegin \fi
+\DIFaddend \section{Detailed Proof of Theorem~\ref{thm:security}}
+\label{app:security-proof}
+
+\begin{proof}
+We prove the public-coin interactive protocol . The Fiat--Shamir  \DIFaddbegin \DIFadd{transform used
+by the implementation is discussed separately }\DIFaddend at the end \DIFaddbegin \DIFadd{and is not covered by
+the theorem}\DIFaddend .
+
+\paragraph{Perfect completeness}
+Assume that the honest prover holds matrices
+\(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\) with
+\(\mat{A}\mat{B}=\mat{C}\).  Let
+\(\vect{r}=(1,r,\ldots,r^{k-1})\) \DIFaddbegin \DIFadd{and
+\(\vect{s}=(1,s,\ldots,s^{k-1})\)}\DIFaddend , and define
+ \DIFaddbegin \[
+  \DIFadd{\vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C},
+  \qquad
+  \vect{b}=\vect{s}\mat{B}.
+}\]\DIFaddend 
+Then \(\vect{y}=\vect{z}\).  The honest prover commits to the packed encoded
+matrix blocks \(\{\vect{m}_{ABC,j}\}_{j\in[n]}\) under \(\rt_{ABC}\), commits
+to the packed encoded vector blocks  \DIFaddbegin \DIFadd{\(\{\vect{m}_{XYZB,j}\}_{j\in[n]}\) under
+\(\rt_{XYZB}\)}\DIFaddend , and supplies the sampled openings and CP-Link proofs required
+by Section~\ref{sec:openings-and-cplink}.
+
+For every queried position \(j\in I\), code linearity gives
+\[
+  \fold(\vect{r},\widehat{\mat{A}}[*,j])
+  =
+  \widehat{\vect{x}}[j],
+\]
+and similarly
+ \DIFaddbegin \[
+\DIFadd{\begin{aligned}
+  \fold(\vect{x},\widehat{\mat{B}}[*,j])
+  &= \widehat{\vect{y}}[j],\\
+  \fold(\vect{r},\widehat{\mat{C}}[*,j])
+  &= \widehat{\vect{z}}[j],\\
+  \fold(\vect{s},\widehat{\mat{B}}[*,j])
+  &= \widehat{\vect{b}}[j].
+\end{aligned}
+}\]\DIFaddend 
+Since \(\vect{y}=\vect{z}\), the equality check
+\(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\) also holds.  All SNARK,
+Merkle, and CP-Link checks are honestly generated, so the verifier accepts.
+
+\paragraph{Bad-event decomposition}
+Let \(\mathsf{Acc}\) be the event that the verifier accepts a false committed
+matrix multiplication statement.  We decompose the failure probability into
+the following events:
+\begin{itemize}
+  \item \(\mathsf{Bad}_{\mathsf{SNARK}}\): the CP-SNARK accepts although the
+  sampled relation of Section~\ref{sec:snark-relation} is false for the
+  committed sampled witnesses;
+  \item \(\mathsf{Bad}_{\mathsf{open}}\): a Merkle opening or Pedersen leaf
+  opening is accepted in a way that violates position binding or commitment
+  binding;
+	  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
+	  SNARK-side sampled blocks are not the corresponding blocks opened from the
+	  Pedersen leaves under \(\rt_{ABC}\) and  \DIFaddbegin \DIFadd{\(\rt_{XYZB}\)}\DIFaddend .
+  \item \(\mathsf{Bad}_{\mathsf{code}}\): the probabilistic code-consistency
+  checks accept encoded views that are not encodings of their corresponding
+  intermediate vectors\DIFaddbegin \DIFadd{;
+  }\item \DIFadd{\(\mathsf{Bad}_{\mathsf{gap}}\): an input word farther than
+  \(\tau\) from the interleaved code produces a structured fold within
+  distance \(\tau\) of \(\mathcal{C}\)}\DIFaddend .
+\end{itemize}
+By the assumed soundness of the selected backends,
+ \DIFaddbegin \[
+\DIFadd{\begin{aligned}
+\Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
+  &\le \epsilon_{\mathsf{cp}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{open}}]
+  &\le \epsilon_{\mathsf{open}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{link}}]
+  &\le \epsilon_{\mathsf{link}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{code}}]
+  &\le \epsilon_{\mathsf{code}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{gap}}]
+  &\le 3\epsilon_{\mathsf{gap}}.
+\end{aligned}
+}\]\DIFaddend 
+Condition on the complement of these events.  Then \(\rt_{ABC}\) fixes a
+unique sequence of packed matrix-column commitments at all queried positions,
+ \DIFaddbegin \DIFadd{\(\rt_{XYZB}\) }\DIFaddend fixes a unique sequence of packed vector-symbol commitments at
+all queried positions, and the sampled values used by the SNARK are exactly the
+messages opened from those commitments.  In particular, the adversary cannot
+choose different sampled blocks after seeing \(I\) without breaking the
+opening or linking layer.
+
+\paragraph{ \DIFaddbegin \DIFadd{Input proximity and extraction}\DIFaddend }
+The  root \(\rt_{ABC}\)  \DIFaddbegin \DIFadd{fixes arbitrary words
+\(W_A,W_B,W_C\in\mathbb{F}^{k\times n}\) before \((r,s)\) is sampled.
+Suppose first that one of them is farther than \(\tau\) from the interleaved
+code.  We use }\DIFaddend \(r\)  \DIFaddbegin \DIFadd{for \(W_A,W_C\) and the independent \(s\) for \(W_B\).
+Conditioned on \(\neg\mathsf{Bad}_{\mathsf{gap}}\), the corresponding folded
+word is farther than \(\tau\) from \(\mathcal{C}\).  The encoded view claimed
+by the prover is a codeword conditioned on
+\(\neg\mathsf{Bad}_{\mathsf{code}}\), so the two words disagree on more than
+\(\tau n\) positions.  Since both are committed before \(I\), the probability
+that \(t\) independent queries miss this set is at most \((1-\tau)^t\).
+Union-bounding over \(A,B,C\) gives \(3(1-\tau)^t\).
+}
+
+\DIFadd{It remains to consider the case in which all three words are within distance
+\(\tau\) of the interleaved code.  Because \(\tau<\delta/2\), each is close
+to a unique interleaved codeword.  Decode those codewords }\DIFaddend row-wise  \DIFaddbegin \DIFadd{to obtain
+fixed }\DIFaddend matrices \(\mat{A},\mat{B},\mat{C}\).  \DIFaddbegin \DIFadd{These are the matrices bound by
+the accepted committed statement.
+}
+
+\paragraph{\DIFadd{Freivalds randomization}}
+\DIFaddend Suppose \(\mat{A}\mat{B}\neq\mat{C}\), and let
+\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
+\(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
+\(\vect{r}\mat{D}=0\) implies
+\[
+  P(r)
+  \coloneqq
+  \langle (1,r,\ldots,r^{k-1}),\vect{d}\rangle
+  =
+  \sum_{i=0}^{k-1} d_i r^i
+  =
+  0 .
+\]
+The polynomial \(P\) is nonzero and has degree at most \(k-1\).  Since \(r\)
+is sampled after \(\rt_{ABC}\) is fixed, Schwartz--Zippel gives
+\[
+  \Pr[\vect{r}\mat{D}=0]
+  \le
+  \frac{k-1}{|\mathbb{F}|}.
+\]
+
+\paragraph{ \DIFaddbegin \DIFadd{Sampled relation checks}\DIFaddend }
+Now also condition on \(\vect{r}\mat{D}\neq 0\).  No vectors
+\(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
+\[
+  \vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C},
+  \qquad
+  \vect{y}=\vect{z}.
+\]
+Otherwise they would imply
+\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\), contradicting
+\(\vect{r}\mat{D}\neq 0\).
+
+Therefore at least one checked encoded relation is false.  Consider the case
+\(\vect{x}\neq\vect{r}\mat{A}\); the other three cases are identical.  The
+codewords \(\enc(\vect{x})\) and \(\enc(\vect{r}\mat{A})\) are distinct, so by
+relative distance they disagree on at least \(\delta n\) coordinates.  \DIFaddbegin \DIFadd{The
+committed word \(W_A\) differs from \(\enc(\mat{A})\) at no more than
+\(\tau n\) column positions.  Therefore
+\(\mathsf{FoldWord}(\vect{r},W_A)\) and \(\enc(\vect{x})\) disagree at no
+fewer than \((\delta-\tau)n\) positions.  }\DIFaddend For any queried coordinate \(j\),
+code linearity gives
+ \DIFaddbegin \[
+  \DIFadd{\enc(\vect{r}\mat{A})}[\DIFadd{j}]
+  \DIFadd{=
+  \fold(\vect{r},\enc(\mat{A})}[\DIFadd{*,j}]\DIFadd{).
+}\]\DIFaddend 
+The sampled-opening backend ensures that the SNARK uses the opened
+ \DIFaddbegin \DIFadd{\(W_A[*,j]\) }\DIFaddend block under \(\rt_{ABC}\) and the opened
+\(\widehat{\vect{x}}[j]\) symbol under  \DIFaddbegin \DIFadd{\(\rt_{XYZB}\)}\DIFaddend .  Thus the fold check
+rejects whenever \(j\) lands in the disagreement set.  A uniformly sampled
+coordinate misses this set with probability at most  \DIFaddbegin \DIFadd{\(1-\delta+\tau\)}\DIFaddend , and
+\(t\) independent samples miss it with probability at most
+ \DIFaddbegin \DIFadd{\((1-\delta+\tau)^t\)}\DIFaddend .
+Union-bounding over the four possible violated relations gives
+ \DIFaddbegin \[
+  \DIFadd{4(1-\delta+\tau)^t .
+}\]\DIFaddend 
+
+\paragraph{Combining the bounds}
+Adding the SNARK, opening, linking, code-consistency, Freivalds, and proximity
+failure events gives
+ \DIFaddbegin \[
+\DIFadd{\begin{aligned}
+\Pr[\mathsf{Acc}\land\mathsf{BadInput}]
+&\le
+\epsilon_{\mathsf{cp}}(\lambda)
++\epsilon_{\mathsf{open}}(\lambda)
++\epsilon_{\mathsf{link}}(\lambda)\\
+&\quad+\epsilon_{\mathsf{code}}(\lambda)
++3\epsilon_{\mathsf{gap}}\\
+&\quad+3(1-\tau)^t
++\frac{k-1}{|\mathbb{F}|}\\
+&\quad+4(1-\delta+\tau)^t .
+\end{aligned}
+}\]\DIFaddend 
+ \DIFaddbegin \DIFadd{The earlier estimate \(4(1-\delta)^t\), which assumes exact input codewords,
+does not apply to the revised protocol.  A concrete security level must instead
+instantiate \(\tau\), \(\epsilon_{\mathsf{gap}}\), and }\DIFaddend \(t\)  \DIFaddbegin \DIFadd{jointly.  In
+particular, the experimental choice \(t=128\) is not claimed here to provide
+128-bit soundness until that parameter calculation is completed.
+}
+
+\DIFadd{This proves Theorem~\ref{thm:security} for the public-coin interactive protocol}\DIFaddend .
+
+\paragraph{Fiat--Shamir variant}
+The  \DIFaddbegin \DIFadd{implementation derives \((r,s)\)}\DIFaddend , \(I\), and backend batch challenges from
+domain-separated hashes of the transcript.  \DIFaddbegin \DIFadd{A formal }\DIFaddend random-oracle  \DIFaddbegin \DIFadd{analysis of
+this multi-round Fiat--Shamir transform is outside }\DIFaddend Theorem~\ref{thm:security}
+\DIFaddbegin \DIFadd{and is left to future work}\DIFaddend .
+\end{proof}
+
+\section{Barycentric Reed--Solomon Consistency Check}
+\label{app:rs-barycentric}
+
+This appendix specifies the Reed--Solomon instantiation of
+\(\mathsf{EncCheck}_{\mathcal{C}}\) used in
+Section~\ref{sec:snark-relation}.  Let
+% \[
+%  D=\{\omega_1,\ldots,\omega_n\}\subset\mathbb{F}
+% \]
+\[
+D=\{\omega_0,\ldots,\omega_{n-1}\}\subset\mathbb{F}
+\]
+be the public evaluation domain.  A message
+\(\vect{v}=(v_0,\ldots,v_{k-1})\in\mathbb{F}^k\) defines the degree-\(<k\)
+polynomial
+ \DIFaddbegin \[
+  \DIFadd{p_{\vect{v}}(X)=\sum_{\ell=0}^{k-1} v_\ell X^\ell,
+  \qquad
+  \enc(\vect{v})=(p_{\vect{v}}(\omega_i))_{i=0}^{n-1}.
+}\]\DIFaddend 
+Given a claimed encoded word
+\(\widehat{\vect{v}}\in\mathbb{F}^n\), let
+\(P_{\widehat{\vect{v}}}\) be the unique degree-\(<n\) polynomial satisfying
+\[
+  P_{\widehat{\vect{v}}}(\omega_i)=\widehat{\vect{v}}[i]
+  \qquad\text{for all }i\in[n].
+\]
+The check samples \(\alpha\sample\mathbb{F}\setminus D\) after the claimed
+word is fixed and compares \(P_{\widehat{\vect{v}}}(\alpha)\) with
+\(p_{\vect{v}}(\alpha)\).
+
+For efficient evaluation, define the domain polynomial and barycentric weights
+ \DIFaddbegin \[
+  \DIFadd{L_D(X)=\prod_{i=0}^{n-1}(X-\omega_i),
+  \quad
+  \lambda_i
+  =
+  \left(\prod_{\ell\neq i}(\omega_i-\omega_\ell)\right)^{-1}.
+}\]\DIFaddend 
+For every \(\alpha\notin D\), barycentric interpolation gives
+ \DIFaddbegin \[
+  \DIFadd{P_{\widehat{\vect{v}}}(\alpha)
+  =
+  L_D(\alpha)
+  \sum_{i=0}^{n-1}
+  \lambda_i
+  \frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
+}\]\DIFaddend 
+Thus the concrete Reed--Solomon consistency check is
+ \DIFaddbegin \[
+\DIFadd{\begin{aligned}
+\mathsf{EncCheck}_{\mathsf{RS}}
+(\widehat{\vect{v}},\vect{v};\alpha)=1
+\Longleftrightarrow{}&
+\sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
+\\
+&=
+L_D(\alpha)
+\sum_{i=0}^{n-1}
+\lambda_i
+\frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
+\end{aligned}
+}\]\DIFaddend 
+The right-hand side is a linear form in the claimed encoded symbols once
+\(\alpha\) is fixed.  Equivalently, the verifier can derive the interpolation
+coefficients
+\[
+  \gamma_i(\alpha)
+  =
+  L_D(\alpha)\lambda_i(\alpha-\omega_i)^{-1}
+\]
+and the circuit checks
+ \DIFaddbegin \[
+  \DIFadd{\sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
+  =
+  \sum_{i=0}^{n-1}\gamma_i(\alpha)\widehat{\vect{v}}[i].
+}\]\DIFaddend 
+This costs \(\mathcal{O}(k+n)\) field operations per checked point, after the
+domain-dependent weights are precomputed.
+
+\begin{lemma}[Barycentric code-consistency soundness]
+\label{lem:rs-barycentric-soundness}
+If \(\widehat{\vect{v}}\neq\enc(\vect{v})\) and
+\(\alpha\sample\mathbb{F}\setminus D\) is sampled after
+\(\widehat{\vect{v}}\) and \(\vect{v}\) are fixed, then
+\[
+  \Pr[
+    \mathsf{EncCheck}_{\mathsf{RS}}
+    (\widehat{\vect{v}},\vect{v};\alpha)=1
+  ]
+  \le
+  \frac{n-1}{|\mathbb{F}|-n}.
+\]
+\end{lemma}
+
+\begin{proof}
+If \(\widehat{\vect{v}}\neq\enc(\vect{v})\), then the interpolation polynomial
+\(P_{\widehat{\vect{v}}}\) differs from the degree-\(<k\) polynomial
+\(p_{\vect{v}}\).  Their difference
+\[
+  Q(X)=P_{\widehat{\vect{v}}}(X)-p_{\vect{v}}(X)
+\]
+is a nonzero polynomial of degree at most \(n-1\).  The check accepts exactly
+when \(Q(\alpha)=0\).  Since \(\alpha\) is uniform over
+\(\mathbb{F}\setminus D\), at most \(n-1\) choices of \(\alpha\) can make the
+check accept, which proves the bound.
+\end{proof}
+
+In \(\protocol\), this check is applied independently to
+ \DIFaddbegin \DIFadd{\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+\widehat{\vect{b}}\) at
+\(\alpha_x,\alpha_y,\alpha_z,\alpha_b\)}\DIFaddend .  A union bound gives the
+ \DIFaddbegin \DIFadd{\(4(n-1)/(|\mathbb{F}|-n)\) }\DIFaddend term used in
+Definition~\ref{def:lamp-backend-assumptions}.
+
+\DIFaddbegin \iffalse
+\DIFaddend \section{CP-Link Instantiation}
+\label{app:cplink-instant}
+
+This appendix describes the CP-Link instantiation used in our implementation.
+We use a pairing-based quasi-adaptive link argument, denoted QALink, for
+linking one SNARK-side Pedersen commitment to several external Pedersen
+commitments.  The verifier can also batch multiple QALink verification
+equations into one multi-pairing check.
+
+Let \(e:\mathbb{G}_1\times\mathbb{G}_2\to\mathbb{G}_T\) be a bilinear pairing
+over prime-order groups of order \(|\mathbb{F}|\).  We write the group
+operation in \(\mathbb{G}_1\) additively, and let \(g_2\in\mathbb{G}_2\) be a
+generator. \\
+
+\noindent\textbf{Statement and witness.}
+Fix a block count \(q\) and a block length \(\ell\).  Let
+\(\ck_S=((G^S_{i,\nu})_{i\in[q],\nu\in[\ell]},H^S)\) be the SNARK-side
+commitment key for a commitment to \(q\) concatenated blocks, and let
+\(\ck_E=((G^E_{\nu})_{\nu\in[\ell]},H^E)\) be the external Pedersen commitment
+key for one block.
+
+The public statement is
+\(\stmt_{\mathsf{link}}=((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1}))\).  The witness is
+\[
+  \wit_{\mathsf{link}}
+  =
+  \big(
+    \vect{m}_0,\ldots,\vect{m}_{q-1},
+    \widetilde{o},
+    o_0,\ldots,o_{q-1}
+  \big),
+\]
+where each block \(\vect{m}_i\in\mathbb{F}^{\ell}\).  The intended relation is
+that \(\widetilde{\cm}\) commits to the ordered concatenation
+\(\vect{m}_0\|\cdots\|\vect{m}_{q-1}\) under \(\ck_S\), while each
+\(\cm_i\) commits to the corresponding block \(\vect{m}_i\) under \(\ck_E\).
+Equivalently,
+\[
+\begin{aligned}
+  \widetilde{\cm}
+  &=
+  \sum_{i\in[q]}\sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]G^S_{i,\nu}
+  +
+  \widetilde{o}H^S, \\
+  \cm_i
+  &=
+  \sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]G^E_{\nu}
+  +
+  o_iH^E
+  \qquad \text{for every } i\in[q].
+\end{aligned}
+\]
+
+\noindent\textbf{Setup.}
+The setup algorithm takes \((\ck_S,\ck_E,q,\ell)\) as input.  It samples
+\(k_0,k_1,\ldots,k_q,a\sample\mathbb{F}^{\ast}\) and defines
+\[
+  P_{i,\nu} \coloneqq k_0G^S_{i,\nu}+k_{i+1}G^E_{\nu}
+  \qquad
+  (i\in[q],\,\nu\in[\ell]).
+\]
+It outputs
+\[
+\begin{aligned}
+  \pk_{\mathsf{link}}
+  &=
+  \Big(
+    (P_{i,\nu})_{i\in[q],\,\nu\in[\ell]},
+    k_0H^S,
+    (k_{i+1}H^E)_{i\in[q]}
+  \Big), \\
+  \vk_{\mathsf{link}}
+  &=
+  (C_0,C_1,\ldots,C_q,A)
+  =
+  (ak_0g_2,ak_1g_2,\ldots,ak_qg_2,ag_2).
+\end{aligned}
+\]
+The trapdoors \(k_0,\ldots,k_q,a\) are discarded after setup. \\
+
+\noindent\textbf{Proving.}
+Given \(\stmt_{\mathsf{link}}\) and \(\wit_{\mathsf{link}}\), the prover
+outputs one group element
+\[
+\begin{aligned}
+  \pi_{\mathsf{link}}
+  \coloneqq
+  \sum_{i\in[q]}\sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]P_{i,\nu}
+  +
+  \widetilde{o}(k_0H^S)
+  +
+  \sum_{i\in[q]} o_i(k_{i+1}H^E).
+\end{aligned}
+\]
+By construction and by the homomorphism of Pedersen commitments,
+\[
+  \pi_{\mathsf{link}}
+  =
+  k_0\widetilde{\cm}
+  +
+  \sum_{i\in[q]} k_{i+1}\cm_i .
+\]
+This identity is the algebraic relation checked by the verifier. \\
+
+\noindent\textbf{Verification.}
+The verifier accepts if and only if
+\[
+  e(\widetilde{\cm},C_0)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,C_{i+1})
+  =
+  e(\pi_{\mathsf{link}},A).
+\]
+Equivalently, the verifier checks
+\[
+  e(\widetilde{\cm},C_0)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,C_{i+1})
+  \cdot
+  e(\pi_{\mathsf{link}},-A)
+  =
+  1_{\mathbb{G}_T}.
+\]
+
+\noindent\textbf{Correctness.}
+For an honestly generated proof, we have
+\(\pi_{\mathsf{link}}=k_0\widetilde{\cm}+\sum_{i\in[q]}k_{i+1}\cm_i\).
+Therefore, by bilinearity,
+\[
+\begin{aligned}
+  e(\pi_{\mathsf{link}},A)
+  &=
+  e\!\left(k_0\widetilde{\cm}+\sum_{i\in[q]}k_{i+1}\cm_i,ag_2\right)
+  \\
+  &=
+  e(\widetilde{\cm},ak_0g_2)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,ak_{i+1}g_2)
+  \\
+  &=
+  e(\widetilde{\cm},C_0)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,C_{i+1}).
+\end{aligned}
+\]
+Thus the verifier accepts. \\
+
+\noindent\textbf{Soundness.}
+QALink is a quasi-adaptive linear proof for the subspace relation induced by
+the commitment keys \((\ck_S,\ck_E)\), block count \(q\), and block length
+\(\ell\).  Under the standard quasi-adaptive linear-algebra assumption for the
+above pairing CRS, any accepting proof for a statement outside this relation
+implies a nontrivial linear relation among the hidden setup trapdoors
+\(k_0,\ldots,k_q,a\).  Thus the argument is sound except with negligible
+probability in the group order. \\
+
+\noindent\textbf{Verifier cost.}
+For one link statement with \(q\) external commitments, verification consists
+of \(q+2\) pairing terms:
+one term for \(\widetilde{\cm}\), \(q\) terms for
+\(\cm_0,\ldots,\cm_{q-1}\), and one term for \(\pi_{\mathsf{link}}\) against
+\(-A\).  A multi-pairing implementation evaluates these terms with \(q+2\)
+Miller-loop inputs and one final exponentiation.  The proof contains one
+\(\mathbb{G}_1\) element, and the verifying key contains \(q+2\)
+\(\mathbb{G}_2\) elements. \\
+
+\noindent\textbf{Batching pairing equations.}
+Suppose the verifier must check \(s\) independent QALink statements.  For the
+\(h\)-th statement, let
+\[
+  E_h
+  \coloneqq
+  e(\widetilde{\cm}^{(h)},C^{(h)}_0)
+  \cdot
+  \prod_{i\in[q_h]} e(\cm^{(h)}_i,C^{(h)}_{i+1})
+  \cdot
+  e(\pi^{(h)}_{\mathsf{link}},-A^{(h)}).
+\]
+The unbatched verifier checks \(E_h=1_{\mathbb{G}_T}\) for every \(h\).  The
+batched verifier first derives nonzero coefficients
+\(\lambda_1,\ldots,\lambda_s\in\mathbb{F}^{\ast}\) by hashing all public
+statements, verifying keys, proofs, and the surrounding transcript context.  It
+then checks the single equation
+\[
+  \prod_{h=1}^{s} E_h^{\lambda_h}=1_{\mathbb{G}_T}.
+\]
+Operationally, this is implemented by scaling the \(\mathbb{G}_1\) input of
+every pairing term in the \(h\)-th equation by \(\lambda_h\), and then running
+one multi-pairing check over all scaled terms:
+\[
+\begin{aligned}
+  &\prod_{h=1}^{s}
+  e(\lambda_h\widetilde{\cm}^{(h)},C^{(h)}_0)
+  \cdot
+  \prod_{h=1}^{s}\prod_{i\in[q_h]}
+  e(\lambda_h\cm^{(h)}_i,C^{(h)}_{i+1})
+  \cdot \\
+  &\prod_{h=1}^{s}
+  e(\lambda_h\pi^{(h)}_{\mathsf{link}},-A^{(h)})
+  =
+  1_{\mathbb{G}_T}.
+\end{aligned}
+\]
+
+The batched verifier uses \(\sum_{h=1}^{s}(q_h+2)\) Miller-loop terms and one
+final exponentiation.  It also performs \(\sum_{h=1}^{s}(q_h+2)\) scalar
+multiplications in \(\mathbb{G}_1\) to apply the batching coefficients.  If all
+individual equations are valid, then the batched equation is valid by
+bilinearity.  If at least one individual equation is invalid, write
+\(E_h=g_T^{\delta_h}\) in the prime-order target group.  The batched equation
+accepts only if \(\sum_h \lambda_h\delta_h=0\).  Since at least one
+\(\delta_h\neq 0\), a fresh random nonzero coefficient vector satisfies this
+linear equation with probability at most \(1/(|\mathbb{F}|-1)\).  In the
+non-interactive implementation this probability is interpreted in the random
+oracle model for the Fiat--Shamir-derived batching coefficients\DIFaddbegin \DIFadd{.
+}\fi
+
+\section{\DIFadd{CP-Link Instantiation}}
+\label{app:cplink-instant}
+
+\DIFadd{Our implementation uses a pairing-based quasi-adaptive link argument
+(QALink).  For \(q\) blocks \(\vect{m}_i\in\mathbb{F}^{\ell}\), the public
+statement contains one SNARK-side Pedersen commitment \(\widetilde{\cm}\) and
+external commitments \(\cm_0,\ldots,\cm_{q-1}\) satisfying
+}\[
+\DIFadd{\begin{aligned}
+\widetilde{\cm}
+ &=\sum_{i\in[q]}\sum_{\nu\in[\ell]}
+   \vect{m}_i[\nu]G^S_{i,\nu}+\widetilde{o}H^S,\\
+\cm_i
+ &=\sum_{\nu\in[\ell]}\vect{m}_i[\nu]G^E_\nu+o_iH^E.
+\end{aligned}
+}\]
+\DIFadd{Setup samples nonzero \(k_0,\ldots,k_q,a\in\mathbb{F}\), publishes the
+proving-key elements
+\(P_{i,\nu}=k_0G^S_{i,\nu}+k_{i+1}G^E_\nu\), and publishes
+\(C_i=ak_ig_2\) and \(A=ag_2\) in the verification key.  The prover outputs
+}\[
+ \DIFadd{\pi_{\mathsf{link}}
+ =k_0\widetilde{\cm}+\sum_{i\in[q]}k_{i+1}\cm_i,
+}\]
+\DIFadd{expressed using the proving key and the openings.  The verifier checks
+}\[
+ \DIFadd{e(\widetilde{\cm},C_0)
+ \prod_{i\in[q]}e(\cm_i,C_{i+1})
+ =e(\pi_{\mathsf{link}},A).
+}\]
+\DIFadd{Soundness follows from the quasi-adaptive linear-subspace assumption for this
+CRS.  One proof contains one \(\mathbb{G}_1\) element; verification uses
+\(q+2\) pairing terms, which a multi-pairing implementation evaluates with one
+final exponentiation.  The proving and verification keys depend on \(q\) and
+\(\ell\), so changing the sample count or linked block layout requires new
+setup material.
+}
+
+\DIFadd{Multiple link equations are batched by deriving a nonzero transcript
+coefficient \(\lambda_h\) for each equation \(E_h=1\) and checking
+\(\prod_h E_h^{\lambda_h}=1\) in one multi-pairing.  If at least one equation
+is invalid, a fresh coefficient vector satisfies the resulting nontrivial
+linear equation with probability at most \(1/(|\mathbb{F}|-1)\).  The
+non-interactive implementation derives these coefficients with Fiat--Shamir}\DIFaddend .
+
+
+\end{document}

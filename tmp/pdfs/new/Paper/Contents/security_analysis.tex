@@ -1,0 +1,89 @@
+\section{Security Analysis}
+\label{sec:security}
+
+We analyze the public-coin interactive protocol.  The root \(\rt_{ABC}\)
+fixes three arbitrary interleaved words before the scalar challenges are
+sampled; we do not assume that these words are valid encodings.  After
+\((r,s)\), the prover fixes the intermediate-vector root before the query set
+\(I\) and the code-check points are sampled.
+
+For \(W\in\mathbb{F}^{k\times n}\), let
+\(\Delta(W,\mathcal{C}^{\langle k\rangle})\) be its relative column distance
+from the interleaved code.  We use the following code property; the full
+parameter discussion is given in Appendix~\ref{app:security-proof}.
+
+\begin{definition}[Structured-fold proximity gap]
+\label{def:structured-proximity-gap}
+For \(\vect{a}=(1,a,\ldots,a^{k-1})\), define
+\(\mathsf{FoldWord}(\vect{a},W)[j]=\fold(\vect{a},W[*,j])\).  The code has a
+\((k,\tau,\epsilon_{\mathsf{gap}})\) structured-fold proximity gap if every
+\(W\) at distance greater than \(\tau\) folds to a word within distance
+\(\tau\) of \(\mathcal{C}\) with probability at most
+\(\epsilon_{\mathsf{gap}}\) over \(a\sample\mathbb{F}\).
+\end{definition}
+
+\begin{definition}[Backend assumptions]
+\label{def:lamp-backend-assumptions}
+The CP-SNARK, sampled openings, and CP-Link are sound with errors
+\(\epsilon_{\mathsf{cp}}\), \(\epsilon_{\mathsf{open}}\), and
+\(\epsilon_{\mathsf{link}}\), respectively.  The four intermediate-vector
+encoding checks have error \(\epsilon_{\mathsf{code}}\); for the
+Reed--Solomon check of Appendix~\ref{app:rs-barycentric},
+\[
+  \epsilon_{\mathsf{code}}
+  \le \frac{4(n-1)}{|\mathbb{F}|-n}.
+\]
+For zero knowledge, the CP-SNARK and CP-Link are zero knowledge and the
+Pedersen commitments are hiding.
+\end{definition}
+
+\begin{theorem}[Completeness, soundness, and zero knowledge]
+\label{thm:security}
+Let \(\mathcal{C}\) have relative distance \(\delta\), fix
+\(0<\tau<\delta/2\), and assume Definition~\ref{def:structured-proximity-gap}
+and Definition~\ref{def:lamp-backend-assumptions}.  If \(\rt_{ABC}\) is fixed
+before \((r,s)\), then the interactive \(\protocol\) protocol has perfect
+completeness and zero knowledge.  Moreover, for any PPT prover, let
+\(\mathsf{BadInput}\) denote the event that an input word is farther than
+\(\tau\) from the interleaved code or that the uniquely decoded matrices
+satisfy \(\mat{A}\mat{B}\ne\mat{C}\).  Then
+\[
+\begin{aligned}
+\Pr[\mathsf{Acc}\land\mathsf{BadInput}]
+&\le \epsilon_{\mathsf{cp}}+\epsilon_{\mathsf{open}}
+   +\epsilon_{\mathsf{link}}\\
+&\quad +\epsilon_{\mathsf{code}}+3\epsilon_{\mathsf{gap}}
+   +3(1-\tau)^t\\
+&\quad +\frac{k-1}{|\mathbb{F}|}
+   +4(1-\delta+\tau)^t .
+\end{aligned}
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Condition on the soundness of the CP-SNARK, openings, CP-Link, and
+intermediate encoding checks.  The roots then bind all words before \(I\), and
+the circuit uses their authenticated sampled symbols.
+
+The \(r\)-folds test the input words for \(\mat{A}\) and \(\mat{C}\).  The
+coefficient vector \(\vect{x}=\vect{r}\mat{A}\) need not be uniform, so the
+\(\vect{x}\)-weighted product equation alone does not give the same guarantee
+for \(\mat{B}\); the independent \(s\)-fold supplies that test.  By the
+structured-fold gap, any input farther than \(\tau\) from the code is rejected
+except for \(3\epsilon_{\mathsf{gap}}+3(1-\tau)^t\).
+
+Otherwise, \(\tau<\delta/2\) gives unique decoded matrices.  If their product
+relation is false, structured Freivalds fails with probability at most
+\((k-1)/|\mathbb{F}|\).  Outside that event, at least one sampled relation
+disagrees on a \((\delta-\tau)\)-fraction of positions, contributing
+\(4(1-\delta+\tau)^t\).  Zero knowledge follows from the simulators of the
+CP-SNARK and CP-Link and the hiding of Pedersen commitments.  The complete
+bad-event decomposition appears in Appendix~\ref{app:security-proof}.
+\end{proof}
+
+\begin{remark}[Fiat--Shamir]
+The implementation derives \((r,s)\), \(I\), and the code-check points from
+domain-separated transcript hashes.  A formal analysis of this multi-round
+Fiat--Shamir transform is outside the interactive theorem and left to future
+work.
+\end{remark}

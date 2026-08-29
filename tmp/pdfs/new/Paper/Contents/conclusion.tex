@@ -1,0 +1,39 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We proposed \(\protocol\), a protocol for verifying matrix multiplication by
+moving expensive vector--matrix products outside the SNARK circuit and checking
+them through sampled local tests over encoded data.  The prover commits to the
+encoded matrices and Freivalds intermediate vectors, while the SNARK circuit
+proves only the sampled fold relations.  Merkle openings and CP-Link proofs
+ensure that the values used inside the CP-SNARK are consistent with the
+externally committed data fixed before the sampling challenges are known.
+
+Our implementation confirms the intended tradeoff.  For a fixed number \(t\) of
+queries, the main arithmetic relation has
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints rather than the
+\(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.  Thus, when \(t\) is
+fixed and the code-consistency checks are linear, the constraint count of
+\(\protocol\) grows linearly with the matrix dimension \(k\).  In the matrix
+benchmark at \(k=4{,}096\), \(\protocol\) reduces the constraint count by
+\(30.3\times\) and proving time by \(8.43\times\), while keeping verification
+around \(0.06\) s.  The batching experiment further shows that opening overhead
+can be amortized when multiple matrix-multiplication claims share the same leaf
+layout.
+
+On the heterogeneous GPT-2 workload, \(\protocol\) reduces constraints by
+\(2.30\times\) and proving time by \(1.77\times\), but verification increases
+from \(0.49\) s to \(6.52\) s and proof size from \(196\) B to \(3.34\) MB.
+Thus, this experiment demonstrates a prover-side trade-off rather than an
+end-to-end performance improvement.
+
+The main remaining costs are sampled-opening proof size and pairing-based link
+verification.  As future work, we plan to reduce opening and linking overhead,
+improve sharing across consecutive matrix products of different sizes, and
+exploit fixed model weights in verifiable AI scenarios for preprocessing and
+batching.  These optimizations may reduce proof size and verification time on
+more complex AI workloads while preserving the linear constraint growth of
+\(\protocol\).
+
+
+\newpage

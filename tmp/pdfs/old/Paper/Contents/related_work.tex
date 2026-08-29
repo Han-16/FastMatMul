@@ -1,0 +1,157 @@
+\section{Related Work}
+\label{sec:related}
+
+\noindent\textbf{Matrix multiplication.}
+Several proof systems have studied how to verify matrix multiplication more
+efficiently than by arithmetizing the full cubic computation. Thaler's
+sum-check-based protocol~\cite{thaler2013time} shows that matrix multiplication
+can be verified with quadratic prover work by reducing the claim to checks over
+low-degree extensions. This avoids the naive \(\mathcal{O}(n^3)\) arithmetic
+cost, but the verifier's work still grows linearly with the matrix dimension,
+which is costly when the goal is succinct verification for large committed
+matrices.
+More recent protocols design proof systems directly for committed matrix
+multiplication. zkMatrix~\cite{cong2024zkmatrix} reduces committed
+\(n\times n\) matrix multiplication to four inner-product relations and applies
+Bulletproofs' verification techniques, achieving \(\mathcal{O}(n^2)\)
+prover time and \(\mathcal{O}(\log n)\) verifier time. zkMaP~\cite{zkMaP}
+instead uses KZG commitments to obtain \(\mathcal{O}(n^2)\) prover time with
+constant verifier time. \\
+
+\noindent\textbf{Verifiable AI.}
+Matrix multiplication is also a dominant cost in verifiable machine-learning
+systems. Systems such as vCNN~\cite{lee2024vcnn}, pvCNN~\cite{pvCNN}, and
+zkVC~\cite{zhang2025zkvc} optimize verifiable inference for convolutional neural
+networks by reducing the number of multiplication constraints induced by
+QAP-based representations. Other systems use sum-check-style techniques.
+zkCNN~\cite{liu2021zkcnn} proposes a sum-check-based protocol for proving
+convolutions with linear prover time. In addition, zkGPT~\cite{zkGPT} and
+zkLLM~\cite{zkLLM} introduce protocols specialized for LLM architectures and
+use sum-check protocols to prove the correctness of linear layers efficiently.
+Meanwhile, Mystique~\cite{weng2021mystique} and zkML~\cite{chen2024zkml} use
+Freivalds' randomized checks. \\
+
+\noindent\textbf{Code-based proximity testing.}
+\(\protocol\) also builds on the use of linear error-correcting codes and proximity
+tests in succinct proof systems. FRI~\cite{FRI} and related
+works~\cite{STIR,WHIR} construct proximity IOPs for
+Reed--Solomon codewords. Recent work further extends this viewpoint to more
+general foldable codes~\cite{basefold}.
+Our proximity layer is closer in spirit to the local codeword tests used in
+Ligero~\cite{Ligero}, Brakedown~\cite{brakedown}, and
+Blaze~\cite{blaze}.In particular, our use of in-circuit encoding checks is similar in spirit to Orion~\cite{orion} and related work~\cite{restoring_orion}.
+
+% \noindent\textbf{Verifiable machine learning and general VC.}
+% Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},
+% Mystique~\cite{weng2021mystique}, zkCNN~\cite{liu2021zkcnn},
+% vCNN~\cite{lee2024vcnn}, and zkML~\cite{chen2024zkml} all encounter matrix
+% multiplication as a major arithmetic cost.
+% These systems usually verify an entire inference pipeline, either by
+% arithmetizing the computation directly or by using a general proof-system
+% backend for arithmetic circuits.
+% \(\protocol\) targets a narrower interface: it verifies one committed matrix-product
+% claim, or a batch of such claims, over committed encoded roots.
+% It is therefore a checking layer that can be composed with an ML or VC system
+% that already maintains committed inputs, rather than a replacement for
+% end-to-end zkML or general-purpose verifiable computation.\\
+
+
+% \noindent\textbf{Sum-check and GKR-based verification.}
+% The sum-check protocol~\cite{lund1992algebraic} and the GKR
+% framework~\cite{goldwasser2015delegating} are standard tools for verifying
+% arithmetic circuits and matrix-heavy computations through multilinear
+% extensions and layered circuit checks.
+% Subsequent systems improve the prover/verifier trade-offs and make these
+% techniques practical in SNARK-like settings~\cite{thaler2013time,
+% wahby2018doubly,setty2020spartan}.
+% These approaches are highly relevant to matrix multiplication, especially when
+% many products are batched or embedded in a larger arithmetic circuit.
+% \(\protocol\) uses a different interface: the verifier starts from committed encoded
+% matrix commitments and checks local codeword equations induced by Freivalds'
+% randomization.
+% We therefore use Freivalds-in-SNARK as the main experimental baseline because it
+% checks the same committed-root statement in the same Groth16 measurement stack.
+% A direct implementation-level comparison with sum-check/GKR systems would
+% require normalizing the commitment model, batching strategy, setup, transcript,
+% and verifier work, so we treat it as a separate systems comparison.\\
+
+
+% \noindent\textbf{Dedicated matrix-verification protocols.}
+% Dedicated matrix-verification protocols, including
+% zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
+% zkVC~\cite{zhang2025zkvc}, and coding-theoretic matrix checking by Bennett et
+% al.~\cite{bennett2023matrix}, study proof systems or commitment interfaces
+% specialized to matrix operations.
+% These works explore trade-offs among polynomial commitments, batching, prover
+% work, sparsity assumptions, and proof size.
+% Our construction is closest in goal to this line, but exposes a different
+% boundary: the input-certification layer is separated from the online
+% multiplication checker, and the checked relation is reduced to sampled local
+% fold equations over encoded commitments.
+% This boundary is important for the claims in this paper: our evaluation measures the online checking layer over committed roots and does not claim to close the
+% raw-matrix-to-root pipeline.
+
+
+% % \section{Related Work}
+% % \label{sec:related}
+
+% % \noindent\textbf{Verifiable ML and general VC.}
+% % Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},
+% % Mystique~\cite{weng2021mystique}, zkCNN~\cite{liu2021zkcnn},
+% % vCNN~\cite{lee2024vcnn}, and zkML~\cite{chen2024zkml} all spend much of their
+% % proof cost on linear layers and matrix multiplication.  Recent systems also
+% % use zero-knowledge proofs for model evaluation and fairness
+% % claims~\cite{south2024verifiable,zhang2025fairzk}, and CP-SNARKs have been
+% % studied for zkML with committed model data~\cite{lycklama2025artemis}.  These
+% % systems usually prove a full inference, training step, or model property,
+% % often using a general SNARK backend such as Groth16~\cite{groth2016size}.
+% % \(\protocol\) has a narrower goal: it checks one committed matrix product, or a
+% % batch of such products, over committed encoded roots.  Thus, \(\protocol\) is
+% % a matrix-checking layer that can be used inside a larger VC or zkML system; it
+% % is not an end-to-end verifiable inference system.\\
+
+% % \noindent\textbf{Sum-check and GKR-based verification.}
+% % The sum-check protocol~\cite{lund1992algebraic} and the GKR
+% % framework~\cite{goldwasser2015delegating} are standard ways to verify
+% % arithmetic circuits using multilinear extensions and layered checks.  Later
+% % systems improved the prover and verifier costs and made these ideas practical
+% % in SNARK-like settings, including time-optimal circuit-evaluation
+% % protocols~\cite{thaler2013time}, doubly-efficient
+% % SNARKs~\cite{wahby2018doubly}, and Spartan~\cite{setty2020spartan}.  These
+% % systems are natural when many matrix operations are part of one large
+% % arithmetic circuit.  \(\protocol\) takes a different route.  It starts from
+% % committed encoded matrix roots and checks local codeword equations produced by
+% % Freivalds' randomization.  We therefore use Freivalds-in-SNARK as the main
+% % experimental baseline: it checks the same committed-root statement with the
+% % same Groth16 backend.  A direct comparison with sum-check/GKR systems would
+% % also need to match the commitment model, batching method, setup, transcript,
+% % and verifier work.\\
+
+% % \noindent\textbf{Dedicated matrix-verification protocols.}
+% % Classical randomized matrix checking starts with Freivalds'
+% % algorithm~\cite{freivalds1977probabilistic}, which reduces a matrix-product
+% % claim to a randomized vector check.  This idea also appears in SNARK-based
+% % verifiable ML baselines~\cite{ghodsi2017safetynets}.  Recent dedicated
+% % matrix-verification protocols include
+% % zkMatrix~\cite{cong2024zkmatrix}, DualMatrix~\cite{cong2026dualmatrix},
+% % zkVC~\cite{zhang2025zkvc}, and coding-theoretic matrix checking by Bennett et
+% % al.~\cite{bennett2023matrix}.  These works study proof systems and commitment
+% % methods for matrix operations, with different choices for batching, prover
+% % work, sparsity, and proof size.  \(\protocol\) is closest to this line of
+% % work.  The main difference is which costs we include.  We separate input
+% % certification from the online multiplication checker, and the online checker
+% % tests only sampled fold equations over encoded commitments.  Our evaluation
+% % therefore measures the online checking layer over committed roots; it does not
+% % claim to measure the full cost of building the roots from raw matrices.\\
+
+% % \noindent\textbf{Technical ingredients.}
+% % \(\protocol\) also uses tools from code-based proximity testing and
+% % commitment linking.  These are technical ingredients, not the main comparison
+% % class.  Code-based proof systems such as Ligero~\cite{ames2017ligero},
+% % FRI-based protocols~\cite{ben2018fast}, Orion~\cite{xie2022orion}, and
+% % Brakedown~\cite{golovnev2023brakedown} show how committed codewords and local
+% % checks can support succinct verification.  Commit-and-prove
+% % SNARKs~\cite{gnark,legosnark}, recent CP-SNARK systems for
+% % zkML~\cite{lycklama2025artemis}, and QA-NIZK-style linking
+% % proofs~\cite{jutla2013shorter,qa-nizk} provide ways to prove that sampled
+% % SNARK witnesses match externally committed data.

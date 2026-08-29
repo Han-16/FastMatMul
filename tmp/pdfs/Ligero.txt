@@ -1,0 +1,2358 @@
+                    Ligero: Lightweight Sublinear Arguments
+                             Without a Trusted Setup*
+Scott Ames†         Carmit Hazay‡            Yuval Ishai§         Muthuramakrishnan Venkitasubramaniam¶
+
+
+
+                                                       Abstract
+        We design and implement a simple zero-knowledge argument protocol for NP whose communication
+    complexity is proportional to the square-root of the verification circuit size. The protocol can be based
+    on any collision-resistant hash function. Alternatively, it can be made non-interactive in the random
+    oracle model, yielding concretely efficient zk-SNARKs that do not require a trusted setup or public-key
+    cryptography. Our protocol is obtained by applying an optimized version of the general transformation
+    of Ishai et al. (STOC 2007) to a variant of the protocol for secure multiparty computation of Damgård
+    and Ishai (CRYPTO 2006). It can be viewed as a simple zero-knowledge interactive PCP based on
+    “interleaved” Reed-Solomon codes.
+        This paper is an extended version of the paper published in CCS 2017 and features a tighter anal-
+    ysis, better implementation along with formal proofs. For large verification circuits, the Ligero prover
+    remains competitive against subsequent works with respect to the prover’s running time, where our effi-
+    ciency advantages become even bigger in an amortized setting, where several instances need to be proven
+    simultaneously.
+        Our protocol is attractive not only for very large verification circuits but also for moderately large
+    circuits that arise in applications. For instance, for verifying a SHA-256 preimage with 2−40 soundness
+    error, the communication complexity is roughly 35KB. The communication complexity of our protocol
+    is independent of the circuit structure and depends only on the number of gates. For 2−40 soundness
+    error, the communication becomes smaller than the circuit size for circuits containing roughly 3 million
+    gates or more. With our refined analysis the Ligero system’s proof lengths and prover’s running times
+    are better than subsequent post-quantum ZK-SNARKs for small to moderately large circuits.
+
+
+
+
+* An extended abstract of this paper appeared in CCS 2017.
+†
+  University of Rochester. Email: q309185@gmail.com.
+‡
+  Bar-Ilan University. Email: carmit.hazay@cs.biu.ac.il.
+§
+  Technion and UCLA. Email: yuvali@cs.technion.ac.il
+¶
+  University of Rochester. Email: muthuv@cs.rochester.edu.
+
+
+                                                             1
+Contents
+1   Introduction                                                                                                        3
+    1.1 Our Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     4
+
+2   Preliminaries                                                                                                       6
+    2.1 Collision-Resistant Hashing and Merkle Trees . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        6
+    2.2 Zero-Knowledge Arguments . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .          7
+    2.3 Interactive Oracle Proofs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     7
+    2.4 Interactive PCPs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    8
+
+3   From MPC to ZKIPCP                                                                                                  9
+    3.1 Our MPC Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .         9
+    3.2 ZKIPCP for NP - The General Case . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .         10
+
+4   A Direct ZKIPCP Construction                                                                                       13
+    4.1 Testing Interleaved Linear Codes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     13
+         4.1.1 Improving the Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      16
+    4.2 Testing Linear Constraints over Interleaved Reed-Solomon Codes . . . . . . . . . . . . . . . . . . .           17
+    4.3 Testing Quadratic Constraints over Interleaved Reed-Solomon Codes . . . . . . . . . . . . . . . . . .          19
+    4.4 IPCP for Arithmetic Circuits . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     20
+    4.5 IPCP for Boolean Circuits . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      22
+    4.6 Achieving Zero-Knowledge . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       23
+         4.6.1 ZK Testing of Interleaved Linear Codes . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        23
+         4.6.2 ZK Testing of Linear Constraints over Interleaved Reed-Solomon Codes . . . . . . . . . . . .            24
+         4.6.3 ZK Testing of Quadratic Constraints over Interleaved Reed-Solomon Codes . . . . . . . . . .             24
+    4.7 The Final ZKIPCP . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       24
+
+5   From ZKIPCP to ZK                                                                                                  27
+    5.1 The Interactive Variant . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    27
+    5.2 The Non-Interactive Variant . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      28
+    5.3 Sublinear Zero-Knowledge Argument . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .          29
+    5.4 Multi-Instance Amortization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      30
+
+6   Implementation and Experimental Results                                                                            30
+
+7   Related Work with Open Problems                                                                                    31
+
+8   Conclusions                                                                                                        34
+
+A Case e < d/3: Proof of Lemma 4.4                                                                                     40
+
+B Generalizing IPCP Tests                                                                                              41
+  B.1 Generalized Interleaved Linear Code Testing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        41
+  B.2 Affine Interleaved Linear Code Testing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       42
+  B.3 Generalized Affine Interleaved Linear Code Testing . . . . . . . . . . . . . . . . . . . . . . . . . . .         43
+  B.4 Generalized Affine Linear Constraint Testing over Interleaved Reed Solomon Codes . . . . . . . . . .             43
+  B.5 Generalized Testing Quadratic Constraints over Interleaved Reed Solomon Codes . . . . . . . . . . .              44
+
+C Improving the Soundness Analysis                                                                                     45
+
+
+
+
+                                                            2
+1       Introduction
+Verifying outsourced computations is important for tasks and scenarios when there is an incentive for the
+party performing the computation to report incorrect answers. In this work, we present a concretely efficient
+argument protocol for NP whose communication complexity is proportional to the square root of the size of
+a circuit verifying the NP witness. Our argument system is in fact a zero-knowledge argument of knowledge,
+and it only requires the verifier to send public coins to the prover. The latter feature implies that it can be
+made non-interactive via the Fiat-Shamir transform [FS86], yielding an efficient implementation of zero-
+knowledge succinct non-interactive arguments of knowledge (zk-SNARKs [BCCT13]) without a trusted
+setup. To put our work in the proper context, we provide some relevant background. The last decade has seen
+tremendous progress in designing and implementing efficient proof system (see [WB15, BBC+ 17, Ish20,
+Tha22] for surveys). These efforts can be divided into three broad categories according to the underlying
+combinatorial machinery.
+Doubly efficient interactive proofs: This line of work, initiated by Goldwasser, Kalai, and Rothblum
+[GKR15] (following a rich line of work on interactive proofs with computationally unbounded provers
+[GMR85, LFKN90, Sha90]), provides sublinear communication and efficiently verifiable proofs for low-
+depth polynomial-time computations.1 See [CMT12, Tha13, VSBW13, RRR16] and references therein for
+a survey of works along this line.
+Probabilistically checkable proofs (PCPs) and their interactive variants: Originating from the works of
+Kilian [Kil92] and Micali [Mic94], recent works [BCGT13, BCG+ 16, BBC+ 17] have shown how to obtain
+efficient sublinear arguments for NP from PCPs [BFLS91, AS98, ALM+ 98]. Classical PCPs have been
+extended to allow additional interaction with the prover, first in the model of interactive PCP (IPCP) [KR08]
+and then in the more general setting of interactive oracle proofs (IOP) [BCS16, RRR16]. Arguments ob-
+tained via PCPs and IOPs have the advantages of not relying on public-key cryptography, not requiring a
+trusted setup, and offering conjectured post-quantum security. However, previous works along line were
+still quite far from having good concrete efficiency.
+Linear PCPs: This line of work, initiated by Ishai, Kushilevitz, and Ostrovsky [IKO07] (in the interactive
+or designated verifier setting) and by Groth [Gro10] (in the non-interactive, public verification setting of
+SNARKs) obtains sublinear arguments for NP with preprocessing by combining linear PCPs with homo-
+morphic public-key cryptography. In a linear PCP the verifier can obtain a small number of linear com-
+binations of a proof vector. Linear PCPs are simpler to construct than classical PCPs and have served as
+the basis for some of the first implementations of verifiable computation protocols [SMBW12]. A very
+efficient construction of linear PCPs for NP that served as the basis for most previous SNARK implementa-
+tions, including the ones used in zerocash [BCG+ 14], was given by Gennaro, Gentry, Parno, and Raykova
+in [GGPR13]. (The view of these SNARKs as being based on linear PCPs is due to Bitansky et al. [BCI+ 13]
+and Setty et al. [SBV+ 13].) Two practical disadvantages of the protocols along this line are that they are
+quite slow on the prover side (due to a heavy use of public-key cryptography), and their soundness in the
+non-interactive setting crucially relies on the existence of a long and “structured” common reference string
+that needs to either be generated by a trusted party or by an expensive distributed protocol.
+     Our goal in this work is to combine the best features of previous approaches to the extent possible:
+    1
+     The GKR technique has been extended to the case of NP statements by Zhang et al. [ZGK+ 17], Wahby et al. [WTS+ 18], and
+several subsequent works. However, the communication complexity of the resulting arguments still grows with the verification cir-
+cuit depth, and moreover their instantiations require a polynomial commitment primitive whose efficient implementations typically
+involve the use of public-key cryptography.
+
+
+
+                                                               3
+        Obtain a simple, concretely efficient, sublinear communication (public-coin) zero-knowledge
+        argument system for NP, without any setup, complex PCP machinery, or expensive public-key
+        operations.
+
+      As discussed above, all prior works fall short of meeting the above goal on one or more counts.
+
+1.1     Our Results
+The main result of this work is a zero-knowledge argument protocol for NP with the following features.
+
+      • It is sublinear, in the sense that the asymptotic communication complexity is roughly the square root
+        of the verification circuit size.
+
+      • It is simple to describe and analyze in a self-contained way.
+
+      • It only employs symmetric-key primitives (collision-resistant hash-functions) in a black-box way.
+
+      • It is public-coin, which means the protocol can be made non-interactive in the random oracle model
+        by using the Fiat-Shamir transform [FS86], thus providing a light-weight implementation of (publicly
+        verifiable) zero-knowledge SNARKs.
+
+      • It does not require any trusted setup, even in the non-interactive case.
+
+      • It is concretely efficient. We demonstrate its concrete efficiency via an implementation.
+
+      • In the multi-instance setting where many instances for the same NP verification circuit are required,
+        we obtain improved amortized communication complexity with sublinear verification time.
+
+     Our protocol can be seen as a light-weight instance of the second category of protocols discussed above.
+However, instead of directly applying techniques from the PCP literature, we combine efficient protocols
+for secure multiparty computation (MPC) with a variant of the general transformation of Ishai, Kushilevitz,
+Ostrovsky, and Sahai (IKOS) [IKOS07] that transforms such MPC protocols to zero-knowledge interactive
+PCPs (ZKIPCP). More concretely, we instantiate the MPC component with an optimized variant of the
+protocol of Damgård and Ishai [DI06] (similar to the one described in Appendix C of [IPS09]) and transform
+it into a ZKIPCP by applying a more efficient variant of the IKOS transformation in the spirit of the IPS
+compiler [IPS08]. In a nutshell, the main difference with respect to the original IKOS transformation is that
+we restrict the topology of the MPC network in a way that leads to a better trade-off between soundness
+error and communication complexity.
+     A key feature of the underlying MPC protocol is that its total communication complexity between the
+parties is independent of the number of parties and is roughly equal to the size of the circuit being evaluated.
+Now, letting the number of parties be the square root of the circuit size, results in communication per party
+that is also roughly the square root of the circuit size. This translates into a ZKIPCP with similar parameters.
+See Section 4 for a self-contained presentation of the ZKIPCP obtained via the above approach.
+     The work of Giacomelli, Madsen and Orlandi [GMO16] and its improvement due to Chase et al.
+[CDG+ 17] already demonstrated that the IKOS transformation can lead to concretely efficient zero-knowledge
+arguments, but where the communication is bigger than the verification circuit size. In the present work, we
+obtain a sublinear variant of this result by modifying both the IKOS transformation and the underlying MPC
+machinery. To summarize, using the above approach we obtain a simple proof of the following theorem
+with good concrete efficiency:
+
+                                                        4
+Theorem 1.1 (Informal). Assume the existence of collision-resistant hash-functions. Then there is a public-
+   pzero-knowledge argument for proving the satisfiability of a circuit C with communication complexity
+coin
+Õ( |C|).
+
+Concrete efficiency. We now give more detailed information about the concrete efficiency of our imple-
+mentation. The following numbers apply either to interactive zero-knowledge protocols based on collision-
+resistant hash functions or to non-interactive zk-SNARKs in the random oracle model obtained via the
+Fiat-Shamir transform. We refer the reader to Section 6 for more details and give only a few representative
+figures below.
+          q The communication complexity of provingp          the satisfiability of an arithmetic circuit C is given
+                     5·|C|                                                                              p
+by κ·|F|· log (3/2)·min(|F|,κ) which simplifies to O(|F|· |C| · κ) bits for large fields and O(κ· |C| · |F|)
+                 2
+bits for small fields (i.e. for |F| < κ).
+    The communication complexity becomes smaller than the circuit size for circuits over 30-bit primes
+with more than 2.6 million gates at 40-bit security and around 20 million gates for 128-bit security. One
+concrete benchmark that has been used in prior works is verifying a SHA-256 preimage in zero-knowledge.
+For this benchmark, the communication complexity of our protocol with 2−40 soundness error is less than
+35KB. In Section 6, we compare with other ZK-SNARKs with plausible post-quantum security. Our system
+produces better proof lengths for small to moderately large circuits in comparison to all relevant previous
+works and has better prover efficiency.
+    Our protocol easily extends to a multi-instance setting to provide additional benefits. In this setting,
+we can handle N instances of a circuit of size s with soundness error 2−κ at an amortized communication
+cost per instance smaller than s when N = Ω(κ2 ). Moreover, the amortized verification time in the multi-
+instance setting is sublinear, involving a total of O(s log s + N log N ) field operations. Finally, the prover’s
+running time grows linearly with the number of instances but still remains practically feasible for reasonable
+number of instances.
+Related work. In a concurrent and independent work [BBHR19], Ben-Sasson et al. use different techniques
+to construct concretely efficient IOPs that imply “transparent” proof systems, referred to as zk-STARKs, of
+the same type we obtain here. These zk-STARK constructions significantly improve over the previous ones
+from [BBC+ 17]. A preliminary comparison with the concrete efficiency of our construction suggests that
+our construction is generally more attractive in terms of prover computation time and also in terms of proof
+size for smaller circuits (say, of size comparable to a few SHA-256 circuits), whereas the construction
+from [BBHR19] is more attractive in terms of verifier computation time and proof size for larger circuits.
+Subsequent work. The area of zero-knowledge proof systems had been very active in the past five years.
+Below we review the relevant literature published subsequent to [AHIV17].
+    In the design of ZKSNARKs based on symmetric-key primitives using IOPs, Aurora [BCR+ 19] is a
+transparent zk-SNARKs for R1CS (Rank-1 Constraint Satisfaction) with polylogarithmic proof size. Addi-
+tional [GKR08]-based zero-knowledge argument schemes were proposed in subsequent works [XZZ+ 19a,
+ZXZS20]. The former work introduces Libra, a linear time prover for special structures circuits, whereas
+the later work designs a new polynomial commitment scheme based on symmetric cryptographic primitives
+without trusted setup. A more recent extension of [ZXZS20] for general circuits and similar features are
+shown in [ZLW+ 21a] where the they design a GKR-style proof system with linear-time prover. Golovnev
+et al. [GLS+ 21] provided an alternative mechanism to obtain a linear time prover for arbitrary fields which
+admits competitive concrete efficiency.
+    In the context of MPC-in-the-head, [KKW18, dSGOT21] have optimized the communication cost size
+of post-quantum signature schemes based on preprocessing-based dishonest majority MPC and multi-round
+
+
+                                                         5
+IOPs, respectively. However, these schemes scale linearly with circuit size. [GSV21] further considered
+a tailored version of Ligero in the Boolean setting and introduced several improvements to the proof size.
+In [BFH+ 20], Bhadauria et al. designed an optimized sublinear IOP by combining Ligero and Aurora
+[BCR+ 19], achieving tradeoffs between the prover complexity and proof length. Another sequence of
+works [dSGMOS19, BN20, HKL22] extends [KKW18] to arithmetic circuits over field and ring operations,
+introducing further improvements of signature sizes.
+    Another line of sublinear ZK systems is based on the hardness of discrete logarithm hardness assumption
+e.g., [WTS+ 18, BBB+ 18] that imply higher running times due to a number of asymmetric operations that
+grows with the circuit size. A new class of zk-SNARKs for R1CS under this assumption and improved
+tradeoffs between the prover’s overhead, the proof length and the sublinear verification cost is introduced in
+[Set20]. These proofs cannot attain post-quantum security.
+    Additional subsequent work in discussed in Section 7.
+Comparison with [AHIV17]. This work is the extended version of the paper published in CCS’17 [AHIV17].
+Specifically, this version contains complete proofs of the construction including tightening of the soundness
+analysis and an analysis of the Fiat-Shamir transform. We have included a section about subsequent work
+(specific to IOPs) and open problems and revised implementation section with optimizations and some com-
+parison with relevant work.
+
+
+2     Preliminaries
+
+Basic notations. We denote the security parameter by κ. We say that a function µ : N → N is negligible
+                                                                                             1
+if for every positive polynomial p(·) and all sufficiently large κ’s it holds that µ(κ) < p(κ) . We use the
+abbreviation PPT to denote probabilistic polynomial-time and denote by [n] the set of elements {1, . . . , n}
+for some n ∈ N, and by [a]i the ith element ai from the set a. For an NP relation R, we denote by
+Rx the set of witnesses of x and by LR its associated language. That is, Rx = {w | (x, w) ∈ R} and
+LR = {x | ∃ w s.t. (x, w) ∈ R}.
+     We assume functions to be represented by a Boolean/arithmetic circuit C (with AND/MULTIPLY,
+XOR/ADD gates of fan-in 2 and NOT gates), and denote the size of C by |C|. By default we define the
+size to include the total number of gates, excluding NOT gates but including input gates. We specify next
+the definitions of computationally indistinguishable distributions and statistical distance.
+
+2.1   Collision-Resistant Hashing and Merkle Trees
+                                              0
+Let {Hκ }κ∈N = {H : {0, 1}p(κ) → {0, 1}p (κ) }κ be a family of hash functions, where p(·) and p0 (·) are
+polynomials so that p0 (κ) ≤ p(κ) for sufficiently large κ ∈ N. For a hash function H ← Hκ a Merkle hash
+tree [Mer89] is a data structure that allows to commit to ` = 2d messages by a single hash value h such that
+revealing any message requires only to reveal O(d) hash values.
+    A Merkle hash tree is represented by a binary tree of depth d where the ` messages m1 , . . . , m` are
+assigned to the leaves of the tree; the values assigned to the internal nodes are computed using the underlying
+hash function H that is applied on the values assigned to the children, whereas the value h that commits
+to m1 , . . . , m` is assigned to the root of the tree. To open the commitment to a message mi , one reveals
+mi together with all the values assigned to nodes on the path from the root to mi , and the values assigned
+to the siblings of these nodes. We denote the algorithm of committing to ` messages m1 , . . . , m` by h :=
+CommitM (m1 , . . . , m` ) and the opening of mi by (mi , path(i)) := OpenM (h, i). Verifying the opening
+
+
+                                                      6
+of mi is carried out by essentially recomputing the entire path bottom-up and comparing the final outcome
+(i.e., the root) to the value given at the commitment phase.
+     The binding property of a Merkle hash tree is due to collision-resistance. Intuitively, this says that it is
+infeasible to efficiently find a pair (x, x0 ) so that H(x) = H(x0 ), where H ← Hκ for sufficiently large κ.
+In fact, one can show that collision-resistance of {Hκ }κ∈N carries over to the Merkle hashing. Formally, we
+say that a family of hash functions {Hκ }κ is collision-resistant if for any PPT adversary A the following
+experiment outputs 1 with probability negl(κ): (i) A hash function H is sampled from Hκ ; (ii) The adversary
+A is given H and outputs x, x0 ; (iii) The experiment outputs 1 if and only if x 6= x0 and H(x) = H(x0 ).
+     In the random oracle model, Merkle tree can be computed by replacing the function H with a random
+oracle ρ where statistical binding follows due to the hardness of finding a collision in this model. We denote
+this algorithm by CommitRO   M .
+
+
+2.2   Zero-Knowledge Arguments
+We denote by hA(w), B(z)i(x) the random variable representing the (local) output of machine B when
+interacting with machine A on common input x, when the random-input to each machine is uniformly and
+independently chosen, and A (resp., B) has auxiliary input w (resp., z).
+Definition 2.1 (Interactive argument system). A pair of PPT interactive machines hP, Vi is called an in-
+teractive proof system for a language L if there exists a negligible function negl such that the following two
+conditions hold:
+   1. C OMPLETENESS : For every x ∈ L there exists a string w such that for every z ∈ {0, 1}∗ ,
+                                     Pr[hP(w), V(z)i(x) = 1] ≥ 1 − negl(|x|).
+
+                               / L, every interactive PPT machine P ∗ , and every w, z ∈ {0, 1}∗
+   2. S OUNDNESS : For every x ∈
+                                      Pr[hP ∗ (w), V(z)i(x) = 1] ≤ negl(|x|).
+
+Definition 2.2 (Zero-knowledge). Let hP, Vi be an interactive proof system for some language L. We say
+that hP, Vi is computational zero-knowledge with respect to an auxiliary input if for every PPT interactive
+machine V ∗ there exists a PPT algorithm S, running in time polynomial in the length of its first input, such
+that
+                                                           c
+                    {hP(w), V ∗ (z)i(x)}x∈L,w∈Rx ,z∈{0,1}∗ ≈ {hSi(x, z)}x∈L,z∈{0,1}∗
+(when the distinguishing gap is considered as a function of |x|). Specifically, the left term denote the output
+of V ∗ after it interacts with P on common input x whereas, the right term denote the output of S on x.
+
+2.3   Interactive Oracle Proofs
+Interactive Oracle Proofs (IOP) [BCS16, RRR16] is a type of proof system that combines the aspects of
+Interactive Proofs (IP) [Bab85, GMR85] along with Probabilistic Checkable Proofs (PCP) [BFLS91, AS98,
+ALM+ 98] as well generalizes Interactive PCPs (IPCP) [KR08]. In this model, like the PCP model, the
+verifier does not need to read the whole proof and instead can query the proof at some random locations
+while similarly to the IP model, the prover and verifier interact over several rounds.
+    A k-round IOP has k rounds of interaction. In the ith round of interaction, the verifier sends a uniform
+public message mi to the prover and the prover generates πi . After running k rounds of interaction, the
+verifier makes some queries to the proofs via oracle access and will either accept it or reject it.
+
+                                                       7
+Definition 2.3. Let R(x, ω) be an NP relation corresponding to an NP language L. An IOP system for a
+relation R with round complexity k and soundness  is a pair of PPT algorithms (P, V) if it satisfies the
+following properties:
+      • S YNTAX : On common input x and prover input ω, P and V run an interactive protocol of k rounds.
+        In each round i, V sends a message mi and P generates πi . Here the verifier has oracle access to
+        {π1 , π2 , . . . , πk }. We can express π = (π1 , π2 , . . . , πk ). Based on the queries from these oracles, V
+        accepts or rejects.
+
+      • C OMPLETENESS : If (x, ω) ∈ R then,
+
+                                              Pr[(P(x, ω), V π (x)) = 1] = 1
+
+                                 / L, every unbounded algorithm P ∗ and proof π̃
+      • S OUNDNESS : For every x ∈
+
+                                               Pr[(P ∗ , V π̃ ) = 1] ≤ negl(λ)
+
+    The notion of IOP can be extended to provide zero-knowledge property as well. Next we define the
+definition of zero-knowledge IOP.
+Definition 2.4. Let hP, Vi be an IOP for R. We say that hP, Vi is a (honest verifier) zero-knowledge IOP
+(or ZKIOP for short) if there exists a PPT simulator S, such that for any (x, ω) ∈ R, the output of S(x) is
+distributed identically to the view of V in the interaction (P(x, ω), V π (x)).
+
+2.4     Interactive PCPs
+An interactive PCP [KR08] (IPCP) is a special case of IOPs (also known as probabilistically checkable
+interactive proofs [RRR16]) in an IOP where the prover sends a proof oracle only in the first round and in
+the subsequent rounds it simply responds to the verifier’s message with a message instead of an oracle (a
+message can be viewed as an oracle with one value). We formally define the notion of IPCP below as the
+main construction in this work is an IPCP.
+Definition 2.5 (Interactive PCP). Let R(x, w) be an NP relation corresponding to an NP language L. An
+interactive PCP (IPCP) system for R with parameters (q, l, ) is a pair of PPT interactive machines hP, Vi
+with the following properties.
+   1. Syntax: On common input x and prover input w, the prover P computes in time poly(|x|) a bit string
+      π (referred to as the PCP). The prover P and verifier V then interact, where the verifier has oracle
+      access to π.
+
+   2. C OMPLETENESS : If (x, w) ∈ R then
+
+                                              Pr[(P(x, w), V π (x)) = 1] = 1.
+
+                               / L, every (unbounded) interactive machine P ∗ and every π̃ ∈ {0, 1}∗ ,
+   3. S OUNDNESS : For every x ∈
+
+                                              P r[(P ∗ , V π̃ (x)) = 1] ≤ (|x|).
+
+   4. C OMPLEXITY: In the interaction (P(x, w), V π (x)) at most l(|x|) bits are communicated and V reads
+      at most q(|x|) bits of π.
+
+                                                           8
+A public-coin IPCP is one where every message sent by the verifier simply consists of fresh random bits.
+
+      Our zero-knowledge variants of IPCP achieve perfect zero-knowledge against an honest verifier.
+
+Definition 2.6 (Zero-knowledge IPCP). Let hP, Vi be an interactive PCP for R. We say that hP, Vi is an
+(honest verifier, perfect) zero-knowledge IPCP (or ZKIPCP for short) if there exists an expected polynomial
+time algorithm S, such that for any (x, w) ∈ R, the output of S(x) is distributed identically to the view of
+V in the interaction (P(x, w), V π (x)).
+
+
+3      From MPC to ZKIPCP
+3.1     Our MPC Model
+As mentioned in the introduction, the efficiency of our constructions can be distilled to identifying the right
+MPC model and designing an efficient protocol in this model. In this regards we deviate from the original
+work of [IKOS07] which provided a general transformation from any honest majority MPC protocol that
+can compute arbitrary functionalities. In particular, our model is more in line with the watchlist mechanism
+(a-la [IPS08]). We begin with the description of the MPC model and the protocol specifications that we will
+need to design our zero-knowledge protocol. In Section 4, we use such MPC protocols based on the works
+[DI06, CC06, IPS08, IPS09].
+    In our model, we consider a sender client S, n servers s1 , . . . , sn and a receiver client R. The sender has
+an input x and a witness w with respect to some NP relation R. The receiver and the servers do not receive
+any input, where the servers obtain random shares from the sender and evaluate the computed circuit. Upon
+receiving (x, w) from the sender, the functionality computes R(x, w) and forwards the result to the receiver
+R. We consider the specific network where the communication is restricted to a single message between
+S and the servers at the beginning of the protocol and a single message from the servers to the receiver R
+at the end of the protocol. Moreover, the only way the servers may communicate with each other is via a
+broadcast. In our actual MPC protocol, the servers will never utilize such a broadcast. Nevertheless, our
+transformation from MPC to ZK can be easily extended to allow for the servers to invoke a broadcast. For
+simplicity, we will restrict the servers to not communicate with each other at all in our actual transformation.
+    We consider the security of our underlying protocols in both the honest-but-curious (passive) and the
+malicious (active) models. In the former model, one may break the security requirements into the following
+correctness and privacy requirements.
+
+Definition 3.1 (Correctness). We say that Π realizes a deterministic n+1-party functionality (x, r1 , . . . , rn )
+with perfect (resp., statistical) correctness if for all inputs (x, r1 , . . . , rn ), the probability that the output of
+some player is different from the output of f is 0 (resp., negligible in κ), where the probability is over the
+independent choices of the random inputs r1 , . . . , rn .
+
+Definition 3.2 (tp -Privacy). Let 1 ≤ tp < n. We say that Π realizes f with perfect tp -privacy if there
+is a PPT simulator S such that for any inputs (x, r1 , . . . , rn ) and every set of corrupted players T ⊂
+[n], where |T | ≤ tp , the joint view ViewT (x, r1 , . . . , rn ) of players in T is distributed identically to
+S(T, x, {ri }i∈T , fT (x, r1 , . . . , rn )).
+
+    With respect to our MPC model defined above, we consider privacy in the presence of a static passive
+adversary that corrupts the receiver R and at most tp servers. Our zero-knowledge property will reduce to
+this security guarantee.
+
+
+                                                           9
+    In the malicious model, in which corrupted players may behave arbitrarily, security cannot be generally
+broken into correctness and privacy as above. However, for our purposes we only need the protocols to
+satisfy a weaker notion of security in the malicious model that is implied by the standard general definition.
+Specifically, it suffices that Π be tp -private as above, and moreover it should satisfy the following notion of
+correctness in the malicious model for which we reduce the soundness property to.
+
+Definition 3.3 (Statistical tr -Robustness). We say that Π realizes f with statistical tr -robustness if it is
+perfectly correct in the presence of a honest-but-curious adversary as in Definition 3.1, and furthermore
+for any (unbounded) active adversary that adaptively corrupts a set T of at most tr players, and for
+any inputs (x, r1 , . . . , rn ), the following robustness property holds. If there is no (r1 , . . . , rn ) such that
+f (x, r1 , . . . , rn ) = 1, then the probability that R outputs 1 in an execution of Π in which the inputs of the
+honest players are consistent with (x, r1 , . . . , rn ) is negligible in κ where κ is a statistical parameter that
+the protocol Π receives as input.
+
+    Our main theorems about our two-party ZK protocol are proven in the presence of a static active ad-
+versary, that corrupts the prover at the onset of the execution. Nevertheless, our proof relies on the security
+of the underlying MPC protocol (utilized in the MPC-in-the-head paradigm) being robust against an ac-
+tive adversary that adaptively corrupts a subset of the servers in the underlying MPC protocol. Concretely,
+with respect to our MPC model defined above, we consider robustness in the presence of an adaptive active
+adversary that corrupts the sender S and at most tr servers.
+    Finally, when used in the MPC-in-the-head paradigm, we need the notion of consistent views between
+servers and the receiver that we define below.
+
+Definition 3.4 (Consistent views). We say that a pair of views Vi , Vj are consistent (with respect to the
+protocol Π and some public input x) if the outgoing messages implicit in Vi are identical to the incoming
+messages reported in Vj and vice versa.
+
+3.2   ZKIPCP for NP - The General Case
+Next, we provide our compilation from an MPC protocol satisfying the requirements specified in Section
+3.1 to an interactive PCP. We note that while the transformation presented in this section works for any MPC
+in the model as described in the previous section, we will simplify our MPC model as follows:
+
+Two-phase: The protocol we consider will proceed in two phases: In Phase 1, the servers receive inputs
+     from the sender and only perform local computation. After Phase 1, the servers obtain a public random
+     string r of length l sampled via a coin-flipping oracle and broadcast to all servers. The servers use this
+     in Phase 2 for their local computation at the end of which each server sends a single output message
+     to the receiver R.
+
+No broadcast: The servers never communicate with each other. Each server simply receives inputs from
+     the sender at the beginning of Phase 1, then receives a public random string in Phase 2, and finally
+     delivers a message to R.
+
+   Formally, let L be an NP language with NP relation R, let x an NP statement that is the common input
+and let w be the private input of the prover. We will now design a ZKIPCP protocol ΠZKIPCP (Figure 1) that
+meets Definition 2.5 based on any MPC protocol Π that is defined according to our model described above.
+   We are now ready to prove the following theorem.
+
+
+
+                                                         10
+          • Input: The prover P and the verifier V share a common input statement x and a circuit description C that
+            realizes R. P additionally has input w such that R(x, w) = 1.
+          • Oracle π: The prover runs the MPC protocol Π “in-its-head” as follows. It picks a random input rS and
+            invokes S on (x, w; rS ) and a random input ri for every server si . The prover computes the views of
+            the servers up to the end of Phase 1 in Π, denoted by (V1 , . . . , Vn ), and sets the oracle as the n symbols
+            (V1 , . . . , Vn ).
+          • The interactive protocol.
+               1. V picks a random challenge r of length l and sends it to the sender.
+               2. Upon receiving the challenge r, prover P sends the view V of R. (As the prover possesses all
+                  the information about the servers, and the verifier always receives the broadcast message from each
+                  server, these broadcast messages can be sent directly from the prover to the verifier.)
+               3. V computes the output of R from the view and checks if R does not abort. It then picks a random
+                  subset Q of [n] of size tp uniformly at random (with repetitions), and queries the oracle on Q.
+               4. V obtains from the oracle the views of the servers in Q.
+               5. V rejects if the views of the servers are inconsistent with the view of R. Otherwise, it accepts.
+
+
+
+                                                  Figure 1: Protocol ΠZKIPCP
+
+Theorem 3.5. Let f be the following functionality for a sender S and n servers s1 , . . . , sn and receiver R.
+Given a public statement x and an additional input w received from S, the functionality delivers R(x, w)
+to R. Suppose that Π is a two-phase protocol in the MPC model specified in Section 3.1 that realizes f with
+statistical tr -robustness (in the malicious model) and perfect tp -privacy (in the honest-but-curious model),
+where tr < d n2 e − 1.2 Then protocol ΠZKIPCP described above is a ZKIPCP for NP relation R, with
+                           t
+soundness error 1 − tnr p + δ(κ) where δ(κ) is the robustness error of Π.
+Proof: Our proof follows by establishing completeness, soundness and zero-knowledge as required in
+Definitions 2.5-2.6.
+Completeness: Completeness follows directly from the correctness of the underlying MPC protocol.
+Soundness: Consider a statement x 6∈ LR . We will show that no prover P ∗ can convince V beyond
+a negligible probability to accept a false statement. We will argue soundness by following an approach
+similar to [IKOS07] where we first identify an inconsistency graph and then invoke the properties of the
+underlying MPC. More precisely, we consider an inconsistency graph G based on the n views V1 , . . . , Vn
+and the view of the receiver R which contains the messages from servers s1 , . . . , sn to R. Here, the servers
+and the receiver correspond to nodes in G and inconsistency between every pair of nodes is defined as in
+Definition 3.4. Then there are two cases depending on the graph G:
+Case 1: There are more than tr edges in G. In this case, we will argue that with high probability the set
+of servers opened by the verifier will hit one of these edges. Recall that the view of R is provided to the
+verifier. Therefore, for any edge in G between R and Vi , if the corresponding server si falls in Q, then the
+verifier rejects. The probability that all tp servers chosen by the verifier misses all inconsistent edges is at
+               t
+most 1 − tnr p .
+   2
+       The size of tp is typically O(κ) and will be adjusted below in order to minimize the communication complexity.
+
+
+                                                                 11
+Case 2: There are fewer than tr edges in G. In this case, we will argue that by the statistical tr -robustness
+of the underlying MPC protocol Π, the verifier will reject except with probability δ(κ). More precisely,
+for every cheating strategy P ∗ in the ZK proof we will demonstrate an adversarial strategy A attacking the
+underlying MPC protocol such that the probability with which V accepts a false statement when interacting
+with P ∗ on a false statement will be bounded by the probability that R outputs 1 in an execution of the
+underlying MPC protocol with adversary A.
+     More precisely, consider an adversary A that is participating in the MPC protocol with n servers, a
+sender and a receiver. Internally, A incorporates the code of P ∗ while emulating the roles of the oracle and
+V. When the protocol begins, P ∗ sets the oracle with the views of the servers as in Phase 1 of Π. These
+views simply contain the inputs sent to the servers (as all computations are local). Upon obtaining the views
+of the servers, A will corrupt the sender in the external MPC execution, and acting as the sender, it will
+send as input to server si the value that was internally generated by P ∗ as the view of that server, namely
+Vi . Next, recall that in the MPC protocol the servers receive a random string from the coin-flipping oracle
+(in our protocol the verifier picks r as the challenge in Step 1). A will internally forward this string r to P ∗
+as the message provided by the verifier.
+     Next, A proceeds with the internal execution by selecting tp indices for the verifier’s challenge, for which
+the oracle will reveal the views of these corresponding servers. If V rejects in the internal execution because
+any of these views are inconsistent, then A aborts. Otherwise, A continues with the external execution.
+Recall that in Phase 2, each server sends a single message to R. Then just before the servers send these
+messages, A computes the inconsistency graph G. Recall that an edge is present between a server si and
+the receiver R in this graph if the view of si is inconsistent with the view of R and randomness r. Let T
+be the set of servers of size t∗ that are connected to an edge in G. If t∗ > tr , then A aborts. Otherwise, A
+(adaptively) corrupts the servers in T and replaces their (honestly generated) messages sent to R by what
+was internally reported in the view of R, namely the messages sent by P ∗ to the verifier in the proof.
+     It follows from this description that the acceptance condition of the verifier in the internal emulation
+with A is identical to the output of R in the external MPC execution. Since the underlying MPC protocol is
+tr -robust and the number of parties corrupted by A is bounded by tr , we have that R outputs 0 except with
+probability δ(κ). We conclude that the verifier in the internal emulation by P ∗ accepts the proof of a false
+statement except with probability at most δ(κ). Next, we observe that the view of the verifier emulated by A
+in the internal emulation is identically distributed to the view of an honest verifier in an interactive with P ∗ .
+Therefore, we can conclude that an honest verifier accepts a false statement with probability at most δ(κ).
+     Applying  a union bound, we conclude that the verifier accepts a false statement with probability at most
+       tr tp
+         
+ 1− n        + δ(κ).
+Zero-knowledge: The zero-knowledge property follows from the tp -privacy of the underlying MPC proto-
+col Π. Namely, we construct a simulator S that invokes the simulator for the MPC protocol, denoted by SΠ .
+SΠ simulates an adversary A that statically corrupts the receiver R and adaptively corrupts the tp servers
+whom their views are opened for checking consistency, where the servers corruptions take place at the end
+of the computation. In this simulation, SΠ is required to produce the view of R upon receiving a challenge
+r. Next, upon obtaining the query Q from the verifier, S instructs SΠ to output the views of these tp servers.
+
+Communication complexity: The main source of complexity is in revealing the view of R in the third
+message and revealing the view of the tp servers in the last message. If the maximum size of the view
+of each server si for i ∈ tp , is vsize , and the size of the view of R is vR , then the total communication
+complexity from the prover is tp · vsize + vR . In Section 4 we adjust the parameters of our protocol subject
+to the constraint that vsize · vR = O(|C|). To minimize the communication complexity, if we set tp · vsize and
+
+                                                        12
+vR to be roughly equal then we obtain the optimum complexity of our approach.
+
+
+4        A Direct ZKIPCP Construction
+In this section we give a self-contained description of our zero-knowledge interactive PCP protocol. This
+protocol is a slightly optimized version of the protocol obtained by applying our variant of the general “MPC
+to ZK” transformation from [IKOS09] (see Section 3) to the honest-majority MPC protocol from [DI06].
+Coding notation. For a code C ⊆ Σn and vector v ∈ Σn , denote by d(v, C) the minimal distance of v from
+C, namely the number of positions in which v differs from the closest codeword in C, and by ∆(v, C) the
+set of positions in which v differs from such S
+                                              a closest codeword (in case of ties, take the lexicographically
+first closest codeword), and by ∆(V, C) = v∈V {∆(v, C)}. We further denote by d(V, C) the minimal
+distance between a vector set V and a code C, namely d(V, C) = minv∈V {d(v, C)}. Our ZKIPCP protocol
+uses Reed-Solomon (RS) codes, defined next.
+Definition 4.1 (Reed-Solomon Code). For positive integers n, k, finite field F, and a vector η = (η1 , . . . , ηn )
+∈ Fn of distinct field elements, the code RSF,n,k,η is the [n, k, n − k + 1] linear code over F that consists of
+all n-tuples (p(η1 ), . . . , p(ηn )) where p is a polynomial of degree < k over F.
+Definition 4.2 (Encoded message). Let L = RSF,n,k,η be an RS code and ζ = (ζ1 , . . . , ζ` ) be a sequence of
+distinct elements of F for ` ≤ k. For u ∈ L we define the message Decodeζ (u) to be (pu (ζ1 ), . . . , pu (ζ` )),
+where pu is the polynomial (of degree < k) corresponding to u. For U ∈ Lm with rows u1 , . . . , um ∈ L, we
+let Decodeζ (U ) be the length-m` vector x = (x11 , . . . , x1` , . . . , xm1 , . . . , xm` ) such that (xi1 , . . . , xi` ) =
+Decodeζ (ui ) for i ∈ [m]. Finally, when ζ is clear from the context, we say that U encodes x if x =
+Decodeζ (U ).
+    At a very high level, our ZKIPCP protocol proves the satisfiability of an arithmetic circuit C of size s in
+the following way. The prover arranges (a slightly redundant representation of) the s wire values of C on a
+                               √         √
+satisfying assignment in an O( s) × O( s) matrix, and encodes each row of this matrix using an RS code.
+The verifier challenges the prover to reveal linear combinations of the entries of the codeword matrix, and
+checks their consistency with t randomly selected columns of this matrix, where t is a security parameter. In
+the following we describe the ZKIPCP construction in a bottom-up fashion, first addressing the case of IPCP
+(with no zero-knowledge) and then introduce the modifications required for making it zero-knowledge.
+    For convenience, we provide a list of our parameters in Table 1.
+
+4.1        Testing Interleaved Linear Codes
+We start by describing and analyzing a simple interactive prover-assisted protocol for simultaneously testing
+the membership of multiple vectors in a given linear code L. It will be convenient to view m-tuples of
+codewords in L as codewords in an interleaved code Lm . We formally define this notion below.
+Definition 4.3 (Interleaved code). Let L ⊂ Fn be an [n, k, d] linear code over F. We let Lm denote the
+[n, mk, d] (interleaved) code over Fm whose codewords are all m × n matrices U such that every row Ui
+of U satisfies Ui ∈ L. For U ∈ Lm and j ∈ [n], we denote by U [j] the jth symbol (column) of U .
+     To test the membership of U in Lm , V challenges P to reveal a random linear combination of the rows
+Ui , and then checks that the revealed codeword is consistent with a randomly selected set of t columns of
+U .3 The complete test is described in Figure 2.
+    3
+        This test is implicitly used in the verifiable secret sharing sub-protocol of efficient MPC protocols from the literature, and in
+
+
+                                                                    13
+                                     Parameter       Description
+                                         w           Extended witness
+                                         U           Encoded extended witness
+                                         m           #Rows in the extended witness
+                                         `           #Columns in the extended witness
+                                         s           Circuit size
+                                         k           Message length
+                                         n           Codeword length
+                                         d           Codeword distance
+                                         e           #Errors within a codeword
+                                         t           #queries on U
+                                         κ           Security parameter
+                                         σ           Repetition parameter
+                                         h           RO (Hash function) output length
+
+                                          Table 1: Description of our parameters.
+
+  Oracle: A purported Lm -codeword U . Depending on the context, we may view U either as a matrix in Fm×n in
+  which each row Ui is a purported L-codeword, or as a sequence of n symbols (U [1], . . . , U [n]), U [j] ∈ Fm .
+  Interactive testing:
+      1. V picks a random linear combination r ∈ Fm and sends r to P.
+      2. P responds with w = rT U ∈ Fn .
+      3. V queries a set Q ⊂ [n] of t random symbols U [j], j ∈ Q.
+      4. V accepts iff w ∈ L and w is consistent with U [Q] and r. That is, for every j ∈ Q we have
+                                                            m
+                                                            X
+                                                                  rj · Ui,j = wj .
+                                                            i=1
+
+
+
+
+                                    Figure 2: Test-Interleaved (F, L[n, k, d], m, t; U )
+
+    The following lemma follows directly from the linearity of L.
+Lemma 4.1. If U ∈ Lm and P is honest, then V always accepts.
+    Our soundness analysis will rely on the following lemma.
+Lemma 4.2. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) > e. Then, for a random
+w∗ in the row-span of U ∗ , we have
+
+                                              Pr[d(w∗ , L) ≤ e] ≤ (e + 1)/|F|.
+particular in the protocols from [DI06, IPS09] on which we build. Its soundness requires the MPC protocol to be adaptively secure
+to accommodate P’s ability to make the locations of inconsistencies depend on V’s random challenge; when the MPC adversary is
+adaptive, it can potentially corrupt all parties observing such inconsistencies. Indeed, the compiler from statistically secure MPC to
+ZK proofs from [IKOS09] relies on the adaptive security of the underlying MPC protocol.
+
+
+                                                                  14
+Proof: Let L∗ be the row-span of U ∗ . We consider two cases.
+C ASE 1: There exists v ∗ ∈ L∗ such that d(v ∗ , L) > 2e. In this case, we show that
+
+                                        Pr [d(w∗ , L) ≤ e] ≤ 1/|F|.                                             (1)
+                                      w∗ ∈R L∗
+
+    Indeed, using a basis for L∗ that includes v ∗ , a random w∗ ∈ L∗ can be written as αv ∗ + x, where
+α ∈R F and x is distributed independently of α. We argue that conditioned on any choice of x, there can
+be at most one choice of α such that d(αv ∗ + x, L) ≤ e, which implies (1). This follows by observing
+that if d(αv ∗ + x0 , L) ≤ e and d(α0 v ∗ + x0 , L) ≤ e for α 6= α0 , then by the triangle inequality we have
+d((α − α0 )v ∗ , L) ≤ 2e, contradicting the assumption that d(v ∗ , L) > 2e.
+C ASE 2: For every v ∗ ∈ L∗ , d(v ∗ , L) ≤ 2e. We show that in this case
+
+                                     Pr [d(w∗ , L) ≤ e] ≤ (e + 1)/|F|.                                          (2)
+                                   w∗ ∈R L∗
+
+Let Ui∗ be the i-th row of U ∗ and let Ei = ∆(Ui∗ , L). Note that, since 2e < d/2, each Ui∗ can be written
+uniquely as Ui∗ = ui + χi where ui ∈ L and χi is nonzero exactly in its Ei entries. Let E = ∪m      i=1 Ei .
+Since d(U ∗ , Lm ) > e, we have |E| > e. We show that for each j ∈ E, except with 1/|F| probability over a
+random choice of w∗ from L∗ , either j ∈ ∆(w∗ , L) or d(w∗ , L) > e, from which the claim will follow.
+    Suppose j ∈ Ei . As before, we write w∗ = αUi∗ + x for α ∈R F and x distributed independently of α.
+Condition on any possible choice x0 of x. Define a bad set
+
+                         Bj = {α : j 6∈ ∆(αUi∗ + x0 , L) ∧ d(αUi∗ + x0 , L) ≤ e}.
+
+We show that |Bj | ≤ 1. Suppose towards contradiction that there are two distinct α, α0 ∈ F such that for
+z = αUi∗ + x0 and z 0 = α0 Ui∗ + x0 we have d(z, L) ≤ e, d(z 0 , L) ≤ e, j 6∈ ∆(z, L), and j 6∈ ∆(z 0 , L).
+Since d > 4e, for any z ∗ in the linear span of z and z 0 we have j 6∈ ∆(z ∗ , L). Since Ui∗ is in this linear span,
+we have j 6∈ ∆(Ui∗ , L), in contradiction to the assumption that j ∈ Ei .
+    We have shown that for each j ∈ E, conditioned on every possible choice of x, either j ∈ ∆(w∗ , L) or
+d(w∗ , L) > e except with 1/|F| probability over the choice of α. It follows that the same holds for a random
+choice of x. Taking a union bound over the first e + 1 elements of E we get that Prw∗ ∈R L∗ [d(w∗ , L) ≤ e] ≤
+(e + 1)/|F| as required.                                                                                          
+    We now prove the soundness of the testing procedure when the given oracle is far from L .        m
+
+
+Theorem 4.4. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) > e. Then, for any
+malicious P strategy, the oracle U ∗ is rejected by V except with ≤ (1 − e/n)t + (e + 1)/|F| probability.
+Proof: Letting w∗ = rT U ∗ , it follows from Lemma 4.2 that
+
+                            Pr[V accepts U ∗ ] ≤ Pr[V accepts | d(w∗ , L) > e]
+                                                              + Pr[d(w∗ , L) ≤ e]
+                                                        n−e−1
+                                                             
+                                                          t
+                                                  ≤       n    + (e + 1)/|F|
+                                                             t
+                                                  ≤ (1 − e/n)t + (e + 1)/|F|
+
+as required.                                                                                             
+    In Appendix B.1 we present a simple generalization of the testing algorithm that uses σ linear combina-
+tions to amplify soundness.
+
+                                                        15
+4.1.1   Improving the Analysis
+In our preceding analysis we had the requirement e < d/4 in Theorem 4.4. Relaxing this to e < d/3 or
+possibly even e < d/2 with essentially the same soundness error bound can improve the concrete parameters
+of the ZKIPCP significantly. We remark that Theorem 4.4 holds for any linear code. However, when
+considering concrete parameters it would suffice to present a tighter analysis for RS codes. In [AHIV17] we
+conjectured that the analysis could be extended to the case e < d/3. Soon after, in private communication,
+Ronny Roth and Gilles Zémor [RZ17] independently proved the stronger result for e < d/3. Below, we
+present this analysis. At the end of this section, we discuss subsequent improvements and the current state-
+of-the-art. For our implementation, we relied on the tightest analysis to identify concrete parameters.
+The case e < d/3: As a first step, we reduce such a stronger version of Theorem 4.4 to a simple lemma
+about the distance of points on an affine line from an RS code. We begin by showing that for any linear
+code over a sufficiently large field, when e < d/3 we can restrict the attention to Case 1 from the proof of
+Lemma 4.2.
+
+Lemma 4.3. Let L be an [n, k, d] linear code over F. Let e be a positive integer such that e < d/3 and
+|F| ≥ e. Suppose d(U ∗ , Lm ) > e. Then, there exists v ∗ ∈ L∗ such that d(v ∗ , L) > e, where L∗ is the
+row-span of U ∗ .
+
+Proof: Assume towards a contradiction that d(v ∗ , L) ≤ e for all v ∗ ∈ L∗ and suppose that v0∗ ∈ L∗
+maximizes the distance from L. Since d(U ∗ , Lm ) > e, there must be a row Ui∗ such that ∆(Ui∗ , L) \
+∆(v0∗ , L) 6= ∅, as v0∗ introduces at most e errors. Let v0∗ = u0 + χ0 and Ui∗ = ui + χi for u0 , ui ∈ L and
+χ0 , χi of weight ≤ e, as by our assumption above all elements in L∗ introduce at most e errors. We argue
+that there exists α ∈ F such that for v̂ = v0∗ + αUi∗ it holds that d(v̂, L) > d(v0∗ , L), contradicting the choice
+of v0∗ . Specifically, since d(v0∗ , L) ≤ e and d(Ui∗ , L) ≤ e, there is a codeword w ∈ L that is at most 2e-far
+from v̂, namely by setting w = u0 + αui and aggregating the errors on the worst case. Furthermore, since
+d(v̂, L) ≤ e there must be a codeword w0 ∈ L that at most than e-far from v̂. Now, since d > 3e, it must be
+the case that w = w0 , or else d(w, w0 ) ≤ 3e which is less than d. However, for any j ∈ ∆(v0∗ , L)∪∆(Ui∗ , L)
+there is at most one choice of α such that the j th component of χ0 + αχi goes to zero. By an union bound,
+there are at most 2e such α’s. Considering any other α, we arrive at a contradiction.                            
+     Given Lemma 4.3, as we argue below, that in order to obtain an equivalent guarantee to Lemma 4.2, it
+will suffice to show that in any affine subspace of Fn , either all points are e-close to L or almost all are not.
+This reduces to showing the same for 1-dimensional spaces which is claimed in the following lemma. The
+proof of this lemma due to Roth and Zémor is presented in Appendix A.
+
+Lemma 4.4. Let L = RSF,n,k,η be a Reed-Solomon code with minimal distance d = n − k + 1. Let e be
+a positive integer such that e < d/3. Then for every u, v ∈ Fn , defining an affine line `u,v = {u + αv :
+α ∈ F}, either (1) for every x ∈ `u,v we have d(x, L) ≤ e, or (2) for at most d points x ∈ `u,v we have
+d(x, L) ≤ e.
+
+    We remark here that we do not have a counterexample to Lemma 4.4 when we relax e < d/2 and
+even when L is a general linear code. Indeed, subsequent work analyzed an improved analysis for the case
+e < d/2 with a relaxed version of condition (2) where d is replaced by n and this relaxed version will deliver
+better efficiency of our ZKIPCP.
+    In order to extend the previous analysis to the case where e < d/3, we need an alternate version of
+Lemma 4.2 which we state next:
+
+
+
+                                                        16
+Lemma 4.5. Let L = RSF,n,k,η be a Reed-Solomon code with minimal distance d = n − k + 1 and e a
+positive integer such that e < d/3. Suppose d(U ∗ , Lm ) > e. Then, for a random w∗ in the row-span of U ∗ ,
+we have
+                                        Pr[d(w∗ , L) ≤ e] ≤ d/|F|.
+Before we prove Lemma 4.5, we can conclude analogously to the previous analysis that this lemma implies
+the following stronger version of Theorem 4.4.
+Theorem 4.5. Let e be a positive integer such that e < d/3. Suppose d(U ∗ , Lm ) > e. Then, for any
+malicious P strategy, the oracle U ∗ is rejected by V except with ≤ (1 − e/n)t + d/|F| probability.
+Proof of Lemma 4.5. On a high-level Lemma 4.5 follows by extending Lemma 4.4 from lines to general
+affine subspaces. This extension follows from the fact that if a subspace has a point that is far from L, then
+we can partition the subspace (minus the point) into lines containing this point. Now, from Lemma 4.4
+we have that at most d/|F | points can be near L for lines, therefore, we have that the same for affine
+subspace L∗ .
+    In more detail, we will follow the proof of Lemma 4.2. Case 1 of the analysis remains the same, so we
+only have to argue Case 2 where we have that for every v ∗ ∈ L∗ , d(v ∗ , L) ≤ 2e. Next, since d(U ∗ , L) > e,
+we use Lemma 4.3 to conclude that there exists v ∗ ∈ L∗ such that d(v ∗ , L) > e. As before, we can express
+the points in L∗ as x + αv ∗ where α ∈R F and x is distributed independently of α. For any fixed x, we have
+that there exists α such that x + αv ∗ is more than e far from L. Now from part (2) in Lemma 4.4, we can
+conclude that there are at most d values of α for which x + αv ∗ is at most e-far from L. Since this is true
+for each x (each line), it is true for the entire space L∗ . This concludes the proof of Lemma 4.5.
+
+Subsequent improvements. Subsequent to the publication of [AHIV17], several works [BBHR18, BGKS20,
+BCI+ 20] have improved this analysis, where currently the best analysis is presented in [BCI+ 20].
+Lemma 4.6. [BCI+ 20, Theorem 1.2] Let L = RSF,n,k,η be a Reed-Solomon code with minimal distance
+d = n − k + 1 and e a positive integer such that e < d/2. Suppose d(U 0 , Lm ) > e. Then, for a random w∗
+in the column-span of U 0 , we have
+                                       Pr[d(w∗ , L0 ) ≤ e] ≤ n/|F|.
+
+4.2   Testing Linear Constraints over Interleaved Reed-Solomon Codes
+In this section we describe an efficient procedure for testing that a message encoded by an interleaved RS
+code satisfies a given set of linear constraints. This generalizes a procedure from [Gro09, IPS09] for testing
+that such an encoded message satisfies a given set of replication constraints. In the following we assign a
+message in F` to a codeword in Fn by considering a fixed set of ` evaluation points of the polynomial defined
+by the codeword. Note that while each codeword has a unique message assigned to it, several different
+codewords can be “decoded” into the same message. As the degree of the polynomial corresponding to the
+codeword can be higher than ` − 1. On the other hand, if the degree of the polynomial corresponding to the
+codeword is restricted to be smaller than `, the encoding becomes unique.
+    We now describe a simple testing algorithm for checking that the message x encoded by U satisfies
+a given system of linear equations Ax = b, for A ∈ Fm`×m` and b ∈ Fm` . (We will always apply this
+test with a sparse matrix A containing O(m`) nonzero entries.) The test simply picks a random linear
+combination r ∈ Fm` and checks that (rT A)x = rT b. Note that if Ax 6= b, the test will only pass with
+1/|F| probability. To make the test sublinear, we let the prover provide a polynomial encoding (rT A)x
+and check its consistency with rT b and with U on t randomly chosen symbols. To further simplify the
+
+                                                     17
+description and analysis of the testing algorithm, we assume that U is promised to be e-close to Lm . Our
+final IPCP will run the Test-Interleaved from Section 4.1 to ensure that if the promise is violated, this is
+caught with high probability. The complete test is described in Figure 3.
+
+  Oracle: A purported Lm -codeword U that should encode a message x ∈ Fm` satisfying Ax = b.
+  Interactive testing:
+
+     1. V picks a random vector r ∈ Fm` and sends r to P.
+     2. V and P compute
+                                          rT A = (r11 , . . . , r1` , . . . , rm1 , . . . , rm` )
+                                                  | {z }                      |      {z       }
+                                                       multipliers for         multipliers for
+                                                       the first block         the last block
+
+        and, for i ∈ [m], let ri (·) be the unique polynomial of degree < ` such that ri (ζc ) = ric for every c ∈ [`].
+
+                                                                                                 Pm
+     3. P sends the k + ` − 1 coefficients of the polynomial defined by q(·) =                      i=1 ri (·) · pi (·) , where pi (·) is
+                                                                                                        |     {z      }
+                                                                                                        pairwise product
+                                                                                                         within a block
+        the polynomial of degree < k corresponding to row i of U .
+     4. V queries a set Q ⊂ [n] of t random symbols U [j], j ∈ Q.
+     5. V accepts if the following conditions hold:
+             P                 P
+         (a)    c∈[`] q(ζc ) =   i∈[m],c∈[`] ric bic .
+                                Pm
+         (b) For every j ∈ Q, i=1 ri (ηj ) · Ui,j = q(ηj ).
+
+
+
+                  Figure 3: Test-Linear-Constraints-IRS(F, L = RSF,n,k,η , m, t, ζ, A, b; U )
+
+   The following lemma easily follows by inspection.
+
+Lemma 4.7. If U ∈ Lm , U encodes x such that Ax = b, and P is honest, V always accepts.
+
+   Soundness is argued by the following lemma.
+
+Lemma 4.8. Let e be a positive integer such that e < d/2. Suppose that a (badly formed) oracle U ∗ is
+e-close to a codeword U ∈ Lm encoding x ∈ Fm` such that Ax 6= b. Then, for any malicious P strategy,
+U ∗ is rejected by V except with at most 1/|F| + ((e + k + `)/n)t probability.
+
+Proof: Let q(·) be the polynomial generated in Step 3 following the honest P strategy on input U . Since
+we assume that Ax 6= b, it holds that
+
+                                             Pr[rT Ax = rT b] = 1/|F|.
+                                              r
+
+Namely, except with probability 1/|F| over the choice of r in Step 1, the polynomial q(·) fails to satisfy the
+condition in Step 5a. This is due to the fact that
+                                              X
+                                                   q(ζc ) = (rT A)x
+                                                  c∈[`]
+
+
+                                                               18
+and                                             X
+                                                           ric bic = rT b.
+                                             i∈[m],c∈[`]
+
+   Next, we analyze the probability that a malicious P strategy is rejected conditioned on q(·) failing as
+above. Let q 0 (·) be the polynomial sent by the prover. If q 0 (·) = q(·), then V rejects in Step 5a with
+probability 1/|F|. Else, using the fact that q(·) and q 0 (·) are of degree at most k + ` − 2, we have that the
+number of indices j ∈ [n] for which q(ηj ) = q 0 (ηj ) is at most k + ` − 2. Let Q0 be the set of indices on
+which they agree. Then V rejects in Step 5b whenever Q selected in Step 5 contains                       0
+                  ∗   m                                                      e+k+`−2
+                                                                                      nan index i 6∈ Q ∪ E,
+where E = ∆(U , L ). This fails to happen with probability at most              t     / t ≤ ((e + k + `)/n)t .
+The lemma now follows by a simple union bound.                                                               
+
+4.3     Testing Quadratic Constraints over Interleaved Reed-Solomon Codes
+In this section we describe a simple test for verifying that vectors x, y, z ∈ Fm` respectively encoded by
+U x , U y , U z ∈ Lm , satisfy the constraints x y + a z = b for some known a, b ∈ Fm` , where denotes
+pointwise product. Letting L = RSF,n,k,η , U a = Encode(a) and U b = Encode(b), this test reduces to
+checking that U x U y + U a U z − U b encodes the all zeros message 0m` in the (interleaved extension
+of) L̂ = RSF,n,2k−1,η . This could be done using the general membership test for interleaved linear codes
+(Test-Interleaved from Section 4.1), since the set of codewords in L̂ that encodes the all zeros message is
+a linear subcode of L̂. In Figure 4 we present this test in a self-contained way, exploiting the promise that
+U x , U y , U z are close to Lm for a tighter analysis.
+     The following lemma follows again directly from the description.
+                                                     T
+Lemma 4.9. Let U = U x U y U z U w                      where U w , U x , U y , U z ∈ Lm . If U x , U y , U z encode
+                             
+
+vectors x, y, z ∈ Fm` satisfying x y + a z = b and P is honest, V always accepts.
+      Soundness is argued by the following lemma.
+Lemma 4.10. Let e be a positive integer such that e < d/2. Let U x∗ , U y∗ , U z∗ be badly formed oracles
+and let U ∗ ∈ F3m×n be the matrix obtained by vertically juxtaposing the corresponding m × n matrices.
+Suppose d(U ∗ , L3m ) ≤ e, and let U x , U y , U z , respectively, be the (unique) codewords in Lm that are closest
+to U x∗ , U y∗ , U z∗ . Suppose U x , U y , U z encode x, y, z such that x y + a z 6= b. Then, for any malicious
+P strategy, (U x∗ , U y∗ , U z∗ ) is rejected by V except with at most 1/|F| + ((e + 2k)/n)t probability.
+Proof: Let p0 (·) be the polynomial generated in Step 3 following the honest P strategy on U x , U y , U z .
+Since x, y, z do not satisfy the constraint x y + a z = b, the polynomial p0 (·) fails to satisfy the
+condition in Step 5a except with probability 1/|F| over the choice of r in Step 2. Indeed, we have p0 (·) =
+P   m
+    i=1 ri · pi (·) and there must exist an index i and a point ζc such that pi (ζc ) 6= 0.
+     Next, we analyze the probability that a malicious P strategy is rejected conditioned on p0 failing as
+above. Let p00 (·) be the polynomial sent by the prover in Step 3. If p00 (·) = p0 (·), then V rejects in Step 5a
+with probability 1/|F|. Else, using the fact that p0 (·) and p00 (·) are of degree at most 2k − 2, we have that
+the number of indices j ∈ [n] for which p0 (ηj ) = p00 (ηj ) is at most 2k − 2. Let Q0 be the set of indices
+on which p0 (·) and p00 (·) agree. Then V rejects in Step 5b whenever Q selected in Step 4 contains an index
+i 6∈ Q0 ∪ E, where E = ∆(U ∗ , L3m ). This fails to happen with probability at most
+                                                   , 
+                                       e + 2k − 2
+                                     
+                                                          n
+                                                              ≤ ((e + 2k)/n)t .
+                                             t            t
+The lemma now follows by a union bound.                                                                          
+
+                                                           19
+                                                              T x y z
+  Oracle: Purported L4m -codeword U , where U = U x U y U z
+                                                  
+                                                                  , U , U , U ∈ Lm and U x , U y , U z that
+                                       m`
+  allegedly encode messages x, y, z ∈ F satisfying x y + a z = b.
+  Interactive testing:
+
+       1. Let U a = Encodeζ (a) and U b = Encodeζ (b).
+       2. V picks a random linear combinations r ∈ Fm and sends r to P.
+       3. P sends the 2k − 1 coefficients of the polynomial p0 defined by
+                                      m
+                                      X
+                           p0 (·) =         ri · pi (·), where pi (·) = pxi (·) · pyi (·) + pai (·) · pzi (·) − pbi (·),
+                                      i=1
+
+          and where pxi , pyi , pzi are the polynomials of degree < k corresponding to row i of U x , U y , U z , and pai , pbi
+          are the polynomials of degree < ` corresponding to row i of U a , U b .
+       4. V picks a random index set Q ⊂ [n] of size t, and queries U [j], j ∈ Q.
+       5. V accepts if the following conditions hold:
+            (a) p0 (ζc ) = 0 for every c ∈ [`].
+           (b) For every j ∈ Q, it holds that
+                                               m
+                                               X          x      y      a      z      b
+                                                                                           
+                                                     ri · Ui,j · Ui,j + Ui,j · Ui,j − Ui,j   = p0 (ηj ).
+                                               i=1
+
+
+
+
+                  Figure 4: Test-Quadratic-Constraints-IRS(F, L = RSF,n,k,η , m, t, ζ, a, b; U )
+
+4.4     IPCP for Arithmetic Circuits
+In this section, we provide our IPCP for arithmetic circuits. Fix a large finite field F. Let C : Fni → F
+be an arithmetic circuit. Without loss of generality, we will assume that the circuit contains only ADD and
+MULTIPLY gates with fan-in two. We show how a prover can convince a verifier that C(w) = 1.
+Protocol IPCP(C, F).
+      • Input: The prover P and the verifier V share a common input arithmetic circuit C : Fni → F and
+        input statement x. P additionally has input α = (α1 , . . . , αni ) such that C(α) = 1.
+      • Oracle π: Let m, ` be integers such that m · ` > ni + s where s is the number of gates in the circuit.
+        Then P generates an extended witness w ∈ Fm` where the first ni + s entries of w are
+                                                         (α1 , . . . , αni , β1 , . . . , βs )
+        where βi is the output of the ith gate when evaluating C(α). P defines a system of constraints that
+        contains the following constraint for every multiplication gate g in the circuit C
+                                                               βa · βb − βc = 0
+        and for every addition gate, the constraint
+                                                              βa + βb − βc = 0
+
+                                                                     20
+      where βa and βb are the input values to the gate g and βc is the output value in the extended witness.
+      For the output gate we include the constraint βa + βb − 1 = 1 if the final gate is an addition gate, and
+      βa · βb − 1 = 0 if it is a multiplication gate. P constructs vectors x, y and z in Fm` where the j th
+      entry of x, y and z contains the values βa , βb , and βc corresponding to the j th multiplication gate in
+      w. P and V construct matrices Px , Py and Pz in Fm`×m` such that
+
+                                            x = Px w, y = Py w, z = Pz w.
+
+      Finally, it constructs matrix Padd ∈ Fm`×m` such that the j th position of Padd w equals βa + βb − βc
+      where βa , βb , and βc correspond to the j th addition gate of the circuit in w. Let U w , U x , U y , U z ∈ Lm
+      respectively encode w, x, y, z where L = RSF,n,k,η . P sets the oracle π as U ∈ L4m which is set as
+      the vertical juxtaposition of the following four matrices U w , U x , U y , U z ∈ Lm .
+      All the linear constraints can be expressed as one large linear constraint matrix:
+                                                                        
+                                                                      Px
+                                           I3m`×3m` −P
+                                 A=                              , P = Py  , b = 04m`
+                                           0m`×3m` Padd
+                                                                        Pz
+
+    • The interactive protocol:
+      V and P run the following tests.
+
+        1. Test-Interleaved (F, L, 4m, t; U )
+        2. Test-Linear-Constraints-IRS (F, L, 4m, t, ζ, A, b; U )
+        3. Test-Quadratic-Constraints-IRS(F, L, m, t, ζ, (−1)m` , 0m` ; U )
+
+      Since all the tests open the same number of columns t in Uw , Ux , Uy , Uz , then V will simply open t
+      columns of U . V rejects if it rejects in any of the tests above.
+
+The completeness of our IPCP follows from the following lemma.
+
+Lemma 4.11. If U w , U x , U y , U z ∈ Lm encode vectors w, x, y, z ∈ Fm` satisfying
+
+               x = Px w, y = Py w, z = Pz w, x          y + (−1)m`       z = 0m` , Padd w = 0m`
+
+and P is honest, V always accepts.
+
+   The proof follows directly from Lemmas 4.1, 4.7 and 4.9. Next, soundness is argued by the following
+lemma.
+
+Lemma 4.12. Let e be a positive integer such that e < d/3 and suppose that there exists no α such that
+C(α) = 1. Then, for any maliciously formed oracle U ∗ and any malicious prover strategy, the verifier
+rejects except with at most (d + 2)/|F| + (1 − e/n)t + 2((e + 2k)/n)t probability.
+
+Proof: On a high-level, soundness will essentially follow by the soundness of the individual tests and the
+overall soundness error follows by a direct application of a union bound over the soundness of these tests.
+In more detail, let U be the vertical juxtaposition of U w∗ , U x∗ , U y∗ , U z∗ . Then we argue soundness by
+considering the following cases and applying a union bound:
+
+
+
+                                                        21
+Case d(U, L4m ) > e: Since e < d/3, we can conclude from Theorem 4.5 that the verifier rejects in Test-
+     Interleaved executed in Step 1 except with probability (1 − e/n)t + d/|F|.
+
+Case d(U, L4m ) ≤ e: Next, let U w , U x , U y , U z ∈ Lm be the codes that are respectively close to U w∗ , U x∗ ,
+     U y∗ , U z∗ and encode the messages w, x, y, z. Recall that there exists no w, x, y, z that satisfy all the
+     following constraints:
+        x = Px w, y = Py w, z = Pz w,
+        x y + (-1)m` z = 0m` and Padd w = 0m` .
+        Then we can conclude from Lemmas 4.8 and 4.10 by applying a union bound on the corresponding
+        tests that the verifier rejects except with probability:
+
+
+                                       2/|F| + (e + k + `)/n)t + ((e + 2k)/n)t
+                                                      < 2 · 1/|F| + ((e + 2k)/n)t .
+                                                                                 
+
+
+                                                                                                                
+      The following theorem follows from the construction described above and the preceding Lemmas.
+
+Theorem 4.6. Fix parameters n, m, `, k, t, e such that e < (n − k)/4. Let C : Fni → F be an arithmetic
+circuit of size s, where |F| ≥ n and m · ` > ni + s. Then protocol IPCP(C, F) satisfies the following:
+
+      • C OMPLETENESS : If α is such that C(α) = 1 and oracle π is generated honestly as described in the
+        protocol, then
+        Pr[(P(C, w), V π (C)) = 1] = 1.
+
+      • S OUNDNESS : If there is no α is such that C(α) = 1, then for every (unbounded) prover strategy P ∗
+        and every π̃ ∈ F4mn ,
+        P r[(P ∗ , V π̃ (C)) = 1] ≤ (d + 2)/|F| + (1 − e/n)t + 2((e + 2k)/n)t .
+
+      • C OMPLEXITY: The number of field operations performed is poly(|C|, n). The number of field ele-
+        ments communicated by P to V is k + (k + ` − 1) + (2 · k − 1) whereas V reads t symbols from F4m .
+
+The first term in the communication cost is the communication incurred by the test-interleaved protocol, the
+second term is due to the linear-constraint test and the final term results from our quadratic-constraint test.
+
+4.5     IPCP for Boolean Circuits
+In order to obtain the benefits in soundness from running our IPCP over a large field F, we show how we can
+prove the validity of a Boolean circuit C : {0, 1}ni → {0, 1} by encoding the witness in any larger field F.
+First, the prover will map the Boolean 0 within the witness to the additive identity 0 in F, and the Boolean
+1 to the multiplicative identity 1 in F. Now, we can enforce that each element in the witness is a 0 or 1 by
+introducing a quadratic constraint β 2 − β = 0.
+    Next, given that binary constraints are already enforced, we proceed by demonstrating how we incorpo-
+rate the constraints based on the XOR and ADD gates. In fact, we will show that all gate constraints can be
+expressed as a linear relation on the witness bits. Let x be a column vector consisting of the witness string.
+We will construct a matrix A and a column vector w such that if w is a binary valid witness then the elements
+
+
+                                                        22
+of Aw will all be 0, and if w is binary and is not a valid witness then at least one element of Aw will be
+nonzero. For each XOR and AND gate in the circuit we will create a row in the matrix corresponding to the
+enforcement of that relation in the witness. Specifically, besides including the input bits x, the vector w will
+include one additional bit for each XOR and AND gate. We explain the purpose of these extra bits next.
+    Given integers b1 and b2 consider the arithmetic constraint b1 + b2 = r0 + 2 · r1 over the integers. In
+this constraint, if we enforce that all values are bits then r0 is the XOR of b1 and b2 and r1 is the AND of b1
+and b2 . In order to make sure that b1 XOR b2 equals b3 in w, we require the prover to include in the witness
+an auxiliary bit d and enforce the linear constraint b1 + b2 = b3 + 2 · d, as well as the binary constraints that
+b3 and d are bits. Analogously, to ensure b1 AND b2 equals b3 , we include an auxiliary bit d and enforce the
+linear constraint b1 + b2 = d + 2 · b3 and the binary constraint that b3 and d are bits. To conclude, we observe
+that if the values have been enforced to be a binary constraint then checking the arithmetic constraints over
+integers can be done by checking the equation modulo a sufficiently large prime (p ≥ 3).
+    We can also extend this idea to consider more complex gates such as addition modulo 232 over 32-bit
+inputs and outputs. This can be expressed as a linear constraint over the bits. Suppose a = (a0 , . . . , a31 ),
+b = (b0 , . . . , b31 ) and c = (c0 , . . . , c31 ) are the input and output bits, the constraint a + b = c mod 232 can
+be expressed as
+                                      X 31              X31                    X31
+                                               i              i        32
+                                             2 · ai +        2 · bi = 2 · d +       2i · ci
+                                  i=0            i=0                      i=0
+
+where d is an auxiliary input bit, and all values are enforced to be bits. However, this will require using a
+finite field F with characteristic p > 233 .
+
+4.6     Achieving Zero-Knowledge
+Note first that the verifier obtains two types of information in two different building blocks of the IPCP.
+First, it obtains linear combinations of codewords in a linear code L. Second, it probes a small number of
+symbols from each codeword. Since codewords are used to encode the NP witness, both types of information
+give the verifier partial information about the NP witness, and thus the basic IPCP we described is not
+zero-knowledge. Fortunately, ensuring zero-knowledge only requires introducing small modifications to the
+construction and analysis. Specifically, the second type of “local” information about the codewords is made
+harmless by making the encoding randomized, so that probing just a few symbols in each codeword reveals
+no information about the encoded message. The high level idea for making the first type of information
+harmless is to use an additional random codeword for blinding the linear combination of codewords revealed
+to the verifier. However, this needs to be done in a way that does not compromise soundness. Below we
+describe the modifications required for each of the IPCP ingredients.
+
+4.6.1    ZK Testing of Interleaved Linear Codes
+Recall that in the verification algorithm Test-Interleaved from Section 4.1, V obtains a linear combination
+of the form w = rT U , where U ∈ Fm×n is a matrix whose rows should be codewords in L. A natural
+approach for making this linear combination hide U is by allowing the prover to add to the rows of U an
+additional random codeword u0 that is used for blinding. A simple implementation of this idea that provides
+a slightly inferior soundness guarantee is as follows. Apply the algorithm Test-Interleaved to Lm+1 , with
+an extended oracle U 0 whose first m rows contain U and whose last row is u0 . Letting w0 = rT U + r0 u0
+be the random linear combination obtained by V, the test fails to be zero-knowledge when r0 = 0, which
+occurs with 1/|F| probability. Alternatively, settling for a slightly worse soundness guarantee (where e/|F|
+
+
+                                                          23
+is replaced by e/(|F| − 1)), one could just let r0 be a random nonzero field element, and get perfect zero-
+knowledge. It turns out, however, that one could fix r0 to 1 and still get the same soundness guarantee about
+U as in Lemma 4.2 since we can apply the same the decomposition argument. This “affine” variant of
+Test-Interleaved is described and analyzed in Appendix B.3.
+
+4.6.2    ZK Testing of Linear Constraints over Interleaved Reed-Solomon Codes
+The verification algorithm for the linear constraints Ax = b samples a random vector r, obtains rT Ax, and
+compares it with rT b. Looking more                     P actual protocol, the verifier obtains a polynomial q(·)
+                                       P carefully at our
+and checks whether the equality c∈[`] q(ζc ) =            i∈[m],c∈[`] ric bic holds. While the sum itself does not
+reveal any additional information beyond what is already known, namely rT b, the individual evaluations of
+q(·), i.e. q(ζc ), may reveal information about the inputs. To hide this information, a simple idea    P is for P to
+provide an additional vector u0 along with U that encodes a message (γ1 , . . . , γ` ) such that c∈[`] γc = 0,
+and append to A the constraints that sum the entries in the message encoded in u0 .
+     However, as before, this will yield less than optimal soundness guarantee. Instead, we consider the
+following approach that provides the same soundness guarantee as the original (non-affine version of the)
+test. We apply the algorithm Test-Linear-Constraints-IRS to Lm+1 where L = RSF,n,k,η , with an extended
+oracle U 0 whose first m    Prows contain U and whose last
+                                                                        0                         0
+                                                         Pmrow is u where additionally u encodes a message
+(γ1 , . . . , γ` ) such that c∈[`] γc = 0. Letting q(·) = i=1 ri (·) · pi (·) + rBlind (·) be the polynomial obtained
+by V where rBlind (·) is a polynomial (of degree < k + ` − 1) corresponding to u0 , we can show that the
+soundness of the resulting scheme will be the same as for Lemma 4.8. This “affine” variant of Test-Linear-
+Constraints is described and analyzed in Appendix B.4.
+
+4.6.3    ZK Testing of Quadratic Constraints over Interleaved Reed-Solomon Codes
+Finally, we modify the quadratic constraint testing procedure in the same way as we modified the linear
+constraint testing. Concretely, we apply the algorithm Test-Quadratic-Constraint to L3m+1 where L =
+RSF,n,k,η , with an extended oracle U 0 whose first 3m rows contain   x   y  z
+                                                             Pm U , U , U and whose last row is u
+                                                                                                         0
+                      0                    `
+where additionally u encodes a message 0 . Letting p0 (·) = i=1 ri · pi (·) + rBlind (·) be the polynomial
+obtained by V where rBlind (·) is a polynomial (of degree < 2k − 1) corresponding to u0 , we can show
+that the soundness of the resulting scheme will be the same as for Lemma 4.10. This “affine” variant of
+Test-Quadratic-Constraints is described and analyzed in Appendix B.5.
+
+4.7     The Final ZKIPCP
+In this section provide a self contained description of the final ZKIPCP protocol, combining all of the
+previous sub-protocols. In this section, we provide our ZKIPCP for arithmetic circuits over a large field F.
+On a high-level, the protocol is essentially the IPCP construction from Section 4.4 with the exception that
+we replace all the tests with the generalized affine version (with repetitions).
+Protocol ZKIPCP(C, F).
+
+      • Input: The prover P and the verifier V share a common input arithmetic circuit C : Fni → F and
+        input statement x. P additionally has input α = (α1 , . . . , αni ) such that C(α) = 1.
+
+      • Oracle π: Let m, ` be integers such that m · ` > ni + s where s is the number of gates in the
+        circuit. Then P generates an extended witness w ∈ Fm` where the first ni + s entries of w are
+
+
+                                                         24
+  (α1 , . . . , αni , β1 , . . . , βs ) where βi is the output of the ith gate when evaluating C(α). P constructs
+  vectors x, y and z in Fm` where the j th entry of x, y and z contains the values βa , βb , and βc
+  corresponding to the j th multiplication gate in w. P and V construct matrices Px , Py and Pz in
+  Fm`×m` such that
+                                                x = Px w, y = Py w, z = Pz w.
+  Finally, it constructs matrix Padd ∈ Fm`×m` such that the j th row of Padd w equals βa + βb − βc
+  where βa , βb , and βc correspond to the j th addition gate of the circuit in w. The linear constraints can
+  be summarized as one large matrix as before.
+                                                                  
+                                                                 Px
+                                   I3m`×3m` −P
+                             A=                           , P = Py  , b = 04m`
+                                                                 
+                                    0m`×3m` Padd
+                                                                   Pz
+
+  The prover samples random codewords U w , U x , U y , U z ∈ Lm where L = RSF,n,k,η subject to w =
+  Decodeζ (U w ), x = Decodeζ (U x ), y = Decodeζ (U y ), z = Decodeζ (U z ) where ζ = (ζ1 , . . . , ζ` ) is
+  a sequence of distinct elements disjoint from (η1 , . . . , ηn ). Let u0h , uadd
+                                                                                h   be auxiliary rows sampled
+  randomly from L for every h ∈ [σ]Pwhere each of uadd    h     encodes   an   independently  sampled random
+  ` messages (γ1 , . . . , γ` ) subject to c∈[`] γc = 0 and u0h encodes 0` . P sets the oracle as U ∈ L4m
+  which is set as the vertical juxtaposition of the matrices U w , U x , U y , U z ∈ Lm .
+
+• The interactive protocol:
+
+    1. For every h ∈ [σ], V picks the random elements rh ∈ F4m , rhadd ∈ F4m` and rhq ∈ Fm and
+       sends them to P.
+    2. For every h ∈ [σ], P responds with
+          – (Interleaved Reed-Solomon Testing)
+
+                                                vh = (rh )T U + u0h ∈ Fn ,
+
+          – (Linear Constraints Testing) Polynomial qhadd (·) of degree < k + ` − 1 where
+                                                                     m
+                                                                     X
+                                                    add
+                                       qhadd (·) = rBlind ,h (·) +
+                                                                            add
+                                                                           rh,i (·) · pi (·),
+                                                                     i=1
+
+            such that
+                                                                                w
+              * pi is the polynomial of degree < k corresponding to row i of U ,
+                 add                                                        add           add T
+              * rh,i (·) is the unique polynomial of degree < ` such that rh,i (ζc ) = ((rh ) P )ic for
+                every c ∈ [`], and
+                 add                                                                    add
+              * rBlind,h (·) is the polynomial of degree < k + ` − 1 corresponding to uh .
+          – (Quadratic Constraints Testing)
+                                                            m
+                                                                  rhq i · (pxi (·) · pyi (·) − pzi (·))
+                                                            X
+                                            0
+                                                                     
+                                p0,h (·) = rBlind,h (·) +
+                                                            i=1
+
+             where for a ∈ {x, y, z},
+                 a                                                            a
+              * pi is the polynomial of degree < k corresponding to row i of U ,
+
+                                                    25
+                       0                                                                    0
+                   * rBlind,h is the polynomial of degree < 2k − 1 corresponding uh .
+        3. V picks a random index set Q ⊂ [n] of size t, and queries U [j] that is the vertical juxtaposition
+           of Uhx [j], Uhy [j], Uhz [j], Uhw [j], uadd     0
+                                                   h [j], uh [j], j ∈ Q and accepts if the following conditions hold
+           for every h ∈ [σ]:
+              – For every j ∈ Q we have
+                                                  4m
+                                                  X
+                                                         rh [j] · Ui,j + u0h [j] = vh [j],
+                                                  i=1
+
+                          add
+                  P
+              –    c∈[`] qh (ζc ) = 0 and for every j ∈ Q we have
+
+                                                          4m
+                                                          X
+                                          uadd
+                                           h [j] +
+                                                                  add
+                                                                 rh,i (ηj ) · Ui,j = qhadd (ηj ),
+                                                           i=1
+
+              – p0,h (ζc ) = 0 for every c ∈ [`] and for every j ∈ Q,
+                                                  m              h                   i
+                                                        (rhq )i · Ui,j    y
+                                                  X
+                                      u0h [j] +                    x
+                                                                       · Ui,j    z
+                                                                              − Ui,j   = p0,h (ηj ).
+                                                  i=1
+
+    The completeness of our ZKIPCP follows from the next lemma.
+Lemma 4.13. If U w , U x , U y , U z ∈ Lm encode vectors w, x, y, z ∈ Fm` satisfying
+
+               x = Px w, y = Py w, z = Pz w, x              y + (−1)m`         z = 0m` , Padd w = 0m`
+
+and P is honest, V always accepts.
+    Next, soundness is argued by the following lemma.
+Lemma 4.14. Let e be a positive integer such that e < d/4. Suppose that there exists no α such that
+C(α) = 1. Then, for any maliciously formed oracle U ∗ and any malicious prover strategy, the verifier
+rejects except with at most (d + 2)/|F|σ + (1 − e/n)t + 2((e + 2k)/n)t probability.
+   The proofs of the preceding two lemmas follow analogously to the proofs of Lemma 4.11 and Lemma 4.12.
+The next lemma establishes the honest verifier zero-knowledge property.
+Lemma 4.15. If k > ` + t, hP, Vi is an (honest verifier, perfect) zero-knowledge IPCP.
+Proof: To demonstrate zero-knowledge against honest verifier, we need to provide a simulator S that can
+given the randomness provided by the honest verifier V, be able to generate a transcript. For every h ∈ [σ],
+the simulator first generates:
+    • random polynomial qhadd of degree < k + ` − 1 such that c∈[`] qhadd (ζc ) = 0.
+                                                                P
+
+    • random polynomial p0,h of degree < 2k − 1 such that p0,h (ζc ) = 0 for every c ∈ [`].
+
+    • random vector vh ∈ Fn .
+Next, it samples random elements from F for Uhx [j], Uhy [j], Uhz [j], Uhw [j], for every j ∈ Q. Finally, given
+the random challenges from V, it sets u0h [j], uadd     0
+                                                h [j], uh [j] as follows:
+
+
+                                                            26
+                    P4m
+      • u0h [j] =    i=1 rh [j] · Ui,j − vh [j].
+                     P4m
+      • uadd
+         h [j] =
+                              add                 add
+                         i=1 rh,i (ηj ) · Ui,j − qh (ηj )
+                                    h              i
+                    Pm     q          x · Uy − Uz
+      • u0h [j] =    i=1 (rh )i ·    Ui,j  i,j  i,j − p0,h (ηj ).
+
+Our simulation achieves perfect zero knowledge. This follows from the fact that in an honest execution
+with the prover P, the distribution of {Uhx [j], Uhy [j], Uhz [j], Uhw [j]}j∈Q are uniformly distributed and given
+that u0h , uadd  x 0                                                    add
+            h , uh , uh are uniformly chosen, the polynomials qh , p0,h and the vector vh are uniformly
+distributed in their respective spaces.                                                                         
+    The following theorem follows from the construction described above and the preceding Lemmas.
+
+Theorem 4.7. Fix parameters n, m, `, k, t, e such that e < (n − k)/4. Let C : Fni → F be an arithmetic
+circuit of size s, where |F| ≥ ` + n, m · ` > ni + s and k > ` + t. Then protocol ZKIPCP(C, F) satisfies
+the following:
+
+      • C OMPLETENESS : If α is such that C(α) = 1 and oracle π is generated honestly as described in the
+        protocol, then
+        Pr[(P(C, w), V π (C)) = 1] = 1.
+
+      • S OUNDNESS : If there is no α is such that C(α) = 1, then for every (unbounded) prover strategy P ∗
+        and every π̃ ∈ F4mn ,
+        P r[(P ∗ , V π̃ (x)) = 1] ≤ (d + 2)/|F|σ + (1 − e/n)t + 2((e + 2k)/n)t .
+
+      • Z ERO K NOWLEDGE : For every adversary verifier V ∗ , there exists a simulator S such that the output
+              ∗
+        of S V (C) is distributed identically to the view of V in the (P(C, w), V π (C)).
+
+      • C OMPLEXITY: The number of field F operations performed is poly(|C|, n). The number of field
+        elements communicated by P to V is σ · n + σ · (k + ` − 1) + σ · (2 · k − 1) whereas V reads t symbols
+        from F4m+5σ .
+
+
+5     From ZKIPCP to ZK
+In this section we describe variants of known transformations from (sublinear) zero-knowledge PCP to
+(sublinear) zero-knowledge argument. The latter can either be interactive using collision-resistant hash
+(CRH) functions, or non-interactive in the random oracle model or based on CRH (following the Fiat-Shamir
+heuristic).
+
+5.1     The Interactive Variant
+General transformations from (non-interactive) ZKPCP to (interactive) ZK arguments that make a black-
+box use of collision-resistant hash functions were given in [IMS12, IW14]. Here we address the more
+general case of ZKIPCP, where in addition to the proof oracle there is additional interaction between the
+prover and the verifier. Namely, using the ZKIPCP, an honest-verifier ZK protocol proceeds as follows. The
+prover commits to each entry of the proof oracle using a statistically hiding commitment scheme and then
+compresses the commitment using a Merkle hash tree (cf. Section 2.1). Note that both steps can be realized
+by making a black-box use of any family H of collision-resistant hash functions. The rest of the ZK protocol
+mimics the ZKIPCP, where the prover opens the committed values that correspond to the verifier’s queries.
+
+                                                            27
+Malicious verifiers can be handled using standard techniques (see e.g., Section 6.2 in the full version
+of [IMS12]). The communication complexity of the ZK argument includes the communication complexity
+of the ZKIPCP protocol and communication resulting from committing the oracle Π and decommitting to
+the queries Q.
+
+5.2   The Non-Interactive Variant
+It is possible to directly compile our previous protocol into a non-interactive protocol using a random oracle,
+where the verifier’s messages are emulated by applying the random oracle on the partial transcript in each
+round following the Fiat-Shamir transform [FS86]. A formal description and analysis of this transformation
+is presented in [BCS16] for interactive oracle proofs (IOP) model which generalizes (public-coin) IPCP.
+     In slight more detail, in this transformation the prover uses the random oracle to generate the verifier’s
+messages and complete the execution (computing its own messages) based on the emulated verifier’s mes-
+sages, where instead of using an oracle, the prover commits to its proof and messages using Merkle hash
+trees. Completeness follows directly. If we start with an IOP that additionally is zero-knowledge (ZKIPCP
+in our case), [BCS16] show that this transformation preserves (statistical) zero-knowledge property. Namely,
+the resulting protocol can be proven to be zero-knowledge in the random-oracle model.
+     In [BCS16], the soundness of the transformed protocol is shown to essentially match the soundness of
+the original protocol up to an additive term that roughly depends on the product of q 2 and 2−κ where q is an
+upper bound on the number of queries made to the random oracle by a malicious prover and κ is the output
+length of the random oracle. More precisely, [BCS16] relates the soundness of the transformed protocol to
+the state restoration soundness of the underlying IPCP and the collision-probability of queries to the random
+oracle. State-restoration soundness refers to the soundness of the IOP protocol against cheating prover
+strategies that may rewind the verifier back to any previously seen state, where every new continuation from
+a state invokes the next-message function of the verifier with fresh randomness. In [BCS16],          they show
+                                                                                             T
+                                                                                                
+that for any (IOP) the state-restoration soundness of an IOP protocol is bounded by k(x)          · (x) and the
+                                              T
+                                                   · (x) + O(T 2 · 2−κ ) where T bounds the number of queries
+                                                 
+soundness of the transformed protocol is k(x)
+made by cheating provers to the random oracle, k(x) is the round complexity of the IOP and (x) is the
+(standard) soundness of the IOP.
+     Next, we tighten the analysis presented in [BCS16] for the particular ZKIPCP constructed in Section 4.7
+and show that the soundness of the transformed protocol is T ·(x)+O(T 2 ·2−κ ) where (x) is the soundness
+of the ZKIPCP, T bounds the number of queries made by cheating prover to the random oracle and κ is the
+output length of the random oracle.
+     In [CCH+ 19], Canetti et al., introduced the notion of round-by-round soundness, to provide a fine-
+grained analysis of the Fiat-Shamir heuristic. We fist repeat (verbatim) the definition of round-by-round
+soundness from [CCH+ 19] for completeness.
+
+Definition 5.1. A 2r-round protocol Π has round-by-round soundness error (·) if there exists a (possi-
+bly inefficient) mapping State from the tuple (x, τ ) where x is the instance and τ a partial transcript of
+interaction using Π to {accept, reject} such that the following hold:
+
+   1. If x 6∈ L, then State(x, ∅) = reject, where ∅ denotes the empty transcript.
+
+   2. If State(x, τ ) = reject for a partial transcript up to 2i-rounds, then for every prover message α, it
+      holds that
+                        Pr[β ← V (x, (τ, α)) : State(x, (τ, α, β)) = accept] < (|x|, |τ |).
+
+
+                                                      28
+   3. For any full transcript τ , if State(x, τ ) = reject, then V (x, τ ) = 0.
+     Next, we analyze the transformed protocol in the random-oracle model. Suppose the prover makes
+at most T queries, then the probability it finds a collision is bounded by T 2 2−κ . Next, we analyze the
+round-by-round soundness of the compiled interactive ZK argument. By our preceding analysis, the value
+of (|x|, |τ |) for a partial transcript τ till the end of the first round will be at most (d + 2)/|F|σ , and for a
+transcript till the end of the third round will be at most (1 − e/n)t + 2((e + 2k)/n)t . Finally, we apply the
+Fiat-Shamir transformation where the prover generates the verifier’s message by applying the random oracle
+on the partial transcript to obtain the randomness for the verifier. To argue the soundness of the transformed
+protocol, we observe that the adversary succeeds only if State(x, (τ, α, β)) = accept. Suppose that, the
+adversary makes T1 queries with τ as a partial transcript at the end of the first round and T2 queries for
+partial transcripts at the end of the third round (where the prover was not already on a good partial transcript
+at the end of the first round), then, the probability the adversary succeeds is bounded by
+
+              T1 · (d + 2)/|F|σ + T2 · (1 − e/n)t + 2((e + 2k)/n)t + T 2 2−κ
+                                                                          
+
+                                    ≤ T · (d + 2)/|F|σ + (1 − e/n)t + 2((e + 2k)/n)t + T 2 2−κ
+                                                                                            
+
+For concrete security, we can conclude that for the non-interactive protocol to have κ-bit security (i.e. T ·
+N I = 2−κ ), the (statisticaly) soundness of the interactive protocol can be set to Int = 2−κ where the
+output length of the random-oracle is set to 2 · κ-bits.
+
+5.3    Sublinear Zero-Knowledge Argument
+In this section, we describe how to set the parameters of our zero-knowledge argument protocol to obtain
+communication that is sublinear in the circuit size. We consider first an arithmetic circuit over a large field
+F. Following our transformation, the communication complexity of the zero-knowledge protocol that is
+compiled based on our ZKIPCP is
+                                                                   
+
+      k  · σ + (k + ` − 1) · σ + (2 · k − 1) · σ + t · (4 · m + 3 · σ) · dlog |F|e +       t · dlog ne · h
+                                                                       
+        |{z}    |     {z      } |        {z     } |          {z       }                      |      {z     }
+       code test     linear test       quadratic test     parties’ views                 Merkle tree decommitments
+
+where h denotes the output length of the random-oracle (i.e. hash-function) and the view includes 4m one for
+each row of Uw , Ux , Uy , Uz and 3 · σ that correspond to the rows of the blinding polynomials. An optimal set
+of parameters that minimize the communication complexity for arithmetic circuits over F can be obtained by
+having e = k which implies n = 3·k. For these parameters, we have e < d/2 and the soundness simplifies to
+3·(2/3)t +(n+4)/|F|σ where σ is the number of times we repeat the test. For soundness to be at most 2−κ we
+need σ ≈ λ/ log2 (|F|)q and t = λ/ log2 (2/3). With these parameters set, communicationqcomplexity is then
+                             |C|·min(|F|,κ)                                                              5·|C|
+minimized when ` =            5·log2 (3/2) . Then, the communication complexity is κ · |F| ·log2 (3/2)·min(|F|,κ)
+                             p                                         p
+which simplifies to O(|F| · |C| · κ) bits for large fields and O(κ · |C| · |F|) bits for small fields (i.e. for
+|F| < κ). We remark that when identifying concrete parameters we additionally need k to be a power of 2
+(to use Cooley-Tukey style FFT for Reed-Solomon encoding).
+     For Boolean circuits, we can either embed the computation in a prime finite field or Galois GF(2n )
+field. In either case, we need the field size to be at least as large as n + `. In the prime field, both XOR
+and AND costs one arithmetic multiplication while in the Galois field XOR and AND map into addition and
+multiplication in the field. Depending on which embedding is chosen, we need to set the circuit size C and
+field F appropriately and use the preceding computation.
+
+                                                         29
+5.4               Multi-Instance Amortization
+If we want to prove that C(xi , ·) is satisfiable for N public inputs xi , we can simplify our ZKIPCP con-
+struction as follows. The prover first computes the combined witness w = w1 , . . . , wN that is comprised
+of N witnesses, each is computed as in the single instance case. Next, it arranges the witnesses in blocks
+of size ` = N , where block j contains the j th bits of each of the N witnesses. The number of blocks in
+the extended witness equals the size of the witness of a single instance, which is m = |wi | = O(|C|). The
+prover then encodes the blocks of messages into U ∈ Lm .
+    For moderately large N , the multi-instance variant provides significant savings in both computational
+and communication costs. This is because we do not need to rearrange the wire values as we do in the single
+instance case. The total asymptotic communication complexity for sufficiently large fields then becomes
+O((N + κ · |C|) · |F|).
+
+
+6               Implementation and Experimental Results
+
+
+
+                               Prover time                                                       5MB
+                         Prover time (w/ pre.)                                                                Ligero (40-bit)
+                              Verifier time                                                                   Ligero (128-bit)
+                 16s     Verifier time (w/ pre.)                                                              Circuit Size
+
+                                                                                                 1MB
+                                                                           Communication (KB)
+
+
+
+
+                                                                                                500KB
+    Run time
+
+
+
+
+                  8s
+                                                                                                100KB
+
+
+                  4s                                                                               50
+
+                  2s
+                  1s               SHA256
+               500ms
+                   103       104          105            106   107
+                                                                                                              SHA-256                 2.6 · 106 1.97 · 107
+                                                                                                   10
+                                         s (circuit size)                                               103   104        105        106        107           108
+                                                                                                                         G (# gates)
+
+
+
+                                              1
+                                                                                                                          1
+Figure 5: Prover and verifier running times
+                                                                          Figure 6: Proof lengths for proving a single in-
+for verifying a single instance of different circuit
+                                                                          stance of difference circuit sizes.
+sizes.
+
+    We implemented our protocol in NFLlib library for the finite field operations. To pick the evaluation
+points, we chose a prime that had sufficiently large power of two roots of unity and set ηi and ζj values
+to be roots of unity. This enabled us to perform interpolation and evaluation using inverse FFT and FFT
+operations. We ran our experiments on Amazon EC2 c6i.32xlarge with the Intel Xeon CPU 3.5 GHz,
+128 cores, 256 GB RAM. For our collision resistant hash function we used SHA256.
+    We instantiated our interactive variant with soundness 2−128 in the random oracle model and imple-
+mented the non-interactive variant by applying the Fiat-Shamir transform where we used SHA256 to imple-
+ment the random oracle. We considered arithmetic circuits over a 30-bit prime field. We also refined our
+proof of soundness. In Sections 4.2 and 4.3, we analyzed the linear and quadratic tests independently. If we
+
+
+                                                                     30
+analyze it in conjunction with the IRS code test, we can improve some of the terms. We present this analysis
+in Appendix C.
+     In Figure 5, we compare the prover and verifier running times for verifying circuits of sizes varying
+from 1000 gates to 107 gates. These are randomly generated arithmetic circuits over a 30-bit prime field.4
+Specifically, for a circuit of size s, we sampled a circuit with s multiplication (fan-in 2) gates and s addition
+gates (fan-in 2). The computational complexity of both the prover and the verifier in the single instance
+setting is proportional to O(s log s) field operations when we optimize the packing factor to minimize the
+proof length. Furthermore, the optimal field size can be asymptotically shown to be O(log s) resulting in
+overall computational complexity of O(s log2 s). We remark here that if we make uniformity assumptions
+on the circuit, then the verifier’s computational complexity becomes sublinear in the circuit size. In fact, in
+the multi-instance setting which can be seen as a uniformity assumption, we achieve succinct verification,
+i.e. our verifier’s complexity is smaller than the circuit size.
+     We observe that for small to medium circuit sizes (up to 1 million gates) the bulk of the time spent by
+the prover is in reading the circuit corresponding to the NP statement, where for a fixed circuit this time can
+be spent in a pre-processing phase. We provide the prover and verifier’s times excluding the pre-processing
+step. As the circuit size increases, the prover and verifier’s efficiency improves, where at 107 gates they run
+at 500ns per gate excluding pre-processing and 1.1µs per gate end-to-end.
+     In Figure 6, we provide the communication complexity in kilobytes (KB) of our zero-knowledge argu-
+ment. We plot two instantiations of our protocol. We provide the communication cost for the vanilla Ligero
+instantiated at 128-bit and 40-bit security. We also plot a line measuring the circuit size in bits and identify
+the point at which the Ligero system is strictly sublinear in the circuit size. For 40-bit security this is around
+2.6 million gates and for the 128-bit security it is around 20 million gates.
+Comparing with IOP-based ZK-SNARKs We now provide a comparison with IOP-based ZK-SNARKs
+that are plausibly post-quantum secure. In Table 2 we compare our proof lengths with the libiop im-
+plementation of Ligero, Aurora, Brakedown and Shockwave. We obtain the data for these systems from
+[GLS+ 21] where they set all these schemes at 128-bit security. The new analysis of the Ligero system
+yields proof lengths that is significantly better than the other IOP-based implementations. We note here
+that while the data from [GLS+ 21] is for a random R1CS statement over 128-bit/256-bit, we consider a
+random arithmetic circuit of similar size over a 30-bit prime. In Table 3, we compare the running times of
+the prover and verifier against [GLS+ 21]. Our prover times are better than Brakedown and Shockwave for
+larger circuits and competitive for small circuits. Our end-to-end verification times are competitive, but if
+we exclude the circuit setup time, we get better efficiency. We note here, however, this comparison is not
+apples-to-apples as it was run on different machines but comparable architectures.
+
+
+7    Related Work with Open Problems
+Below we provide a list of open problems regarding IOPs.
+Constant computational overhead. An important theoretical (and in some cases practical) question in
+the design of succinct arguments is understanding the asymptotic computational overhead of the prover.
+This overhead is defined as the ratio between the running time (or circuit size) of the implementation of
+the prover and that of verifying the witness without any security requirements. The question of constant-
+overhead cryptography was initiated in the work of Ishai et al. [IKOS08] and subsequent works [AM17,
+    4
+      Note that our proof length and computation times are not influenced by the circuit topology and only depend on the witness
+size which in turn depends only on the number of gates.
+
+
+                                                              31
+   Circuit Size           210     211       212        213     214     215     216     217      218      219       220
+   Ligero [AHIV17]        546     628     1,076      1,169   2,100   3,169   5,788   5,662   10,527   10,736    19,828
+   Aurora [BCR+ 19]       447     510       610        717     810     931   1,069   1,179    1,315    1,473     1,603
+   Brakedown(128-bit)   1,279   1,597     1,974      2,200   2,710   3,165   3,926   4,824    6,122    7,899    10,230
+   [GLS+ 21]
+   Shockwave(128-bit)      72     95          122     160     210     284     386     523      721      990      1,384
+   [GLS+ 21]
+   Ligero-128 (here)       48     56          71       87     103     135     177     229      320      417          602
+
+         Table 2: Comparison of proof length (in KB) between different IOP-based ZK-SNARKs.
+
+
+                 Prover Time                                                            Verifier Time
+ Circuit Size           220 221         222    223                      Circuit Size            220 221        222    223
+ Brakedown (128-bit)      3   6          13     25                      Brakedown (128-bit) 0.7 1.1            2.1    3.8
+ Shockwave (128-bit)      4   9          17     36                      Shockwave (128-bit) 0.5 0.9            1.7    3.5
+ Ligero-128 (here)        4   5           7     11                      Ligero-128 (here)       3.8 4.7        6.6     10
+
+Table 3: Comparison of running times (in seconds) of prover and verifier between different IOP-based
+ZK-SNARKs.
+
+AHI+ 17, BIO14, BIP+ 18], where is was shown how to construct several primitives with constant overhead
+under plausible cryptographic assumptions.
+     The prover overhead of the Ligero system is O(log |C|) for an arithmetic circuit C stemming from com-
+puting the RS encodings, or polylog(|C|) in the Boolean case. A recent line of works has focussed on
+designing succinct proof systems for non-uniform arithmetic circuits (modeled via so-called rank-1 con-
+straint systems (R1CS)) over a large finite field where the size of the prover is linear in the size of the circuit
+[BCG+ 17, BBB+ 18, XZZ+ 19b, BCG20, Set20, SL20, KMP20, ZXZS20, GLS+ 21, LSTW21, ZLW+ 21b,
+BCL22]. Specific to IOPs, the works of [BCG20, GLS+ 21, BCL22] construct a linear-time IOP, i.e. the
+overhead of the prover is constant for arithmetic circuits over a large finite field. More recently, the works
+of [RR22, HR22] construct, for the first time, a linear time prover for Boolean circuits, but, for restricted
+settings. Specifically, Ron-Zewi and Rothblum [RR22] build a linear-time IOP with constant-soundness er-
+ror and Holmgren and Rothblum [HR22] build a linear-time IOP for restricted classes of circuits, including
+batch Boolean statements, with 2−λ soundness error and polylog(λ) overhead. The state-of-the-art leaves
+the following fundamental question regarding linear-time IOPs open.
+Open Problem 1. Can we construct (sublinear-query) IOPs for Boolean circuits with constant computa-
+tional overhead and negligible soundness error?
+    A bit more concretely, we would ideally like to have an IOP for proving the satisfiability of a Boolean
+circuit of size s with 2−λ soundness error, where the verifier makes λ · polylog(s) queries and where the
+prover is implemented by a Boolean circuit of size O(s) + poly(λ, log s).
+Complexity preserving constructions. As mentioned above, recent works have shown how to improve
+the prover’s computational complexity to essentially linear in the time taken to compute the underlying
+relation (for an NP-language). However, these works come with a steep price in terms of space, namely, for
+computations that take time T and space S, the space complexity of the prover is Ω(T ). Notably, only a few
+works provide time and space efficient constructions that we discuss next. This fact turns out to be a major
+bottleneck in scaling up zero-knowledge proofs to larger and larger computations. To make the context
+precise, we focus on the task of proving that a non-deterministic RAM machine M accepts a particular
+
+                                                             32
+instance x, i.e. uniform non-deterministic computations. The goal here is that if M accepts/rejects x in time
+T and space S then the resulting ZK proof system preserves these complexities on the prover’s side while
+being polylogarithmic in T (i.e. succinct) or even sublinear on the verifier’s side.
+    When considering designated verifier ZK-SNARKs, complexity preserving solutions (i.e. poly-logarithmic
+overhead in space and time) have been constructed by Bitansky and Chiesa [BC12] and by Holmgren and
+Rothblum [HR18] in the non-interactive setting. The work of Ephraim et al. [EFKP20] shows that, assuming
+the existence of standard (circuit) SNARKs and collision-resistant hash functions (CRHF), one can construct
+a non-interactive succinct argument of knowledge (i.e. SNARK) for parallel RAM computations where the
+prover’s complexities are preserved whereas the verifier requires polylogarithmic in T time and space, and
+the underlying CRHF and SNARK are used in a non-black-box manner. Publicly-verifiable ZK-SNARKs
+with similar overheads can be accomplished via recursive composition [BGH19, COS20, BCMS20]. Nev-
+ertheless, these constructions have significant overheads as they typically rely on non-black-box usage of
+the underlying primitives.
+    More recently, two works by Block et al. [BHR+ 20, BHR+ 21] designed the first black-box construction
+of a ZK-SNARKs with polylogarithmic overhead in space and time based on “more standard” assumptions.
+The first work assumes hardness of discrete logarithm in prime-order groups and relies on the random
+oracle to construct a public-coin zero-knowledge argument where the proof length is polylog(T ), the prover
+is complexity preserving and the verifier runtime is T · polylog(T ) while using polylog(T ) space. The
+second work improves the verifier’s runtime from T · polylog(T ) to n · polylog(T ), where n is the input
+length, under hardness assumptions on hidden order groups. We note that these works make extensive
+use of public-key operations - e.g., the prover needs to compute Ω(T ) exponentiations, where public-key
+operations are typically orders of magnitude more expensive than symmetric key operations. The prior
+works leave the following question open.
+Open Problem 2. Can we construct complexity-preserving IOPs?
+    More precisely, consider the universal relation RU of instance-witness pairs (y, w), where y = (M, x, T ),
+|w| ≤ T , and M is an abstract RAM machine, such that M accepts (x, w) after at most t steps. Let LU
+be the corresponding language. We would like to have an IOP for proving membership in LU with 2−κ
+soundness error such that for a polynomial p and any instance (M, x, T ) where M uses space S we have:
+    • the prover runs in time (|M | + |x| + T ) · p(κ + log T ),
+    • the prover P runs in space (|M | + |x| + S) · p(κ + log T ),
+    • the verifier V runs in time (|M | + |x| + log T ) · p(κ + log T ),
+    • the total bits communicated to V is p(κ + log T ).
+We remark that if we only insisted on space-preserving IOPs (i.e. relax the time requirement) we can essen-
+tially rely on the same constructions of [BCR+ 19, BFH+ 20] by observing that a Reed-Solomon encoding
+of data of size T can be computed in time polynomial in T with multiple passes on the input using space
+polylog(T ) (which is the bottleneck in terms of space for these constructions).       We also highlight that
+the above question is open even if we relax constant-overhead to polylogarithmic overhead. In recent work,
+Bhadauria et al. made progress in answering the question where they construct a complexity-preserving IOP
+that is somewhat succinct and the overhead is polylogarithmic [BBHV22]. Namely, for every NP relation
+that can be verified in time T and space S by a RAM program, they constructed a complexity-preserving
+(ZK)IOP, where the prover runs in time O(Te ) and space O(S),
+                                                          e                                e /S + S) and
+                                                                 the verifier runs in time O(T
+space O(1) and the query-complexity is O(T /S), where O() ignores polynomial factors in log T and κ.
+        e                                 e              e
+
+                                                      33
+Minimal assumptions for sublinear arguments. Since the original work of Kilian [Kil92] we have known
+that (public-coin) sublinear arguments can be constructed from symmetric-key primitives. In particular, it
+can be constructed from collision-resistant hash-functions. However, the question of what are the minimal
+assumptions to design sublinear arguments is still open. We do not know if one-way functions are sufficient
+or even necessary. The recent work of Pass and Venkitasubramaniam [PV20] shows that if public-coin
+sublinear arguments exist for a language L, then either (a slight variant of standard) one-way functions exist
+or there exists a two-round sublinear argument for the same language. This leaves the following fundamental
+question open.
+
+Open Problem 3. What are the minimal assumptions to construct sublinear arguments for all of NP?
+
+
+8    Conclusions
+We designed and implemented a zero-knowledge argument for NP that simultaneously offers good concrete
+efficiency and sublinear communication in the circuit size. As the computational complexity of our protocol
+is dominated by polynomial evaluations and interpolations, we can rely on efficient FFT implementations for
+minimizing its computational cost. In the following we mention some additional optimizations that we have
+not fully explored. The current implementation relies on prime fields. This allows us to optimize arithmetics
+over integers by considering a sufficiently large prime. Moreover, we recall that for the Boolean case the
+witness includes two bits per gate for both XOR and AND gates. If we instead rely on characteristic 2 fields,
+then the witness size will require three bits per AND gate and 0 bits for XOR gates. Hence there is a tradeoff
+in choosing between the two options. It is also unclear how the FFT algorithms compare for characteristic
+2 and prime fields, though fast implementations for the characteristic 2 case are known [GM10, BHST16]
+and used in designing ZKSNARKs based on IOPs [BBHR19].
+     The verification of our zero-knowledge argument needs to evaluate a polynomial on a subset of the
+points in the domain. We currently implement this by having the verifier evaluate the polynomial on the
+entire domain via FFT and extract the points in this subset. Improving this will improve the verifier’s
+efficiency. Relying on GPU for FFT computations can also bring significant savings. Finally, one can exploit
+a repetitive circuit structure (“uniformity”) to reduce verification time. We currently only take advantage of
+this for reducing the amortized cost of verifying multiple evaluations of the same circuit.
+     Finally, it would be interesting to explore the concrete efficiency of other approaches to lightweight
+sublinear zero-knowledge arguments. In particular, one could consider constructions of PCPs based on
+bivariate polynomials such as the one of Polishchuk and Spielman [PS94] (see [BCGT13] for work in this
+direction), or the zero-knowledge PCP obtained by applying our general transformation to the MPC protocol
+from [DIK10]. This type of constructions can be further simplified by applying an interactive procedure for
+testing linear constraints as we do in Section 4.2.
+Acknowledgments. We thank Eli Ben-Sasson, Swastik Kopparty, abhi shelat, and Salil Vadhan for useful
+discussions and pointers, the anonymous CCS reviewers for helpful comments, and Victor Shoup for his
+assistance with the NTL library.
+    The first and last authors were supported by Google Faculty Research Grant and NSF Awards CNS-
+1526377 and CNS-1618884. The second author was supported by the European Research Council un-
+der the ERC consolidators grant agreement n. 615172 (HIPS), and by the BIU Center for Research in
+Applied Cryptography and Cyber Security in conjunction with the Israel National Cyber Bureau in the
+Prime Minister’s Office. The third author was supported by a DARPA/ARL SAFEWARE award, DARPA
+Brandeis program under Contract N66001-15-C-4065, NSF Frontier Award 1413955, NSF grants 1619348,
+
+
+                                                     34
+1228984, 1136174, and 1065276, ERC grant 742754, NSF-BSF grant 2015782, ISF grant 1709/14, BSF
+grant 2012378, a Xerox Faculty Research Award, a Google Faculty Research Award, an equipment grant
+from Intel, and an Okawa Foundation Research Grant. This material is based upon work supported by the
+Defense Advanced Research Projects Agency through the ARL under Contract W911NF-15-C-0205. The
+views expressed are those of the authors and do not reflect the official policy or position of Google, the
+Department of Defense, the National Science Foundation, or the U.S. Government.
+
+
+References
+[AHI+ 17]    Benny Applebaum, Naama Haramaty, Yuval Ishai, Eyal Kushilevitz, and Vinod Vaikuntanathan. Low-
+             complexity cryptographic hash functions. In ITCS, pages 7:1–7:31. Schloss Dagstuhl - Leibniz-
+             Zentrum für Informatik, 2017.
+[AHIV17]     Scott Ames, Carmit Hazay, Yuval Ishai, and Muthuramakrishnan Venkitasubramaniam.           Ligero:
+             Lightweight sublinear arguments without a trusted setup. In CCS, pages 2087–2104, 2017.
+[ALM+ 98]    Sanjeev Arora, Carsten Lund, Rajeev Motwani, Madhu Sudan, and Mario Szegedy. Proof verification
+             and the hardness of approximation problems. J. ACM, 45(3):501–555, 1998.
+[AM17]       Benny Applebaum and Yoni Moses. Locally computable UOWHF with linear shrinkage. J. Cryptol.,
+             30(3):672–698, 2017.
+[AS98]       Sanjeev Arora and Shmuel Safra. Probabilistic checking of proofs: A new characterization of NP. J.
+             ACM, 45(1):70–122, 1998.
+[Bab85]      László Babai. Trading group theory for randomness. In STOC, pages 421–429, 1985.
+[BBB+ 18]    Benedikt Bünz, Jonathan Bootle, Dan Boneh, Andrew Poelstra, Pieter Wuille, and Gregory Maxwell.
+             Bulletproofs: Short proofs for confidential transactions and more. In S&P, pages 315–334. IEEE
+             Computer Society, 2018.
+[BBC+ 17]    Eli Ben-Sasson, Iddo Bentov, Alessandro Chiesa, Ariel Gabizon, Daniel Genkin, Matan Hamilis,
+             Evgenya Pergament, Michael Riabzev, Mark Silberstein, Eran Tromer, and Madars Virza. Computa-
+             tional integrity with a public random string from quasi-linear pcps. In EUROCRYPT, pages 551–579,
+             2017.
+[BBHR18]     Eli Ben-Sasson, Iddo Bentov, Yinon Horesh, and Michael Riabzev. Fast reed-solomon interactive
+             oracle proofs of proximity. In ICALP, pages 14:1–14:17, 2018.
+[BBHR19]     Eli Ben-Sasson, Iddo Bentov, Yinon Horesh, and Michael Riabzev. Scalable zero knowledge with
+             no trusted setup. In Alexandra Boldyreva and Daniele Micciancio, editors, CRYPTO, pages 701–732,
+             2019.
+[BBHV22]     Rishabh Bhadauria, Laasya Bangalore, Carmit Hazay, and Muthuramakrishnan Venkitasubramaniam.
+             On black-box constructions of time and space efficient sublinear arguments from symmetric-key prim-
+             itives. In TCC, 2022.
+[BC12]       Nir Bitansky and Alessandro Chiesa. Succinct arguments from multi-prover interactive proofs and
+             their efficiency benefits. In CRYPTO, pages 255–272, 2012.
+[BCCT13]     Nir Bitansky, Ran Canetti, Alessandro Chiesa, and Eran Tromer. Recursive composition and bootstrap-
+             ping for SNARKS and proof-carrying data. In STOC, pages 111–120, 2013.
+[BCG+ 14]    Eli Ben-Sasson, Alessandro Chiesa, Christina Garman, Matthew Green, Ian Miers, Eran Tromer, and
+             Madars Virza. Zerocash: Decentralized anonymous payments from bitcoin. In IEEE Symposium on
+             Security and Privacy, pages 459–474, 2014.
+
+
+
+                                                     35
+[BCG+ 16]   Eli Ben-Sasson, Alessandro Chiesa, Ariel Gabizon, Michael Riabzev, and Nicholas Spooner. Short
+            interactive oracle proofs with constant query complexity, via composition and sumcheck. IACR Cryp-
+            tology ePrint Archive, 2016:324, 2016.
+[BCG+ 17]   Jonathan Bootle, Andrea Cerulli, Essam Ghadafi, Jens Groth, Mohammad Hajiabadi, and Sune K.
+            Jakobsen. Linear-time zero-knowledge proofs for arithmetic circuit satisfiability. In ASIACRYPT,
+            pages 336–365, 2017.
+[BCG20]     Jonathan Bootle, Alessandro Chiesa, and Jens Groth. Linear-time arguments with sublinear verification
+            from tensor codes. In Rafael Pass and Krzysztof Pietrzak, editors, TCC, pages 19–46. Springer, 2020.
+[BCGT13]    Eli Ben-Sasson, Alessandro Chiesa, Daniel Genkin, and Eran Tromer. On the concrete efficiency of
+            probabilistically-checkable proofs. In Symposium on Theory of Computing Conference, STOC’13, Palo
+            Alto, CA, USA, June 1-4, 2013, pages 585–594, 2013.
+[BCI+ 13]   Nir Bitansky, Alessandro Chiesa, Yuval Ishai, Rafail Ostrovsky, and Omer Paneth. Succinct non-
+            interactive arguments via linear interactive proofs. In TCC, pages 315–333, 2013.
+[BCI+ 20]   Eli Ben-Sasson, Dan Carmon, Yuval Ishai, Swastik Kopparty, and Shubhangi Saraf. Proximity gaps
+            for reed-solomon codes. In FOCS, 2020.
+[BCL22]     Jonathan Bootle, Alessandro Chiesa, and Siqi Liu. Zero-knowledge iops with linear-time prover and
+            polylogarithmic-time verifier. In EUROCRYPT, pages 275–304. Springer, 2022.
+[BCMS20]    Benedikt Bünz, Alessandro Chiesa, Pratyush Mishra, and Nicholas Spooner. Recursive proof compo-
+            sition from accumulation schemes. In TCC, pages 1–18, 2020.
+[BCR+ 19]   Eli Ben-Sasson, Alessandro Chiesa, Michael Riabzev, Nicholas Spooner, Madars Virza, and
+            Nicholas P. Ward. Aurora: Transparent succinct arguments for R1CS. In EUROCRYPT, pages 103–
+            128, 2019.
+[BCS16]     Eli Ben-Sasson, Alessandro Chiesa, and Nicholas Spooner. Interactive oracle proofs. In TCC, pages
+            31–60, 2016.
+[BFH+ 20]   Rishabh Bhadauria, Zhiyong Fang, Carmit Hazay, Muthuramakrishnan Venkitasubramaniam,
+            Tiancheng Xie, and Yupeng Zhang. Ligero++: A new optimized sublinear IOP. In CCS, pages 2025–
+            2038, 2020.
+[BFLS91]    László Babai, Lance Fortnow, Leonid A. Levin, and Mario Szegedy. Checking computations in poly-
+            logarithmic time. In STOC, pages 21–31, 1991.
+[BGH19]     Sean Bowe, Jack Grigg, and Daira Hopwood. Halo: Recursive proof composition without a trusted
+            setup. IACR Cryptol. ePrint Arch., page 1021, 2019.
+[BGKS20]    Eli Ben-Sasson, Lior Goldberg, Swastik Kopparty, and Shubhangi Saraf. DEEP-FRI: sampling outside
+            the box improves soundness. In ITCS, pages 5:1–5:32, 2020.
+[BHR+ 20]   Alexander R. Block, Justin Holmgren, Alon Rosen, Ron D. Rothblum, and Pratik Soni. Public-coin
+            zero-knowledge arguments with (almost) minimal time and space overheads. In TCC, pages 168–197,
+            2020.
+[BHR+ 21]   Alexander R. Block, Justin Holmgren, Alon Rosen, Ron D. Rothblum, and Pratik Soni. Time- and
+            space-efficient arguments from groups of unknown order. In CRYPTO, pages 123–152, 2021.
+[BHST16]    Eli Ben-Sasson, Matan Hamilis, Mark Silberstein, and Eran Tromer. Fast multiplication in binary fields
+            on gpus via register cache. In International Conference on Supercomputing, pages 35:1–35:12, 2016.
+[BIO14]     Joshua Baron, Yuval Ishai, and Rafail Ostrovsky. On linear-size pseudorandom generators and hardcore
+            functions. Theor. Comput. Sci., 554:50–63, 2014.
+
+
+
+                                                     36
+[BIP+ 18]    Dan Boneh, Yuval Ishai, Alain Passelègue, Amit Sahai, and David J. Wu. Exploring crypto dark matter:
+             - new simple PRF candidates and their applications. In TCC, pages 699–729, 2018.
+[BN20]       Carsten Baum and Ariel Nof. Concretely-efficient zero-knowledge arguments for arithmetic circuits
+             and their application to lattice-based cryptography. In PLC, pages 495–526, 2020.
+[CC06]       Hao Chen and Ronald Cramer. Algebraic geometric secret sharing schemes and secure multi-party
+             computations over small fields. In CRYPTO, pages 521–536, 2006.
+[CCH+ 19]    Ran Canetti, Yilei Chen, Justin Holmgren, Alex Lombardi, Guy N. Rothblum, Ron D. Rothblum, and
+             Daniel Wichs. Fiat-shamir: from practice to theory. In STOC, pages 1082–1090, 2019.
+[CDG+ 17]    Melissa Chase, David Derler, Steven Goldfeder, Claudio Orlandi, Sebastian Ramacher, Christian Rech-
+             berger, Daniel Slamanig, and Greg Zaverucha. Post-quantum zero-knowledge and signatures from
+             symmetric-key primitives. In CCS, pages 1825–1842, 2017.
+[CMT12]      Graham Cormode, Michael Mitzenmacher, and Justin Thaler. Practical verified computation with
+             streaming interactive proofs. In ITCS, pages 90–112, 2012.
+[COS20]      Alessandro Chiesa, Dev Ojha, and Nicholas Spooner. Fractal: Post-quantum and transparent recursive
+             proofs from holography. In EUROCRYPT, pages 769–793, 2020.
+[DI06]       Ivan Damgård and Yuval Ishai. Scalable secure multiparty computation. In CRYPTO, pages 501–520,
+             2006.
+[DIK10]      Ivan Damgård, Yuval Ishai, and Mikkel Krøigaard. Perfectly secure multiparty computation and the
+             computational overhead of cryptography. In EUROCRYPT, pages 445–465, 2010.
+[dSGMOS19] Cyprien Delpech de Saint Guilhem, Lauren De Meyer, Emmanuela Orsini, and Nigel P. Smart. BBQ:
+           using AES in picnic signatures. In SAC, pages 669–692, 2019.
+[dSGOT21]    Cyprien Delpech de Saint Guilhem, Emmanuela Orsini, and Titouan Tanguy. Limbo: Efficient zero-
+             knowledge mpcith-based arguments. In CCS, 2021.
+[EFKP20]     Naomi Ephraim, Cody Freitag, Ilan Komargodski, and Rafael Pass. Sparks: Succinct parallelizable
+             arguments of knowledge. In EUROCRYPT, pages 707–737, 2020.
+[FS86]       Amos Fiat and Adi Shamir. How to prove yourself: Practical solutions to identification and signature
+             problems. In CRYPTO, pages 186–194, 1986.
+[GGPR13]     Rosario Gennaro, Craig Gentry, Bryan Parno, and Mariana Raykova. Quadratic span programs and
+             succinct nizks without pcps. In EUROCRYPT, pages 626–645, 2013.
+[GKR08]      Shafi Goldwasser, Yael Tauman Kalai, and Guy N. Rothblum. Delegating computation: interactive
+             proofs for muggles. In STOC, pages 113–122, 2008.
+[GKR15]      Shafi Goldwasser, Yael Tauman Kalai, and Guy N. Rothblum. Delegating computation: Interactive
+             proofs for muggles. J. ACM, 62(4):27:1–27:64, 2015.
+[GLS+ 21]    Alexander Golovnev, Jonathan Lee, Srinath T. V. Setty, Justin Thaler, and Riad S. Wahby. Brakedown:
+             Linear-time and post-quantum snarks for R1CS. IACR Cryptol. ePrint Arch., page 1043, 2021.
+[GM10]       Shuhong Gao and Todd D. Mateer. Additive fast fourier transforms over finite fields. IEEE Trans.
+             Information Theory, 56(12):6265–6272, 2010.
+[GMO16]      Irene Giacomelli, Jesper Madsen, and Claudio Orlandi. Zkboo: Faster zero-knowledge for boolean
+             circuits. In USENIX, pages 1069–1083, 2016.
+[GMR85]      Shafi Goldwasser, Silvio Micali, and Charles Rackoff. The knowledge complexity of interactive proof-
+             systems (extended abstract). In STOC, pages 291–304, 1985.
+
+
+
+                                                      37
+[Gro09]    Jens Groth. Linear algebra with sub-linear zero-knowledge arguments. In CRYPTO, pages 192–208,
+           2009.
+[Gro10]    Jens Groth. Short pairing-based non-interactive zero-knowledge arguments. In ASIACRYPT, pages
+           321–340, 2010.
+[GSV21]    Yaron Gvili, Sarah Scheffler, and Mayank Varia. Booligero: Improved sublinear zero knowledge proofs
+           for boolean circuits. In FC, pages 476–496, 2021.
+[HKL22]    David Heath, Vladimir Kolesnikov, and Jiahui Lu. Efficient generic arithmetic for KKW practical
+           linear: Mpc-in-the-head NIZK on commodity hardware without trusted setup. IACR Cryptol. ePrint
+           Arch., page 795, 2022.
+[HR18]     Justin Holmgren and Ron Rothblum. Delegating computations with (almost) minimal time and space
+           overhead. In Mikkel Thorup, editor, FOCS, pages 124–135, 2018.
+[HR22]     Justin Holmgren and Ron Rothblum. Faster sounder succinct arguments and iops. IACR Cryptol.
+           ePrint Arch., page 994, 2022.
+[IKO07]    Yuval Ishai, Eyal Kushilevitz, and Rafail Ostrovsky. Efficient arguments without short pcps. In CCC,
+           pages 278–291, 2007.
+[IKOS07]   Yuval Ishai, Eyal Kushilevitz, Rafail Ostrovsky, and Amit Sahai. Zero-knowledge from secure multi-
+           party computation. In STOC, pages 21–30, 2007.
+[IKOS08]   Yuval Ishai, Eyal Kushilevitz, Rafail Ostrovsky, and Amit Sahai. Cryptography with constant com-
+           putational overhead. In Cynthia Dwork, editor, Proceedings of the 40th Annual ACM Symposium on
+           Theory of Computing, Victoria, British Columbia, Canada, May 17-20, 2008, pages 433–442. ACM,
+           2008.
+[IKOS09]   Yuval Ishai, Eyal Kushilevitz, Rafail Ostrovsky, and Amit Sahai. Zero-knowledge proofs from secure
+           multiparty computation. SIAM J. Comput., 39(3):1121–1152, 2009.
+[IMS12]    Yuval Ishai, Mohammad Mahmoody, and Amit Sahai. On efficient zero-knowledge PCPs. In TCC,
+           pages 151–168, 2012. Full version: https://www.cs.virginia.edu/˜mohammad/files/
+           papers/ZKPCPs-Full.pdf.
+[IPS08]    Yuval Ishai, Manoj Prabhakaran, and Amit Sahai. Founding cryptography on oblivious transfer -
+           efficiently. In CRYPTO, pages 572–591, 2008.
+[IPS09]    Yuval Ishai, Manoj Prabhakaran, and Amit Sahai. Secure arithmetic computation with no honest
+           majority. In TCC, pages 294–314, 2009.
+[Ish20]    Yuval Ishai. Zero-knowledge proofs from information-theoretic proof systems. 2020. https://
+           zkproof.org/2020/08/12/information-theoretic-proof-systems.
+[IW14]     Yuval Ishai and Mor Weiss. Probabilistically checkable proofs of proximity with zero-knowledge. In
+           TCC, pages 121–145, 2014.
+[Kil92]    Joe Kilian. A note on efficient zero-knowledge proofs and arguments (extended abstract). In STOC,
+           pages 723–732, 1992.
+[KKW18]    Jonathan Katz, Vladimir Kolesnikov, and Xiao Wang. Improved non-interactive zero knowledge with
+           applications to post-quantum signatures. In CCS, pages 525–537, 2018.
+[KMP20]    Abhiram Kothapalli, Elisaweta Masserova, and Bryan Parno. A direct construction for asymptotically
+           optimal zksnarks. IACR Cryptol. ePrint Arch., page 1318, 2020.
+[KR08]     Yael Tauman Kalai and Ran Raz. Interactive PCP. In ICALP, pages 536–547, 2008.
+[LFKN90]   Carsten Lund, Lance Fortnow, Howard J. Karloff, and Noam Nisan. Algebraic methods for interactive
+           proof systems. In FOCS, pages 2–10, 1990.
+
+
+                                                    38
+[LSTW21]     Jonathan Lee, Srinath T. V. Setty, Justin Thaler, and Riad S. Wahby. Linear-time zero-knowledge
+             snarks for R1CS. IACR Cryptol. ePrint Arch., page 30, 2021.
+[Mer89]      Ralph C. Merkle. A certified digital signature. In CRYPTO, pages 218–238, 1989.
+[Mic94]      Silvio Micali. CS proofs (extended abstracts). In FOCS, pages 436–453, 1994.
+[PS94]       Alexander Polishchuk and Daniel A. Spielman. Nearly-linear size holographic proofs. In Proceedings
+             of the Twenty-Sixth Annual ACM Symposium on Theory of Computing, 23-25 May 1994, Montréal,
+             Québec, Canada, pages 194–203, 1994.
+[PV20]       Rafael Pass and Muthuramakrishnan Venkitasubramaniam. Is it easier to prove theorems that are
+             guaranteed to be true? In FOCS, pages 1255–1267, 2020.
+[RR22]       Noga Ron-Zewi and Ron D. Rothblum. Proving as fast as computing: succinct arguments with constant
+             prover overhead. In Stefano Leonardi and Anupam Gupta, editors, STOC ’22: 54th Annual ACM
+             SIGACT Symposium on Theory of Computing, Rome, Italy, June 20 - 24, 2022, pages 1353–1363.
+             ACM, 2022.
+[RRR16]      Omer Reingold, Guy N. Rothblum, and Ron D. Rothblum. Constant-round interactive proofs for
+             delegating computation. In STOC, pages 49–62, 2016.
+[RZ17]       Ronny Roth and Gilles Zémor. Personal communication, 2017.
+[SBV+ 13]    Srinath T. V. Setty, Benjamin Braun, Victor Vu, Andrew J. Blumberg, Bryan Parno, and Michael
+             Walfish. Resolving the conflict between generality and plausibility in verified computation. In Eighth
+             Eurosys Conference, pages 71–84, 2013.
+[Set20]      Srinath T. V. Setty. Spartan: Efficient and general-purpose zksnarks without trusted setup. In Daniele
+             Micciancio and Thomas Ristenpart, editors, CRYPTO, pages 704–737, 2020.
+[Sha90]      Adi Shamir. Ip=pspace. In FOCS, pages 11–15, 1990.
+[SL20]       Srinath T. V. Setty and Jonathan Lee. Quarks: Quadruple-efficient transparent zksnarks. IACR Cryptol.
+             ePrint Arch., page 1275, 2020.
+[SMBW12]     Srinath T. V. Setty, Richard McPherson, Andrew J. Blumberg, and Michael Walfish. Making argument
+             systems for outsourced computation practical (sometimes). In NDSS, 2012.
+[Tha13]      Justin Thaler. Time-optimal interactive proofs for circuit evaluation. In CRYPTO, pages 71–89, 2013.
+[Tha22]      Justin Thaler. Proofs, arguments, and zero-knowledge. 2022.                https://people.cs.
+             georgetown.edu/jthaler/ProofsArgsAndZK.html.
+[VSBW13]     Victor Vu, Srinath T. V. Setty, Andrew J. Blumberg, and Michael Walfish. A hybrid architecture for
+             interactive verifiable computation. In S&P, pages 223–237, 2013.
+[WB15]       Michael Walfish and Andrew J. Blumberg. Verifying computations without reexecuting them. Com-
+             mun. ACM, 58(2):74–84, 2015.
+[WTS+ 18]    Riad S. Wahby, Ioanna Tzialla, Abhi Shelat, Justin Thaler, and Michael Walfish. Doubly-efficient
+             zksnarks without trusted setup. In S&P, pages 926–943, 2018.
+[XZZ+ 19a]   Tiancheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou, and Dawn Song. Libra:
+             Succinct zero-knowledge proofs with optimal prover computation. In CRYPTO, pages 733–764, 2019.
+[XZZ+ 19b]   Tiancheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou, and Dawn Song. Li-
+             bra: Succinct zero-knowledge proofs with optimal prover computation. In CRYPTO, pages 733–764.
+             Springer, 2019.
+[ZGK+ 17]    Yupeng Zhang, Daniel Genkin, Jonathan Katz, Dimitrios Papadopoulos, and Charalampos Papaman-
+             thou. vsql: Verifying arbitrary SQL queries over dynamic outsourced databases. In IEEE Symposium
+             on Security and Privacy, pages 863–880, 2017.
+
+
+                                                      39
+[ZLW+ 21a]      Jiaheng Zhang, Tianyi Liu, Weijie Wang, Yinuo Zhang, Dawn Song, Xiang Xie, and Yupeng Zhang.
+                Doubly efficient interactive proofs for general arithmetic circuits with linear prover time. In CCS,
+                pages 159–177, 2021.
+[ZLW+ 21b]      Jiaheng Zhang, Tianyi Liu, Weijie Wang, Yinuo Zhang, Dawn Song, Xiang Xie, and Yupeng Zhang.
+                Doubly efficient interactive proofs for general arithmetic circuits with linear prover time. In CCS,
+                pages 159–177. ACM, 2021.
+[ZXZS20]        Jiaheng Zhang, Tiancheng Xie, Yupeng Zhang, and Dawn Song. Transparent polynomial delegation
+                and its applications to zero knowledge proof. In S&P, pages 859–876. IEEE, 2020.
+
+
+A     Case e < d/3: Proof of Lemma 4.4
+In this section, we provide the proof of our main lemma for the case when e < d/3. The proof of claim A.2
+below is due to Ronny Roth and Gilles Zémor [RZ17].5
+
+Lemma A.1 (restatement of Lemma 4.4). Let e be a positive integer such that e < d/3. Suppose d(U, Lm ) >
+e. Then, for a random w∗ in the row-span of U , we have
+
+                                           Pr[d(w∗ , L) ≤ e] ≤ (e + 1)/|F|.
+
+Proof. Suppose that d(U ∗ , Lm ) > e and L∗ is the span of the vectors in U ∗ . Assume towards a contradiction
+that d(v ∗ , L) ≤ e for all v ∗ ∈ L∗ . Suppose v0∗ ∈ L∗ maximizes the distance from L. Since d(U ∗ , Lm ) > e,
+there must be a row Ui∗ such that ∆(Ui∗ , L) \ ∆(v0∗ , L) 6= ∅. Let v0∗ = u0 + χ0 and Ui∗ = ui + χi for
+u0 , ui ∈ L and χ0 , χi of weight ≤ e. We argue that there exists α ∈ F such that for v̂ = v0∗ + αUi∗ we
+have d(v̂, L) > d(v0∗ , L), contradicting the choice of v0∗ . This follows by a union bound, noting that for any
+j ∈ ∆(v0∗ , L) ∪ ∆(Ui∗ , L) there is at most one choice of α such that v̂j = 0.
+     Now, it suffices to show that in any affine subspace of Fn , either all points are e-close to L or almost all
+are not. This reduces to showing the following claim. We state an explicit version of the conjecture for the
+case of RS codes.
+Claim A.2. Let L be an arbitrary linear code over F of length n. Let e be a positive integer such that
+e < d/3. Then for every u, v ∈ Fn , defining an affine line `u,v = {u + αv : α ∈ F}, either (1) for every
+x ∈ `u,v we have d(x, L) ≤ e, or (2) for at most d points x ∈ `u,v we have d(x, L) ≤ e.
+   We begin with the observation that for any two length n vectors u and v of weight at most e, `u,v contains
+N points at most distance e from L if and only if `u,v+c contains N points of distance at most e from L for
+any codeword c ∈ L. This means it suffices to prove the claim for vectors u and v of weight at most e.
+   We now prove the lemma in two cases
+
+Case 1: |Support(u) ∪ Support(v)| ≤ e This means that `u,v is entirely contained in the ball Be (0) where
+     0 is the all 0s vector which in turn means all the vectors in the line are at most t from L.
+
+Case 2: |Support(u) ∪ Support(v)| ≥ e + 1 Since u and v each have weight at most e, the intersection of
+     their supports can be of cardinality at most e − 1. For each of the coordinates in the intersection of the
+     supports, there can be at most one vector in `u,v such that the entry in that coordinate is 0. Therefore,
+     there are at most e − 1 vectors in `u,v that are contained in the ball Be (0) where 0 is the all 0s vector.
+   5
+     In the case of length-n Reed-Solomon codes, a similar bound for e < d/2 was obtained by Ben-Sasson et al. [BCI+ 20], where
+(e + 1)/|F| is relaxed to n/|F|.
+
+
+
+                                                              40
+      To conclude this case, we need to demonstrate that there exists no codeword c 6= 0 such that the line
+      `u,v intersects with a vector inside the ball of radius e around c. Assume for contradiction there exists
+      a codeword c and vector w of weight at most e such that c + w ∈ `u,v . Then we have that
+
+                                                      c + w = u + αv
+
+      This means that c is equal to the sum of three vectors each of weight at most e. Now we arrive at a
+      contradiction because the minimum distance of L is d and e < d/3.
+
+
+
+
+B     Generalizing IPCP Tests
+In this section, we provide the generalized versions of the tests in our basic IPCP. This is required for improv-
+ing the soundness analysis and achieving better concrete parameters. We remark that the theorem statements
+in this section are provided for the case e < d/4. But we can incorporate the subsequent improvement in
+the analyses and directly generalize for the cases e < d/3 and e < d/2.
+
+B.1    Generalized Interleaved Linear Code Testing
+In this section we present a generalized version of the testing algorithm that uses σ linear combinations to
+amplify soundness; see Figure 7. This algorithm is useful for obtaining better soundness over a small field F.
+
+  Oracle: A purported Lm -codeword U . Depending on the context, we may view U either as a matrix in Fm×n in
+  which each row is a purported L-codeword, or as a sequence of n symbols (U1 , . . . , Un ), Ui ∈ Fm .
+  Parameters:
+
+       • Probing parameter t < n (number of symbols Uj read by V).
+       • Repetition parameter σ (number of random linear combinations).
+
+  Interactive testing:
+
+      1. V picks σ random linear combinations r1 , . . . , rσ ∈ Fm and sends them to P.
+      2. P responds with wh = rhT U ∈ Fn , h = 1, . . . , σ.
+      3. V queries a set Q ⊂ [n] of t random symbols Uj , j ∈ Q.
+      4. V accepts iff all wh are in L and are consistent with UQ and rh . That is, for every j ∈ Q and 1 ≤ h ≤ σ,
+         we have
+                                                  Xm
+                                                      (rh )j · Ui,j = (wh )j .
+                                                   i=1
+
+
+
+
+                         Figure 7: Generalized-Test-Interleaved(F, L[n, k, d], m, t, σ; U )
+
+
+Lemma B.1. If U ∈ Lm and P is honest, then V always accepts.
+
+
+                                                          41
+Lemma B.2. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) > e. Then, for a random
+w∗ in the row-span of U ∗ , we have
+                                        Pr[d(w∗ , L) ≤ e] ≤ (e + 1)/|F|σ .
+    The proof of Lemma B.2 follows identically as the proof of Lemma 4.2 with the exception that the
+denominator |F| in Equations 1 and 2 need to be replaced by |F|σ . This is because in each of Cases 1 and 2,
+we express w∗ = αv ∗ + x and bound the probability of a bad event regarding w∗ claiming that any value
+of x happens for a unique value of α ∈ F. Therefore this probability is bound by 1/|F|. In the repeated
+version, there is one possible value in Fσ which happens with probability 1/|F|σ .
+    We can conclude the following theorem, the same way Theorem 4.4 is concluded from Lemma 4.2.
+Theorem B.1. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) ≥ e. Then, for any
+malicious P strategy, the oracle U ∗ is rejected by V except with ≤ (1 − e/n)t + (e + 1)/|F|σ probability.
+
+B.2    Affine Interleaved Linear Code Testing
+For the purpose of obtaining a zero-knowledge IPCP, the following “affine” variant of Test-Interleaved is
+useful. Whenever V requests a random linear combination of the rows of U , this linear combination will be
+masked with an additional blinding vector u0 ∈ Fn . The vector u0 , which is also given as part of the proof
+oracle, will be picked by an honest P at random from L and will therefore hide all information about U
+whose rows are from L. The soundness of the test should hold even when u0 is adversarially chosen and is
+not necessarily a codeword. The complete test is given in Figure 8.
+
+  Oracle: A purported Lm -codeword U and an additional auxiliary row vector u0 ∈ Fn .
+  Interactive testing:
+      1. V picks a random linear combinations r ∈ Fm and sends r to P.
+      2. P responds with w = rT U + u0 ∈ Fn .
+      3. V queries a set Q ⊂ [n] of t random symbols Uj , j ∈ Q, as well as u0j , j ∈ Q.
+                                                                                                           Pm
+      4. V accepts iff w ∈ L and w is consistent with UQ , u0Q , and r. That is, for every j ∈ Q we have    i=1 rj ·
+         Ui,j + u0j = wj .
+
+
+
+                          Figure 8: Affine-Test-Interleaved(F, L[n, k, d], m, t; U, u0 )
+
+   Completeness follows directly from the description.
+Lemma B.3. If U ∈ Lm , u0 ∈ L, and P is honest, then V always accepts.
+   Our soundness analysis will rely on the following lemma.
+Lemma B.4. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) > e. Then, for arbitrary
+u0 ∈ Fn and a random w∗ in the row-span of U ∗ , we have Pr[d(w∗ , L) ≤ e] ≤ (e + 1)/|F|.
+Theorem B.2. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) ≥ e. Then, for an arbitrary
+u0 ∈ Fn and any malicious P strategy, the oracle U ∗ is rejected by V except with ≤ (1 − e/n)t + (e + 1)/|F|
+probability.
+   We provide a formal proof of a generalization of this test in the next section.
+
+                                                         42
+B.3    Generalized Affine Interleaved Linear Code Testing
+For the purpose of obtaining a zero-knowledge IPCP, the following “affine” variant of Test-Interleaved is
+useful. Whenever V requests a random linear combination of the rows of U , this linear combination will
+be masked with an additional blinding vector u0 ∈ Fn . The vector u0 , which is also given as part of the
+proof oracle, will be picked by an honest P at random from L and will therefore hide all information about
+U whose rows are from L. The soundness of the test should hold even when u0 is adversarially chosen
+and is not necessarily a codeword. We generalize it further following the previous section to achieve better
+soundness by repetition; see Figure 9.
+
+  Oracle: A purported Lm -codeword U and additional auxiliary row vectors u01 , . . . , u0σ ∈ Fn .
+  Interactive testing:
+      1. V picks a random linear combinations r1 , . . . , rσ ∈ Fm and sends r to P.
+      2. P responds with wh = rhT U + u0h ∈ Fn , h = 1, . . . , σ.
+      3. V queries a set Q ⊂ [n] of t random symbols Uj , j ∈ Q, as well as (uσ )j , j ∈ Q.
+      4. V
+         Paccepts   iff all wh ∈ L and are consistent with wh and UQ , uh , and rh . That is, for every j ∈ Q we have
+           m
+           i=1 (rh )j · Ui,j + (u0h )j = wj .
+
+
+
+                  Figure 9: Generalized-Affine-Test-Interleaved(F, L[n, k, d], m, t, σ; U, u0 )
+
+    Completeness follows directly from the description. Soundness analysis follows as described in Sec-
+tion B.1.
+
+Lemma B.5. If U ∈ Lm , u01 , . . . , u0σ ∈ L, and P is honest, then V always accepts.
+
+Lemma B.6. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) > e. Then, for arbitrary
+u01 , . . . , u0σ ∈ Fn and a random w∗ in the row-span of U ∗ , we have Pr[∀ h ∈ [σ], d(w∗ + u0h , L) ≤ e] ≤
+(e + 1)/|F|σ .
+
+Theorem B.3. Let e be a positive integer such that e < d/4. Suppose d(U ∗ , Lm ) ≥ e. Then, for arbitrary
+u01 , . . . , u0σ ∈ F and any malicious P strategy, the oracle U ∗ is rejected by V except with ≤ (1 − e/n)t +
+(e + 1)/|F|σ probability.
+
+B.4    Generalized Affine Linear Constraint Testing over Interleaved Reed Solomon Codes
+For the purpose of obtaining a zero-knowledge IPCP, we provide the following “affine” variant of Test-
+Linear-Constraints-IRS. Whenever V provides the challenge vector r, the linear combination rT A of the
+rows of U , will be masked with an additional blinding vector u0 ∈ Fn that encodes messages that sum up to
+0. The vector u0 , which is also given as part of the proof oracle, will be picked by an honest P at random from
+L subject to the condition that it encodes messages that sum up to 0 and will therefore hide all information
+about the individual column sums in the computation of rT Ax. The soundness of the test should hold even
+when u0 is adversarially chosen and is not necessarily a codeword. We will further generalize the test to
+achieve better soundness. Namely, instead of relying on repetition, we improve soundness by considering
+the challenge space from an extension field. The test is given in Figure 10. Note that just as in Section 4.2, we
+
+
+                                                          43
+  Oracle: A purported Lm -codeword U that should encode a message x ∈ Fm` satisfying P Ax = b and an additional
+  auxiliary row vector u0 ∈ F̂n that encodes the message (γ1 , . . . , γ` ) such that c∈[`] γc = 0 where F̂ is an
+  extension field of F such that |F̂| = |F|σ .
+  Interactive testing:
+      1. V picks a random vector r ∈ F̂m` and sends r to P.
+      2. V and P compute
+                                            rT A = (r11 , . . . , r1` , . . . , rm1 , . . . , rm` )
+         and for i ∈ [m], let ri (·) be the unique polynomial of degree < ` such that ri (ζc ) = ric for every c ∈ [`].
+                                                                                 Pm
+      3. P sends the k + ` − 1 coefficients of the polynomial defined by q(·) = i=1 ri (·) · pi (·) + rBlind (·), where
+         pi (·) is the polynomial of degree < k corresponding to row i of U and rBlind (·) is the polynomial of degree
+         < k corresponding to u0 .
+      4. V queries a set Q ⊂ [n] of t random symbols Uj , j ∈ Q, as well as u0j , j ∈ Q.
+      5. V accepts if the following conditions hold:
+              P                 P
+          (a)    c∈[`] q(ζc ) =   i∈[m],c∈[`] ric bic .
+                                                 Pm
+          (b) For every j ∈ Q we have u0j + i=1 ri (ηj ) · Ui,j = q(ηj ).
+
+
+
+      Figure 10: Generalized-Affine-Test-Linear-Constraints-IRS(F, L = RSF,n,k,η , m, t, ζ, A, b, σ; U )
+
+
+will analyze the test under the promise that the (possibly badly formed) U is close to Lm+1 . Completeness
+follows directly as u0 does not affect the verification. We argue soundness next.
+
+Lemma B.7. Let e be a positive integer such that e < d/2. Suppose that a (badly formed) oracle U ∗ that
+is vertically juxtaposed with an arbitrary u0 is e-close to a codeword V ∈ Lm+1 , where V contains the
+codewords U ∈ Lm and u∗ ∈ L vertically juxtaposed, and U encodes x ∈ Fm` such that Ax 6= b. Then,
+for any malicious P strategy, U ∗ is rejected by V except with at most 1/|F|σ + ((e + k + `)/n)t probability.
+
+B.5    Generalized Testing Quadratic Constraints over Interleaved Reed Solomon Codes
+Finally, in this section we extend our quadratic constraint test over Interleaved Reed Solomon codes via
+parallel repetition to improve soundness. The complete test description is provided in Figure 11. Next, we
+state the completeness and soundness statements.
+
+Lemma B.8. If U x , U y , U z ∈ Lm encode vectors x, y, z ∈ Fm` satisfying x                          y+a   z = b and P is
+honest, V always accepts.
+
+Lemma B.9. Let e be a positive integer such that e < d/2. Let U x∗ , U y∗ , U z∗ be badly formed oracles
+and let U ∗ ∈ F3m×n be the matrix obtained by vertically juxtaposing the corresponding m × n matrices.
+Suppose d(U ∗ , L3m ) ≤ e, and let U x , U y , U z , respectively, be the (unique) codewords in Lm that are closest
+to U x∗ , U y∗ , U z∗ . Suppose U x , U y , U z encode x, y, z such that x y + a z 6= b. Then, for any malicious
+P strategy, (U x∗ , U y∗ , U z∗ ) is rejected by V except with at most 1/|F|σ + ((e + 2k)/n)t probability.
+
+
+
+                                                                 44
+  Oracle: Purported Lm -codewords U x , U y , U z that should encode messages x, y, z ∈ Fm` satisfying x y + a
+  z = b and an additional auxiliary row vector u0 ∈ F̂n that encodes the all 0s message in RSF,n,2k,η where F̂ is an
+  extension field of F such that |F̂| = |F|σ .
+  Interactive testing:
+
+     1. Let U a = Encodeζ (a) and U b = Encodeζ (b).
+     2. V picks a random linear combinations r ∈ F̂m and sends r to P.
+                                                                                                         Pm
+     3. P sends the 2k − 1 coefficients of the σ polynomials p10 , . . . , pσ0 defined by p0 (·) = i=1 ri · pi (·), where
+        pi (·) = pxi (·) · pyi (·) + pai (·) · pzi (·) − pbi (·), and where pxi , pyi , pzi are the polynomials of degree < k
+        corresponding to row i of U x , U y , U z , pai , pbi are the polynomials of degree < ` corresponding to row i of
+        U a , U b and rBlind (·) is the polynomial of degree < 2k corresponding to u0 .
+     4. V picks a random index set Q ⊂ [n] of size t, and queries Ujx , Ujy , Ujz , u0j , j ∈ Q.
+     5. V accepts if the following conditions hold:
+          (a) ph0 (ζc ) = 0 for every c ∈ [`].
+                                                                  Pm                    y
+          (b) For every j ∈ Q, it holds that p0 (ηj ) = u0j +
+                                                                                x             a      z      b
+                                                                                                                 
+                                                                    i=1 ri ·    Ui,j · Ui,j + Ui,j · Ui,j − Ui,j   .
+
+
+
+  Figure 11: Generalized-Test-Quadratic-Constraints-IRS (F, L = RSF,n,k,η , m, t, ζ, a, b, σ; U x , U y , U z )
+
+
+C    Improving the Soundness Analysis
+Recall that the soundness error is calculated by applying a union bound over the following tests: (1) Inter-
+leaved Reed-Solomon Test, (2) Linear Constraints Test, and (3) Quadratic Test. We show next how we can
+improve the soundness of the Linear and Quadratic tests assuming that the Interleaved Reed-Solomon Test
+passes.
+
+Interleaved Reed Solomon (IRS) test. The soundness of this test was bounded by (e + 1)/|F| + (1 − e/n)t
+      when e < d/4 and bounded by d/|F| + (1 − e/n)t when e < d/3. More recently, a better analysis
+      has been presented in [BCI+ 20] where they improve Lemma 4.4 from e < d/3 to e < d/2 bounding
+      the error by n/|F| where n is the code length (See Theorem 1.2: Unique decoding bound). Thus the
+      soundness of this test can be bounded by n/|F| + (1 − e/n)t for e < d/2.
+      We make a slight modification to the analysis here where we bound the following “bad” events.
+
+          • Let E1 be the event that more than e columns of U have errors. From the preceding analysis we
+            have that the probability the verifier accepts the IRS test in this case is at most n/|F|+(1−e/n)t
+            for e < d/2.
+          • Suppose that event E1 does not occur. Denote by the prover’s response to the IRS test by w∗ .
+            Since e < (n − k)/2 and there are fewer than e errors, let U be the unique codeword such that
+            d(U, U ∗ ) < e. Define w to be the codeword that is the result of correctly computing the IRS
+            test with the matrix U . In particular, w will agree columnwise with all columns of U ∗ (except
+            the ones that have errors). Define the event E2 to be when w 6= w∗ . We bound the probability
+            that the test passes if E2 occurs and E1 does not. If the test passes we have that w∗ is a valid
+            codeword. Therefore, w and w∗ can agree in at most k columns. With at most e columns with
+
+                                                             45
+           errors, the verifier can possible accept the test only if all the indices it chooses come from the k
+           columns they agree on and additionally the e columns containing errors. This probability is at
+           most
+                                              k+e
+                                                        k+e t 
+                                                             
+                                               t                            e t
+                                               n   ≤              ≤     1 −
+                                               t
+                                                           n                 n
+           where the last equality comes from setting k ≤ n − 2e.
+         • Let E3 be the event that the verifier picks any of the columns that contain errors. We argue that
+           then the IRS test would fail with probability 1/|F|. Let U and U ∗ disagree on the ith column,
+           j th row. Then, in the IRS test, if E1 and E2 do not occur then given the random combination for
+           all the rows except the j th row, there will be exactly one possible value in the linear combination
+           corresponding the j th row that will make the test pass if i was selected by the verifier. This
+           occurs with probability 1/|F|.
+
+      We now have that:
+
+          Pr[V ∗ accepts IRS test ∧ (E1 ∨ E2 ∨ E3 )]
+                 ≤ Pr[V ∗ accepts IRS test ∧ E1 ] + Pr[V ∗ accepts IRS test ∧ (E2 ∨ E3 ) ∧ ¬E1 ]
+                 = Pr[V ∗ accepts IRS test |E1 ] · Pr[E1 ] + Pr[V ∗ accepts IRS test ∧ (E2 ∨ E3 )|¬E1 ]
+                                     
+                      n         e t
+                 ≤       + 1−           · Pr[E1 ]
+                     |F|         n
+                       + Pr[V ∗ accepts IRS test ∧ (E2 ∨ E3 ) ∧ ¬E1 ]
+                    n         e t
+                 ≤      + 1−        · Pr[E1 ]
+                   |F|         n
+                       + Pr[V ∗ accepts IRS test ∧ E2 |¬E1 ] · Pr[¬E1 ]
+                           + Pr[V ∗ accepts IRS test ∧ E3 ∧ ¬E1 ∧ ¬E2 ]
+                    n       e t
+                 ≤     + 1−       · Pr[E1 ]
+                   |F|       n
+                            e t
+                       + 1−       · Pr[¬E1 ] + Pr[V ∗ accepts IRS test ∧ E3 |¬E1 ∧ ¬E2 ]
+                            n
+                    n       e t
+                 ≤     + 1−       · Pr[E1 ]
+                   |F|       n
+                            e t               1
+                       + 1−       · Pr[¬E1 ] +
+                            n                  |F|
+                   n+1         e t
+                 =       + 1−
+                    |F|         n
+
+Linear Constraints Test: The analysis in [AHIV17] bounds this test by ((e + k + `)/n)t + 1/|F|. By
+     analyzing this test in conjunction with the IRS test we can replace the term ((e + k + `)/n)t with
+     ((k + `)/n)t . The main idea here is that term ((e + k + `)/n)t computes the probability that the
+     verifier chooses all its t indices from within the e columns that have errors and an additional of at
+     most k + ` columns.
+      Now we analyze the linear test assuming E1 , E2 and E3 do not occur as we have bounded them in the
+      IRS test. Specifically, since E3 does not occur, it suffices to bound the case when all the indices are
+
+                                                     46
+     chosen within the additional at most k + ` columns excluding the columns with errors. This can be
+                      t
+     bounded by k+`n     .
+     Therefore, the soundness of this test can be bounded by
+                                                       t
+                                                 k+`
+                                                             + 1/|F|
+                                                  n
+
+     assuming that none of the columns containing errors are chosen.
+
+Quadratic Test: The analysis in [AHIV17] bounds this test by ((e + 2k)/n)t + 1/|F|. Following the same
+    arguments as in the Linear Test, the soundness of this test can be improved to simply
+                                                      t
+                                                  2k
+                                                            + 1/|F|.
+                                                  n
+
+   Therefore, the overall the soundless error can be bounded by
+                            "                      t  t              #
+                                             k +  `       2k      n +   3
+                              (1 − e/n)t +            +         +
+                                               n          n       (230 )σ
+
+
+
+
+                                                   47
+

@@ -6,17 +6,73 @@ Several proof systems have studied how to verify matrix multiplication more
 efficiently than by arithmetizing the full cubic computation. Thaler's
 sum-check-based protocol~\cite{thaler2013time} shows that matrix multiplication
 can be verified with quadratic prover work by reducing the claim to checks over
-low-degree extensions. This avoids the naive \(\mathcal{O}(n^3)\) arithmetic
+low-degree extensions. This avoids the naive \(\mathcal{O}(k^3)\) arithmetic
 cost, but the verifier's work still grows linearly with the matrix dimension,
 which is costly when the goal is succinct verification for large committed
 matrices.
 More recent protocols design proof systems directly for committed matrix
 multiplication. zkMatrix~\cite{cong2024zkmatrix} reduces committed
-\(n\times n\) matrix multiplication to four inner-product relations and applies
-Bulletproofs' verification techniques, achieving \(\mathcal{O}(n^2)\)
-prover time and \(\mathcal{O}(\log n)\) verifier time. zkMaP~\cite{zkMaP}
-instead uses KZG commitments to obtain \(\mathcal{O}(n^2)\) prover time with
-constant verifier time. \\
+\(k\times k\) matrix multiplication to inner-product relations and adapts
+Bulletproofs-style arguments, achieving \(\mathcal{O}(k^2)\) prover work and
+\(\mathcal{O}(\log k)\) proof size and verifier work. Its follow-up,
+DualMatrix~\cite{cong2026dualmatrix}, reduces the field-operation cost to
+\(\mathcal{O}(K+k)\), where \(K\) is the number of nonzero matrix entries, while
+using \(\mathcal{O}(k)\) group operations. For dense matrices,
+\(K=\Theta(k^2)\). zkMaP~\cite{zkMaP} instead uses KZG commitments to obtain
+\(\mathcal{O}(k^2)\) prover work, a constant-size proof, and constant verifier
+work without placing the matrix product in an arithmetic circuit.
+
+Table~\ref{tab:related-matrix-comparison} separates total prover work from
+in-circuit constraints. This distinction is central to \(\protocol\): computing
+the intermediate vectors and encoded-column commitments still requires
+\(\mathcal{O}(k^2)\) total prover work, but the matrix-multiplication relation
+inside the CP-SNARK uses only
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints. For fixed \(t\) and
+\(n=\Theta(k)\), its Merkle-dominated proof size and verifier work are
+\(\mathcal{O}(\log k)\). Thus, the table does not claim an unconditional
+end-to-end advantage over every prior system; it identifies the different cost
+boundary improved by \(\protocol\).
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{System} & \textbf{Total prover work} & \textbf{Main circuit constraints}
+& \textbf{Proof size} & \textbf{Verifier work} \\
+\midrule
+zkMatrix~\cite{cong2024zkmatrix}
+& \(\mathcal{O}(k^2)\) & -- & \(\mathcal{O}(\log k)\)
+& \(\mathcal{O}(\log k)\) \\
+DualMatrix~\cite{cong2026dualmatrix}
+& \(\mathcal{O}(K+k)\,\mathbb{F}+\mathcal{O}(k)\,\mathbb{G}\) & --
+& \(\mathcal{O}(\log k)\) & \(\mathcal{O}(\log k)\) \\
+zkMaP~\cite{zkMaP}
+& \(\mathcal{O}(k^2)\) & -- & \(\mathcal{O}(1)\)
+& \(\mathcal{O}(1)\) \\
+\(\protocol\)
+& \(\mathcal{O}(k^2)\,\mathbb{F}+\mathcal{O}(k^2)\,\mathbb{G}\)
+& \(\mathcal{O}(tk+E_{\mathsf{code}})\)
+& \(\mathcal{O}(\log k)\) for fixed \(t\)
+& \(\mathcal{O}(\log k)\) for fixed \(t\) \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{4pt}
+\caption{Asymptotic comparison with dedicated committed-matrix-multiplication
+proofs. A dash means that the approach does not use a separate arithmetic
+circuit for the matrix-multiplication relation. For DualMatrix,
+\(K=\Theta(k^2)\) on dense matrices.}
+\label{tab:related-matrix-comparison}
+\end{table*}
+
+We found no public zkMatrix implementation, and the zkMaP artifact link was
+unavailable. We therefore use the public DualMatrix implementation as the
+closest reproducible dedicated baseline in Section~\ref{sec:implementation}.
+Our Freivalds-in-Groth16 baseline is not state of the art; it uses the same
+Groth16 stack to isolate the effect of moving vector--matrix products out of
+the circuit.
 
 \noindent\textbf{Verifiable AI.}
 Matrix multiplication is also a dominant cost in verifiable machine-learning
@@ -29,7 +85,7 @@ convolutions with linear prover time. In addition, zkGPT~\cite{zkGPT} and
 zkLLM~\cite{zkLLM} introduce protocols specialized for LLM architectures and
 use sum-check protocols to prove the correctness of linear layers efficiently.
 Meanwhile, Mystique~\cite{weng2021mystique} and zkML~\cite{chen2024zkml} use
-Freivalds' randomized checks. \\
+Freivalds' randomized checks.
 
 \noindent\textbf{Code-based proximity testing.}
 \(\protocol\) also builds on the use of linear error-correcting codes and proximity
@@ -38,8 +94,19 @@ works~\cite{STIR,WHIR} construct proximity IOPs for
 Reed--Solomon codewords. Recent work further extends this viewpoint to more
 general foldable codes~\cite{basefold}.
 Our proximity layer is closer in spirit to the local codeword tests used in
-Ligero~\cite{Ligero}, Brakedown~\cite{golovnev2023brakedown}, and
-Blaze~\cite{blaze}.In particular, our use of in-circuit encoding checks is similar in spirit to Orion~\cite{orion} and related work~\cite{restoring_orion}.
+Ligero~\cite{ames2017ligero}, Brakedown~\cite{golovnev2023brakedown}, and
+Blaze~\cite{blaze}. In particular, our use of in-circuit encoding checks is
+similar in spirit to Orion~\cite{orion}. Follow-up work on Orion's
+soundness~\cite{restoring_orion} illustrates why codeword-validity and
+proximity conditions must be discharged explicitly rather than left as input
+assumptions.  Our analysis uses the Reed--Solomon proximity-gap result and the
+single-parameter batching tradeoff for interleaved
+tests~\cite{bensasson2023proximity,diamond2024logarithmic}
+to state the input-extraction error separately from the sampled relation error.
+We do not claim novelty for code-based proximity testing itself;
+our contribution is a matrix-specific reduction that combines these tools with
+Freivalds' check and commitment linking to reduce in-circuit matrix-product
+constraints.
 
 % \noindent\textbf{Verifiable machine learning and general VC.}
 % Verifiable ML systems such as SafetyNets~\cite{ghodsi2017safetynets},

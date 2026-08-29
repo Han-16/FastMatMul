@@ -1,0 +1,74 @@
+%% ── Commitment & Merkle ──────────────────────────────────────────────────────
+\newcommand{\para}{\textsf{pp}}
+\newcommand{\cm}{\textsf{cm}}
+\newcommand{\rt}{\textsf{rt}}
+\newcommand{\cmmt}{\textsf{cm}_{\textsf{mt}}}
+\newcommand{\merkleC}{\textsf{MT.Com}}
+\newcommand{\merkleV}{\textsf{MT.Verify}}
+\newcommand{\merkleO}{\textsf{MT.Open}}
+\newcommand{\pedersen}{\textsf{P.CM}}
+\newcommand{\ck}{\textsf{ck}}
+\newcommand{\pedC}{\textsf{Ped.Com}}
+\newcommand{\pedO}{\textsf{Ped.Open}}
+\newcommand{\pedV}{\textsf{Ped.Verify}}
+
+%% ── Algebra ──────────────────────────────────────────────────────────────────
+\newcommand{\mat}{\mathbf}          % matrix: \mat{A}
+\newcommand{\vect}{\mathbf}         % vector: \vect{x}
+%% \enc is already defined by cryptocode's 'primitives' module (as encryption).
+%% We redefine it here to mean the linear-code encoding operator instead.
+\renewcommand{\enc}{\mathsf{Enc}}   % encoding operator (overrides cryptocode)
+
+%% ── SNARK ────────────────────────────────────────────────────────────────────
+\newcommand{\snarkP}{\textsf{SNARK.P}}
+\newcommand{\snarkV}{\textsf{SNARK.V}}
+\newcommand{\bPi}{{\bf \Pi}}
+\newcommand{\setup}{{\sf Setup}}
+\newcommand{\com}{{\sf Com}}
+\newcommand{\prove}{{\sf Prove}}
+\renewcommand{\verify}{{\sf Verify}}
+\newcommand{\relation}{{\mathcal{R}}}
+\newcommand{\cp}{{\mathsf{cp}}}
+\renewcommand{\pk}{{\textsf{pk}}}
+\renewcommand{\vk}{{\textsf{vk}}}
+\renewcommand{\ck}{{\textsf{ck}}}
+
+
+
+%% ── SNARK statement / witness (replaces \mathbb{x}, \mathbb{w}) ─────────────
+%% \mathbb works only for uppercase.
+%% We use \mathsf to distinguish SNARK instances from vector \vect{x} (\mathbf{x}).
+\newcommand{\stmt}{\mathsf{x}}      % SNARK public statement
+\newcommand{\wit}{\mathsf{w}}       % SNARK witness
+\newcommand{\comwit}{\mathsf{u}}
+
+%% ── Misc ─────────────────────────────────────────────────────────────────────
+\newcommand{\fold}{\textsf{Fold}}
+\newcommand{\Hash}{\textsf{Hash}}
+\newcommand{\vecBindV}{\textsf{Vec.Bind}}
+\newcommand{\cpLinkP}{\textsf{CPLink.Prove}}
+\newcommand{\cpLinkV}{\textsf{CPLink.Verify}}
+\newcommand{\protocol}{\textsf{LAMP}}   % protocol name
+\newcommand{\fmMerkle}{\protocol_{\mathsf{Merkle}}}
+\newcommand{\fmKZG}{\protocol_{\mathsf{KZG}}}
+\newcommand{\fmCPLink}{\protocol_{\mathsf{CPLink}}}
+\newcommand{\fmQA}{\protocol_{\mathsf{QA}}}
+
+%% ── Sets of objects (avoid \mathcal{V} collision with verifier) ──────────────
+%% Vector set is written explicitly in text to avoid notation collision.
+
+%% ── Theorem environments ─────────────────────────────────────────────────────
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+%% Some conference templates provide \Description for accessibility metadata.
+\providecommand{\Description}[1]{}

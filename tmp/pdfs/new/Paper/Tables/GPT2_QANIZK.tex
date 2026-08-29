@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{Metric} & \textbf{$\fmQA$} & \textbf{Freivalds} \\
+\midrule
+Sequence length & 1{,}024 & 1{,}024 \\
+Matrix claims & 36 & 36 \\
+Constraints & 33{,}427{,}908 & 76{,}807{,}671 \\
+Setup time & 2{,}078.38\,s & 4{,}173.32\,s \\
+Prove time & 230.82\,s & 408.69\,s \\
+Verify time & 6.52\,s & 0.49\,s \\
+$\fmQA$ online proof & 3{,}342{,}724\,B & 196\,B \\
+\bottomrule
+\end{tabular}
+\caption{GPT-2 workload case study at sequence length $1{,}024$ with $36$
+matrix-multiplication claims. $\fmQA$ reduces constraints by $2.30\times$ and
+proving time by $1.77\times$, but verification increases from $0.49$ s to
+$6.52$ s and proof size from $196$ B to approximately $3.34$ MB.}
+\label{tab:gpt2-case-study}
+\end{table}

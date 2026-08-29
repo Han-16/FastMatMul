@@ -1,0 +1,110 @@
+\section{Introduction}
+\label{sec:intro}
+
+Matrix multiplication is a core computational primitive underlying many large-scale computations, including numerical linear algebra, signal processing, computer graphics, and artificial intelligence.  Consequently, many applications require verifiability for matrix products while keeping the underlying matrices private.  Zero-knowledge proofs provide a cryptographic mechanism for this goal:
+a prover can convince a verifier that a statement is correct without revealing any secret information that witnesses the statement.
+
+Applying general-purpose ZKP systems directly to large matrix multiplication, however, remains expensive.  Succinct proof systems such as ~\cite{groth2016size, plonk, maller2019sonic, chiesa2020marlin} prove relations after the computation has been represented as an arithmetic circuit or a similar algebraic constraint system.  
+A standard arithmetization of a \(k\times k\) matrix product \(\mat{A}\mat{B}=\mat{C}\) computes every output
+entry and therefore uses \(\mathcal{O}(k^3)\) arithmetic constraints.  This is
+already impractical for moderate \(k\), and it is especially problematic for
+Transformer-based neural networks~\cite{transformer, bert, GPT3}, whose projection and attention layers often
+contain matrix multiplications with dimension \(k\ge 1{,}000\). \\
+
+\noindent\textbf{The \(\mathcal{O}(k^2)\) barrier.}
+Freivalds' classical randomized check~\cite{freivalds1977probabilistic} reduces
+matrix-product verification from a cubic computation to a quadratic one.  Given
+matrices \(\mat{A},\mat{B},\mat{C}\) and a random vector \(\vect{r}\), the
+verifier checks
+\[
+  \vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}
+\]
+instead of recomputing the full product.  This reduces the verification cost
+from \(\mathcal{O}(k^3)\) to \(\mathcal{O}(k^2)\).  The resulting
+\(\mathcal{O}(k^2)\)-size circuit is an improvement, but it is still expensive:
+for example, at \(k=2^{12}\), it already requires \(50.5\) million R1CS
+constraints and \(405.04\,\text{s}\) of proving time with Groth16.  Thus, a large gap remains
+between the \(\mathcal{O}(k^2)\) SNARK cost and practical large-scale
+matrix-multiplication verification. \\
+
+\noindent\textbf{Our insight: from computation to checking.}
+We observe that the \(\mathcal{O}(k^2)\) barrier is not inherent to the
+verification problem itself.  It arises because existing SNARK-based approaches
+still \emph{compute} the vector--matrix products inside the circuit.  Our key
+idea is to move from ``computing inside the circuit'' to ``\emph{checking} inside the
+circuit.''  The prover performs the expensive matrix arithmetic outside the
+SNARK and commits to the relevant encoded data and intermediate values.  The
+verifier then checks only a small number of lightweight algebraic relations
+that are sufficient to detect inconsistent claims.
+The technical core of this approach is proximity testing over linear
+error-correcting codes.  Let \(\mathcal{C}\) be a linear code with relative
+distance \(\delta\).  We encode each matrix row-wise and consider the Freivalds
+intermediate vectors
+\[
+  \vect{x}=\vect{r}\mat{A},\qquad
+  \vect{y}=\vect{x}\mat{B},\qquad
+  \vect{z}=\vect{r}\mat{C}.
+\]
+The linearity of \(\mathcal{C}\) lets us check these vector--matrix products in
+the encoded domain, column by column.  For one encoded column, a single inner
+product, or \emph{fold}, checks one coordinate of the encoded product, and
+random queries detect inconsistent relations according to the code distance.
+
+The key point is that the SNARK circuit never takes the full matrices as
+witnesses.  Instead, it checks fold equations on \(t\) sampled encoded columns,
+where \(t\) is independent of the matrix dimension \(k\), and checks the
+encoding consistency of the intermediate vectors.
+To bind the circuit witnesses to the data fixed before the query positions are known,
+we use a commit-and-prove SNARK for the sampled block witnesses.  The prover
+also supplies Merkle openings and CP-Link proofs that bind the sampled circuit
+witnesses to the pre-query commitments.
+
+% As a result, the main SNARK relation has \(\mathcal{O}(tk)\) constraints.
+% For fixed \(t\), this is linear in the matrix dimension.  The sampled opening
+% and linking layer adds \(\mathcal{O}(t\log n)+E_{\mathsf{link}}(k,t)\) backend
+% work.  In our implementation, verification consists of \(\mathcal{O}(1)\) pairings for SNARK and CP-Link verification and \(\mathcal{O}(t\log n)\) hash operations for Merkle openings.\\
+
+As a result, the main SNARK relation has
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints, where
+\(E_{\mathsf{code}}\) is the cost of checking that the
+intermediate vectors are valid encodings under the error-correcting code. For the fixed-rate Reed--Solomon setting used in our implementation,
+this remains linear in \(k\) for fixed \(t\).  Here ``linear'' refers only to
+the main in-circuit constraint count: native vector--matrix products and
+encoded-matrix commitments still require \(\mathcal{O}(k^2)\) prover work.\\
+
+
+\noindent\textbf{Contributions.}
+We present \(\protocol\), a protocol for efficiently proving
+matrix-multiplication statements.  Our contributions are as follows.
+\begin{itemize}
+  \item \textbf{A code-based matrix-product checking protocol.}
+  \(\protocol\) combines Freivalds' randomized reduction with proximity testing
+  over linear error-correcting codes.  Instead of computing vector--matrix
+  products inside the SNARK circuit, the protocol checks sampled fold equations
+  over encoded commitments and verifies code consistency for the intermediate
+  vectors. 
+
+  For fixed \(t\), the main circuit cost is
+  \(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
+  fixed-rate Reed--Solomon setting used in our implementation.
+
+  \item \textbf{Soundness analysis.}
+  We prove soundness of the public-coin interactive protocol for committed
+  inputs, accounting for input proximity, sampled relation checks, and the
+  commitment-linking backend.
+
+  \item \textbf{Implementation and evaluation.}
+  We implement \(\protocol\) in Go and compare it with a Freivalds-based SNARK
+  circuit for matrix dimensions \(k=2^7\) through \(2^{13}\).  At
+\(k=2^{12}\), \(\protocol\) reduces the constraint count by \(30.3\times\)
+and proving time by \(8.43\times\), while verification remains independent of
+the matrix dimension and stays around \(0.06\,\text{s}\).  We also evaluate
+  \(\protocol\) on a GPT-2 workload with sequence length \(2^{10}\), where it
+  reduces the constraint count by \(2.3\times\) and proving time by
+  \(1.77\times\).  This prover-side improvement comes with a verifier-side
+  trade-off: verification increases from \(0.49\) s to \(6.52\) s and proof
+  size from \(196\) B to \(3.34\) MB.  Thus, the GPT-2 result demonstrates
+  applicability to a matrix-heavy neural-network workload, but not an
+  end-to-end performance improvement.
+\end{itemize}
+

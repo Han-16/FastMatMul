@@ -1,0 +1,2214 @@
+IACR Communications in Cryptology                           https://doi.org/10.62056/angy11fgx
+ISSN 3006-5496, Vol. 2, No. 3, 38 pages.                                            Check for updates
+
+
+
+
+         zkMaP: Zero-Knowledge Succinct
+    Non-Interactive Matrix Multiplication Proofs
+
+                    Biniyam Deressa            and M. Anwar Hasan
+
+                           University of Waterloo, Waterloo, Canada
+
+
+      Abstract.
+      We introduce zkMaP (Zero-Knowledge Succinct Non-Interactive Matrix Multiplication
+      Proofs), a novel non-interactive zero-knowledge proof system for verifying matrix
+      multiplication with significant improvements in efficiency and scalability. Our protocol
+      leverages KZG polynomial commitments and an innovative inner-product reduction
+      technique to reduce the verification of n × n matrix multiplication to a single pairing
+      equation, thereby enabling constant-time verification independent of the matrix size.
+      In particular, zkMaP requires only two pairing operations and produces proofs as
+      small as 320 bytes, yielding a 96% reduction in proof size compared to prior schemes.
+      Furthermore, the prover’s computational complexity follows the state-of-the-art at
+      O(n2 ), with experimental results demonstrating that proofs for 1024 × 1024 matrices
+      can be generated in approximately 12.21 seconds, offering a 16.14× speedup over
+      previous methods. Our implementation also exhibits better memory efficiency, using
+      only 24.58 MB of prover-side RAM for 1024 × 1024 matrices, and supports scalable
+      batch processing, achieving per-proof generation times of 46.79 milliseconds for 1024
+      instances while maintaining a constant verification time of 3.6 ms.
+      Keywords: Zero-Knowledge Proofs · Succinct Non-Interactive Arguments · Matrix
+      Multiplication · Polynomial Commitments · Batch Verification
+
+
+
+1     Introduction
+Matrix multiplication is a core computational primitive with wide-ranging applications in
+fields such as machine learning, data analytics, scientific computing, and cryptography. In
+an era where data-driven decision-making and collaborative computation underpin critical
+applications, ensuring both privacy and verifiability is more important than ever. Zero-
+knowledge proofs (ZKPs) have emerged as a transformative cryptographic tool, enabling
+a prover to demonstrate the validity of a statement to a verifier without disclosing any
+underlying secret information.
+
+However, directly applying conventional ZKP systems (such as zk-SNARKs [BCCT12]
+or zk-STARKs [BSBHR18]) to matrix multiplication presents significant challenges. For
+large-scale datasets, succinctness becomes a critical concern: it is imperative that the
+proof size and verification time remain small, ideally constant or polylogarithmic in the
+size of the matrix. Furthermore, prover efficiency presents another substantial hurdle, as
+standard approaches that encode matrix multiplication in arithmetic circuits typically
+incur a prover complexity of O(n3 ) for n × n matrices, which is prohibitive for high-
+dimensional operations [XZZ+ 19, PHGR16]. Additionally, many applications require
+multiple, sequential matrix multiplications (e.g., in deep neural networks), necessitating
+
+    E-mail: bderessa@uwaterloo.ca (Biniyam Deressa), ahasan@uwaterloo.ca (M. Anwar Hasan)
+
+
+This work is licensed under a “CC BY 4.0” license.
+Received: 2025-07-06                          Accepted: 2025-09-02
+2                                  zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+commitment consistency where the same private inputs are consistently committed across
+different operations.
+
+This work presents zkMaP, a specialized zero-knowledge protocol for matrix multiplication
+that achieves significant improvements over existing approaches. Our protocol leverages
+Kate-Zaverucha-Goldberg (KZG) polynomial commitments [KZG10] combined with an
+efficient inner-product reduction technique to transform matrix multiplication verification
+into a succinct polynomial identity check. zkMaP requires only two pairing operations and
+produces proofs as small as 320 bytes, yielding a 96% reduction in proof size compared
+to prior schemes. Furthermore, the prover’s computational complexity follows the state-
+of-the-art at O(n2 ), with experimental results demonstrating that proofs for 1024 × 1024
+matrices can be generated in approximately 12.21 seconds, offering a 16.14× speedup over
+previous methods.
+
+
+
+1.1    Paper Organization
+The remainder of the paper is structured as follows. Section 1.2 surveys related work.
+Section 1.3 outlines our main contributions. Section 2 introduces the necessary algebraic
+background and notation. Section 3 defines the matrix multiplication proof problem and
+the corresponding security model. Section 4 presents the zkMaP protocol. Section 5
+formally proves completeness, soundness, and zero-knowledge. Section 6 extends the
+protocol to support efficient batch verification. Section 7 analyzes computational costs.
+Section 8 reports experimental results. Section 9 concludes the paper.
+
+1.2    Related Works
+Zero-knowledge proofs (ZKPs) have evolved significantly over the past decade, driven by
+the need for privacy-preserving verification in a variety of applications. Early systems
+such as Pinocchio [PHGR16], Sonic, [MBKM19], Hyperplonk [CBBZ23], Groth16 [Gro16]
+demonstrated that succinct non-interactive zero-knowledge (zk-SNARK) proofs could
+achieve constant-size communication and polylogarithmic verification time. However, when
+these generic systems are applied to specific problems like matrix multiplication, their
+prover complexity scales poorly (typically as O(n3 ) for n × n matrices), which limits their
+practical utility.
+To address these limitations, Thaler [Tha13] proposed a specialized protocol that reduces
+matrix multiplication into a sumcheck relation. By leveraging this transformation, the
+prover time can be reduced to O(n2 ). Unfortunately, this gain comes at the expense
+of verification efficiency, with verification time growing linearly with the matrix size.
+Building on this idea, LegoSNARK [CFQ19] further refines the approach by ensuring
+that the intermediate computations are consistent across multiple sequential operations.
+LegoSNARK achieves O(n2 ) prover time and polylogarithmic verifier time, which makes it
+more suitable for applications where consistency of secret inputs (such as in neural network
+layers) is critical. In contrast, Libra [XZZ+ 19] uses alternative cryptographic primitives
+to obtain improvements in transcript size and verification efficiency. However, Libra still
+suffers from relatively high prover overhead in certain cases, particularly when matrix
+dimensions increase.
+QuickSilver [YSWW21] takes a distinct approach by employing interactive protocols and
+secure multiparty computation to achieve O(n2 ) complexity for both the prover and the
+verifier. Although this approach reduces the computational burden, it introduces non-
+negligible communication overhead and additional complexity in managing the interactive
+Biniyam Deressa, M. Anwar Hasan                                                             3
+
+
+rounds. Another line of work that has influenced the design of efficient ZK protocols is
+the use of inner-product arguments, most notably Bulletproofs [BBB+ 18]. Bulletproofs
+achieve logarithmic verifier time for range proofs and can be adapted to prove inner-
+product relations. However, their direct application to matrix multiplication is inefficient,
+as it requires multiple inner-product proofs and careful management of intermediate
+commitments to ensure consistency.
+In parallel, universal and upgradable zk-SNARK constructions such as Sonic [MBKM19],
+Marlin [CHM+ 20], and PLONK [GWC19] have emerged. These protocols provide com-
+pelling features, including universal setup and efficient update mechanisms, but their
+generality often leads to reduced efficiency for specific operations such as matrix multipli-
+cation. The zkMatrix protocol [CYY24] distinguishes itself in this context by achieving
+O(n2 ) prover time for the multiplication of two n × n matrices while maintaining a suc-
+cinct transcript and logarithmic verifier time. By employing batch processing, zkMatrix
+supports simultaneous proofs for multiple matrix multiplications with minimal additional
+overhead. The approach leverages Bulletproofs-inspired techniques to shift computational
+load from the verifier to the prover, making it highly efficient even in settings where
+multiple operations are performed sequentially.
+Our zkMaP protocol further advances the state-of-the-art by using KZG polynomial com-
+mitments to achieve constant-size proofs and constant verification time, while maintaining
+the O(n2 ) prover time that matches the inherent complexity of matrix operations. A key
+distinction is that zkMaP operates directly on matrices without requiring arithmetic circuit
+representations, unlike Pinocchio [PHGR16], Groth16 [Gro16], LegoSNARK [CFQ19], and
+Libra [XZZ+ 19], which all necessitate transforming matrix multiplication into complex cir-
+cuit constraints. This circuit-free approach eliminates the substantial overhead associated
+with circuit generation and evaluation. Furthermore, zkMaP is non-interactive and requires
+only logarithmic additional memory beyond the cost of storing matrices and the struc-
+tured reference string. Our sub-batching technique for batch verification (Batch-zkMaP)
+allows processing multiple matrix multiplications with controlled memory usage of O(n2 )
+regardless of the total batch size t, requiring only O(tn2 ) field multiplications plus ⌈t/b⌉
+exponentiations for t matrix pairs, where the configurable parameter b determines the
+memory-performance trade-off. As demonstrated in our implementation, zkMaP exhibits
+significant performance improvements over existing schemes in both proof generation and
+verification times, particularly for large matrices and batch verification operations.
+Table 1 summarizes the computational complexity and proof characteristics of existing
+ZKP schemes for matrix multiplication, including our proposed approach using KZG
+commitments. (Note: The complexity bounds reflect the additional overhead for proof
+generation and verification; inherent costs such as storing the matrices or the full SRS are
+not included.)
+
+1.3    Our Contributions
+Our contributions are multi-fold. First, we present zkMaP, a novel zero-knowledge proof
+protocol for matrix multiplication that substantially advances the state of the art. Our
+zkMaP leverages a specialized polynomial representation with KZG commitments, achieving
+a 320-byte proof size at 128-bit security and a constant 3.6 ms verification time, independent
+of matrix dimensions. For 1024 × 1024 matrices, zkMaP delivers a 16.14× prover speedup
+over previous methods while reducing proof size by 96%. The protocol extends naturally
+to non-square matrices A ∈ Fm×ℓ  p   and B ∈ Fℓ×np   while maintaining constant verification
+time and proof size, addressing a key limitation of existing approaches.
+Secondly, for batch verification, we extend zkMaP with a random-linear-combination
+aggregation mechanism that scales efficiently without compromising its core advantages.
+4                                                   zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+Our method employs structured challenge vectors and weighted polynomial aggregation
+to mitigate adversarial cancellation, thereby ensuring computational soundness even at
+large batch sizes. Batch zkMaP maintains constant verification time and proof size across
+all batch sizes. Processing a batch of 1,024 matrix multiplication instances, batch zkMaP
+achieves a per-proof generation time of 46.79 milliseconds.
+
+Third, we present a comprehensive security analysis establishing a theoretical founda-
+tion for zkMaP under the q-Strong Diffie-Hellman (q-SDH) assumption. We prove that
+the protocol satisfies perfect completeness, special honest verifier zero-knowledge, and
+computational knowledge soundness. Any proof forgery would require solving the q-SDH
+problem with non-negligible probability. By linking polynomial degree bounds to protocol
+security, we ensure distinct matrices yield distinct polynomials while maintaining efficient
+verification. This framework guarantees zkMaP’s robustness against adversarial attacks
+without compromising performance.
+
+Fourth, we provide comprehensive complexity analysis covering both computational and
+memory requirements for all protocol phases. Our analysis encompasses field operations,
+group exponentiations, pairing computations, and memory usage patterns, enabling prac-
+titioners to predict performance characteristics for their specific use cases. The analysis
+includes both theoretical bounds and empirical validation through extensive benchmarking
+across varying matrix dimensions and batch sizes.
+
+Lastly, we make available our software implementation of the proposed protocols, developed
+in Rust using the Arkworks library with the BLS12-381 pairing-friendly curve, providing
+128-bit security and exceptional memory efficiency. Our implementation incorporates
+several optimizations including parallel matrix-to-polynomial conversion, efficient sub-
+batching techniques, and optimized pairing operations. For 1024 × 1024 matrices, zkMaP
+requires only 24 MB of prover-side RAM, outperforming previous approaches. Moreover,
+our sub-batching technique decouples memory complexity from batch size, maintaining
+O(bn2 ) memory usage with a configurable sub-batch size parameter b. This approach
+yields memory footprints as low as 192 KB per proof, as demonstrated in experiments
+with 1,024 batches.
+
+Table 1 provides a comprehensive comparison of zkMaP against existing zero-knowledge
+protocols for matrix multiplication, highlighting our protocol’s advantages in proof size,
+verification efficiency, and non-interactive design.
+
+Table 1: Comparison of Zero-Knowledge Proofs for Matrix Multiplication of n × n Matrices
+                                                 RAM Usage                        Timing
+ Protocol                      Proof Size                                                                   Interactivity   Assumptions
+                                              Prover    Verifier            Prover             Verifier
+ Pinocchio [PHGR16]               O(1)         O(n3 )     O(1)               O(n3 )              O(1)         Non-Int.      q-PKE, q-SDH
+ Thaler [Tha13]                  O(log n)      O(n2 )    O(n2 )              O(n2 )             O(n2 )           No         Hash Functions
+                                                   2
+ LegoSNARK [CFQ19]               O(log n)      O(n )     O(n2 )              O(n2 )             O(n2 )        Non-Int.      q-PKE, q-SDH
+ Libra [XZZ+ 19]                O(log2 n)      O(n3 )   O(log n)             O(n3 )            O(log n)       Non-Int.        DLP, Hash
+ QuickSilver [YSWW21]             O(n2 )       O(n2 )    O(n2 )              O(n2 )             O(n2 )       Interactive      OLE, Hash
+ zkMatrix (single) [CYY24]       O(log n)      O(n2 )   O(log n)             O(n2 )            O(log n)      Interactive        DLP
+ zkMatrix (batch, t) [CYY24]    O(t log n)   O(n2 + tn) O(t log n)   O(n2 + tn)E + O(tn2 )M    O(t log n)    Interactive        DLP
+ zkMaP (single)                O(1) (320B)    O(n2 )     O(1)‡              O(n2 )M             O(1)E         Non-Int.      q-SDH, AGM
+ zkMaP (batch, t)              O(1) (320B)    O(n2 )†    O(1)‡       O(tn2 )M + ⌈ bt ⌉ O(1)E    O(1)E         Non-Int.      q-SDH, AGM
+† Sub-batching with fixed size b eliminates t-dependency in memory (e.g., b = 8)
+‡ Verifier memory assumes one-time trusted setup parameters are preprocessed
+E Exponentiation operations in pairing groups (cost ≈ log
+                                                                           2 p multiplications)
+M Field multiplications in F
+                                    p
+Assumptions: q-PKE (q-Power Knowledge of Exponent), q-SDH (q-Strong Diffie-Hellman), DLP
+(Discrete Logarithm Problem), OLE (Oblivious Linear Evaluation), Hash (Collision-resistant hash
+functions), AGM (Algebraic Group Model)
+Biniyam Deressa, M. Anwar Hasan                                                               5
+
+
+2       Preliminaries
+2.1         Notation
+Let Fp be a finite field of prime order p ≈ 2λ for security parameter λ. ω ∈ Fp is a primitive
+root of unity with ord(ω) ≥ n. Matrices are bold uppercase (e.g., A ∈ Fn×n p  ), vectors bold
+lowercase (e.g., v, yL , yR ∈ Fnp ), and scalars standard lowercase. Matrix indices start at
+1: aij denotes row i, column j. Matrix multiplication is denoted by · (or ×), and inner
+products by ⟨a, b⟩ or a⊤ b. Elliptic curve groups over Fp are denoted G1 , G2 , GT , each
+cyclic of prime order p, with bilinear pairing e : G1 × G2 → GT . Group generators are
+G1 ∈ G1 and G2 ∈ G2 , with scalar multiplication written as sG. Group operations use
+additive notation. Polynomials are denoted P (x), Q(x)∈ Fp [x] with degree deg(P ), and
+matrix encodings as PA (x)∈ Fp [x]. Encoded values include Pµ (x), Pay (x), Pby (x)∈ Fp [x],
+with W (x)∈ Fp [x] as the witness polynomial. Commitment functions are denoted Com(·),
+and polynomial commitments as V = P (s)G∈ G1 . Random sampling from Fp is written
+        $
+as ρ ← Fp . For n × n matrices, ℓ = max(⌈n/4⌉, 2λ) basis vectors. Challenge scalars
+from Fiat-Shamir [FS86] transforms are denoted y, with related vectors yL , yR . Batch
+commitments are indicated with superscripts, e.g., V batch . Algorithms are denoted with
+calligraphic letters: A (adversary), P (prover), V (verifier), S (simulator), and E (extractor).
+Adversarial advantage is AdvA (λ), and negligible functions are negl(λ). Computational
+indistinguishability is written as ≈c . Interactions are expressed as ⟨P(w), V⟩(x).
+
+2.2         Cryptographic Building Blocks
+To establish the foundation for the KZG polynomial commitment scheme, we formalize
+the necessary concepts in elliptic curve cryptography and bilinear pairings, emphasizing
+their role in constructing secure and efficient cryptographic protocols.
+
+2.2.1       Elliptic Curves and Pairing-Friendly Groups
+Let Fp denote a finite field of prime order p. An elliptic curve E(Fp ) is defined by the
+Weierstrass equation y 2 = x3 + ax + b, where a, b ∈ Fp . The set of points on this curve
+forms an abelian group under a well-defined addition operation, with the point at infinity
+O serving as the identity element. Scalar multiplication, defined as repeated addition,
+plays a crucial role in elliptic curve cryptography, whose security relies on the hardness of
+the discrete logarithm problem (DLP) in these groups.
+Definition 1 (Discrete Logarithm Assumption). Let G be a group generation algorithm
+that outputs (G, p, g) where G is a cyclic group of prime order p with generator g. The
+discrete logarithm assumption states that for all probabilistic polynomial-time (PPT)
+adversaries A:
+
+           Pr (G, p, g) ← G(1λ ); h ← G; a ← A(G, p, g, h) : g a = h ≤ negl(λ).
+                                                                   
+
+
+Pairing-based constructions require special elliptic curves that support efficiently com-
+putable bilinear maps. These pairing-friendly curves (e.g., BLS12-381 or BN curves)
+operate over subgroups G1 ⊆ E(Fp ), G2 ⊆ E(Fpk ), and a multiplicative target group
+GT ⊆ F×pk
+          , where k is the embedding degree.
+Definition 2 (Bilinear Pairing). A bilinear pairing is a map e : G1 × G2 → GT that
+satisfies bilinearity, non-degeneracy, and efficient computability. Bilinearity requires that
+for all P ∈ G1 , Q ∈ G2 , and scalars a, b ∈ Zq , it holds that e(aP, bQ) = e(P, Q)ab . Non-
+degeneracy ensures that the pairing does not map all nontrivial elements to the identity,
+meaning that if P =  ̸ O and Q ≠ O, then e(P, Q) ̸= 1GT . Efficient computability guarantees
+6                                     zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+that there exists a polynomial-time algorithm to evaluate e(P, Q) for any valid inputs.
+These properties make bilinear pairings fundamental to numerous cryptographic protocols,
+including zero-knowledge proofs and polynomial commitment schemes.
+                                                                  ̸ G2 and no efficiently
+In this work, we use an asymmetric Type-3 pairing setup, where G1 =
+computable isomorphisms exist between these groups. This choice provides efficiency and
+stronger security properties for our commitment scheme.
+
+2.2.2    Zero-Knowledge Arguments of Knowledge
+Zero-knowledge arguments of knowledge (ZK-AoK) enable a prover to convince a verifier
+of a statement’s validity without revealing the witness. Our matrix multiplication protocol
+uses these arguments to prove knowledge of matrices A and B while preserving their
+confidentiality.
+Definition 3 (Zero-Knowledge Argument of Knowledge). Let R ⊆ X × W be an NP
+relation, where X is the set of statements and W the set of witnesses. A protocol between
+a prover P and verifier V is a zero-knowledge argument of knowledge for relation R if:
+    1. Completeness: For all (x, w) ∈ R, Pr[⟨P(x, w), V(x)⟩ = accept] = 1.
+    2. Knowledge soundness: For every PPT prover P ∗ , there exists a PPT extractor E
+       such that for any statement x, Pr[⟨P ∗ (x), V(x)⟩ = accept ∧ (x, w) ∈
+                                                                           / R | w ← E(x)] ≤
+       negl(λ).
+    3. Zero-knowledge: There exists a PPT simulator S such that for all (x, w) ∈ R,
+       {ViewV [⟨P(x, w), V(x)⟩]} ≈c {S(x)}, where ViewV represents the verifier’s view of
+       the interaction and ≈c denotes computational indistinguishability.
+A protocol is succinct if both the proof size and verification time are polynomial in the
+security parameter λ and logarithmic in the witness size |w|. Our KZG-based matrix
+multiplication protocol achieves succinctness with constant-size proofs and verification
+time independent of matrix dimensions.
+
+2.3     The Kate-Zaverucha-Goldberg (KZG) Polynomial Commit-
+        ment Scheme
+Polynomial commitment schemes enable a prover to commit to a polynomial while allowing
+efficient verification of claimed evaluations at specific points. The KZG scheme [KZG10]
+provides a significant advancement in this domain by offering constant-sized commitments
+and succinct proofs through pairing-based cryptography. Its homomorphic properties sup-
+port efficient proof aggregation, making it particularly valuable for verifiable computation,
+zero-knowledge proofs, and blockchain applications. In the commit-then-prove paradigm,
+KZG allows a prover to bind to a polynomial commitment and later prove statements
+about polynomial evaluations without revealing the entire polynomial.
+
+2.3.1    Structured Reference String Setup
+The KZG scheme requires a structured reference string (SRS) generated during a trusted
+                                      Pd
+setup phase. For a polynomial P (x) = i=0 ci xi ∈ Fp [x] of degree d, the setup involves
+                            $
+selecting a secret scalar s ← Fp and publishing:
+
+                         SRS = {G1 , sG1 , s2 G1 , . . . , sd G1 , G2 , sG2 }            (1)
+
+where G1 ∈ G1 and G2 ∈ G2 are group generators. To mitigate the risks of this "toxic
+waste" parameter, multi-party computation ceremonies are typically employed, ensuring
+Biniyam Deressa, M. Anwar Hasan                                                              7
+
+
+security as long as at least one participant remains honest. The SRS enables secure
+polynomial evaluation via group encodings: commitments V = P (s)G1 allow verification
+of polynomial relations without revealing coefficients, while the bilinear structure supports
+efficient proof generation and verification. These encoded polynomials can represent
+various data structures including matrices and vectors, which we leverage in our protocol
+construction. The security of KZG commitments fundamentally relies on the computational
+hardness of the q-Strong Diffie–Hellman (q-SDH) assumption.
+Definition 4 (q-Strong Diffie–Hellman Assumption). Let G be a bilinear group generator
+that outputs (p, G1 , G2 , GT , e), where p is prime, G1 , G2 , and GT are groups of order p,
+and e : G1 × G2 → GT is a non-degenerate bilinear map. The q-Strong Diffie–Hellman
+(q-SDH) assumption states that for any PPT adversary A, the following probability is
+negligible in the security parameter λ:
+
+                   (p, G1 , G2 , GT , e) ← G(1λ );
+                                                                            
+                        $
+                 G ← G1 ∗ ;
+                                                                            
+             Pr  1$                                                          ≤ negl(λ)
+                                                                             
+                 s ← Fp ;                                                   
+                   (c, (s + c)−1 G1 ) ← A(G1 , sG1 , s2 G1 , . . . , sq G1 )
+
+In other words, the q-SDH assumption ensures the binding property of KZG commitments:
+no adversary, even after observing up to q powers of the secret s, can open a commitment
+to two distinct polynomials.
+
+2.3.2   Commitment and Verification
+                                                                          Pd
+To commit to polynomial P (x)∈ Fp [x], the prover computes VP = P (s)G1 = i=0 ci (si G1 ),
+yielding a single group element in G1 regardless of degree d. For a claimed evaluation
+P (z) = y, the prover constructs quotient polynomial Q(x) = P (x)−y
+                                                              x−z ∈ Fp [x] and computes
+proof π = Q(s)G1 . Verification involves checking:
+
+                                              ?
+                            e(π, sG2 − zG2 ) = e(VP − yG1 , G2 )                            (2)
+
+This equation holds for honest provers due to bilinearity: e(π, sG2 −zG2 ) = e(G1 , G2 )Q(s)(s−z)
+= e(G1 , G2 )P (s)−y = e(VP − yG1 , G2 ). The scheme provides several key properties: (i)
+succinctness—constant-sized commitments and proofs; (ii) efficiency—verification requires
+only two pairings; (iii) optional hiding—information-theoretic hiding when combined with
+randomization; and (iv) binding—distinct polynomials yield distinct commitments under
+the q-SDH assumption. These properties make KZG foundational for many succinct proof
+systems.
+
+
+2.4     Proof Aggregation via Homomorphism
+KZG commitments possess a valuable homomorphic property that enables efficient aggre-
+gation of multiple proofs. For polynomials P (x), Q(x) and scalars α, β, we have:
+
+                        Com(αP + βQ) = α · Com(P ) + β · Com(Q)                             (3)
+
+This property forms the foundation for batch verification, allowing us to combine multiple
+matrix multiplication proofs into a single verification equation. In our construction, each
+proof instance includes commitments VA,i , VB,i , VC,i to matrix polynomials, alongside a
+                                                                                 $
+witness πi . To aggregate t such proofs, we derive a random challenge ρ ← Fp via the
+8                                       zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+Fiat-Shamir transform and compute:
+                                t
+                                X                                   t
+                                                                    X
+                      VAagg =         ρi−1 · VA,i ,       VBagg =         ρi−1 · VB,i ,
+                                i=1                                 i=1
+                                t                                   t
+                                                                                          (4)
+                                X                                   X
+                      VCagg =         ρi−1 · VC,i ,       π agg =         ρi−1 · πi
+                                i=1                                 i=1
+
+                                                                Pt
+Similarly, we aggregate evaluation points and values: z agg = i=1 ρi−1 · zi and y agg =
+Pt
+  i=1 ρ
+       i−1
+           ·yi . This random linear combination preserves soundness via the Schwartz-Zippel
+lemma. The aggregated verification check becomes:
+
+                                                      ?
+                      e(π agg , sG2 − z agg G2 ) = e(VCagg − y agg G1 , G2 )              (5)
+
+The correctness of this approach follows from the linearity of commitment and witness
+structures. Soundness is guaranteed by the unpredictability of ρ, if any individual proof is
+invalid, the aggregated proof fails verification with overwhelming probability. This batching
+technique transforms verification complexity from O(t) pairing operations to just O(1),
+enabling efficient verification of multiple matrix multiplication relations simultaneously.
+
+2.5    Matrix Polynomial Encodings
+Following Wahby et al. [WTS+ 18], we utilize structured polynomial encodings to transform
+matrix multiplication verification into polynomial identity checking. For a matrix A ∈ Fn×n
+                                                                                        p   ,
+we define its polynomial encoding as:
+                                        n
+                                      n X
+                                      X
+                         PA (x) =                aij x(i−1)·n+(j−1) ∈ Fp [x]              (6)
+                                       i=1 j=1
+
+
+This encoding establishes a bijection between n × n matrices and polynomials of degree
+at most n2 − 1, where each matrix entry corresponds to a unique monomial coefficient.
+Evaluation of the polynomial at a point s ∈ Fp requires O(n2 ) operations. By committing
+to PA (x) using the KZG scheme, we obtain VA = PA (s)G1 , a single group element
+representation of the entire matrix.
+The soundness of this approach is founded on the Schwartz-Zippel lemma [Sch80], which
+ensures that for distinct polynomials PA (x) and PB (x), the probability they evaluate to
+the same value at a random point α ∈ Fp is bounded by:
+
+                                                                    n2 − 1
+                                Pr [PA (α) = PB (α)] ≤                                    (7)
+                                                                      p
+
+With p ≥ 2λ , this probability becomes negligible in the security parameter λ. This encoding
+mechanism forms the algebraic foundation of our protocol, enabling efficient reduction of
+matrix relations to polynomial equations while ensuring succinct and verifiable proofs.
+
+2.6    Matrix Multiplication Verification via Inner-Product Reduc-
+       tion
+Verifying matrix multiplication C = A × B directly requires checking n2 entries, leading
+to O(n3 ) complexity. Building on the work of Groth [Gro09] and zkMatrix [CYY24], we
+Biniyam Deressa, M. Anwar Hasan                                                                 9
+
+
+reduce this verification to checking structured polynomial identities through inner-product
+decompositions. The key insight is to transform matrix multiplication into an efficient
+identity check using carefully constructed challenge vectors:
+                                               ⊤                                     ⊤
+          yL = 1, y n , y 2n , . . . , y (n−1)n ∈ Fnp , yR = 1, y, y 2 , . . . , y n−1 ∈ Fnp , (8)
+
+where y ∈ Fp is sampled uniformly at random. The specific construction of yL and yR
+ensures that each matrix entry contributes a unique monomial degree in the resulting
+polynomial, enabling detection of any discrepancy in the matrix multiplication. Using
+these vectors, the verification process becomes:
+                                         ?
+                                  ⊤
+                                    CyR = yL ⊤
+                                                                                   (9)
+                                                     
+                                 yL            A · ByR .
+
+When C = A × B, both sides yield identical polynomials in y. Otherwise, they represent
+distinct polynomials of degree at most n2 − 1. By the Schwartz-Zippel lemma, the
+probability of false acceptance is bounded by (n2 − 1)/p, which is negligible for sufficiently
+large p.
+This approach achieves succinctness by reducing matrix verification to a single polynomial
+identity check, provides soundness through randomized challenges, and integrates seamlessly
+with polynomial commitment schemes. While zkMatrix employs Bulletproof-based vector
+commitments, our construction utilizes KZG polynomial commitments, offering more
+efficient encoding and verification via pairing-based checks. This algebraic structure forms
+the foundation of our zkMaP protocol, detailed in Section 4.
+
+
+3     Problem Formalization
+This section provides a comprehensive formalization of the zero-knowledge matrix multi-
+plication problem, establishing the formal problem statement, security requirements, and
+cryptographic assumptions underlying our protocol. Building upon the foundations from
+Section 2, we specify the framework that our zkMaP protocol addresses.
+
+3.1    Formal Problem Definition
+Let A, B, C ∈ Fn×n
+                 p    be matrices over a finite field Fp , where p is a prime of bitlength λ.
+For generality, our formulation extends to rectangular matrices A ∈ Fm×ℓ p  , B ∈ Fℓ×n
+                                                                                    p   , and
+C ∈ Fp m×n
+            where the inner dimensions match for matrix multiplication compatibility. The
+goal is to design a zero-knowledge proof protocol that enables a prover P to convince a
+verifier V of the correctness of the matrix multiplication relation C = A × B without
+revealing any information about the secret matrices A and B beyond the validity of this
+relation.
+We formalize the matrix multiplication relation through the following NP-language:
+                                     ∃ A, B ∈ Fn×n   s.t. C = A × B and
+                                                                                 
+  RMatMul = (VA , VB , VC ) ∈ G1 3               p
+                                     VA = Com(A), VB = Com(B), VC = Com(C)
+
+where Com : Fn×n
+               p    → G1 denotes the commitment function instantiated via the KZG
+polynomial commitment scheme described in Section 2.3. A zero-knowledge proof system
+for RMatMul is defined by PPT algorithms:
+
+                                           Setup(1λ , n) → pp
+                                    Prove(pp, A, B, C) → π
+                              Verify(pp, VA , VB , VC , π) → {0, 1}
+10                                   zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+with formal definitions provided in Section 4.
+The proof system demonstrates membership in RMatMul by reducing the verification of
+matrix multiplication to efficiently checkable polynomial and inner-product relations,
+leveraging the algebraic structure of matrix operations while maintaining cryptographic
+security guarantees.
+
+3.2    Security Requirements and Threat Model
+A cryptographically sound zero-knowledge proof system for matrix multiplication must
+satisfy three fundamental security properties, as established in the foundational work of
+Goldreich and Oren [GO94]. Our security analysis addresses both the theoretical guarantees
+and practical deployment requirements essential for large-scale matrix multiplication
+verification scenarios.
+Completeness: An honest prover with valid matrices A, B, C satisfying C = A × B must
+always convince an honest verifier. Formally, for all security parameters λ ∈ N, matrix
+dimensions n ∈ N, and matrices A, B, C ∈ Fn×np   with C = A × B:
+
+                                      pp ← Setup(1λ , n),
+                                                                                
+
+ Pr Verify(pp, VA , VB , VC , π) = 1 VA = Com(A), VB = Com(B), VC = Com(C),  = 1
+                                      π ← Prove(pp, A, B, C)
+
+This property requires that our polynomial encoding preserves the algebraic structure
+of matrix multiplication and that the commitment scheme maintains proper binding
+properties under the specified cryptographic assumptions.
+Knowledge Soundness: Any computationally bounded adversary capable of producing a
+convincing proof with non-negligible probability must possess extractable knowledge of
+matrices A, B, C that satisfy the multiplication relation. Formally, for every probabilis-
+tic polynomial-time algebraic adversary A, there exists a probabilistic polynomial-time
+extractor E such that:
+                                         pp ← Setup(1λ , n),
+                                                                                
+       Verify(pp, V   , V  , V  , π) = 1
+ Pr                A    B    C
+                                         (VA , VB , VC , π) ← A(pp),              ≤ negl(λ)
+        ∧ (A′ , B′ , C′ ) ∈
+                          / RMatMul
+                                         (A , B , C ) ← E (pp, VA , VB , VC , π)
+                                            ′   ′    ′      A
+
+
+where E A denotes the extractor with oracle access to A’s algebraic representation. The
+extractor leverages the adversary’s computational structure within the Algebraic Group
+Model [FKL18], exploiting the fact that all group elements output by A must be expressible
+as linear combinations of the structured reference string elements.
+Zero-Knowledge: The verification process reveals no information about the private matrices
+A and B beyond the validity of C = A × B. This property is formalized through the
+existence of a probabilistic polynomial-time simulator S = (S1 , S2 ) such that for all
+probabilistic polynomial-time distinguishers D and matrices (A, B, C) ∈ RMatMul :
+
+         |Pr[D(pp, VA , VB , VC , π) = 1] − Pr[D(pp, VA , VB , VC , π ′ ) = 1]| ≤ negl(λ)
+
+where the real distribution involves honest proof generation π ← Prove(pp, A, B, C)
+and the ideal distribution uses simulated proofs π ′ ← S2 (τ, VA , VB , VC ) with simulation
+trapdoor τ . The protocol achieves special honest-verifier zero-knowledge (SHVZK) in the
+interactive setting, and computational zero-knowledge in the non-interactive setting via
+the Fiat–Shamir transformation [FS86] in the Random Oracle Model.
+Hiding Properties: The privacy of matrix entries is ensured through the computational
+hiding property of KZG polynomial commitments, which relies on the discrete logarithm
+Biniyam Deressa, M. Anwar Hasan                                                           11
+
+
+                                                                               Pd
+assumption in the underlying bilinear groups. For any polynomial P (x) = i=0 pi xi ,
+the commitment VP = P (s)G1 computationally hides the coefficients {pi } under the
+discrete logarithm assumption, since extracting these coefficients from VP would require
+solving the discrete logarithm problem. Matrix entries remain hidden through commitment
+randomness in the polynomial encoding, where each matrix element contributes to multiple
+polynomial coefficients, ensuring that no individual entry can be recovered from the
+commitment values. The zero-knowledge simulator generates statistically indistinguishable
+proof transcripts without access to the secret matrices by sampling random polynomial
+coefficients and computing appropriate commitment values, formally establishing that no
+information about A and B beyond the validity of the multiplication relation is revealed
+during verification.
+
+Beyond cryptographic security, practical deployment requires additional efficiency prop-
+erties that distinguish our approach from general-purpose zero-knowledge systems. The
+protocol achieves succinctness with constant proof size O(1) independent of matrix dimen-
+sion n, enabling efficient verification through exactly two pairing operations regardless of
+input size. The prover computation scales as O(n2 ), matching the fundamental cost of
+matrix multiplication while providing cryptographic verification guarantees.
+
+Our threat model encompasses malicious provers who may attempt to violate soundness
+by convincing verifiers of incorrect matrix multiplication relations, providing inconsistent
+commitments that do not correspond to valid matrix multiplications, or deviating arbitrarily
+from the protocol specification. We also account for honest-but-curious verifiers who follow
+the protocol correctly but may attempt to extract additional information about private
+matrices beyond the validity of the relation. The zero-knowledge property ensures that
+such attempts yield no additional information.
+
+The security analysis relies on well-established cryptographic assumptions, with the primary
+foundation being the q-Strong Diffie-Hellman (q-SDH) assumption [BLS04] with q = n2 − 1.
+This assumption ensures the binding property of polynomial commitments [KZG10] and
+enables the knowledge extraction techniques essential for establishing soundness. The
+knowledge soundness analysis operates in the Algebraic Group Model (AGM), where
+adversaries must provide algebraic representations for all group elements they output,
+enabling efficient extraction by leveraging the adversary’s computational structure. For
+the non-interactive version obtained via Fiat-Shamir transformation, security additionally
+relies on modeling the hash function H : {0, 1}∗ → Fp as a random oracle, ensuring collision
+resistance and unpredictability of verification challenges.
+
+Additional structural requirements include field size constraints where the prime p satisfies
+p ≥ 2λ to ensure negligible error probabilities in Schwartz-Zippel-based polynomial identity
+arguments, structured reference string support for polynomials of degree up to n2 − 1 to
+accommodate the matrix encoding scheme, and underlying bilinear group instantiations
+that provide λ bits of security against best-known discrete logarithm attacks. The trusted
+setup phase assumes honest generation of the structured reference string with secure
+deletion of the secret trapdoor, achievable in practice through multi-party computation
+ceremonies [BGM17] where security is maintained as long as at least one participant acts
+honestly. This security framework strikes a balance between theoretical rigor and practical
+efficiency, offering robust cryptographic guarantees while preserving the performance
+characteristics necessary for large-scale matrix multiplication verification scenarios. The
+formal security analysis with complete definitions, theorems, and proofs is provided in
+Section 5.
+12                                  zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+4       zkMaP Protocol Specification
+In this section, we present our Zero-Knowledge Matrix Product (zkMaP) protocol, which
+enables a prover to demonstrate that C = A × B for matrices defined over a finite field Fp ,
+while keeping both input matrices A and B private. Building upon the KZG polynomial
+commitment scheme described in Section 2.3, we detail the polynomial encoding of matrices,
+proof generation, and verification procedures.
+
+4.1      Polynomial Encoding and Trusted Setup
+We encode matrices as univariate polynomials to leverage the properties of KZG com-
+mitments. While our construction naturally extends to non-square matrices A ∈ Fm×ℓ  p
+and B ∈ Fℓ×n
+         p   yielding  C  ∈ Fm×n
+                             p   , we focus on square matrices for clarity. For a matrix
+M ∈ Fn×n
+     p   , we define its polynomial encoding as:
+                                         n
+                                       n X
+                                       X
+                            PM (x) =             mij x(i−1)n+(j−1) .
+                                       i=1 j=1
+
+This encoding creates a bijection between n × n matrices and polynomials of degree at
+most n2 − 1. Crucially, it also preserves matrix multiplication under appropriate degree
+truncation.
+Theorem 1 (Matrix Embedding Correctness and Soundness). Let A, B, C ∈ Fn×n
+                                                                       p   with
+polynomial encodings PA (x), PB (x), and PC (x) defined by
+                                        n−1
+                                        X n−1
+                                            X
+                             PM (x) =             mi+1,j+1 xin+j .
+                                        i=0 j=0
+
+Then:
+     1. Bijectivity: The mapping ϕ : M 7→ PM (x) is a bijection between Fn×n
+                                                                         p   and the set
+        of polynomials of degree at most n2 − 1 over Fp .
+     2. Multiplication Preservation: If C = A × B, then PC (x) = PA×B (x).
+                                             $                                 2
+     3. Soundness: For C ̸= A × B and s ← Fp , Pr [PC (s) = PA×B (s)] ≤ n p−1 .
+
+Proof. We prove the correctness and soundness of the matrix embedding by addressing
+each claim in turn. The proof is organized as follows:
+
+1. Bijectivity: First, we show that the encoding function ϕ : Fn×n
+                                                                p  → Fp [x] is a bijection.
+Specifically, we prove that ϕ is both injective and surjective.
+Injectivity: Suppose that ϕ(M1 ) = ϕ(M2 ) for two matrices M1 , M2 ∈ Fn×n   p   . This implies
+that their polynomial encodings are identical, i.e., PM1 (x) = PM2 (x). Since the encoding
+maps each matrix entry mi+1,j+1 to a unique monomial xin+j , matching the coefficients
+of the corresponding powers of x leads to the conclusion that M1 = M2 .
+                                                Pn2 −1
+Surjectivity: Given any polynomial Q(x) = k=0 qk xk over Fp , we can define a matrix
+Q ∈ Fn×n
+       p    where the entry at position (i, j) is qin+j . This shows that every polynomial of
+degree at most n2 − 1 is the encoding of some matrix, thus proving that ϕ is surjective.
+
+2. Multiplication Preservation: Now, we prove that the matrix multiplication operation
+is preserved under the encoding. Suppose that C = A × B for matrices A, B, C ∈ Fn×n
+                                                                                  p   .
+Biniyam Deressa, M. Anwar Hasan                                                                      13
+
+
+The polynomial encoding of C is given by:
+                                          n−1     n
+                                                                        !
+                                          X       X
+                           PC (x) =                     ai+1,k bk,j+1       xin+j .
+                                          i,j=0   k=1
+
+By rearranging the sums, we observe that this is equivalent to:
+
+                              n   n−1
+                                                ! n−1            
+                             X    X                 X
+                    PC (x) =          ai+1,k xin       bk,j+1 xj  ,
+                                    k=1     i=0                    j=0
+
+
+which is exactly PA×B (x). Thus, we have shown that the polynomial encoding of C
+matches the encoding of the matrix product A × B.
+
+3. Soundness: Finally, we establish the soundness of the matrix embedding. Suppose
+that C ̸= A × B. Then, the difference between the polynomials PC (x) and PA×B (x)
+is a non-zero polynomial of degree at most n2 − 1. By the Schwartz-Zippel lemma, the
+probability that these polynomials are equal at a random point s ∈ Fp is bounded by:
+
+                                                                    n2 − 1
+                                Pr [PC (s) = PA×B (s)] ≤                   .
+                                $
+                             s←Fp
+                                                                      p
+
+Thus, the soundness of the matrix embedding follows, and this completes the proof of
+Theorem 1.
+
+Our encoding naturally generalizes to non-square matrices. For A ∈ Fm×ℓ
+                                                                    p   and B ∈ Fℓ×n
+                                                                                 p   ,
+we define:
+                      m−1
+                      XX  ℓ−1                                        ℓ−1 n−1
+                                                                     X   X
+           PA (x) =             ai+1,j+1 · xiℓ+j ,        PB (x) =               bi+1,j+1 · xin+j
+                      i=0 j=0                                        i=0 j=0
+
+
+The multiplication preservation property extends naturally, with prover cost O(mℓ + ℓn)
+and verification remaining constant.
+For example, consider matrices A ∈ F2×3
+                                    p   and B ∈ F3×2
+                                                 p   with entries:
+                                                                                  
+                                                                b11          b12
+                            a11            a12    a13
+                        A=                            ,      B = b21          b22 
+                            a21            a22    a23
+                                                                  b31          b32
+
+The polynomial encodings become:
+
+                  PA (x) = a11 + a12 x + a13 x2 + a21 x3 + a22 x4 + a23 x5
+                  PB (x) = b11 + b12 x + b21 x2 + b22 x3 + b31 x4 + b32 x5
+
+For C = AB ∈ F2×2
+              p   , the encoding satisfies PC (x) ≡ PA (x) · PB (x) (mod x4 ).
+To support these polynomial operations, the zkMaP protocol requires a KZG structured
+reference string (SRS) with sufficient powers to handle matrices of dimension n×n. For non-
+square matrices, the SRS must support polynomials of degree up to max(mℓ, ℓn, mn) − 1.
+Specifically, the SRS must support polynomials of degree up to n2 − 1:
+                                                               2
+                       SRS = {G1 , sG1 , s2 G1 , . . . , sn −1 G1 , G2 , sG2 },                     (10)
+14                                        zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+where s is the secret value generated during the trusted setup process described in
+Section 2.3. The KZG commitment scheme ensures that commitments to polynomials of
+this form are binding under standard cryptographic assumptions.
+Using these encodings and the KZG commitment scheme, the prover commits to matrices
+A, B, and C as:
+
+                     VA = PA (s)G1 ,          VB = PB (s)G1 ,         VC = PC (s)G1 .               (11)
+
+These polynomial-based commitments, combined with the inner-product reduction tech-
+nique described in Section 2.6, form the basis of our succinct zero-knowledge protocol.
+
+4.2    Non-Interactive Proof Generation
+To transform the interactive protocol into a non-interactive zero-knowledge proof, we apply
+the Fiat–Shamir heuristic [FS86]. The prover first computes commitments VA , VB , and
+VC for matrices A, B, and C as defined in Section 4. A challenge value y ∈ Fp is derived
+by applying a cryptographic hash function to all public parameters and commitments:
+
+                                 y = H(pp ∥ VA ∥ VB ∥ VC ) mod p,                                   (12)
+
+where pp denotes public parameters including matrix dimensions and SRS description.
+The prover then constructs structured vectors based on the challenge:
+
+               yL = (1, y n , y 2n , . . . , y (n−1)n )⊤ ,   yR = (1, y, y 2 , . . . , y n−1 )⊤ .   (13)
+
+These vectors ensure each matrix entry is multiplied by a unique power of y, preventing
+coefficient collisions during aggregation.
+The prover computes the projections:
+
+                             ay = yL
+                                   ⊤
+                                     A,         by = ByR ,        µ = yL
+                                                                       ⊤
+                                                                         CyR
+
+Note that µ = ay · by holds iff C = A × B. The prover encodes these as polynomials and
+computes commitments:
+
+                    Vay = Pay (s)G1 ,         Vby = Pby (s)G1 ,         Vµ = Pµ (s)G1
+
+Finally, the prover computes the witness polynomial and its commitment:
+                                 Pµ (x) − Pay (x) · Pby (x)
+                     W (x) =                                ,         VW = W (s)G1 .                (14)
+                                          x−y
+
+The proof π consists of the commitments (VA , VB , VC , Vay , Vby , Vµ , VW ).
+
+4.3    Matrix Compression
+While our polynomial embedding elegantly captures matrix structure, direct application
+faces scalability challenges: committing to an n × n matrix requires degree-(n2 − 1)
+polynomials and correspondingly large structured reference strings with O(n2 ) group
+elements. For practical matrices of dimension n = 1024, this translates to over one million
+SRS elements, making the approach prohibitively expensive. Our compression strategy
+employs Vandermonde matrix structure to create a compact, collision-resistant projection
+that reduces the effective polynomial degree from O(n2 ) to O(ℓn) where ℓ = max ⌈n/4⌉, 2λ ,
+                                                                                          
+
+preserving soundness with collision probability < 2−λ while enabling practical efficiency.
+Biniyam Deressa, M. Anwar Hasan                                                                   15
+
+
+For security parameter λ and prime p > 22λ n, we uniformly sample ω ∈ F×  p such that ω
+has multiplicative order at least n, generating a subgroup of size ≥ n. The compressed
+representation M(comp) = Φ(M) ∈ Fℓ×np   (where M denotes any input matrix) is constructed
+by evaluating column polynomials atPcarefully chosen evaluation points. For each column
+                                       n−1
+j, we form the polynomial fj (X) = k=0 M[k, j]X k and evaluate it at powers of ω:
+                                                                                     ⊤
+                        M(comp) [·, j] = fj (ω 0 ), fj (ω 1 ), . . . , fj (ω ℓ−1 )               (15)
+
+                       i=0 with vi [j] = ω
+The basis vectors {vi }ℓ−1                 ij
+                                              form a Vandermonde structure that ensures
+column-wise polynomial evaluation at powers of ω.
+The security of this compression relies on the fundamental property that distinct column
+polynomials can collide at the evaluation points only if their difference vanishes at all these
+points simultaneously. This leads to the following collision resistance guarantee:
+
+
+Lemma 1 (Compression Collision Resistance). For distinct matrices M1 , M2 ∈ Fn×n
+                                                                             p   and
+uniformly sampled ω of order ≥ n:
+                                                                n
+                                Pr [Φ(M1 ) = Φ(M2 )] ≤            < 2−2λ
+                                 ω                              p
+
+Proof. Since M1 ̸= M2 , there exists at least one column j ∗ where the matrices differ. The
+                                 (1)          (2)
+difference polynomial h(X) = fj ∗ (X) − fj ∗ (X) is non-zero with degree at most n − 1. For
+a collision to occur, we need h(ω i ) = 0 for all i ∈ {0, 1, . . . , ℓ − 1}. Since h has at most n − 1
+                 i=0 are distinct, the probability is bounded by n/p per Schwartz-Zippel.
+roots and {ω i }ℓ−1
+Under our parameter choice p > 22λ n, this probability is bounded by 2−2λ .
+
+The computational efficiency emerges from exploiting polynomial evaluation at roots of
+unity. When ω has order N = 2k ≥ n, each column compression requires computing ℓ
+                       i=0 using a truncated Number-Theoretic Transform (NTT). The key
+evaluations {fj (ω i )}ℓ−1
+insight is that evaluating fj (X) at the geometric sequence {1, ω, ω 2 , . . . , ω ℓ−1 } corresponds
+to computing the first ℓ coefficients of the discrete Fourier transform, achievable via radix-2
+algorithms in O(n log n) operations per column. This reduces total complexity from O(n3 )
+to O(n2 log n)—for n = 1024, this achieves over 100× speedup versus naive computation.
+For KZG integration, the compressed matrix M(comp) ∈ Fℓ×n       p    can be represented as a
+                                     Pℓ−1 Pn−1
+bivariate polynomial F (X, Y ) =       i=0   j=0 M (comp) [i, j]X i j
+                                                                   Y  . Since standard KZG
+commitments apply only to univariate
+                                  Pn−1    polynomials, we   use  a two-step construction: for
+each row i, we define Fi (Y ) = j=0 M(comp) [i, j]Y j and commit using an SRS of size
+n, obtaining Vi = Fi (s)G1 . These row commitments serve as coefficients of G(X) =
+Pℓ−1
+   i=0 Vi X , producing the final commitment Vouter = F (s, s)G1 . This approach reduces
+           i
+
+the SRS size from O(n2 ) to O(max(n, ℓ)) = O(n) group elements while maintaining collision
+probability below 2−128 for λ = 128. For concrete parameters with n = 1024, this reduces
+the SRS from 1, 048, 576 to 1, 024 elements—a 99.9% reduction. The compression integrates
+transparently with the zkMaP protocol by operating on polynomial representations while
+preserving all verification properties, with the verifier remaining unaware of whether
+compression was used.
+
+4.4     Verification
+The verifier validates matrix multiplication claims through constant-time pairing oper-
+ations derived from KZG commitments. Verification requires two phases: Challenge
+16                                   zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+Reconstruction: The verifier reconstructs the Fiat-Shamir challenge as:
+
+                              y = H(pp ∥ VA ∥ VB ∥ VC ) mod p
+
+where pp denotes public parameters. This ensures non-interactive soundness in the random
+oracle model.
+                                                               ?
+Pairing Verification: The verifier checks: e(VW , sG2 −yG2 ) = e(Vµ −Pay (y)·Pby (y)G1 , G2 )
+                                                    ?
+Equivalently via bilinearity: e(VW , sG2 − yG2 ) = e(Vµ − Vay · Vby , G2 ) This verifies the
+                              Pµ (x)−Pay (x)·Pby (x)
+witness polynomial W (x) =            x−y            encodes correct relationships. Correctness:
+For honest provers:
+
+                e(VW , sG2 − yG2 )= e(W (s)G1 , sG2 − yG2 )
+                                      Pµ (s) − Pay (s)Pby (s)
+                                  = e(                        G1 , sG2 − yG2 )
+                                               s−y
+                                  = e((Pµ (s) − Pay (s)Pby (s))G1 , G2 )
+                                  = e(Vµ − Vay · Vby , G2 )
+
+Security: If C ̸= A × B, Schwartz-Zippel bounds failure probability:
+                                                      deg
+                        Pr Pµ (y) = Pay (y) · Pby (y) ≤    < 2−128
+                          
+                                                        p
+
+Soundness reduces to q-SDH under AGM. Verification completes in constant time (≈ 3.6ms)
+regardless of matrix size. Acceptance confirms C = A×B at the polynomial level, revealing
+no matrix entries. For a complete algorithmic description of the zkMaP protocol, see
+Algorithm 2.
+
+
+5      Security Analysis
+In this section, we present a comprehensive security analysis of zkMaP, establishing its
+security properties under the q-Strong Diffie–Hellman (q-SDH) assumption in the Algebraic
+Group Model (AGM) and Random Oracle Model (ROM). We provide explicit formalization
+of AGM extraction procedures, establish zero-knowledge guarantees across different inter-
+action models, and demonstrate the relationship between our layered soundness theorems.
+We prove that zkMaP achieves perfect completeness, computational knowledge soundness,
+and zero-knowledge properties, making it a secure zero-knowledge proof system for matrix
+multiplication.
+
+5.1      Security Model and Definitions
+We establish formal definitions for zkMaP’s security properties:
+Definition 5 (Secure Zero-Knowledge Proof System). A zero-knowledge proof system for
+relation R is secure if it satisfies:
+     • Perfect Completeness: For any (x, w) ∈ R, an honest prover P convinces verifier V
+       with probability 1.
+     • Computational Knowledge Soundness: For any PPT adversary A, there exists extrac-
+       tor E such that if A produces acceptable proof for x, then E extracts valid witness w
+       with (x, w) ∈ R, except with negligible probability.
+     • Zero-Knowledge: The proof reveals no information about w beyond x ∈ LR . We
+       distinguish:
+Biniyam Deressa, M. Anwar Hasan                                                          17
+
+
+         – Special Honest-Verifier ZK (SHVZK): Holds against honest verifiers using
+           random challenges
+         – Computational ZK in ROM : Achieved via Fiat-Shamir against malicious verifiers
+
+
+
+5.2     Layered Soundness Architecture
+Our security analysis adopts a modular three-tier architecture, consistent with established
+methodologies in polynomial commitment-based zero-knowledge systems. This reflects
+the decomposition strategies of Sonic [MBKM19] (polynomial evaluation soundness before
+knowledge extraction), PLONK [GWC19] (permutation argument soundness before circuit
+satisfiability), and Marlin [CHM+ 20] (coefficient constraint soundness prior to global
+protocol soundness). The zkMaP hierarchy comprises: (i) polynomial commitment binding
+(Theorem 2), establishing that KZG commitments are computationally binding under
+q-SDH; (ii) witness polynomial soundness (Theorem 3), guaranteeing that accepting proofs
+satisfy PC (s) = PA (s)PB (s); and (iii) knowledge soundness (Theorem 4), which constructs
+an AGM extractor using this consistency property.
+This separation is technically essential for maintaining tight reductions. Theorem 3 ensures
+that, for any accepting proof, the difference polynomial Q(x) = PC (x) − PA (x)PB (x)
+vanishes at the trapdoor point s, enabling the factorization Q(x) = (x − s)R(x) used to
+extract a q-SDH solution in Theorem 4. This extraction-independent invariant avoids
+entangling polynomial consistency with the extraction procedure, preserving adversarial
+advantage ϵ and runtime O(T )—as opposed to the quadratic degradation (ϵ′ = ϵ/poly(n))
+that would result from a monolithic soundness proof. The modular structure improves
+clarity, supports independent verification of each layer, and follows best practices for
+composable cryptographic proofs.
+
+
+
+5.3     Core Security Theorems
+We now present the formal security theorems that establish zkMaP’s cryptographic guar-
+antees. The theorems are organized according to their dependency relationships, with each
+building upon the security properties established by its predecessors.
+Theorem 2 (Polynomial Commitment Binding). Under the q-Strong Diffie–Hellman
+(q-SDH) assumption, the polynomial commitments VA , VB , VC in the zkMaP protocol are
+computationally binding. Formally, for any PPT adversary A, the probability that A breaks
+the binding property is negligible:
+
+                        SRS ← Setup(1λ , q),
+                                                       
+
+                   Pr (V, P1 , P2 ) ← A(SRS) :          ≤ negl(λ),
+                                                       
+
+                          V = P1 (s)G1 = P2 (s)G1 ∧ P1 ̸= P2
+
+where SRS = (G1 , sG1 , . . . , sq G1 , G2 , sG2 ) and deg(P1 ), deg(P2 ) ≤ q.
+The binding property of polynomial commitments forms the foundation of our security
+analysis, ensuring that adversaries cannot equivocate about committed polynomials. This
+property is essential for the soundness of all subsequent reductions.
+Theorem 3 (Witness Polynomial Soundness). Let λ be a security parameter and q ∈ N.
+Assume the q-Strong Diffie–Hellman (q-SDH) assumption holds in the bilinear group setting.
+Then, the witness polynomial construction in the zkMaP protocol satisfies computational
+18                                      zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+soundness. Specifically, for any probabilistic polynomial-time (PPT) adversary A, the
+probability that A produces a valid proof for an incorrect matrix multiplication is negligible:
+
+                     SRS ← Setup(1λ , q);
+                                                               
+
+                 Pr (A, B, C, π̃) ← A(SRS) :                    ≤ negl(λ),
+                                                               
+
+                       Verify(SRS, A, B, C, π̃) = 1 ∧ C ̸= A × B
+
+where π̃ = (Vay , Vby , Vµ , VW ) is a forged proof tuple, and SRS = G1 , sG1 , . . . , sq G1 , G2 , sG2
+                                                                                                           
+                                                      $
+is the structured reference string with secret s ← Fp .
+Witness Polynomial Soundness serves as the crucial intermediate step that bridges the gap
+between commitment binding and full protocol soundness. This theorem guarantees that
+any proof accepted by the verifier must satisfy the polynomial relationship at the secret
+evaluation point, regardless of whether a valid witness can be extracted.
+The proofs of Theorems 2 and 3 establish the foundational security properties required
+for our main result and are provided in Appendices A and B, respectively. Building upon
+these results, we now prove the complete security of the zkMaP protocol.
+Theorem 4 (Completeness and Computational Knowledge Soundness of zkMaP). The
+zkMaP protocol satisfies:
+     1. Perfect Completeness: For honest prover P and verifier V, if C = A × B, then
+        Pr[⟨P, V⟩ = accept] = 1.
+     2. Computational Knowledge Soundness: Under the q-SDH assumption in the AGM
+        and ROM, for any PPT adversary A, there exists an extractor E such that:
+
+                               SRS ← Setup(1λ , n2 − 1);
+                                                                  
+                              (V , V , V , π) ← A(SRS);           
+                               A B C                              
+                           Pr 
+                                                                  
+                              accept ←  V(SRS, V A , VB , VC , π); ≤ negl(λ).
+                                                                   
+                              (A, B, C) ← E (SRS) :
+                                             A
+                                                                  
+                                                                   
+                                C ̸= A × B
+
+
+
+Proof. Perfect Completeness: Let A, B, C ∈ Fn×n p   be matrices with C = A × B. Their
+polynomial encodings satisfy PC (x) = PA×B (x) by Theorem 2. The KZG commitments
+VA , VB , VC inherit perfect completeness when using an SRS of degree d ≥ n2 − 1.
+Given Fiat-Shamir challenge y ← H(VA ∥ VB ) mod p in the random oracle model, the
+projections ay = yL⊤
+                     A and by = ByR satisfy µ = ay · by by matrix algebra. The witness
+polynomial given in Equation 14 has degree ≤ n2 − 2, supported by the SRS in Equation 10.
+Verification reduces to:
+
+                    e(VW , sG2 − yG2 ) = e((s − y)W (s)G1 , G2 )
+                                          = e((Pµ (s) − Pay (s)Pby (s))G1 , G2 )
+                                          = e(Vµ − Vay · Vby , G2 )
+
+Thus, the verification equation holds identically when C = A × B, proving perfect
+completeness.
+Computational Knowledge Soundness: In the Algebraic Group Model (AGM), any PPT
+adversary A outputs group elements as linear combinations of SRS generators: In the
+Biniyam Deressa, M. Anwar Hasan                                                                   19
+
+
+Algebraic Group Model (AGM), any PPT adversary A outputs group elements as linear
+combinations of SRS generators:
+                      d
+                      X                           d
+                                                  X                           d
+                                                                              X
+               VA =         ai (si G1 ),   VB =         bi (si G1 ),   VC =         ci (si G1 )
+                      i=0                         i=0                         i=0
+
+where d = n2 − 1. Our extractor E (detailed in Algorithm 1) solves for coefficient vectors
+{ai }, {bi }, {ci } via Gaussian elimination over Fp , then reconstructs matrices A, B, C via
+Theorem 1’s bijective encoding. By Witness Polynomial Soundness (Theorem 3), if
+verification passes but C ̸= A × B, then the polynomial Q(x) = PC (x) − PA (x)PB (x)
+satisfies Q(s) = 0 despite being nonzero. This forces the factorization Q(x) = (x − s)R(x),
+enabling E to compute:
+                                        1         W (s)
+                                            G1 =         G1
+                                       s−y        Q(y)
+thereby solving the (n2 − 1)-SDH problem, contradicting its assumed hardness. By the
+General Forking Lemma [BN06], if A succeeds with probability ϵ, then E extracts a valid
+witness with probability at least ϵ2 − negl(λ). By the Schwartz-Zippel lemma [Sch80], the
+probability of Q(x) vanishing at a random point is at most (2n2 − 2)/p, which is negligible
+for cryptographically large p.
+
+
+Algorithm 1 AGM Extractor for zkMaP
+
+Require: Adversary A, SRS = {si G1 }di=0 ∪ {G2 , sG2 } with d = n2 − 1
+Ensure: Extracted matrices (A, B, C) or q-SDH solution
+ 1: (VA , VB , VC , π) ← A(SRS)                                       ▷ π = (Vay , Vby , Vµ , VW )
+                     Pd
+ 2: Express VA =        i=0 ai (s G1 )
+                                 i
+                                                                    ▷ Analogously for VB , VC
+ 3: Solve linear system for {ai }, {bi }, {ci } via Gaussian elimination over Fp
+                                      Pd
+ 4: Reconstruct A via PA (x) =         k=0 ak x
+                                                k
+                                                                          ▷ Bijective encoding
+ 5: Reconstruct B, C similarly from {bi }, {ci }
+ 6: if C ̸= AB then
+ 7:    Compute Q(x) = PC (x) − PA (x)PB (x)
+ 8:    Factor Q(x) = (x − s)R(x) using Q(s) = 0                                    ▷ By Thm 3
+ 9:    Compute y ← H(VA ∥ VB ) mod p                                  ▷ Fiat-Shamir challenge
+10:    Compute σ ← (Q(y))−1 · VW                                          ▷ Yields σ = s−y  1
+                                                                                               G1
+11:    return (y, σ) as q-SDH solution
+12: else
+13:    return (A, B, C)
+14: end if
+
+
+
+
+5.4    Algebraic Group Model Extraction
+The computational knowledge soundness proof relies fundamentally on our ability to
+extract witnesses from successful adversaries in the Algebraic Group Model. In the AGM,
+all adversarial group elements must be algebraic combinations of the structured reference
+string (SRS). The zkMaP extractor leverages this to recover committed polynomials by
+solving a linear system over the SRS basis. Using standard techniques such as Gaussian
+elimination, the extractor reconstructs coefficient vectors for PA (x), PB (x), and PC (x),
+and decodes the corresponding matrices via the bijective encoding. If C = AB, a valid
+witness is returned. Otherwise, the difference polynomial Q(x) = PC (x) − PA (x)PB (x) is
+20                                     zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+nonzero and vanishes at s, enabling the factorization Q(x) = (x − s)R(x). This enables
+computation of s−y
+                 1
+                   G1 from the committed witness polynomial, yielding a solution to the
+q-SDH problem. Algorithm 1 provides the complete extraction procedure with explicit
+steps for both witness recovery and q-SDH solution derivation. This extraction strategy
+follows the AGM framework of [FKL18] and avoids reliance on the trapdoor s, ensuring
+that knowledge soundness holds without requiring simulation trapdoors.
+
+5.5      Zero-Knowledge Guarantees
+Having established the soundness properties of zkMaP, we now turn to its zero-knowledge
+guarantees. The protocol achieves different levels of zero-knowledge depending on the
+interaction model, with perfect guarantees in the interactive setting and computational
+guarantees after applying the Fiat-Shamir transformation.
+
+Theorem 5 (Zero-Knowledge Property of zkMaP). The zkMaP protocol satisfies perfect
+special honest verifier zero-knowledge (SHVZK) in the interactive setting under the q-SDH
+assumption. After applying the Fiat-Shamir transformation, it achieves computational
+zero-knowledge in the Random Oracle Model. For any verifier challenge y ∈ Fp , there exists
+a probabilistic polynomial-time simulator S which, given only the public inputs (VA , VB , VC )
+and y, outputs a transcript statistically indistinguishable from a real protocol execution.
+
+
+Proof. Perfect SHVZK (Interactive Setting): We construct simulator SSHVZK that on
+input public commitments (VA , VB , VC ) and challenge y:
+                         $
+     1. Samples ra , rb ← Fnp and defines projection polynomials:
+
+                                            n−1
+                                            X                              n−1
+                                                                           X
+                               P̃ay (x) =         ra,i xi ,   P̃by (x) =         rb,i xi
+                                            i=0                            i=0
+
+
+
+                                                    $
+     2. Samples random polynomial W̃ (x) ← Fp [x] with deg ≤ 2n − 3
+
+     3. Computes KZG commitments: Ṽay = P̃ay (s)G1 ,               Ṽby = P̃by (s)G1 ,    ṼW = W̃ (s)G1
+
+     4. Sets Ṽµ = Ṽay · Ṽby + (s − y)ṼW
+
+The transcript (Ṽay , Ṽby , Ṽµ , ṼW ) has identical distribution to real executions due to
+uniform polynomial coefficients and KZG’s perfect hiding property. The simulator requires
+no witness or SRS trapdoor, establishing perfect SHVZK.
+
+Computational ZK (Non-Interactive ROM): Following the Fiat-Shamir transformation [FS86]
+in the random oracle model [BR93], the simulator SROM :
+                                                         $
+     1. Programs H(VA ∥ VB ∥ VC ) → y for y ← Fp
+
+     2. Generates π ← SSHVZK (VA , VB , VC , y)
+
+     3. Maintains consistent random oracle responses
+
+This achieves computational zero-knowledge against malicious verifiers under the random
+oracle assumption, without requiring SRS trapdoor access. This contrasts with trapdoor-
+dependent protocols like Groth16.
+Biniyam Deressa, M. Anwar Hasan                                                             21
+
+
+5.6    Security Summary and Comparisons
+The security analysis establishes that zkMaP achieves distinct zero-knowledge guarantees
+across interaction models. In interactive settings, the protocol provides perfect special
+honest-verifier zero-knowledge (SHVZK) through trapdoor-independent simulation: the
+simulator generates statistically indistinguishable transcripts without requiring SRS trap-
+door access. For non-interactive setting via the Fiat-Shamir transformation [FS86] in the
+Random Oracle Model (ROM) [BR93], zkMaP achieves computational zero-knowledge
+against malicious verifiers. Here, the simulator programs the random oracle to ensure
+consistent challenge generation, with the perfect guarantee transitioning to computational
+due to hash function programmability requirements in ROM. Collectively, our theorems
+demonstrate that zkMaP satisfies the essential properties of a secure zero-knowledge
+proof system: perfect completeness where valid statements with honest proofs verify with
+probability 1, computational knowledge soundness enabling efficient witness extraction
+under q-SDH in AGM+ROM, and zero-knowledge providing perfect SHVZK interactively
+with computational ZK via Fiat-Shamir in ROM. These properties establish zkMaP as a
+cryptographically sound solution for privacy-preserving matrix multiplication verification.
+Trusted Setup and Trapdoor Management: zkMaP’s security model fundamentally differs
+from trapdoor-dependent protocols like Groth16. During trusted setup, trapdoor s ∈
+                                                                  2
+Fp is generated via secure ceremony to compute SRS = {si G1 }ni=0−1 ∪ {G2 , sG2 }, then
+immediately cryptographically erased. During operation, zero-knowledge simulators require
+no trapdoor access, relying instead on commitment randomness for interactive SHVZK
+and ROM programmability for non-interactive settings. The universal SRS supports
+multiple instances without per-execution setup, eliminating ongoing trapdoor trust while
+maintaining security.
+Comparative Security Advantages: zkMaP provides distinctive security advantages over
+existing ZK protocols. Unlike Groth16’s per-circuit trusted setup [Gro16], zkMaP employs
+a universal setup under the q-SDH assumption with AGM analysis. Compared to zkMa-
+trix [CYY24], zkMaP leverages q-SDH and AGM foundations rather than RSA assumptions,
+providing explicit extraction procedures with concrete security guarantees. Relative to
+QuickSilver [YSWW21], our protocol operates in bilinear groups under structured assump-
+tions while maintaining constant-size proofs, offering different security-efficiency trade-offs
+suitable for matrix-specific applications.
+The protocol’s layered soundness architecture enables compositional security proofs while
+avoiding circuit overhead through matrix-specific optimizations. While achieving SHVZK
+in interactive settings, the Fiat-Shamir transformation yields computational ZK security
+comparable to state-of-the-art systems, establishing zkMaP as a robust and practically
+viable solution for zero-knowledge matrix multiplication.
+
+6     Batch Verification
+The zkMaP protocol is designed to support the simultaneous verification of multiple
+matrix multiplication proofs while preserving its zero-knowledge properties. To achieve
+this, our scheme employs a batching mechanism that aggregates individual proofs into a
+single, compact proof. This design not only reduces the communication and computational
+overhead associated with verifying each instance separately but also maintains the algebraic
+structure required for sound verification.
+For a collection of t matrix multiplication instances {(Ai , Bi , Ci )}ti=1 with Ci = Ai × Bi ,
+each instance is first processed individually. The matrices are encoded into polynomials
+and committed using KZG commitments, yielding commitments VAi , VBi , and VCi for
+each instance. Furthermore, for each individual proof, a witness polynomial is constructed
+22                                         zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+and committed to, resulting in witness commitments VWi .
+To aggregate these proofs, our protocol employs a standard random linear combination
+technique. A random scalar ρ is sampled uniformly from Fp ; such a choice is a well-
+established practice in the literature (e.g., in batch verification schemes for SNARKs and
+polynomial commitment protocols) as it prevents an adversary from crafting false proofs
+that cancel out in the aggregation. Since the probability of sampling zero challenges is
+negligible (1/p ≈ 2−256 ), the protocol rejects this case and resamples to ensure well-defined
+witness polynomials. The individual commitments are then aggregated via weighted sums:
+
+                       t
+                       X                              t
+                                                      X                              t
+                                                                                     X
+           VAbatch =         ρi−1 VAi ,   VBbatch =         ρi−1 VBi ,   VCbatch =         ρi−1 VCi .
+                       i=1                            i=1                            i=1
+                                                                                     Pt
+Similarly, the batch witness commitment is computed as: VW
+                                                         batch
+                                                               =                       i=1 ρ
+                                                                                               i−1
+                                                                                                     V Wi .
+The use of the powers of ρ ensures that the contributions of the individual proofs remain
+distinct in the aggregate, preserving the necessary polynomial relationships for sound
+verification. After the commitments have been aggregated, the final verification is performed
+by checking a pairing equation:
+                                                               −1                −1
+         batch
+      e VW     , sG2 − y batch G2 = e VCbatch , G2 · e VAbatch , G2    · e VBbatch , G2
+
+
+where the challenge y batch is obtained by similarly aggregating the individual challenges
+yi from each proof. The pairing check is executed using the ate pairing, and thanks
+to optimized multi-pairing techniques, the effective cost is reduced to only two pairing
+computations, regardless of the number of batched instances.
+The security of the batch scheme is underpinned by the randomness of ρ, which guarantees
+that any adversarial attempt to forge or cancel out individual proofs is detected with high
+probability. Specifically, the probability of an invalid proof being accepted is bounded by
+p , where d is the maximum degree of the underlying polynomials and p is the field size.
+d
+
+This bound is standard in polynomial commitment schemes and ensures that the overall
+batch verification remains both efficient and secure.
+Theorem 6 (Batch zkMaP Protocol). Let (Ai , Bi , Ci ) for i ∈ [1, t] be matrix multiplication
+instances over Fn×n
+                p   . The batch zero-knowledge matrix product (zkMaP) protocol satisfies:
+     1. Perfect Completeness: If Ci = Ai × Bi for all i, then the verifier always accepts.
+     2. Computational Zero-Knowledge in ROM: There exists a PPT simulator produc-
+        ing proofs computationally indistinguishable from honest ones in the random oracle
+        model
+     3. Computational Soundness: If a malicious prover produces an accepting proof
+        where ∃j such that Cj ̸= Aj × Bj , the q-SDH assumption can be broken.
+A proof of this theorem is provided in Appendix C, building on the AGM extraction
+framework (Algorithm 1) and zero-knowledge simulation strategies established in Section
+5.
+For further implementation details and a complete procedural description, refer to Algo-
+rithm 3, which outlines the steps for setting up the SRS, generating individual proofs,
+aggregating commitments via the random challenge ρ, and performing the batch verifica-
+tion.
+Biniyam Deressa, M. Anwar Hasan                                                                  23
+
+
+7     Complexity Analysis of the zkMaP Protocol
+7.1    Computational Complexity
+We analyze the computational complexity of the zkMaP protocol for verifying the relation
+C = A × B in zero-knowledge, where A, B, C ∈ Fn×n        p   . We assume standard costs:
+field multiplication Cmul , field addition Cadd , exponentiation in the group Cexp , pairing
+evaluation Cpair , hashing for Fiat-Shamir instantiation Chash , and small-exponent powering
+Cpow .
+
+Setup Complexity: The trusted setup generates the structured reference string (SRS).
+                                                                   2
+For uncompressed matrices, we require SRS = {G1 , sG1 , . . . , sn −1 G1 , G2 , sG2 }, cost-
+ing (n2 + 1) · Cexp . With Vandermonde compression (Section 4.3), the SRS reduces to
+O(max(n, ℓ)) elements where ℓ = max(⌈n/4⌉, 2λ), substantially reducing setup costs for
+large matrices. Committing to matrices A, B, C requires encoding them into polynomials
+and evaluating at point s, costing 3n2 (Cmul + Cadd ) + 3n2 · Cexp for the uncompressed
+case. With compression, this reduces to O(ℓn) operations per matrix. Thus, the setup
+phase totals:
+                     TSetup = (n2 + 1)Cexp + 3n2 (Cmul + Cadd + Cexp ).
+
+Challenge Generation: The verifier computes the Fiat-Shamir challenge as y =
+H(pp∥VA ∥VB ∥VC ) mod p, where pp denotes public parameters, costing Chash . The prover
+derives structured challenge vectors:
+
+                yL = (1, y n , y 2n , . . . , y (n−1)n ),   yR = (1, y, y 2 , . . . , y n−1 ),
+
+requiring 2n·Cpow . The challenge generation phase thus costs: TChallenge = Chash +2n·Cpow .
+
+Prover Computation: The prover computes projections ay = yL       ⊤
+                                                                    A, by = ByR , and
+µ = yL CyR . Each projection involves approximately n multiplications and n2 additions.
+     ⊤                                               2
+
+The witness polynomial:
+
+                                             Pµ (x) − Pay (x) · Pby (x)
+                                W (x) =
+                                                      x−y
+
+requires polynomial operations costing approximately n2 field operations. Collectively, the
+prover complexity is:
+
+                       TProver ≈ 5n2 (Cmul + Cadd ) + 3n2 Cexp + O(n).
+
+
+Verification:    The verifier checks the pairing equation:
+
+                                                    ?
+                          e(VW , sG2 − yG2 ) = e(Vµ − Vay · Vby , G2 ).
+
+This requires exactly two pairing computations via multi-pairing optimization, achieving
+constant verification time (3.7 ms in our benchmarks) regardless of matrix dimensions.
+Hence, verification complexity is:
+
+                              TVerify = 2 · Cpair + n(Cmul + Cadd ).
+24                                   zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+Batch Verification: For t matrix multiplication instances, our batch protocol aggregates
+proofs
+Pt       using random linear combinations. The batch aggregation computes y batch =
+   i=1 ρ
+        i−1
+            yi , where ρ is a random challenge and yi are individual proof challenges. This
+introduces O(t) field operations, while the constant two pairings are preserved regardless
+of t. The complete batch verification complexity is
+
+                         TVerify-Batch = 2 · Cpair + t(Cmul + Cadd ),
+
+where t denotes the batch size. Experimental evidence indicates that, for practical matrix
+dimensions, the time spent on field operations during batch verification is negligible
+compared to the time required for the constant two pairing evaluations. For instance,
+with t = 1024, all field operations taking less than 0.1 ms in total, whereas a single
+pairing operation requires approximately 1.6 ms, confirming that zkMaP verification is
+pairing-dominated and consistent with standard cryptographic practice.
+
+
+
+Comparative Operation-Level Analysis: To contextualize zkMaP’s efficiency gains,
+we contrast its verification costs with those of zkMatrix [CYY24]. For a single proof,
+zkMatrix requires 4Cpair +(14 log2 n+38)Cexp +(3 log2 n+9)Chash , while batch verification
+of t proofs costs 4Cpair + ((2t + 12) log2 n + 13t + 25)Cexp . In comparison, zkMaP achieves
+the same task with only 2Cpair + n(Cmul + Cadd ) for single proofs and 2Cpair + t(Cmul +
+Cadd ) for batch verification. This represents a 50% reduction in pairing operations
+and the replacement of costly logarithmic-scale exponentiations with lightweight field
+multiplications. Since exponentiations scale as log2 p field multiplications and pairings
+dominate verification time, zkMaP’s constant two-pairing design delivers substantial
+asymptotic and concrete performance advantages, particularly for large matrices and
+high-throughput batch settings.
+
+7.2    Memory Complexity
+The memory complexity of zkMaP is analyzed for both single-proof and batch-proof
+scenarios, with emphasis on scalability in large-scale matrix multiplication verification.
+Single Proof : For a single proof, the prover’s memory is dominated by the storage
+of three n × n matrices (i.e., 3n2 field elements), polynomial commitment coefficients,
+and intermediate computation state, yielding overall O(n2 ) memory complexity. With
+Vandermonde compression enabled, storage reduces to O(ℓn) per matrix where ℓ =
+max(⌈n/4⌉, 2λ), providing substantial memory savings for large matrices. The total
+memory usage is:
+                            Msingle = O(n2 ) · (Cmem + Cpoly )
+where Cmem accounts for matrix storage and Cpoly captures polynomial commitment
+coefficients.
+Batch Proofs: Naive verification of t proofs requires O(tn2 ) memory, which is prohibitive
+for large t. zkMaP mitigates this via sub-batching, processing at most b proofs concurrently.
+Peak memory becomes
+                            Mbatch = O(bn2 ) · (Cmem + Cpoly )
+while the prover runtime is
+                                   
+                                   t 
+                       batch
+                              =       5bn2 (Cmul + Cadd ) + 3bn2 Cexp
+                                                                      
+                      Tprover
+                                   b
+
+Verification memory remains constant at Cpair due to proof aggregation.
+Biniyam Deressa, M. Anwar Hasan                                                              25
+
+
+Trade-Off Characterization: Sub-batching reduces peak memory from tn2 to bn2 while
+incurring a time overhead proportional to t/b. The trade-off relationship is characterized
+by Memory Reduction Factor = t/b and Time Overhead Factor = ⌈t/b⌉. In our implemen-
+tation, setting b = 8 reduces memory usage to 12.5% of naive batching with only a 12.5%
+increase in prover time.
+Parameter Selection: The maximum admissible sub-batch size b is bounded by the available
+system memory Mavailable as:
+                                                      
+                                        Mavailable
+                             b≤
+                                  n2 · (Cmem + Cpoly )
+This tunable parameter allows zkMaP to scale from memory-constrained embedded devices
+to high-performance servers, providing practitioners with explicit guidelines to balance
+memory and performance.
+
+      Table 2: Computational and memory complexity of zkMaP protocol phases.
+
+ Phase                   Computational Complexity                      Memory Complexity
+ Setup                   (n + 1)Cexp + 3n (Cmul + Cadd + Cexp )
+                           2              2
+                                                                       n2 Cmem
+ Setup (Compressed)      O(max(n, ℓ))Cexp + 3ℓn(Cmul + Cadd + Cexp )   ℓnCmem
+ Challenge Generation    Chash + 2nCpow                                Chash
+ Prover (Single)         5n2 (C       + Cadd ) + 3n2 Cexp + O(n)       n2 (Cmem + Cpoly )
+                          t   mul2
+ Prover (Batch)                 5bn (Cmul + Cadd ) + 3bn2 Cexp         bn2 (Cmem + Cpoly )
+                                                               
+                           b
+ Verification (Single)   2Cpair + n(Cmul + Cadd )                      Cpair
+ Verification (Batch)    2Cpair + t(Cmul + Cadd )                      Cpair
+
+
+
+8     Implementation and Results
+8.1    Implementation Architecture
+Our implementation uses the Kate-Zaverucha-Goldberg (KZG) polynomial commitment
+scheme as its foundation. The system is implemented in Rust, leveraging the Arkworks
+cryptographic library with the BLS12-381 pairing-friendly elliptic curve, which provides
+128 bits of security with a 255-bit scalar field. The core modules include a KZG imple-
+mentation for polynomial commitments, a ZKMatrixProof structure for zero-knowledge
+matrix multiplication proofs, and an OptimizedBatchedZKMatrixProof structure that
+implements an efficient batching protocol.
+We implemented several technical optimizations to enhance practical efficiency: parallel
+processing via Rayon’s work-stealing scheduler to accelerate matrix-to-polynomial conver-
+sion; memory-efficient matrix flattening techniques that significantly reduce overhead; and
+challenge-based proof aggregation using Fiat-Shamir transformations for non-interactive
+proofs. These optimizations collectively contribute to the performance characteristics
+observed in our experimental evaluation. To support artifact review and ensure re-
+producibility, we provide an anonymized GitHub repository containing the full imple-
+mentation, benchmarking scripts, and documentation. The repository is accessible at:
+https://github.com/20code-submission-review25/anonzkp-harbor-6092.
+
+8.2    Experimental Setup
+Experiments were conducted on an HP Z840 Workstation equipped with an Intel Xeon
+E5-2680 v3 processor (48 cores at 2.50GHz) and 128GB RAM, running Ubuntu 22.04.3 LTS.
+26                                  zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+We measured proving time, verification time, proof size, and memory usage across varying
+matrix dimensions from 8 × 8 to 1024 × 1024. For batch proof performance, we measured
+the time required to generate and verify multiple proofs simultaneously, with batch sizes
+ranging from 4 to 1024. To ensure accurate memory measurements, we implemented a
+custom global allocator that tracks peak memory usage during proof generation.
+
+
+8.3    Performance Analysis
+
+
+
+
+Figure 1: Zero-Knowledge Matrix Multiplication Performance. Top left: Proving time
+vs. matrix size. Top right: Verification time remains constant regardless of matrix size.
+Bottom left: Proof size remains fixed at 320 bytes. Bottom right: Memory usage scales
+efficiently with matrix size.
+
+Our implementation demonstrates remarkable scaling properties for matrix multiplication
+proofs. As shown in Figure 1, the proving time exhibits an initial increase from 5 ms
+for 8 × 8 matrices to 50 ms for 32 × 32 matrices, followed by gradual growth, reaching
+12,211 ms (approximately 12.21 s) for 1024 × 1024 matrices. This behavior aligns with the
+expected O(n2 ) complexity of our proof generation process.
+
+The verification time remains nearly constant at around 3.68 ms across all matrix dimensions,
+demonstrating the protocol’s ability to verify matrix multiplications in constant time
+regardless of input size. Similarly, the proof size is fixed at 320 bytes for all matrix
+dimensions, indicating a communication complexity that is independent of matrix size.
+Memory usage scales efficiently, increasing from negligible usage for very small matrices
+to 20,672 KB (approximately 20.2 MB) for 1024 × 1024 matrices, which corroborates our
+theoretical analysis of O(n2 ) memory complexity.
+Biniyam Deressa, M. Anwar Hasan                                                           27
+
+
+
+
+Figure 2: Batching efficiency of our protocol: average time per proof as a function of
+batch size, using a sub-batching parameter of b = 8.
+
+
+Our batching protocol demonstrates significant efficiency gains in multi-proof scenarios.
+As illustrated in Figure 2, the average time per proof decreases dramatically from 12.37 s
+for individual proofs to approximately 46.79 ms at a batch size of 1,024, representing a
+279× speedup. The protocol retains a constant verification time of approximately 3.71 ms
+and fixed proof size of 320 bytes, regardless of the batch size.
+Parallelization significantly accelerates proof generation, particularly for small to medium-
+sized matrices. As shown in Table 4 in the Appendix D, the proving time for 256 × 256
+matrices decreases from 16.02 s on a single thread to 0.90 s on 48 threads, achieving a
+17.78× speedup. Similarly, 512×512 matrices see a reduction from 66.14 s to 3.02 s, yielding
+a 21.92× improvement. However, for larger matrices such as 1024 × 1024, the benefits
+of multithreading are curtailed by memory bandwidth and synchronization overheads,
+with proving time decreasing from 287.39 s to 12.50 s—a 22.99× speedup. These results
+underscore that while multithreading is highly effective for moderate workloads, alternative
+strategies like batching may be necessary to further enhance scalability for larger inputs.
+
+8.4    Comparison with Prior Work
+  Table 3: Comparison of performance metrics for 1024 × 1024 matrix multiplication
+ Protocol                      Transcript   Prover RAM       Prover Time     Verifier Time
+                                  Size         Usage
+ zkMatrix (Single)               7.67KB        176MB            197.04s         70.15ms
+ zkMatrix (Batch, total)        1.42MB         304MB            512.48s          12.06s
+ zkMatrix (Batch, per proof)     1.42KB        304KB             0.50s          11.77ms
+ Our Work (Single)                320B         24MB             12.21s          3.71ms
+ Our Work (Batch, total)          320B        197MB             47.91s          3.73ms
+ Our Work (Batch, per proof)      320B         192KB           46.79ms          3.73ms
+ QuickSilver                    25.2MB          1GB              10.0s            N/A
+ Spartan                        ≤100KB         600GB            ≥5000s            N/A
+ Virgo                           221KB         148GB             357s             N/A
+
+Table 3 presents a performance comparison of our approach against state-of-the-art
+systems, with a primary focus on zkMatrix as the closest prior work. The reported values
+for zkMatrix and the other protocols are taken from their published results, ensuring a
+28                                  zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+consistent benchmark environment.
+Our verification time remains constant at 3.68 ms, irrespective of batch size, due to its
+aggregation-based strategy with O(1) complexity. This yields a 19.07× improvement over
+zkMatrix’s single-proof verification time of 70.15 ms. For prover efficiency, our scheme
+achieves a 16.14× speedup, reducing the proving time for a single 1024 × 1024 matrix
+multiplication from 197.04 s (zkMatrix) to 12.21 s. In batched proof generation, zkMatrix
+requires 512.48 s for processing, while our approach completes the same task in 47.9 s,
+reflecting a 10.7× reduction in total prover time. On a per-proof basis, our scheme achieves
+a 10.68× speedup, reducing zkMatrix’s 500 ms proving time per proof to 46.79 ms. Unlike
+zkMatrix, where verification time scales with batch size (increasing from 70.15 ms to
+12.06 s for 1024 proofs), our approach maintains a constant verification time of 3.68 ms,
+ensuring scalability.
+When comparing our approach with QuickSilver, several technical differences explain the
+performance characteristics. We use KZG commitments based on elliptic curve pairings,
+which enable constant-size proofs but require a trusted setup. QuickSilver uses a subfield
+VOLE (Vector Oblivious Linear Evaluation) based approach, which doesn’t require a
+trusted setup but results in larger proof sizes. Our approach leverages efficient matrix-
+to-polynomial conversion using techniques optimized for the KZG commitment scheme,
+while QuickSilver represents matrix multiplication as a collection of inner products. Our
+batching strategy uses challenge-based aggregation to achieve a 45.5× speedup, while
+QuickSilver focuses on reducing communication complexity rather than batching efficiency.
+Both approaches offer robust security guarantees. Our implementation provides computa-
+tional security based on the hardness of the discrete logarithm problem in elliptic curve
+groups, with the BLS12-381 curve offering 128-bit security, whereas QuickSilver provides
+128-bit computational security with statistical security parameters that vary with field
+size.
+
+
+8.5    Practical Implications
+A straightforward method for verifying matrix multiplication requires transmitting full
+input matrices and the resulting product, leading to a communication complexity of O(n2 ).
+For example, verifying 1024 × 1024 matrices with 32-byte field elements would involve
+approximately 3GB of data transfer per proof. In addition, traditional verification requires
+O(n3 ) computations, amounting to over one billion field multiplications for matrices of
+this size, which is impractical in many real-world scenarios.
+In contrast, our approach drastically reduces both communication and computational
+overhead. By achieving O(1) communication and verification time, our protocol is particu-
+larly well-suited for blockchain and distributed ledger systems where minimizing on-chain
+storage and verification costs is crucial. Specifically, our protocol attains a constant
+verification time of approximately 3.71 ms and produces a compact proof of only 320 bytes,
+representing a significant reduction in communication compared to naive methods.
+Figure 3 illustrates the performance comparison between standard (non-zero-knowledge)
+and our zkMaP-based matrix multiplication approaches. The y-axis is presented on a
+logarithmic scale to highlight relative performance trends across various matrix sizes.
+while non-ZK computation shows cubic growth O(n3 ), requiring 102.79 s at n = 1024,
+zkMaP proving scales quadratically O(n2 ), needing only 12.21 s. Verification remains
+constant-time O(1) at 3.71 ms regardless of matrix size. At n = 256, zkMaP achieves a
+1.46× speedup over standard computation, increasing to 8.4× at n = 1024. These results
+confirm our theoretical analysis: O(n2 ) for proving and O(1) for verification, outperforming
+conventional O(n3 ) methods. The proof size remains fixed at 320 bytes.
+Biniyam Deressa, M. Anwar Hasan                                                            29
+
+
+
+
+Figure 3: Performance comparison between standard (non-ZK) and zkMaP-based matrix
+multiplication on a logarithmic scale (milliseconds). At n = 1024, zkMaP demonstrates
+competitive performance, with a modest overhead relative to the standard method, thus
+establishing its practical viability in real-world applications.
+
+
+Overall, the substantial improvements in both theoretical asymptotic complexity and
+practical performance metrics underscore the viability of our method for efficient zero-
+knowledge proofs in large-scale matrix multiplication applications.
+
+
+
+
+8.6    Real-World Deployment Considerations
+zkMaP’s efficiency and fixed-size proofs enable deployment across a wide range of real-world
+systems. On blockchain platforms such as Ethereum, the 320-byte proof and deterministic
+two-pairing verification ensure predictable gas costs, while the non-interactive protocol
+reduces transaction rounds, latency, and on-chain expenses. For resource-constrained
+devices, including IoT and edge nodes, configurable sub-batching allows proofs to be
+processed even with limited memory, and the constant verification footprint guarantees
+predictable resource usage regardless of proof complexity. Furthermore, the fixed-size
+proof format and standard binary serialization facilitate seamless integration with virtual
+machines and cryptographic libraries, eliminating dynamic memory allocation and ensuring
+compatibility across programming environments and network protocols. These properties
+collectively support deployment in privacy-preserving frameworks such as decentralized
+identity verification, secure multi-party computation, and confidential smart contract
+execution.
+
+
+9     Conclusion
+We have presented zkMaP, a novel zero-knowledge proof protocol for matrix multiplication
+achieves high efficiency through polynomial encodings, KZG commitments, and structured
+inner-product reductions. By reducing verification to a single constant-size pairing equation,
+zkMaP requires only two pairing operations regardless of matrix dimensions, achieves
+30                                 zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+optimal O(n2 ) prover complexity, and generates compact proofs of 320 bytes—representing
+a 96% reduction compared to prior schemes.
+Our experimental evaluation demonstrates significant practical improvements: For 1024 ×
+1024 matrices, zkMaP achieves a 16.14× speedup over zkMatrix with proof generation
+in 12.21 seconds using just 24.6 MB memory. The protocol scales efficiently in batch
+processing scenarios, achieving per-proof times of 46.79 ms while maintaining constant
+verification at 3.71 ms. These results position zkMaP as a practical solution for real-
+world applications requiring privacy-preserving machine learning, secure analytics, and
+collaborative computation.
+While zkMaP currently relies on the q-SDH assumption in bilinear groups and is not post-
+quantum secure, future work will explore lattice-based alternatives such as SLAP [AFLN24]
+to achieve quantum resistance. Additional research directions include extensions to tensor
+operations, integration with federated learning frameworks, and GPU acceleration for
+further performance gains.
+
+
+References
+[AFLN24]    Martin R. Albrecht, Giacomo Fenzi, Oleksandra Lapiha, and Ngoc Khanh
+            Nguyen. Slap: Succinct lattice-based polynomial commitments from standard
+            assumptions. In Advances in Cryptology – EUROCRYPT 2024: 43rd Annual
+            International Conference on the Theory and Applications of Cryptographic
+            Techniques, Zurich, Switzerland, May 26–30, 2024, Proceedings, Part VII,
+            volume 14657 of LNCS, pages 90–119. Springer, 2024. doi:10.1007/978-3
+            -031-58754-2_4.
+[BBB+ 18]   Benedikt Bünz, Jonathan Bootle, Dan Boneh, Andrew Poelstra, Pieter Wuille,
+            and Greg Maxwell. Bulletproofs: Short proofs for confidential transactions
+            and more. In 2018 IEEE Symposium on Security and Privacy, pages 315–334.
+            IEEE, 2018. doi:10.1109/SP.2018.00020.
+[BCCT12]    Nir Bitansky, Ran Canetti, Alessandro Chiesa, and Eran Tromer. From
+            extractable collision resistance to succinct non-interactive arguments of knowl-
+            edge, and back again. In ITCS ’12: Proceedings of the 3rd Innovations
+            in Theoretical Computer Science Conference, pages 326–349. ACM, 2012.
+            doi:10.1145/2090236.2090263.
+[BGM17]     Sean Bowe, Ariel Gabizon, and Ian Miers. Scalable multi-party computation
+            for zk-snark parameters in the random beacon model. Cryptology ePrint
+            Archive, 2017. URL: https://eprint.iacr.org/2017/1050.
+[BLS04]     Dan Boneh, Ben Lynn, and Hovav Shacham. Short signatures from the weil
+            pairing. Journal of Cryptology, 17(4):297–319, 2004. doi:10.1007/s00145-0
+            04-0314-9.
+[BN06]      Mihir Bellare and Gregory Neven. Multi-signatures in the plain public-key
+            model and a general forking lemma. In CCS ’06: Proceedings of the 13th
+            ACM Conference on Computer and Communications Security, pages 390–399.
+            ACM, 2006. doi:10.1145/1180405.1180453.
+[BR93]      Mihir Bellare and Phillip Rogaway. Random oracles are practical: A paradigm
+            for designing efficient protocols. In CCS ’93: Proceedings of the 1st ACM
+            Conference on Computer and Communications Security, pages 62–73. ACM,
+            1993. doi:10.1145/168588.168596.
+Biniyam Deressa, M. Anwar Hasan                                                     31
+
+
+[BSBHR18] Eli Ben-Sasson, Iddo Bentov, Yinon Horesh, and Michael Riabzev. Scalable,
+          transparent, and post-quantum secure computational integrity. Cryptology
+          ePrint Archive, Report 2018/046, 2018. URL: https://eprint.iacr.org/
+          2018/046.
+[CBBZ23]   Binyi Chen, Benedikt Bünz, Dan Boneh, and Zhenfei Zhang. HyperPlonk:
+           Plonk with linear-time prover and high-degree custom gates. In Advances in
+           Cryptology – EUROCRYPT 2023: 42nd Annual International Conference on
+           the Theory and Applications of Cryptographic Techniques, Lyon, France, April
+           23–27, 2023, Proceedings, Part II, volume 14077 of LNCS, pages 499–530.
+           Springer, 2023. doi:10.1007/978-3-031-30617-4_17.
+[CFQ19]    Matteo Campanelli, Dario Fiore, and Anaïs Querol. LegoSNARK: Modular de-
+           sign and composition of succinct zero-knowledge proofs. In CCS ’19: Proceed-
+           ings of the 2019 ACM SIGSAC Conference on Computer and Communications
+           Security, pages 2075–2092. ACM, 2019. doi:10.1145/3319535.3339820.
+[CHM+ 20] Alessandro Chiesa, Yuncong Hu, Mary Maller, Pratyush Mishra, Noah Vesely,
+          and Nicholas Ward. Marlin: Preprocessing zksnarks with universal and
+          updatable srs. In Advances in Cryptology – EUROCRYPT 2020: 39th Annual
+          International Conference on the Theory and Applications of Cryptographic
+          Techniques, Zagreb, Croatia, May 10–14, 2020, Proceedings, Part I, volume
+          12105 of LNCS, pages 738–768. Springer, 2020. doi:10.1007/978-3-030-4
+          5721-1_26.
+[CYY24]    Mingshu Cong, Tsz Hon Yuen, and Siu-Ming Yiu. zkMatrix: Batched short
+           proof for committed matrix multiplication. In AsiaCCS ’24: Proceedings of
+           the 19th ACM Asia Conference on Computer and Communications Security,
+           pages 289–305. ACM, 2024. doi:10.1145/3634737.3645003.
+[FKL18]    Georg Fuchsbauer, Eike Kiltz, and Julian Loss. The algebraic group model and
+           its applications. In Advances in Cryptology – CRYPTO 2018: 38th Annual
+           International Cryptology Conference, Santa Barbara, CA, USA, August 19–23,
+           2018, Proceedings, Part II, volume 10991 of LNCS, pages 33–62. Springer,
+           2018. doi:10.1007/978-3-319-96881-0_2.
+[FS86]     Amos Fiat and Adi Shamir. How to prove yourself: Practical solutions to
+           identification and signature problems. In Advances in Cryptology – CRYPTO
+           1986: 6th Annual International Cryptology Conference, Santa Barbara, CA,
+           USA, August 18–22, 1986, Proceedings, volume 263 of LNCS, pages 186–194.
+           Springer, 1986. doi:10.1007/3-540-47721-7_12.
+[GO94]     Oded Goldreich and Yair Oren. Definitions and properties of zero-knowledge
+           proof systems. Journal of Cryptology, 7(1):1–32, 1994. doi:10.1007/BF0019
+           5207.
+[Gro09]    Jens Groth. Linear algebra with sub-linear zero-knowledge arguments. In
+           Advances in Cryptology – CRYPTO 2009: 29th Annual International Cryp-
+           tology Conference, Santa Barbara, CA, USA, August 16–20, 2009, Pro-
+           ceedings, volume 5677 of LNCS, pages 192–208. Springer, 2009. doi:
+           10.1007/978-3-642-03356-8_12.
+[Gro16]    Jens Groth. On the size of pairing-based non-interactive arguments. In
+           Advances in Cryptology – EUROCRYPT 2016: 35th Annual International
+           Conference on the Theory and Applications of Cryptographic Techniques,
+           Vienna, Austria, May 8-12, 2016, Proceedings, Part II, volume 9666 of LNCS,
+           pages 305–326. Springer, 2016. doi:10.1007/978-3-662-49896-5_11.
+32                                zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+[GWC19]     Ariel Gabizon, Zachary J Williamson, and Oana Ciobotaru. Plonk: Per-
+            mutations over lagrange-bases for oecumenical noninteractive arguments
+            of knowledge. Cryptology ePrint Archive, Report 2019/953, 2019. URL:
+            https://eprint.iacr.org/2019/953.
+[KZG10]     Aniket Kate, Gregory M Zaverucha, and Ian Goldberg. Constant-size com-
+            mitments to polynomials and their applications. In Advances in Cryptology
+            – ASIACRYPT 2010: 16th International Conference on the Theory and Ap-
+            plication of Cryptology and Information Security, Singapore, December 5-9,
+            2010, Proceedings, volume 6476 of LNCS, pages 177–194. Springer, 2010.
+            doi:10.1007/978-3-642-17373-8_11.
+[MBKM19] Mary Maller, Sean Bowe, Markulf Kohlweiss, and Sarah Meiklejohn. Sonic:
+         Zero-knowledge snarks from linear-size universal and updatable structured
+         reference strings. In CCS ’19: Proceedings of the 2019 ACM SIGSAC Con-
+         ference on Computer and Communications Security, pages 2111–2128. ACM,
+         2019. doi:10.1145/3319535.3339817.
+[PHGR16]    Bryan Parno, Jon Howell, Craig Gentry, and Mariana Raykova. Pinocchio:
+            Nearly Practical Verifiable Computation. Communications of the ACM,
+            59(2):103–112, 2016. doi:10.1145/2856449.
+[Sch80]     Jacob T Schwartz. Fast probabilistic algorithms for verification of polynomial
+            identities. Journal of the ACM (JACM), 27(4):701–717, 1980. doi:10.1145/
+            322217.322225.
+[Tha13]     Justin Thaler. Time-optimal interactive proofs for circuit evaluation. In Ad-
+            vances in Cryptology – CRYPTO 2013: 33rd Annual International Cryptology
+            Conference, Santa Barbara, CA, USA, August 18–22, 2013, Proceedings, pages
+            71–89. Springer, 2013. doi:10.1007/978-3-642-40084-1_5.
+[WTS+ 18] Riad S Wahby, Ioanna Tzialla, Abhi Shelat, Justin Thaler, and Michael
+          Walfish. Doubly-efficient zksnarks without trusted setup. In 2018 IEEE
+          Symposium on Security and Privacy, pages 926–943. IEEE, 2018. doi:10.1
+          109/SP.2018.00060.
+[XZZ+ 19]   Tiacheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou,
+            and Dawn Song. Libra: Succinct zero-knowledge proofs with optimal prover
+            computation. In Advances in Cryptology – CRYPTO 2019: 39th Annual
+            International Cryptology Conference, Santa Barbara, CA, USA, August 18–22,
+            2019, Proceedings, Part III, volume 11693 of LNCS, pages 733–764. Springer,
+            2019. doi:10.1007/978-3-030-26954-8_24.
+[YSWW21] Kang Yang, Pratik Sarkar, Chenkai Weng, and Xiao Wang. Quicksilver:
+         Efficient and affordable zero-knowledge proofs for circuits and polynomials
+         over any field. In CCS ’21: Proceedings of the 2021 ACM SIGSAC Conference
+         on Computer and Communications Security, pages 2986–3001. ACM, 2021.
+         doi:10.1145/3460120.3484556.
+
+
+A     Proof of Theorem 2
+Proof. Assume for contradiction that there exists a probabilistic polynomial-time (PPT)
+adversary A that breaks the binding property of KZG polynomial commitments with
+non-negligible advantage ϵ(λ), where λ is the security parameter. We construct a reduction
+B that uses A as a subroutine to solve the q-Strong Diffie-Hellman (q-SDH) problem with
+the same advantage.
+Biniyam Deressa, M. Anwar Hasan                                                               33
+
+
+Reduction Setup. Given a q-SDH challenge instance G1 , sG1 , s2 G1 , . . . , sq G1 , G2 , sG2
+                                                                                                
+          $
+where s ← Fp is unknown, the reduction B constructs the structured reference string
+SRS = (G1 , sG1 , . . . , sq G1 ) and provides it to A.
+Adversarial Output and Collision Analysis. Suppose A outputs a binding collision
+(V, P1 , P2 ) where P1 (x), P2 (x) ∈ Fp [x] are distinct polynomials with deg(P1 ), deg(P2 ) ≤ q,
+yet P1 (s)G1 = P2 (s)G1 = V .
+Define the difference polynomial Q(x) = P1 (x) − P2 (x) ∈ Fp [x]. Since P1 ̸= P2 , we have
+Q(x) ̸≡ 0 with deg(Q) ≤ q. From the collision:
+
+                        Q(s)G1 = (P1 (s) − P2 (s))G1 = V − V = 0G1
+
+Since G1 has prime order p, this implies Q(s) = 0.
+Polynomial Factorization and Extraction. By the Factor Theorem, there exists a
+unique polynomial R(x) ∈ Fp [x] such that:
+
+                                     Q(x) = (x − s)R(x)
+
+with deg(R) = deg(Q) − 1 ≤ q − 1. The reduction B computes R(x) via polynomial division
+of Q(x) by (x − s).
+Construction of q-SDH Solution. Using the SRS, B computes:
+                                              deg(R)
+                                               X
+                                   R(s)G1 =            ri (si G1 )
+                                               i=0
+
+             Pdeg(R)
+where R(x) = i=0 ri xi . The reduction B outputs (0, R(s)G1 ) as the solution to the
+q-SDH problem. This is valid because:
+    • The polynomial relation Q(x) = (x − s)R(x) with Q(s) = 0 and Q(x) ̸= 0 demon-
+      strates an algebraic dependency on the secret s
+    • The value R(s) = Q(s)
+                       s−s represents an indeterminate form whose computation requires
+      breaking the q-SDH assumption
+    • The solution (0, R(s)G1 ) explicitly violates the q-SDH hardness property
+Success Probability. The reduction succeeds with advantage ϵ(λ) because:
+    • The SRS distribution is identical to the q-SDH challenge
+    • Polynomial division is deterministic given A’s output
+    • Every valid binding collision produces a q-SDH solution
+                     Pr[B solves q-SDH] = Pr[A breaks binding] = ϵ(λ)
+
+Contradiction. This contradicts the q-SDH assumption since ϵ(λ) is non-negligible.
+Therefore, no PPT adversary can break the binding property of KZG commitments with
+non-negligible probability.
+
+
+B      Proof of Theorem 3
+Proof. Suppose there exists a PPT adversary A that produces a forged proof (A, B, C, π̃),
+accepted by the verifier despite C ̸= A × B, with non-negligible probability ϵ(λ). We
+construct a reduction B that breaks the q-SDH assumption by leveraging A as a subroutine.
+34                                   zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+Reduction Setup: Given a q-SDH challenge tuple (G1 , sG1 , . . . , sq G1 , G2 , sG2 ), the reduc-
+tion B uses this tuple as the structured reference string SRS, and forwards it to A.
+Adversarial Output: The adversary returns matrices (A, B, C) and forged proof π̃ =
+(Vay , Vby , Vµ , VW ), such that the verifier accepts the proof and yet C ̸= A × B. Let y ∈ Fp
+denote the evaluation point derived during the protocol execution. Define the following
+polynomials:
+
+         Pay (x) = Poly(yL
+                         ⊤
+                           A),     Pby (x) = Poly(ByR ),        Pµ (x) = Poly(yL
+                                                                               ⊤
+                                                                                 CyR ).
+
+Then, define the polynomial:
+
+                              Q(x) := Pµ (x) − Pay (x) · Pby (x).
+
+Since C ̸= A × B, we have Q(x) ̸≡ 0, and in particular Q(y) ̸= 0. The adversary must
+have computed the witness polynomial:
+                                                  Q(x)
+                                       W (x) :=        .
+                                                  x−y
+The pairing-based verification condition:
+
+                          e VW , (s − y)G2 = e Vµ − Vay Vby , G2
+                                                                
+
+implies, using bilinearity and the SRS encoding:
+                                                  Q(s)
+                                     W (s)G1 =         G1 .
+                                                  s−y
+
+Extracting the q-SDH Solution: From the above, the reduction can compute:
+
+                                     Q(s) = (s − y)W (s).
+
+Since Q(x) and (x − y) are coprime (as Q(y) ̸= 0), the Extended Euclidean Algorithm
+yields polynomials A(x), B(x) such that:
+
+                                A(x)Q(x) + B(x)(x − y) = 1.
+
+Evaluating at x = s:
+
+            A(s)Q(s) + B(s)(s − y) = 1       ⇒     (s − y)(A(s)W (s) + B(s)) = 1.
+
+Hence,
+                                   1
+                                      = A(s)W (s) + B(s),
+                                  s−y
+and using the SRS:
+                              1
+                                 G1 = A(s)W (s)G1 + B(s)G1 .
+                             s−y
+This yields a valid solution (y, s−y
+                                  1
+                                     G1 ) to the q-SDH problem.
+Success Probability: The degree of Q(x) is at most 2n − 2. By the Schwartz–Zippel lemma:
+                                                     2n − 2
+                                   Pr[Q(s) = 0] ≤           ,
+                                                       p
+
+                                                           ϵ(λ), then
+which is negligible. Therefore, if A succeeds with probability      the reduction B
+solves the q-SDH problem with probability at least ϵ(λ) · 1 − 2n−2
+                                                                p  , contradicting the
+q-SDH assumption.
+Biniyam Deressa, M. Anwar Hasan                                                                                        35
+
+
+C      Proof of Theorem 6
+Proof. 1. Perfect Completeness: Assume Ci = Ai × Bi for all i ∈ [t]. The prover:
+    • Encodes each matrix into polynomials PAi (x), PBi (x), PCi (x).
+    • Computes KZG commitments VAi , VBi , VCi .
+    • Computes challenge yi ← H(pp ∥ VAi ∥ VBi ∥ VCi ) mod p, constructs vectors yL
+                                                                                  i    i
+                                                                                    , yR ,
+      and forms the witness:
+                                        µi − Payi (x)Pbiy (x)
+                               Wi (x) =
+                                              x − yi
+       where µi = yL
+                   i⊤     i
+                      Ci yR                                       i yL , Bi yR
+                            , and Payi (x), Pbiy (x) interpolate A⊤  i       i
+
+
+                                         $
+    • Aggregates using ρ ← Fp :
+                                                    t
+                                                    X                                    t
+                                                                                         X
+                                        VAbatch =         ρi−1 VAi ,        VBbatch =           ρi−1 VBi
+                                                    i=1                                   i=1
+                                                    Xt                                  
+                                        Dbatch =      ρi−1 Vµi − Vayi · Vbiy
+                                                    i=1
+                                                     Xt
+                                         batch
+                                        VW     =          ρi−1 VWi
+                                                    i=1
+
+
+For honest provers, µi = Payi (yi )Pbiy (yi ), so:
+
+                       Vµi − Vayi · Vbiy = µi G1 − Payi (s)Pbiy (s)G1 = (s − yi )VWi
+
+Homomorphic aggregation gives:
+                       t                                          t
+                                                                                   !
+                       X                                          X
+       D   batch
+                   =         ρ   i−1
+                                       (s − yi )VWi =       s−          i−1
+                                                                        ρ     yi        batch
+                                                                                       VW     = (s − z batch )VW
+                                                                                                               batch
+
+                       i=1                                        i=1
+                       Pt
+where z batch =          i=1 ρ
+                                  i−1
+                                        yi . Thus, verification holds:
+                                          batch
+                                       e(VW     , (s − z batch )G2 ) = e(Dbatch , G2 )
+
+2. Perfect SHVZK: Note on ZK: Achieves Special Honest Verifier Zero-Knowledge
+(SHVZK). Full ZK in non-interactive setting via Fiat-Shamir requires random oracle
+programming analysis.
+The simulator S (given public inputs VAi , VBi , VCi , challenges ρ, yi , and SRS (G1 , sG1 , . . . , sq G1 , G2 , sG2 )):
+                         Pt
+  • Computes z batch = i=1 ρi−1 yi
+                                        $
+    • Samples random r ← Fp
+    • Sets VW
+            batch
+                  = rG1
+    • Computes Dbatch = r · sG1 − z batch G1
+                                                   
+
+    • Outputs VAbatch , VBbatch , Dbatch , VW
+                                            batch
+                                                  
+
+The distribution is identical to real proofs due to:
+    • VW
+       batch
+             uniform in G1 (KZG hiding)
+36                                       zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+     • Dbatch satisfies verification equation by construction
+3. Computational Soundness: If an adversary forges an accepting batch proof where
+some Cj ̸= Aj × Bj :
+     • By Theorem 3, for the false instance j: Vµj − Vayj · Vbjy ̸= (s − yj )VWj
+     • Define the polynomial:
+                                   t
+                                   X                                             
+                         F (ρ) =         ρi−1 (Vµi − Vayi · Vbiy ) − (s − yi )VWi
+                                   i=1
+
+
+     • F (ρ) is non-zero with degree at most t − 1, so for random ρ: Pr[F (ρ) = 0] ≤ t−1
+                                                                                      p
+
+     • When F (ρ) ̸= 0, extraction in the Algebraic Group Model yields a q-SDH solution
+       following the same technique as in Theorem 3.
+Using this identity and applying the extended Euclidean algorithm to isolate s−c
+                                                                              1
+                                                                                 G1 , one
+can solve the q-SDH problem as in Theorem 3.
+Adversary advantage is bounded by:
+                                                              t−1
+                                   ϵ(λ) ≤ Advq-SDH (B) +
+                                                               p
+
+The simulator does not require knowledge of the trapdoor s, ensuring that the simulation
+remains valid under the zero-knowledge property. We conclude that the Batch zkMaP
+protocol offers a compelling trade-off between succinctness, security, and computational
+cost, making it a promising candidate for practical SNARK-based matrix relations.
+
+
+D       Parallelization Performance
+     Table 4: Proving and verification time across different thread counts (in seconds).
+
+         Matrix Size   Threads     Proof Time (s)       Verification Time (s)   Speedup (×)
+                           1              3.948               0.00368                  1.00
+                           4              1.017               0.00367                  3.88
+             128           8              0.532               0.00366                  7.42
+                          16              0.317               0.00383                 12.44
+                          48              0.237               0.00366                 16.68
+                           1              16.022              0.00368                  1.00
+                           4               4.077              0.00368                  3.93
+             256           8               2.073              0.00364                  7.73
+                          16              1.170               0.00368                 13.69
+                          48              0.901               0.00383                 17.78
+                           1              66.136              0.00373                  1.00
+                           4              16.633              0.00372                  3.98
+             512           8               8.367              0.00379                  7.90
+                          16              4.391               0.00385                 15.06
+                          48              3.017               0.00382                 21.92
+                           1             287.392              0.00378                  1.00
+                           4              72.065              0.00386                  3.99
+             1024          8              36.084              0.00383                  7.96
+                          16             18.242               0.00369                 15.75
+                          48             12.502               0.00374                 22.99
+Biniyam Deressa, M. Anwar Hasan                                                           37
+
+
+E     Algorithm 2
+
+Algorithm 2 zkMaP: Zero-Knowledge Succinct Non-Interactive Proof for Matrix Multi-
+plication
+Require: Matrices A, B ∈ Fn×n       p   , C = A × B;
+                                      2
+        SRS {sG1 , s2 G1 , . . . , sn −1 G1 }, {G2 , sG2 }, public parameters pp
+Ensure: Proof π = (VA , VB , VC , Vay , Vby , Vµ , VW )
+ 1: procedure CommitMatrices
+ 2:     Construct polynomials:
+                                                n−1
+                                                X n−1
+                                                    X
+                                    PA (x) ←              A[i, j]xin+j
+                                                i=0 j=0
+
+ 3:    Similarly construct PB (x), PC (x)
+ 4:    Compute commitments:
+
+                       VA ← PA (s)G1 , VB ← PB (s)G1 , VC ← PC (s)G1
+
+ 5: end procedure
+ 6: procedure ChallengeGeneration
+ 7:    Compute y ← H(pp ∥ VA ∥ VB ∥ VC ) mod p
+ 8:    Define vectors:
+
+                      yL ← (1, y n , . . . , y (n−1)n )⊤ , yR ← (1, y, . . . , y n−1 )⊤
+
+ 9: end procedure
+10: procedure ProverComputation
+11:    Compute projections: ay ← yL
+                                  ⊤
+                                    A, by ← ByR
+12:    Interpolate Pay (x), Pby (x) from ay , by
+13:    Commitments:
+14:    Vay ← Pay (s)G1 , Vby ← Pby (s)G1
+15:    Compute µ ← yL   ⊤
+                          CyR
+16:    Vµ ← µG1
+17:    Construct witness polynomial:
+
+                                                µ − Pay (x) · Pby (x)
+                                    W (x) ←
+                                                      x−y
+
+18:    VW ← W (s)G1
+19:    return π ← (VA , VB , VC , Vay , Vby , Vµ , VW )
+20: end procedure
+21: procedure Verify(pp, π)
+22:    Parse π = (VA , VB , VC , Vay , Vby , Vµ , VW )
+23:    Compute y ← H(pp ∥ VA ∥ VB ∥ VC ) mod p
+24:    Verify pairing equation:
+                                         ?
+                  e(VW , sG2 − yG2 ) = e(Vµ , G2 ) · e(Vay , G2 )−1 · e(Vby , G2 )−1
+
+25:    if equality holds then return Accept
+26:    elsereturn Reject
+27:    end if
+28: end procedure
+38                                        zkMaP: Zero-Knowledge Matrix Multiplication Proofs
+
+
+F      Algorithm 3
+
+Algorithm 3 Batch Zero-Knowledge Matrix Multiplication Proof (zkMaP)
+Require: Matrix pairs {(Ai , Bi )}ti=1 , where Ai , Bi ∈ Fn×n        p ;
+ 1: Products Ci = Ai × Bi for i ∈ [1, t];
+ 2: KZG SRS (G1 , sG1 , . . . , sq G1 , G2 , sG2 ) with trapdoor s ∈ Fp ;
+ 3: Hash function H : {0, 1}∗ → Fp
+Ensure: Zero-knowledge proof for {Ci = Ai × Bi }ti=1
+ 4: procedure Setup
+ 5:    for i ∈ [1, t] do
+                                                                   2
+ 6:       Flatten Ai , Bi , Ci row-wise to vectors in Fnp
+ 7:       Map to polynomials: PAi (x), PBi (x), PCi (x) ∈ Fp [x]
+ 8:       Commit: VAi ← PAi (s)G1 , VBi ← PBi (s)G1 , VCi ← PCi (s)G1
+ 9:    end for
+10: end procedure
+11: procedure GenerateIndividualProofs
+12:    for i ∈ [1, t] do
+13:       Challenge: yi ← H(pp ∥ VAi ∥ VBi ∥ VCi ) mod p
+                                                           (n−1)n ⊤
+14:       Construct vectors: yL     i
+                                      ← (1, yin , . . . , yi      ) , yR
+                                                                       i
+                                                                         ← (1, yi , . . . , yin−1 )⊤
+15:       Compute projections: ay ← (yL ) Ai , by ← Bi yR
+                                        i        i ⊤          i        i
+
+16:       Interpolate: Payi (x), Pbiy (x) from ayi , biy
+17:       Commit: Vayi ← Payi (s)G1 , Vbiy ← Pbiy (s)G1
+18:       Compute: µi ← (yL        ) Ci yR
+                                 i ⊤       i
+                                              , Vµi ← µi G1
+19:       Witness:
+                                                µi − Payi (x) · Pbiy (x)
+                                   Wi (x) ←
+                                                           x − yi
+20:         Commit: VWi ← Wi (s)G1
+21:    end for
+22: end procedure
+23: procedure AggregateBatchProof
+          $
+24:    ρ ← Fp
+                 Pt                               Pt
+25:    VAbatch
+               ← i=1 ρi−1 VAi , VBbatch ← i=1 ρi−1 VBi
+                 Pt
+26:    Dbatch ← i=1 ρi−1 (Vµi − Vayi · Vbiy )
+                 Pt
+27:    VWbatch
+               ← i=1 ρi−1 VWi
+28:    return (VAbatch , VBbatch , Dbatch , VW
+                                             batch
+                                                   )
+29: end procedure
+30: procedure Verify(BatchProof)
+                             Pt
+31:    Compute: z batch ← i=1 ρi−1 yi
+32:    Verify pairing:
+                                                              ?
+                                  batch
+                               e(VW     , (s − z batch )G2 ) = e(Dbatch , G2 )
+
+33:    if holds then
+34:        return Accept
+35:    else
+36:        return Reject
+37:    end if
+38: end procedure
+

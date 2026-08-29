@@ -1,0 +1,827 @@
+\section{SNARK Security Definitions}
+\label{app:snark-security}
+
+Let \(\relation=\{\relation_\lambda\}_{\lambda\in\mathbb{N}}\) be a family of
+NP relations.  A SNARK for \(\relation\) is a tuple of algorithms
+\(\bPi=(\setup,\prove,\verify)\), as defined in
+Section~\ref{sec:prelim-snark}.  We recall the standard security properties
+used in this work. \\
+
+\noindent\textbf{Completeness.}
+\(\bPi\) satisfies completeness if, for every security parameter \(\lambda\)
+and every \((\stmt,\wit)\in\relation_\lambda\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi.\verify(\para,\stmt,\pi)=1
+  \\[1mm]
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),
+  \quad
+  \pi\gets\bPi.\prove(\para,\stmt,\wit)
+\end{array}
+\right]
+\\
+&\hspace{2em}\ge 1-\textsf{negl}(\lambda).
+\end{aligned}
+\]
+If the probability is \(1\), we say that \(\bPi\) has perfect completeness. \\
+
+\noindent\textbf{Knowledge soundness.}
+\(\bPi\) satisfies knowledge soundness if, for every \(\ppt\) prover
+\(\mathcal{A}\), there exists an \(\ppt\) extractor
+\(\mathsf{Ext}^{\mathcal{A}}\) such that
+\[
+\begin{aligned}
+&\Pr\left[
+\begin{array}{l}
+  \bPi.\verify(\para,\stmt,\pi)=1 \\
+  \quad {}\wedge{}\,(\stmt,\wit)\notin\relation_\lambda
+\end{array}
+\;:\;
+\begin{array}{l}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  (\stmt,\pi)\gets\mathcal{A}(\para),\\
+  \wit\gets\mathsf{Ext}^{\mathcal{A}}(\para,\stmt)
+\end{array}
+\right] \\
+&\le \textsf{negl}(\lambda).
+\end{aligned}
+\]
+Equivalently, except with negligible probability, any prover that outputs an
+accepting proof for \(\stmt\) must know a witness \(\wit\) such that
+\((\stmt,\wit)\in\relation_\lambda\). \\
+
+
+\noindent\textbf{Zero knowledge.}
+\(\bPi\) satisfies zero knowledge if there exists a \(\ppt\) simulator
+\(\mathsf{Sim}\) such that, for every \(\ppt\) distinguisher
+\(\mathcal{D}\), the following two experiments are indistinguishable.
+
+\[
+\begin{aligned}
+\mathsf{Real}_{\bPi,\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  \pi\gets\bPi.\prove(\para,\stmt,\wit),\\
+  b\gets\mathcal{D}(\para,\stmt,\pi),\\
+  \text{return } b.
+\end{array}
+\right.
+\\[3mm]
+\mathsf{Ideal}_{\bPi,\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para\gets\bPi.\setup(1^\lambda,\relation_\lambda),\\
+  \pi^\star\gets\mathsf{Sim}(\para,\stmt),\\
+  b\gets\mathcal{D}(\para,\stmt,\pi^\star),\\
+  \text{return } b.
+\end{array}
+\right.
+\end{aligned}
+\]
+
+For all \((\stmt,\wit)\in\relation_\lambda\),
+\[
+\left|
+  \Pr[\mathsf{Real}_{\bPi,\mathcal{D}}(\lambda)=1]
+  -
+  \Pr[\mathsf{Ideal}_{\bPi,\mathcal{D}}(\lambda)=1]
+\right|
+\le
+\textsf{negl}(\lambda).
+\]
+A SNARK satisfying zero knowledge is called a zk-SNARK.
+
+\section{CP-Link Security Definitions}
+\label{app:cplink-security}
+
+Let
+\(\relation_{\mathsf{link}}
+=\{\relation_{\mathsf{link},\lambda}\}_{\lambda\in\mathbb{N}}\)
+be the blockwise linking relation defined in Section~\ref{sec:prelim-cplink}.
+For a SNARK-side key \(\ck_S\), an external key \(\ck_E\), a SNARK-side
+commitment \(\widetilde{\cm}\), external commitments
+\(\cm_0,\ldots,\cm_{q-1}\), sampled blocks
+\((\vect{m}_i)_{i=0}^{q-1}\), and opening randomness
+\(\widetilde{o},o_0,\ldots,o_{q-1}\), define
+\[
+\begin{aligned}
+\stmt_{\mathsf{link}}
+&=
+((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1})),\\
+\wit_{\mathsf{link}}
+&=
+((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
+\end{aligned}
+\]
+The relation \(\relation_{\mathsf{link},\lambda}\) contains exactly the pairs
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) satisfying
+\[
+\begin{aligned}
+\widetilde{\cm}
+&=
+\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+\cm_i
+&=
+\com(\ck_E,\vect{m}_i;o_i)
+\quad \text{for all } i=0,\ldots,q-1.
+\end{aligned}
+\]
+A CP-Link proof system for \(\relation_{\mathsf{link}}\) is a tuple of
+algorithms
+\(\bPi_{\mathsf{link}}=(\setup,\prove,\verify)\), as defined in
+Section~\ref{sec:prelim-cplink}.  The corresponding linking language is
+\[
+  \mathcal{L}_{\mathsf{link},\lambda}
+  =
+  \left\{
+    \stmt_{\mathsf{link}}
+    :
+    \exists \wit_{\mathsf{link}}
+    \text{ such that }
+    (\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+    \in
+    \relation_{\mathsf{link},\lambda}
+  \right\}.
+\]
+Thus a statement is in \(\mathcal{L}_{\mathsf{link},\lambda}\) exactly when
+the SNARK-side commitment opens to the ordered concatenation of sampled blocks
+and each external commitment opens to the corresponding block.  The main
+security property for our protocol is link soundness.  If the CP-Link backend
+is implemented as a NIZK or QA-NIZK, as in our implementation, it may
+additionally satisfy witness zero knowledge~\cite{legosnark,qa-nizk}. \\
+
+\noindent\textbf{Link completeness.}
+\(\bPi_{\mathsf{link}}\) satisfies completeness if, for every security
+parameter \(\lambda\) and every
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+\in\relation_{\mathsf{link},\lambda}\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi_{\mathsf{link}}.\verify(
+    \para_{\mathsf{link}},
+    \stmt_{\mathsf{link}},
+    \pi_{\mathsf{link}}
+  )=1
+  \\[1mm]
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \wit_{\mathsf{link}}
+    )
+\end{array}
+\right]
+\\
+&\hspace{2em}\ge 1-\textsf{negl}(\lambda).
+\end{aligned}
+\]
+If the probability is \(1\), we say that
+\(\bPi_{\mathsf{link}}\) has perfect completeness. \\
+
+\noindent\textbf{Link soundness.}
+\(\bPi_{\mathsf{link}}\) satisfies link soundness with error
+\(\epsilon_{\mathsf{link}}(\lambda)\) if, for every \(\ppt\) adversary
+\(\mathcal{A}\),
+\[
+\begin{aligned}
+&\Pr\!\left[
+\begin{array}{l}
+  \bPi_{\mathsf{link}}.\verify(
+    \para_{\mathsf{link}},
+    \stmt_{\mathsf{link}}^\star,
+    \pi_{\mathsf{link}}^\star
+  )=1
+  \\[1mm]
+  {}\wedge{}\ 
+  \stmt_{\mathsf{link}}^\star
+  \notin
+  \mathcal{L}_{\mathsf{link},\lambda}
+  \\[1mm]
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  (\stmt_{\mathsf{link}}^\star,\pi_{\mathsf{link}}^\star)
+    \gets
+    \mathcal{A}(\para_{\mathsf{link}})
+\end{array}
+\right]
+\\
+&\hspace{2em}\le \epsilon_{\mathsf{link}}(\lambda).
+\end{aligned}
+\]
+If \(\epsilon_{\mathsf{link}}(\lambda)=\textsf{negl}(\lambda)\), we say that
+\(\bPi_{\mathsf{link}}\) is link-sound.  Equivalently, except with probability
+\(\epsilon_{\mathsf{link}}(\lambda)\), an accepting CP-Link proof certifies the
+existence of blocks \((\vect{m}_i)_{i=0}^{q-1}\), an aggregate opening
+\(\widetilde{o}\), and external openings \((o_i)_{i=0}^{q-1}\) such that
+\(\widetilde{\cm}\) opens to
+\(\vect{m}_0\|\cdots\|\vect{m}_{q-1}\) and each \(\cm_i\) opens to
+\(\vect{m}_i\). \\
+
+\noindent\textbf{Witness zero knowledge.}
+When privacy of the linked blocks and opening randomness is required, we say
+that \(\bPi_{\mathsf{link}}\) satisfies witness zero knowledge if there exists a
+\(\ppt\) simulator \(\mathsf{Sim}_{\mathsf{link}}\) such that, for every
+\(\ppt\) distinguisher \(\mathcal{D}\), the following two experiments are
+indistinguishable.
+
+\[
+\begin{aligned}
+\mathsf{Real}_{\mathsf{link},\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \wit_{\mathsf{link}}
+    ),\\
+  b\gets
+    \mathcal{D}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \pi_{\mathsf{link}}
+    ),\\
+  \text{return } b.
+\end{array}
+\right.
+\\[3mm]
+\mathsf{Ideal}_{\mathsf{link},\mathcal{D}}(\lambda):
+\quad
+&\left\{
+\begin{array}{@{}l@{}}
+  \para_{\mathsf{link}}
+    \gets
+    \bPi_{\mathsf{link}}.\setup(
+      1^\lambda,\relation_{\mathsf{link},\lambda}
+    ),\\
+  \pi_{\mathsf{link}}^\star
+    \gets
+    \mathsf{Sim}_{\mathsf{link}}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}
+    ),\\
+  b\gets
+    \mathcal{D}(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}},
+      \pi_{\mathsf{link}}^\star
+    ),\\
+  \text{return } b.
+\end{array}
+\right.
+\end{aligned}
+\]
+
+For all
+\((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})
+\in\relation_{\mathsf{link},\lambda}\),
+\[
+\left|
+  \Pr[\mathsf{Real}_{\mathsf{link},\mathcal{D}}(\lambda)=1]
+  -
+  \Pr[\mathsf{Ideal}_{\mathsf{link},\mathcal{D}}(\lambda)=1]
+\right|
+\le
+\textsf{negl}(\lambda).
+\]
+This property says that the linking proof reveals no information about
+the blocks \((\vect{m}_i)_{i=0}^{q-1}\) or the openings
+\(\widetilde{o},o_0,\ldots,o_{q-1}\), beyond the public fact that the
+commitments are blockwise linkable.
+
+
+
+
+\section{Detailed Proof of Theorem~\ref{thm:security}}
+\label{app:security-proof}
+
+\begin{proof}
+We prove the public-coin interactive protocol first.  The Fiat--Shamir variant
+is handled at the end.
+
+\paragraph{Perfect completeness}
+Assume that the honest prover holds matrices
+\(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\) with
+\(\mat{A}\mat{B}=\mat{C}\).  Let
+\(\vect{r}=(1,r,\ldots,r^{k-1})\), and define
+\[
+  \vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C}.
+\]
+Then \(\vect{y}=\vect{z}\).  The honest prover commits to the packed encoded
+matrix blocks \(\{\vect{m}_{ABC,j}\}_{j\in[n]}\) under \(\rt_{ABC}\), commits
+to the packed encoded vector blocks \(\{\vect{m}_{XYZ,j}\}_{j\in[n]}\) under
+\(\rt_{XYZ}\), and supplies the sampled openings and CP-Link proofs required
+by Section~\ref{sec:openings-and-cplink}.
+
+For every queried position \(j\in I\), code linearity gives
+\[
+  \fold(\vect{r},\widehat{\mat{A}}[*,j])
+  =
+  \widehat{\vect{x}}[j],
+\]
+and similarly
+\[
+  \fold(\vect{x},\widehat{\mat{B}}[*,j])
+  =
+  \widehat{\vect{y}}[j],
+  \qquad
+  \fold(\vect{r},\widehat{\mat{C}}[*,j])
+  =
+  \widehat{\vect{z}}[j].
+\]
+Since \(\vect{y}=\vect{z}\), the equality check
+\(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\) also holds.  All SNARK,
+Merkle, and CP-Link checks are honestly generated, so the verifier accepts.
+
+\paragraph{Bad-event decomposition}
+Let \(\mathsf{Acc}\) be the event that the verifier accepts a false committed
+matrix multiplication statement.  We decompose the failure probability into
+the following events:
+\begin{itemize}
+  \item \(\mathsf{Bad}_{\mathsf{SNARK}}\): the CP-SNARK accepts although the
+  sampled relation of Section~\ref{sec:snark-relation} is false for the
+  committed sampled witnesses;
+  \item \(\mathsf{Bad}_{\mathsf{open}}\): a Merkle opening or Pedersen leaf
+  opening is accepted in a way that violates position binding or commitment
+  binding;
+	  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
+	  SNARK-side sampled blocks are not the corresponding blocks opened from the
+	  Pedersen leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
+  \item \(\mathsf{Bad}_{\mathsf{code}}\): the probabilistic code-consistency
+  checks accept encoded views that are not encodings of their corresponding
+  intermediate vectors.
+\end{itemize}
+By the assumed soundness of the selected backends,
+\[
+\begin{aligned}
+\Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
+  &\le \epsilon_{\mathsf{cp}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{open}}]
+  &\le \epsilon_{\mathsf{open}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{link}}]
+  &\le \epsilon_{\mathsf{link}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{code}}]
+  &\le \epsilon_{\mathsf{code}}(\lambda).
+\end{aligned}
+\]
+Condition on the complement of these events.  Then \(\rt_{ABC}\) fixes a
+unique sequence of packed matrix-column commitments at all queried positions,
+\(\rt_{XYZ}\) fixes a unique sequence of packed vector-symbol commitments at
+all queried positions, and the sampled values used by the SNARK are exactly the
+messages opened from those commitments.  In particular, the adversary cannot
+choose different sampled blocks after seeing \(I\) without breaking the
+opening or linking layer.
+
+\paragraph{Freivalds randomization}
+The matrix root \(\rt_{ABC}\) is fixed before \(r\) is derived. 
+% In the committed statement, \(\rt_{ABC}\) binds to row-wise encoded matrices
+% \(\mat{A},\mat{B},\mat{C}\).  
+In the committed statement, \(\rt_{ABC}\) binds to row-wise encodings of matrices
+\(\mat{A},\mat{B},\mat{C}\).
+Suppose
+\(\mat{A}\mat{B}\neq\mat{C}\), and let
+\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
+\(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
+\(\vect{r}\mat{D}=0\) implies
+\[
+  P(r)
+  \coloneqq
+  \langle (1,r,\ldots,r^{k-1}),\vect{d}\rangle
+  =
+  \sum_{i=0}^{k-1} d_i r^i
+  =
+  0 .
+\]
+The polynomial \(P\) is nonzero and has degree at most \(k-1\).  Since \(r\)
+is sampled after \(\rt_{ABC}\) is fixed, Schwartz--Zippel gives
+\[
+  \Pr[\vect{r}\mat{D}=0]
+  \le
+  \frac{k-1}{|\mathbb{F}|}.
+\]
+
+\paragraph{Proximity sampling}
+Now also condition on \(\vect{r}\mat{D}\neq 0\).  No vectors
+\(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
+\[
+  \vect{x}=\vect{r}\mat{A},
+  \qquad
+  \vect{y}=\vect{x}\mat{B},
+  \qquad
+  \vect{z}=\vect{r}\mat{C},
+  \qquad
+  \vect{y}=\vect{z}.
+\]
+Otherwise they would imply
+\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\), contradicting
+\(\vect{r}\mat{D}\neq 0\).
+
+Therefore at least one checked encoded relation is false.  Consider the case
+\(\vect{x}\neq\vect{r}\mat{A}\); the other three cases are identical.  The
+codewords \(\enc(\vect{x})\) and \(\enc(\vect{r}\mat{A})\) are distinct, so by
+relative distance they disagree on at least \(\delta n\) coordinates.  For any
+queried coordinate \(j\), code linearity gives
+\[
+  \enc(\vect{r}\mat{A})[j]
+  =
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]).
+\]
+The sampled-opening backend ensures that the SNARK uses the opened
+\(\widehat{\mat{A}}[*,j]\) block under \(\rt_{ABC}\) and the opened
+\(\widehat{\vect{x}}[j]\) symbol under \(\rt_{XYZ}\).  Thus the fold check
+rejects whenever \(j\) lands in the disagreement set.  A uniformly sampled
+coordinate misses this set with probability at most \(1-\delta\), and \(t\)
+independent samples miss it with probability at most \((1-\delta)^t\).
+Union-bounding over the four possible violated relations gives
+\[
+  4(1-\delta)^t .
+\]
+
+\paragraph{Combining the bounds}
+Adding the SNARK, opening, linking, code-consistency, Freivalds, and proximity
+failure events gives
+\[
+\begin{aligned}
+\Pr[\mathsf{Acc}\mid\mat{A}\mat{B}\neq\mat{C}]
+&\le
+\epsilon_{\mathsf{cp}}(\lambda)
++\epsilon_{\mathsf{open}}(\lambda)
++\epsilon_{\mathsf{link}}(\lambda)
++\epsilon_{\mathsf{code}}(\lambda)\\
+&\quad+\frac{k-1}{|\mathbb{F}|}+4(1-\delta)^t .
+\end{aligned}
+\]
+For the measured rows, \(t=128\).  When \(\delta=1/2\), the proximity term is
+\(4\cdot2^{-128}=2^{-126}\).  Larger \(t\) or a larger-distance code can be
+used when the deployment target requires a smaller proximity term.
+
+\paragraph{Fiat--Shamir variant}
+The non-interactive protocol derives \(r\), \(I\), and backend batch challenges
+from domain-separated hashes of the transcript.  In the random oracle model,
+the public-coin proof above applies with the standard Fiat--Shamir loss
+\(\epsilon_{\mathsf{FS}}(q_H)\) for an adversary making \(q_H\)
+random-oracle queries.
+This proves Theorem~\ref{thm:security}.
+\end{proof}
+
+\section{Barycentric Reed--Solomon Consistency Check}
+\label{app:rs-barycentric}
+
+This appendix specifies the Reed--Solomon instantiation of
+\(\mathsf{EncCheck}_{\mathcal{C}}\) used in
+Section~\ref{sec:snark-relation}.  Let
+% \[
+%  D=\{\omega_1,\ldots,\omega_n\}\subset\mathbb{F}
+% \]
+\[
+D=\{\omega_0,\ldots,\omega_{n-1}\}\subset\mathbb{F}
+\]
+be the public evaluation domain.  A message
+\(\vect{v}=(v_0,\ldots,v_{k-1})\in\mathbb{F}^k\) defines the degree-\(<k\)
+polynomial
+\[
+  p_{\vect{v}}(X)=\sum_{\ell=0}^{k-1} v_\ell X^\ell,
+  \qquad
+  \enc(\vect{v})=(p_{\vect{v}}(\omega_i))_{i=1}^{n}.
+\]
+Given a claimed encoded word
+\(\widehat{\vect{v}}\in\mathbb{F}^n\), let
+\(P_{\widehat{\vect{v}}}\) be the unique degree-\(<n\) polynomial satisfying
+\[
+  P_{\widehat{\vect{v}}}(\omega_i)=\widehat{\vect{v}}[i]
+  \qquad\text{for all }i\in[n].
+\]
+The check samples \(\alpha\sample\mathbb{F}\setminus D\) after the claimed
+word is fixed and compares \(P_{\widehat{\vect{v}}}(\alpha)\) with
+\(p_{\vect{v}}(\alpha)\).
+
+For efficient evaluation, define the domain polynomial and barycentric weights
+\[
+  L_D(X)=\prod_{i=1}^{n}(X-\omega_i),
+  \quad
+  \lambda_i
+  =
+  \left(\prod_{\ell\neq i}(\omega_i-\omega_\ell)\right)^{-1}.
+\]
+For every \(\alpha\notin D\), barycentric interpolation gives
+\[
+  P_{\widehat{\vect{v}}}(\alpha)
+  =
+  L_D(\alpha)
+  \sum_{i=1}^{n}
+  \lambda_i
+  \frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
+\]
+Thus the concrete Reed--Solomon consistency check is
+\[
+\begin{aligned}
+\mathsf{EncCheck}_{\mathsf{RS}}
+(\widehat{\vect{v}},\vect{v};\alpha)=1
+\Longleftrightarrow{}&
+\sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
+\\
+&=
+L_D(\alpha)
+\sum_{i=1}^{n}
+\lambda_i
+\frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
+\end{aligned}
+\]
+The right-hand side is a linear form in the claimed encoded symbols once
+\(\alpha\) is fixed.  Equivalently, the verifier can derive the interpolation
+coefficients
+\[
+  \gamma_i(\alpha)
+  =
+  L_D(\alpha)\lambda_i(\alpha-\omega_i)^{-1}
+\]
+and the circuit checks
+\[
+  \sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
+  =
+  \sum_{i=1}^{n}\gamma_i(\alpha)\widehat{\vect{v}}[i].
+\]
+This costs \(\mathcal{O}(k+n)\) field operations per checked point, after the
+domain-dependent weights are precomputed.
+
+\begin{lemma}[Barycentric code-consistency soundness]
+\label{lem:rs-barycentric-soundness}
+If \(\widehat{\vect{v}}\neq\enc(\vect{v})\) and
+\(\alpha\sample\mathbb{F}\setminus D\) is sampled after
+\(\widehat{\vect{v}}\) and \(\vect{v}\) are fixed, then
+\[
+  \Pr[
+    \mathsf{EncCheck}_{\mathsf{RS}}
+    (\widehat{\vect{v}},\vect{v};\alpha)=1
+  ]
+  \le
+  \frac{n-1}{|\mathbb{F}|-n}.
+\]
+\end{lemma}
+
+\begin{proof}
+If \(\widehat{\vect{v}}\neq\enc(\vect{v})\), then the interpolation polynomial
+\(P_{\widehat{\vect{v}}}\) differs from the degree-\(<k\) polynomial
+\(p_{\vect{v}}\).  Their difference
+\[
+  Q(X)=P_{\widehat{\vect{v}}}(X)-p_{\vect{v}}(X)
+\]
+is a nonzero polynomial of degree at most \(n-1\).  The check accepts exactly
+when \(Q(\alpha)=0\).  Since \(\alpha\) is uniform over
+\(\mathbb{F}\setminus D\), at most \(n-1\) choices of \(\alpha\) can make the
+check accept, which proves the bound.
+\end{proof}
+
+In \(\protocol\), this check is applied independently to
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) at
+\(\alpha_x,\alpha_y,\alpha_z\).  A union bound gives the
+\(3(n-1)/(|\mathbb{F}|-n)\) term used in
+Definition~\ref{def:lamp-backend-assumptions}.
+
+\section{CP-Link Instantiation}
+\label{app:cplink-instant}
+
+This appendix describes the CP-Link instantiation used in our implementation.
+We use a pairing-based quasi-adaptive link argument, denoted QALink, for
+linking one SNARK-side Pedersen commitment to several external Pedersen
+commitments.  The verifier can also batch multiple QALink verification
+equations into one multi-pairing check.
+
+Let \(e:\mathbb{G}_1\times\mathbb{G}_2\to\mathbb{G}_T\) be a bilinear pairing
+over prime-order groups of order \(|\mathbb{F}|\).  We write the group
+operation in \(\mathbb{G}_1\) additively, and let \(g_2\in\mathbb{G}_2\) be a
+generator. \\
+
+\noindent\textbf{Statement and witness.}
+Fix a block count \(q\) and a block length \(\ell\).  Let
+\(\ck_S=((G^S_{i,\nu})_{i\in[q],\nu\in[\ell]},H^S)\) be the SNARK-side
+commitment key for a commitment to \(q\) concatenated blocks, and let
+\(\ck_E=((G^E_{\nu})_{\nu\in[\ell]},H^E)\) be the external Pedersen commitment
+key for one block.
+
+The public statement is
+\(\stmt_{\mathsf{link}}=((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1}))\).  The witness is
+\[
+  \wit_{\mathsf{link}}
+  =
+  \big(
+    \vect{m}_0,\ldots,\vect{m}_{q-1},
+    \widetilde{o},
+    o_0,\ldots,o_{q-1}
+  \big),
+\]
+where each block \(\vect{m}_i\in\mathbb{F}^{\ell}\).  The intended relation is
+that \(\widetilde{\cm}\) commits to the ordered concatenation
+\(\vect{m}_0\|\cdots\|\vect{m}_{q-1}\) under \(\ck_S\), while each
+\(\cm_i\) commits to the corresponding block \(\vect{m}_i\) under \(\ck_E\).
+Equivalently,
+\[
+\begin{aligned}
+  \widetilde{\cm}
+  &=
+  \sum_{i\in[q]}\sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]G^S_{i,\nu}
+  +
+  \widetilde{o}H^S, \\
+  \cm_i
+  &=
+  \sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]G^E_{\nu}
+  +
+  o_iH^E
+  \qquad \text{for every } i\in[q].
+\end{aligned}
+\]
+
+\noindent\textbf{Setup.}
+The setup algorithm takes \((\ck_S,\ck_E,q,\ell)\) as input.  It samples
+\(k_0,k_1,\ldots,k_q,a\sample\mathbb{F}^{\ast}\) and defines
+\[
+  P_{i,\nu} \coloneqq k_0G^S_{i,\nu}+k_{i+1}G^E_{\nu}
+  \qquad
+  (i\in[q],\,\nu\in[\ell]).
+\]
+It outputs
+\[
+\begin{aligned}
+  \pk_{\mathsf{link}}
+  &=
+  \Big(
+    (P_{i,\nu})_{i\in[q],\,\nu\in[\ell]},
+    k_0H^S,
+    (k_{i+1}H^E)_{i\in[q]}
+  \Big), \\
+  \vk_{\mathsf{link}}
+  &=
+  (C_0,C_1,\ldots,C_q,A)
+  =
+  (ak_0g_2,ak_1g_2,\ldots,ak_qg_2,ag_2).
+\end{aligned}
+\]
+The trapdoors \(k_0,\ldots,k_q,a\) are discarded after setup. \\
+
+\noindent\textbf{Proving.}
+Given \(\stmt_{\mathsf{link}}\) and \(\wit_{\mathsf{link}}\), the prover
+outputs one group element
+\[
+\begin{aligned}
+  \pi_{\mathsf{link}}
+  \coloneqq
+  \sum_{i\in[q]}\sum_{\nu\in[\ell]}
+  \vect{m}_i[\nu]P_{i,\nu}
+  +
+  \widetilde{o}(k_0H^S)
+  +
+  \sum_{i\in[q]} o_i(k_{i+1}H^E).
+\end{aligned}
+\]
+By construction and by the homomorphism of Pedersen commitments,
+\[
+  \pi_{\mathsf{link}}
+  =
+  k_0\widetilde{\cm}
+  +
+  \sum_{i\in[q]} k_{i+1}\cm_i .
+\]
+This identity is the algebraic relation checked by the verifier. \\
+
+\noindent\textbf{Verification.}
+The verifier accepts if and only if
+\[
+  e(\widetilde{\cm},C_0)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,C_{i+1})
+  =
+  e(\pi_{\mathsf{link}},A).
+\]
+Equivalently, the verifier checks
+\[
+  e(\widetilde{\cm},C_0)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,C_{i+1})
+  \cdot
+  e(\pi_{\mathsf{link}},-A)
+  =
+  1_{\mathbb{G}_T}.
+\]
+
+\noindent\textbf{Correctness.}
+For an honestly generated proof, we have
+\(\pi_{\mathsf{link}}=k_0\widetilde{\cm}+\sum_{i\in[q]}k_{i+1}\cm_i\).
+Therefore, by bilinearity,
+\[
+\begin{aligned}
+  e(\pi_{\mathsf{link}},A)
+  &=
+  e\!\left(k_0\widetilde{\cm}+\sum_{i\in[q]}k_{i+1}\cm_i,ag_2\right)
+  \\
+  &=
+  e(\widetilde{\cm},ak_0g_2)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,ak_{i+1}g_2)
+  \\
+  &=
+  e(\widetilde{\cm},C_0)
+  \cdot
+  \prod_{i\in[q]} e(\cm_i,C_{i+1}).
+\end{aligned}
+\]
+Thus the verifier accepts. \\
+
+\noindent\textbf{Soundness.}
+QALink is a quasi-adaptive linear proof for the subspace relation induced by
+the commitment keys \((\ck_S,\ck_E)\), block count \(q\), and block length
+\(\ell\).  Under the standard quasi-adaptive linear-algebra assumption for the
+above pairing CRS, any accepting proof for a statement outside this relation
+implies a nontrivial linear relation among the hidden setup trapdoors
+\(k_0,\ldots,k_q,a\).  Thus the argument is sound except with negligible
+probability in the group order. \\
+
+\noindent\textbf{Verifier cost.}
+For one link statement with \(q\) external commitments, verification consists
+of \(q+2\) pairing terms:
+one term for \(\widetilde{\cm}\), \(q\) terms for
+\(\cm_0,\ldots,\cm_{q-1}\), and one term for \(\pi_{\mathsf{link}}\) against
+\(-A\).  A multi-pairing implementation evaluates these terms with \(q+2\)
+Miller-loop inputs and one final exponentiation.  The proof contains one
+\(\mathbb{G}_1\) element, and the verifying key contains \(q+2\)
+\(\mathbb{G}_2\) elements. \\
+
+\noindent\textbf{Batching pairing equations.}
+Suppose the verifier must check \(s\) independent QALink statements.  For the
+\(h\)-th statement, let
+\[
+  E_h
+  \coloneqq
+  e(\widetilde{\cm}^{(h)},C^{(h)}_0)
+  \cdot
+  \prod_{i\in[q_h]} e(\cm^{(h)}_i,C^{(h)}_{i+1})
+  \cdot
+  e(\pi^{(h)}_{\mathsf{link}},-A^{(h)}).
+\]
+The unbatched verifier checks \(E_h=1_{\mathbb{G}_T}\) for every \(h\).  The
+batched verifier first derives nonzero coefficients
+\(\lambda_1,\ldots,\lambda_s\in\mathbb{F}^{\ast}\) by hashing all public
+statements, verifying keys, proofs, and the surrounding transcript context.  It
+then checks the single equation
+\[
+  \prod_{h=1}^{s} E_h^{\lambda_h}=1_{\mathbb{G}_T}.
+\]
+Operationally, this is implemented by scaling the \(\mathbb{G}_1\) input of
+every pairing term in the \(h\)-th equation by \(\lambda_h\), and then running
+one multi-pairing check over all scaled terms:
+\[
+\begin{aligned}
+  &\prod_{h=1}^{s}
+  e(\lambda_h\widetilde{\cm}^{(h)},C^{(h)}_0)
+  \cdot
+  \prod_{h=1}^{s}\prod_{i\in[q_h]}
+  e(\lambda_h\cm^{(h)}_i,C^{(h)}_{i+1})
+  \cdot \\
+  &\prod_{h=1}^{s}
+  e(\lambda_h\pi^{(h)}_{\mathsf{link}},-A^{(h)})
+  =
+  1_{\mathbb{G}_T}.
+\end{aligned}
+\]
+
+The batched verifier uses \(\sum_{h=1}^{s}(q_h+2)\) Miller-loop terms and one
+final exponentiation.  It also performs \(\sum_{h=1}^{s}(q_h+2)\) scalar
+multiplications in \(\mathbb{G}_1\) to apply the batching coefficients.  If all
+individual equations are valid, then the batched equation is valid by
+bilinearity.  If at least one individual equation is invalid, write
+\(E_h=g_T^{\delta_h}\) in the prime-order target group.  The batched equation
+accepts only if \(\sum_h \lambda_h\delta_h=0\).  Since at least one
+\(\delta_h\neq 0\), a fresh random nonzero coefficient vector satisfies this
+linear equation with probability at most \(1/(|\mathbb{F}|-1)\).  In the
+non-interactive implementation this probability is interpreted in the random
+oracle model for the Fiat--Shamir-derived batching coefficients.

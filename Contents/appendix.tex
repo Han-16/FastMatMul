@@ -1,3 +1,7 @@
+% Standard SNARK and CP-Link definitions were included in an earlier draft.
+% They are omitted from the revised paper because Section~\ref{sec:security}
+% states exactly the backend properties used by the theorem.
+\iffalse
 \section{SNARK Security Definitions}
 \label{app:snark-security}
 
@@ -29,7 +33,7 @@ If the probability is \(1\), we say that \(\bPi\) has perfect completeness. \\
 
 \noindent\textbf{Knowledge soundness.}
 \(\bPi\) satisfies knowledge soundness if, for every \(\ppt\) prover
-\(\mathcal{A}\), there exists an \(\ppt\) extractor
+\(\mathcal{A}\), there exists a \(\ppt\) extractor
 \(\mathsf{Ext}^{\mathcal{A}}\) such that
 \[
 \begin{aligned}
@@ -316,29 +320,34 @@ commitments are blockwise linkable.
 
 
 
+\fi
 \section{Detailed Proof of Theorem~\ref{thm:security}}
 \label{app:security-proof}
 
 \begin{proof}
-We prove the public-coin interactive protocol first.  The Fiat--Shamir variant
-is handled at the end.
+We prove the public-coin interactive protocol. The Fiat--Shamir transform used
+by the implementation is discussed separately at the end and is not covered by
+the theorem.
 
 \paragraph{Perfect completeness}
 Assume that the honest prover holds matrices
 \(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\) with
 \(\mat{A}\mat{B}=\mat{C}\).  Let
-\(\vect{r}=(1,r,\ldots,r^{k-1})\), and define
+\(\vect{r}=(1,r,\ldots,r^{k-1})\) and
+\(\vect{s}=(1,s,\ldots,s^{k-1})\), and define
 \[
   \vect{x}=\vect{r}\mat{A},
   \qquad
   \vect{y}=\vect{x}\mat{B},
   \qquad
-  \vect{z}=\vect{r}\mat{C}.
+  \vect{z}=\vect{r}\mat{C},
+  \qquad
+  \vect{b}=\vect{s}\mat{B}.
 \]
 Then \(\vect{y}=\vect{z}\).  The honest prover commits to the packed encoded
 matrix blocks \(\{\vect{m}_{ABC,j}\}_{j\in[n]}\) under \(\rt_{ABC}\), commits
-to the packed encoded vector blocks \(\{\vect{m}_{XYZ,j}\}_{j\in[n]}\) under
-\(\rt_{XYZ}\), and supplies the sampled openings and CP-Link proofs required
+to the complete intermediate block \(\vect{m}_{XYZB}\) under
+\(\cm_{XYZB}\), and supplies the sampled openings and CP-Link proofs required
 by Section~\ref{sec:openings-and-cplink}.
 
 For every queried position \(j\in I\), code linearity gives
@@ -349,13 +358,14 @@ For every queried position \(j\in I\), code linearity gives
 \]
 and similarly
 \[
+\begin{aligned}
   \fold(\vect{x},\widehat{\mat{B}}[*,j])
-  =
-  \widehat{\vect{y}}[j],
-  \qquad
+  &= \widehat{\vect{y}}[j],\\
   \fold(\vect{r},\widehat{\mat{C}}[*,j])
-  =
-  \widehat{\vect{z}}[j].
+  &= \widehat{\vect{z}}[j],\\
+  \fold(\vect{s},\widehat{\mat{B}}[*,j])
+  &= \widehat{\vect{b}}[j].
+\end{aligned}
 \]
 Since \(\vect{y}=\vect{z}\), the equality check
 \(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\) also holds.  All SNARK,
@@ -372,12 +382,16 @@ the following events:
   \item \(\mathsf{Bad}_{\mathsf{open}}\): a Merkle opening or Pedersen leaf
   opening is accepted in a way that violates position binding or commitment
   binding;
-	  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
-	  SNARK-side sampled blocks are not the corresponding blocks opened from the
-	  Pedersen leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
+  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
+  SNARK-side sampled ABC blocks are not the corresponding blocks opened under
+  \(\rt_{ABC}\), or the complete SNARK-side intermediate block is not the
+  message committed by \(\cm_{XYZB}\);
   \item \(\mathsf{Bad}_{\mathsf{code}}\): the probabilistic code-consistency
   checks accept encoded views that are not encodings of their corresponding
-  intermediate vectors.
+  intermediate vectors;
+  \item \(\mathsf{Bad}_{\mathsf{uni}}\): an input word farther than
+  \(\tau\) from the interleaved code produces a structured fold within
+  distance \(\tau\) of \(\mathcal{C}\).
 \end{itemize}
 By the assumed soundness of the selected backends,
 \[
@@ -389,25 +403,42 @@ By the assumed soundness of the selected backends,
 \Pr[\mathsf{Bad}_{\mathsf{link}}]
   &\le \epsilon_{\mathsf{link}}(\lambda),\\
 \Pr[\mathsf{Bad}_{\mathsf{code}}]
-  &\le \epsilon_{\mathsf{code}}(\lambda).
+  &\le \epsilon_{\mathsf{code}}(\lambda),\\
+\Pr[\mathsf{Bad}_{\mathsf{uni}}]
+  &\le \frac{3(k-1)n}{|\mathbb F|}.
 \end{aligned}
 \]
 Condition on the complement of these events.  Then \(\rt_{ABC}\) fixes a
 unique sequence of packed matrix-column commitments at all queried positions,
-\(\rt_{XYZ}\) fixes a unique sequence of packed vector-symbol commitments at
-all queried positions, and the sampled values used by the SNARK are exactly the
-messages opened from those commitments.  In particular, the adversary cannot
-choose different sampled blocks after seeing \(I\) without breaking the
-opening or linking layer.
+\(\cm_{XYZB}\) fixes the complete messages and encoded views used by the
+SNARK, and the sampled input values are exactly the messages opened under
+\(\rt_{ABC}\).  In particular, the adversary cannot choose a different
+intermediate encoding after seeing \(I\) or the code-check points without
+breaking the linking layer.
+
+\paragraph{Input proximity and extraction}
+The root \(\rt_{ABC}\) fixes arbitrary words
+\(W_A,W_B,W_C\in\mathbb{F}^{k\times n}\) before \((r,s)\) is sampled.
+Suppose first that one of them is farther than \(\tau\) from the interleaved
+code.  We use \(r\) for \(W_A,W_C\) and the independent \(s\) for \(W_B\).
+By the one-parameter Reed--Solomon proximity gap of
+Ben-Sasson et al.~\cite[Theorem~1.5]{bensasson2023proximity}, conditioned on
+\(\neg\mathsf{Bad}_{\mathsf{uni}}\), the corresponding folded
+word is farther than \(\tau\) from \(\mathcal{C}\).  The encoded view claimed
+by the prover is a codeword conditioned on
+\(\neg\mathsf{Bad}_{\mathsf{code}}\), so the two words disagree on more than
+\(\tau n\) positions.  Since both are committed before \(I\), the probability
+that \(t\) independent queries miss this set is at most \((1-\tau)^t\).
+Union-bounding over \(A,B,C\) gives \(3(1-\tau)^t\).
+
+It remains to consider the case in which all three words are within distance
+\(\tau\) of the interleaved code.  Because \(\tau<\delta/2\), each is close
+to a unique interleaved codeword.  Decode those codewords row-wise to obtain
+fixed matrices \(\mat{A},\mat{B},\mat{C}\).  These are the matrices bound by
+the accepted committed statement.
 
 \paragraph{Freivalds randomization}
-The matrix root \(\rt_{ABC}\) is fixed before \(r\) is derived. 
-% In the committed statement, \(\rt_{ABC}\) binds to row-wise encoded matrices
-% \(\mat{A},\mat{B},\mat{C}\).  
-In the committed statement, \(\rt_{ABC}\) binds to row-wise encodings of matrices
-\(\mat{A},\mat{B},\mat{C}\).
-Suppose
-\(\mat{A}\mat{B}\neq\mat{C}\), and let
+Suppose \(\mat{A}\mat{B}\neq\mat{C}\), and let
 \(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
 \(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
 \(\vect{r}\mat{D}=0\) implies
@@ -428,7 +459,7 @@ is sampled after \(\rt_{ABC}\) is fixed, Schwartz--Zippel gives
   \frac{k-1}{|\mathbb{F}|}.
 \]
 
-\paragraph{Proximity sampling}
+\paragraph{Sampled relation checks}
 Now also condition on \(\vect{r}\mat{D}\neq 0\).  No vectors
 \(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
 \[
@@ -447,22 +478,28 @@ Otherwise they would imply
 Therefore at least one checked encoded relation is false.  Consider the case
 \(\vect{x}\neq\vect{r}\mat{A}\); the other three cases are identical.  The
 codewords \(\enc(\vect{x})\) and \(\enc(\vect{r}\mat{A})\) are distinct, so by
-relative distance they disagree on at least \(\delta n\) coordinates.  For any
-queried coordinate \(j\), code linearity gives
+relative distance they disagree on at least \(\delta n\) coordinates.  The
+committed word \(W_A\) differs from \(\enc(\mat{A})\) at no more than
+\(\tau n\) column positions.  Therefore
+\(\mathsf{FoldWord}(\vect{r},W_A)\) and \(\enc(\vect{x})\) disagree at no
+fewer than \((\delta-\tau)n\) positions.  For any queried coordinate \(j\),
+code linearity gives
 \[
   \enc(\vect{r}\mat{A})[j]
   =
-  \fold(\vect{r},\widehat{\mat{A}}[*,j]).
+  \fold(\vect{r},\enc(\mat{A})[*,j]).
 \]
 The sampled-opening backend ensures that the SNARK uses the opened
-\(\widehat{\mat{A}}[*,j]\) block under \(\rt_{ABC}\) and the opened
-\(\widehat{\vect{x}}[j]\) symbol under \(\rt_{XYZ}\).  Thus the fold check
+\(W_A[*,j]\) block under \(\rt_{ABC}\), while the full intermediate link
+ensures that \(\widehat{\vect{x}}[j]\) is the symbol fixed by
+\(\cm_{XYZB}\).  Thus the fold check
 rejects whenever \(j\) lands in the disagreement set.  A uniformly sampled
-coordinate misses this set with probability at most \(1-\delta\), and \(t\)
-independent samples miss it with probability at most \((1-\delta)^t\).
+coordinate misses this set with probability at most \(1-\delta+\tau\), and
+\(t\) independent samples miss it with probability at most
+\((1-\delta+\tau)^t\).
 Union-bounding over the four possible violated relations gives
 \[
-  4(1-\delta)^t .
+  4(1-\delta+\tau)^t .
 \]
 
 \paragraph{Combining the bounds}
@@ -470,26 +507,41 @@ Adding the SNARK, opening, linking, code-consistency, Freivalds, and proximity
 failure events gives
 \[
 \begin{aligned}
-\Pr[\mathsf{Acc}\mid\mat{A}\mat{B}\neq\mat{C}]
+\Pr[\mathsf{Acc}\land\mathsf{BadInput}]
 &\le
 \epsilon_{\mathsf{cp}}(\lambda)
 +\epsilon_{\mathsf{open}}(\lambda)
-+\epsilon_{\mathsf{link}}(\lambda)
-+\epsilon_{\mathsf{code}}(\lambda)\\
-&\quad+\frac{k-1}{|\mathbb{F}|}+4(1-\delta)^t .
++\epsilon_{\mathsf{link}}(\lambda)\\
+&\quad+\epsilon_{\mathsf{code}}(\lambda)
++\frac{3(k-1)n}{|\mathbb F|}\\
+&\quad+3(1-\tau)^t
++\frac{k-1}{|\mathbb{F}|}\\
+&\quad+4(1-\delta+\tau)^t .
 \end{aligned}
 \]
-For the measured rows, \(t=128\).  When \(\delta=1/2\), the proximity term is
-\(4\cdot2^{-128}=2^{-126}\).  Larger \(t\) or a larger-distance code can be
-used when the deployment target requires a smaller proximity term.
+For the rate-\(1/2\) Reed--Solomon code, setting
+\(\tau=\delta/3\approx 1/6\) and \(t=512\) makes the sampling contribution
+\(3(1-\tau)^t+4(1-\delta+\tau)^t\) smaller than \(2^{-133}\).
+For BN254 and the evaluated dimensions, the two field-size terms and the
+encoding-check term are smaller still.  The final security level also includes
+the computational security of the CP-SNARK, commitments, and CP-Link.
+
+\paragraph{Zero knowledge}
+Consider a hybrid that replaces the CP-SNARK proof by its simulator output and
+then replaces the CP-Link proofs by their simulator outputs.  The hiding of the
+Pedersen commitments conceals both the sampled input columns and the complete
+intermediate block; the Merkle paths reveal only commitments at the sampled
+positions.  The resulting view is simulatable from the public statement, and
+the hybrid transitions are indistinguishable by the assumed zero-knowledge and
+hiding properties.  Together with perfect completeness and the soundness bound
+above, this proves Theorem~\ref{thm:security} for the public-coin interactive
+protocol.
 
 \paragraph{Fiat--Shamir variant}
-The non-interactive protocol derives \(r\), \(I\), and backend batch challenges
-from domain-separated hashes of the transcript.  In the random oracle model,
-the public-coin proof above applies with the standard Fiat--Shamir loss
-\(\epsilon_{\mathsf{FS}}(q_H)\) for an adversary making \(q_H\)
-random-oracle queries.
-This proves Theorem~\ref{thm:security}.
+The implementation derives \((r,s)\), \(I\), and backend batch challenges from
+domain-separated hashes of the transcript. A formal random-oracle analysis of
+this multi-round Fiat--Shamir transform is outside Theorem~\ref{thm:security}
+and is left to future work.
 \end{proof}
 
 \section{Barycentric Reed--Solomon Consistency Check}
@@ -510,7 +562,7 @@ polynomial
 \[
   p_{\vect{v}}(X)=\sum_{\ell=0}^{k-1} v_\ell X^\ell,
   \qquad
-  \enc(\vect{v})=(p_{\vect{v}}(\omega_i))_{i=1}^{n}.
+  \enc(\vect{v})=(p_{\vect{v}}(\omega_i))_{i=0}^{n-1}.
 \]
 Given a claimed encoded word
 \(\widehat{\vect{v}}\in\mathbb{F}^n\), let
@@ -525,7 +577,7 @@ word is fixed and compares \(P_{\widehat{\vect{v}}}(\alpha)\) with
 
 For efficient evaluation, define the domain polynomial and barycentric weights
 \[
-  L_D(X)=\prod_{i=1}^{n}(X-\omega_i),
+  L_D(X)=\prod_{i=0}^{n-1}(X-\omega_i),
   \quad
   \lambda_i
   =
@@ -536,7 +588,7 @@ For every \(\alpha\notin D\), barycentric interpolation gives
   P_{\widehat{\vect{v}}}(\alpha)
   =
   L_D(\alpha)
-  \sum_{i=1}^{n}
+  \sum_{i=0}^{n-1}
   \lambda_i
   \frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
 \]
@@ -550,7 +602,7 @@ Thus the concrete Reed--Solomon consistency check is
 \\
 &=
 L_D(\alpha)
-\sum_{i=1}^{n}
+\sum_{i=0}^{n-1}
 \lambda_i
 \frac{\widehat{\vect{v}}[i]}{\alpha-\omega_i}.
 \end{aligned}
@@ -567,7 +619,7 @@ and the circuit checks
 \[
   \sum_{\ell=0}^{k-1} v_\ell \alpha^\ell
   =
-  \sum_{i=1}^{n}\gamma_i(\alpha)\widehat{\vect{v}}[i].
+  \sum_{i=0}^{n-1}\gamma_i(\alpha)\widehat{\vect{v}}[i].
 \]
 This costs \(\mathcal{O}(k+n)\) field operations per checked point, after the
 domain-dependent weights are precomputed.
@@ -601,11 +653,13 @@ check accept, which proves the bound.
 \end{proof}
 
 In \(\protocol\), this check is applied independently to
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) at
-\(\alpha_x,\alpha_y,\alpha_z\).  A union bound gives the
-\(3(n-1)/(|\mathbb{F}|-n)\) term used in
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+\widehat{\vect{b}}\) at
+\(\alpha_x,\alpha_y,\alpha_z,\alpha_b\).  A union bound gives the
+\(4(n-1)/(|\mathbb{F}|-n)\) term used in
 Definition~\ref{def:lamp-backend-assumptions}.
 
+\iffalse
 \section{CP-Link Instantiation}
 \label{app:cplink-instant}
 
@@ -825,3 +879,48 @@ accepts only if \(\sum_h \lambda_h\delta_h=0\).  Since at least one
 linear equation with probability at most \(1/(|\mathbb{F}|-1)\).  In the
 non-interactive implementation this probability is interpreted in the random
 oracle model for the Fiat--Shamir-derived batching coefficients.
+\fi
+
+\section{CP-Link Instantiation}
+\label{app:cplink-instant}
+
+Our implementation uses a pairing-based quasi-adaptive link argument
+(QALink).  For \(q\) blocks \(\vect{m}_i\in\mathbb{F}^{\ell}\), the public
+statement contains one SNARK-side Pedersen commitment \(\widetilde{\cm}\) and
+external commitments \(\cm_0,\ldots,\cm_{q-1}\) satisfying
+\[
+\begin{aligned}
+\widetilde{\cm}
+ &=\sum_{i\in[q]}\sum_{\nu\in[\ell]}
+   \vect{m}_i[\nu]G^S_{i,\nu}+\widetilde{o}H^S,\\
+\cm_i
+ &=\sum_{\nu\in[\ell]}\vect{m}_i[\nu]G^E_\nu+o_iH^E.
+\end{aligned}
+\]
+Setup samples nonzero \(k_0,\ldots,k_q,a\in\mathbb{F}\), publishes the
+proving-key elements
+\(P_{i,\nu}=k_0G^S_{i,\nu}+k_{i+1}G^E_\nu\), and publishes
+\(C_i=ak_ig_2\) and \(A=ag_2\) in the verification key.  The prover outputs
+\[
+ \pi_{\mathsf{link}}
+ =k_0\widetilde{\cm}+\sum_{i\in[q]}k_{i+1}\cm_i,
+\]
+expressed using the proving key and the openings.  The verifier checks
+\[
+ e(\widetilde{\cm},C_0)
+ \prod_{i\in[q]}e(\cm_i,C_{i+1})
+ =e(\pi_{\mathsf{link}},A).
+\]
+Soundness follows from the quasi-adaptive linear-subspace assumption for this
+CRS.  One proof contains one \(\mathbb{G}_1\) element; verification uses
+\(q+2\) pairing terms, which a multi-pairing implementation evaluates with one
+final exponentiation.  The proving and verification keys depend on \(q\) and
+\(\ell\), so changing the sample count or linked block layout requires new
+setup material.
+
+Multiple link equations are batched by deriving a nonzero transcript
+coefficient \(\lambda_h\) for each equation \(E_h=1\) and checking
+\(\prod_h E_h^{\lambda_h}=1\) in one multi-pairing.  If at least one equation
+is invalid, a fresh coefficient vector satisfies the resulting nontrivial
+linear equation with probability at most \(1/(|\mathbb{F}|-1)\).  The
+non-interactive implementation derives these coefficients with Fiat--Shamir.

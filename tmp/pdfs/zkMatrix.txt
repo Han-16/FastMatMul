@@ -1,0 +1,2790 @@
+     zkMatrix: Batched Short Proof for Committed
+                Matrix Multiplication
+
+Mingshu Cong1[0000−0001−5858−3411] , Tsz Hon Yuen ⋆2[0000−0002−0629−6792] , and
+                   Siu Ming Yiu ⋆⋆1[0000−0002−3975−8500]
+ 1
+     Department of Computer Science, The University of Hong Kong, Pokfulam Road,
+                               Hong Kong SAR, China
+                             {mscong,smyiu}@cs.hku.hk
+          2
+            Faculty of Information Technology, Monash University, Australia
+                            John.tszhonyuen@monash.edu
+
+
+
+         Abstract. Matrix multiplication is a common operation in applications
+         like machine learning and data analytics. To demonstrate the correct-
+         ness of such an operation in a privacy-preserving manner, we propose
+         zkMatrix, a zero-knowledge proof for the multiplication of committed
+         matrices. Among the succinct non-interactive zero-knowledge protocols
+         that have an O(log n) transcript size and O(log n) verifier time, zkMa-
+         trix stands out as the first to achieve O(n2 ) prover time and O(n2 ) RAM
+         usage for multiplying two n × n matrices. Significantly, zkMatrix distin-
+         guishes itself as the first zk-SNARK protocol specifically designed for
+         matrix multiplication. By batching multiple proofs together, each addi-
+         tional matrix multiplication only necessitates O(n) group operations in
+         prover time.
+
+         Keywords: zero-knowledge proof, matrix multiplication, zk-SNARK
+
+
+1      Introduction
+
+Matrix multiplication is a fundamental operation with wide applications in ap-
+plied mathematics, statistics, finance, engineering, and more. It plays an essen-
+tial role in handling high-dimensional datasets in data analytics and machine
+learning. In these applications, sometimes we need to protect the privacy of sen-
+sitive data. While zero-knowledge proofs offer a solution, providing an efficient
+zero-knowledge proof for large-scale matrix multiplications, which may contain
+thousands of rows, remains challenging.
+    Current protocols often struggle to simultaneously meet the following three
+key requirements:
+
+ – Succinctness: When dealing with big datasets, it is a standard requirement
+   for a polylogarithmic transcript size and polylogarithmic verifier time.
+⋆
+     Both authors contributed equally to this research.
+⋆⋆
+     Siu Ming Yiu is the corresponding author.
+2         M. Cong et al.
+
+    – Linear prover time with respect to the witness size: Many zero-knowledge
+      proofs based on arithmetic circuits require prover time linear to the number
+      of multiplication gates, which is roughly proportional to the 1.5-power of the
+      number of elements in the matrices. 3
+    – Consistency with commitments: In many applications, matrix multiplications
+      are performed sequentially (e.g., neural networks in Subsection 1.4). Given
+      the non-uniqueness of matrix multiplication outcomes (i.e., for any given
+      matrix c, there are infinite distinct matrices a and b such that c = ab), it
+      is vital to verify that the private inputs are the same across multiple matrix
+      multiplications. Therefore, the zero-knowledge proof should guarantee that
+      the private matrices are consistent with the same commitments. Ideally, the
+      commitment scheme should be independent of specific matrix operations.
+
+    Providing proof for the multiplication of two n × n matrices necessitates
+roughly n3 multiplication gates. Direct application of zero-knowledge Succinct
+Non-interactive ARgument of Knowledge (zk-SNARK) protocols, like those in
+[Groth(2016), Parno et al.(2016), Bowe et al.(2019), Chiesa et al.(2020b), Maller
+et al.(2019), Bünz et al.(2020), Gabizon et al.(2019), Chen et al.(2023), Chiesa
+et al.(2020a)], results in O(n3 ) prover time and potential memory overflow due
+to the O(n3 ) circuit size. Thaler’s specialized protocol [Thaler(2013)] transforms
+matrix multiplication into a sumcheck relation, resulting in greater efficiency in
+prover time. However, it is not a zk-SNARK protocol and necessitates linear time
+for verification. Despite subsequent improvements by LegoSNARK [Campanelli
+et al.(2019)] and Libra [Xie et al.(2019)], achieving O(n2 ) prover time with poly-
+logarithmic verifier time remains unaccomplished. QuickSilver uses an interactive
+protocol and secure multiparty computation, trimming down the prover time to
+O(n2 ) but introducing a higher communication overhead of O(n2 ). A detailed
+comparison is provided in Table 1. Among protocols with logarithmic verifier
+time, such as Pinocchio [Parno et al.(2016)] and Libra [Xie et al.(2019)], our
+zkMatrix protocol is the first to achieve O(n2 ) prover time.
+
+
+
+1.1     Main Result
+
+
+This paper seeks to construct a zero-knowledge proof for witness matrices a, b
+and c such that c = ab. The matrices a, b, and c are committed using Pedersen
+vector commitments Ca , Cb , and Cc respectively. Throughout the paper, we will
+use bold letters for matrices (e.g., a) and smaller letters with index i, j for
+elements inside the matrices (e.g., aij ). We use the symbol ⊕ for point addition
+in the elliptic curve group G of prime order p.
+
+3
+    For n × n square matrices, the number of multiplication gates is n3 using the school-
+    book algorithm. The best algorithm in the literature is > n2.37 multiplications.
+          zkMatrix: Batched Short Proof for Committed Matrix Multiplication               3
+
+
+Table 1: Comparison of the Zero-Knowledge Proofs for Matrix Multiplication of
+n × n Matrices
+                              Communi-   RAM Usage                Timing         Consis-
+           Protocol
+                               cation  Prover Verifier        Prover    Verifier tency
+           Pinocchio
+                               O(1)      O(n3 )     O(1)      O(n3 )      O(1)     No
+      [Parno et al.(2016)]
+             Thaler
+                              O(log n)   O(n2 )    O(n2 )     O(n2 )     O(n2 )    No
+         [Thaler(2013)]
+          LegoSNARK
+                              O(log n)   O(n2 )    O(n2 )     O(n2 )     O(n2 )    Yes
+    [Campanelli et al.(2019)]
+              Libra
+                              O(log n)   O(n3 )   O(log n)    O(n3 )    O(log n)   No
+        [Xie et al.(2019)]
+           QuickSilver
+                               O(n2 )    O(n2 )    O(n2 )     O(n2 )     O(n2 )    Yes
+       [Yang et al.(2021)]
+           zkMatrix
+                            O(log n)     O(n2 )   O(log n)     O(n2 )    O(log n) Yes
+        (single proof)
+           zkMatrix
+                                                             O(n2 + tn)E
+     (batched proof for t   O(t log n) O(n2 + tn) O(t log n)             O(t log n) Yes
+                                                             +O(tn2 )M
+    matrix multiplications)
+Note: The timing columns only show the dominating factor(s). For most schemes, it is
+the number of exponentiations E in ECC or pairing groups. M represents the number
+of multiplications in Zp , and one exponentiation roughly takes log2 p multiplications.
+All group and modular additions, hashing operations, and non-dominating pairing
+operations are omitted in the table for simplicity.
+
+
+
+     We consider the following relation for public group matrices U , G, H:
+
+          RcomMatMul
+                                                                 
+                Cc , Ca , Cb ∈ G;          m×n 
+                                                    
+                                                      c = ab,
+                                      c ∈ Zp ,
+            
+                                                                    
+                                                                      
+                                                                     
+              U ∈ Gm×n ,                            ∧ C = ⟨c, U ⟩  
+            
+                                                                    
+                                                          c
+                                  : a ∈ Zpm×l ,  
+                                  
+          =                                                            ,             (1)
+                                                                  
+                        m×l                          ∧ Ca = ⟨a, G⟩ 
+                                                                    
+              G ∈ G         ,
+                               
+                                          l×n                        
+                                      b ∈ Zp
+                                                                    
+                                                      ∧ Cb = ⟨b, H⟩ 
+                                                                     
+                H ∈ Gl×n
+            
+
+where ⟨a, G⟩ is the Pedersen vector commitment of the matrix a:
+
+                      ⟨a, G⟩ := a11 G11 ⊕ a12 G12 ⊕ · · · ⊕ a1l G1l
+                             ⊕ a21 G21 ⊕ a22 G22 ⊕ · · · ⊕ a2l G2l
+                                    ..        ..      ..        ..                    (2)
+                             ⊕       .         .       .         .
+                             ⊕ am1 Gm2 ⊕ am2 Gm2 ⊕ · · · ⊕ aml Gml .
+
+Analogous definitions apply to ⟨b, H⟩ and ⟨c, U ⟩.4
+4
+    Mathematically, ⟨a, G⟩ is defined as ⃗1⊤ (a ◦ G)⃗1, where ⃗1 is a unit vector with a
+    suitable length, ⊤ stands for transpose and ◦ is the Hadamard product.
+4       M. Cong et al.
+
+    Our paper introduces the zkMatrix protocol for the relation RcomMatMul char-
+acterized by a logarithmic transcript size, O(n2 ) prover time, and logarithmic
+verifier time. Specifically, the prover time is O(n2 ) (∼ 14n2 exponentiations),
+and the verifier runs O(log n) exponentiations and O(1) pairings. Given that
+one optimal Ate pairing operation takes around 12 exponentiations and 4 field
+multiplications, the verifier time is on the order of O(log n).
+    We can optimize the prover time though batch processing. When provid-
+ing proof for t instances of n × n matrix multiplications (with the witness ma-
+trices collectively comprising 3tn2 elements), the prover’s time complexity is
+O(n2 + nt) in terms of group operations , while the verifier’s time complexity is
+O(t log n). For each additional matrix multiplication, the marginal prover time
+takes roughly ∼ 8n exponentiations and ∼ 5n2 field multiplications.
+
+
+1.2   High-Level Idea
+
+Reducing matrix multiplication to four inner-product relations. The
+foundational idea is derived from Groth’s seminal work on providing sublinear
+zero-knowledge proofs for linear algebra relations [Groth(2009)]. Linear algebra
+relations can be reduced to high-dimensional inner-product relations (as seen in
+Section 1.3 of [Groth(2009)]).
+    Using the following equivalence, we can prove matrix multiplication by prov-
+                                                               1 ○,
+ing four inner-product relations, denoted by the superscripts ○,    2 ○,3 ○ 4 in
+the equation below:
+
+           {c = ab} ⇔ {∀y ∈ Zp , (⃗
+                                  yL⊤
+                                       yR )○
+                                      c⃗   1
+                                                 yL
+                                             = ((⃗ ⊤
+                                                     a)○
+                                                       2
+                                                           yR ) ○
+                                                         (b⃗    3 ○
+                                                                  ) 4 }.              (3)
+
+   The inner-product relation ○          1 is the standard polynomial of the matrix c.
+Specifically, for an (m × n)-matrix c, we can multiply it on the left by an m-
+              ⊤                                             ⊤
+row-vector y ⃗L  = (1, y n , · · · , y (m−1)n ) to obtain y
+                                                          ⃗L  c, and then on the right by
+                     ⃗ R = (1, y, · · · , y    n−1  ⊤            ⃗L⊤
+a n-column-vector y                                ) to obtain y      yR . We can directly
+                                                                     c⃗
+compute a degree (mn − 1) polynomial of y:
+                                       n
+                                     m X
+                                     X
+                           ⊤
+                         ⃗L
+                         y   c⃗
+                              yR =             cij y (i−1)n+(j−1) .
+                                     i=1 j=1
+
+
+It can be viewed as an inner product of a vector formed by cij (i.e., a vec-
+tor of flattened c), and a vector (1, y, y 2 , . . . , y mn−1 ). As a result, we can use
+Bulletproofs [Bünz et al.(2018)] to prove the inner-product relation.
+
+
+Working with committed vectors. While using Bulletproofs [Bünz et al.(2018)]
+for proving inner-product relations might seem intuitive, ensuring the soundness
+of the entire matrix multiplication protocol requires consistent witness vectors
+across these four inner-product relations. Specifically, the left values of the second
+and third inner-products, ⃗ay ← y⃗L⊤
+                                     a and ⃗by ← b⃗yR , must align with the witness
+of the fourth inner-product relation. One straightforward method to achieve this
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                 5
+
+consistency is by incorporating these intermediate variables into the transcript,
+but this will result in a large transcript size. We address this by compressing
+each high-dimensional intermediate variable into a single group element through
+Pedersen vector commitments.
+   Bulletproofs cannot ensure that the two witness vectors are consistent with
+previous commitments. Despite this, we observe that this consistency can be
+achieved when one vector is constructed from a public-coin challenge. Hence, we
+present two variants of Bulletproof:
+ – Committed Semi-Inner-Product Argument: It proves the inner-product of a
+   committed vector and a public vector for the inner product ○.
+                                                              1
+ – Committed High-Dimensional Semi-Inner-Product Argument: It proves a lin-
+   ear combination of committed vectors for inner products ○2 and ○.
+                                                                  3
+Combining with the Bulletproof for the inner product ○,
+                                                     4 we obtain an argument
+of knowledge for matrix multiplication.
+
+Single zkMatrix: Shifting the verifier’s multi-exponentiation compu-
+tation load to the prover. The primary bottleneck in verification efficiency
+of Bulletproof is attributed to the elliptic curve multi-exponentiation involved.
+In short, it involves the verification of a group element V such that:
+
+                        V = [ζ1 ][G1 ]⊕[ζ2 ][G2 ]⊕ · · · ⊕[ζq ][Gq ],
+
+where q is the total size of the prover’s secret vectors, [G1 ], . . . , [Gq ] are public
+group elements and [ζ1 ], . . . , [ζq ] ∈ Zp can be computed by the verifier. The
+verifier time of Bulletproofs is dominated by the multi-exponentiation of size q.
+    In this paper, we want to transfer the burden of this multi-exponentiation
+calculation from the verifier to the prover. Bulletproofs require that the pub-
+lic group elements [G1 ], . . . , [Gq ] are randomly sampled such that the mutual
+discrete logarithm between them are unknown. We propose the use of struc-
+tured bases [ŝĜ], [ŝ2 Ĝ], . . . , [ŝq Ĝ] for some ŝ ∈ Zp and Ĝ ∈ G. Now consider the
+multi-exponentiation given by:
+
+                 V = [ζ1 ][ŝĜ]⊕[ζ2 ][ŝ2 Ĝ]⊕ · · · ⊕[ζq ][ŝq Ĝ] := ϕ(ŝ)Ĝ,
+
+where ϕ(x) = [ζ1 ]x + · · · + [ζq ]xq ∈ Zp [X] represents a polynomial with known
+coefficients. Instead of requiring the verifier to compute the multi-exponentiation
+of size q, the prover can provide a proof that V is valid. In response to a random
+                $
+challenge [s] ← − Z∗p , the prover computes [W ] ← ( ϕ(s)−ϕ(ŝ)
+                                                         s−ŝ   )Ĝ, which requires a
+multi-exponentiation of size q. Subsequently, the verifier evaluates ϕ([s]) in Zp
+and checks whether [V ] aligns with ϕ([s]) and [W ] by using the following pairing
+equation:
+
+                     e([W ], [s][Ĝ]⊖[ŝĜ]) = e(ϕ([s])[Ĝ] ⊖ V, [Ĝ]),
+
+where ⊖ is the inverse of ⊕. The pairing equation in our protocol is actually
+more complicated, and details can be found in Section 3.
+6         M. Cong et al.
+
+Batched zkMatrix: Batch processing before inner-products. For use
+cases requiring proofs for thousands of matrix multiplications, our proposed
+solution entails executing t zkMatrix protocols in parallel, utilizing identical
+public-coin challenges. In essence:
+    – The prover is restricted to batch computing transcript elements for the inner-
+      product relations ○,1 ○,2 and ○. 3
+    – The introduction of the batching randomness should come after the prover’s
+      commitment to the intermediate variables that serve as public inputs of the
+      sub-protocols. Specifically, this should occur post commitments to ⃗ay , ⃗by ,
+          ⃗L⊤
+      and y    yR .
+              c⃗
+
+Zero-knowledge proof via random blinding matrices. To transform an
+argument of knowledge for the matrix multiplication of c = ab into a zero-
+                                                                $         $
+knowledge one, we introduce two random blinding matrices α ←   − Zm×l
+                                                                   p      −
+                                                                       ,β ←
+ l×n
+Zp . We then provide a proof for the multiplication of x(α+xa) and x(β +xb),
+            $
+where x ← − Z∗p is a public-coin challenge. This approach increases the transcript
+size by a constant factor. In the context of batched proofs, these blinding matrices
+are introduced within the sub-protocols on batched inputs.
+
+1.3     Our Contribution
+Among succinct non-interactive zero-knowledge protocols, characterized by an
+O(log n) transcript size and O(log n) verifier time for the multiplication of two
+n × n matrices, our zkMatrix is the first to accomplish O(n2 ) prover time.
+
+
+                         Proof 1                     Proof 2                    Proof 3                   Proof 4
+                     �1 (�1 , �1 ) = �1         �2 (�2 , �2 ) = �2         �3 (�3 , �3 ) = �3         �4 (�4 , �4 ) = �4
+                �� ��1                      �1 ��2                    �2 ��3                    �3 ��4                      ��
+
+
+            � = �1        �1              �1 = �2     �2             �2 = �3    ��          �3 = �4        �4              �4 = �
+
+
+    �                                                                                                                               �
+
+
+
+
+Fig. 1: CNNs with zero-knowledge proofs. Xi and Yi represent the input and
+output of the CNN’s layer i, with a weight Wi such that fi (Xi , Wi ) = Yi for some
+matrix function fi . CA stands for the commitment to the secret vector/matrix
+A, bridging sub-protocols throughout the CNN computation.
+
+
+
+
+First zk-SNARK for matrix multiplication with linear prover time.
+The zkMatrix protocol achieves a strictly linear prover time while maintaining
+a succinct transcript. No existing zk-SNARK protocol for matrix multiplication
+has achieved such a level of asymptotic efficiency.
+         zkMatrix: Batched Short Proof for Committed Matrix Multiplication        7
+
+Bulletproof as zk-SNARK with universal structured reference string.
+Our methodology reduces the verifier time of Bulletproofs to a logarithmic scale.
+Bulletproof is not categorized as a zk-SNARK protocol due to its linear verifier
+time. Our methods can reduce the verifier time of the Bulletproof-version R1CS
+protocol (see Protocol 3 in [Bünz et al.(2018)]) to logarithmic exponentiations.
+Though our technique requires a trusted setup phase to generate the structured
+reference string (SRS), this setup is a one-shot procedure. Consequently, the
+SRS is universal and upgradable — features that align with contemporary zk-
+SNARK solutions like Sonic [Maller et al.(2019)], Marlin [Chiesa et al.(2020a)],
+and PLONK [Gabizon et al.(2019)].
+
+1.4    Potential Applications
+Privacy-preserving data mining Privacy-preserving data mining aims to
+construct data models without direct access to the underlying data records [Agrawal
+and Srikant(2000)]. A succinct zero-knowledge proof, published alongside the
+data mining results, can validate the reliability of these results without revealing
+the underlying data [Duan and Canny([n. d.])]. Given the crucial role of matrix
+multiplication in data mining techniques such as Linear Regression (LR), Prin-
+cipal Component Analysis (PCA), and graph mining via adjacency matrices,
+zkMatrix becomes indispensable in enabling privacy-preserving data mining.
+
+Range proof for vectors Bulletproof is a widely-used technique for range
+proofs. In blockchain applications, confidential transactions that conceal trans-
+action details can be achieved through Pedersen commitments. In this scenario,
+range proofs are essential to guarantee that the hidden values fall within a spec-
+ified range. For example, this ensures that the amount sent does not exceed the
+current balance. Pedersen vector commitments can commit multiple confiden-
+tial transactions collectively. Just as Bulletproof provides range proofs for single
+committed values [Bünz et al.(2018)], zkMatrix is capable of providing the nec-
+essary range proofs for these committed vectors. Specifically, that all elements
+of a secret vector ⃗c ∈ Zm                             n
+                         p fall within the range (0, 2 − 1) is equivalent to:
+
+
+                      ∃a ∈ Zpm×n , s.t. a ◦ (a − 1) = 0 ∧ ⃗c = a⃗b,
+
+where the vector ⃗b ∈ Znp is (1, 2, 22 , · · · , 2n−1 )T .
+
+Non-interactive zero-knowledge proofs for machine learning model.
+Matrix multiplication is also fundamental in machine learning. Zero-knowledge
+proofs for convolutional neural networks (CNNs) highlight the importance of
+zk-SNARKs for matrix multiplications [Weng et al.(2021),Liu et al.(2021)]. Fig-
+ure 1 illustrates a basic CNN architecture, where the convolutional layers are
+transformed into matrix multiplications [Vasudevan et al.(2017)]. Pedersen vec-
+tor commitments to the intermediate variables can link the sub-protocols for
+successive layers. This ensures the output-input consistency across successive
+8       M. Cong et al.
+
+layers. Machine learning necessitates floating-point matrix multiplications. The
+appendix of the online full version of this paper elaborates on the method used
+to adapt zkMatrix for floating-point matrices.
+
+
+2     Preliminaries
+
+2.1   Notation
+
+Group and field elements. Let G represents a cyclic group of prime order
+p, and let Zp denote the ring of integers modulo p. Z∗p is defined as Z∗p :=
+Zp \{0}. N, Z, and R denote the sets of natural numbers, integers, and real
+                                               $
+numbers, respectively. We use the symbol ←       − to indicate the uniform sampling
+of an element from a set. If not otherwise clear from context, group elements are
+denoted by G, H, U, V, W, P ∈ G. Field elements are denoted by a, b, c, d ∈ Zp ,
+and their Pedersen commitments are denoted by Ca , Cb , Cc , Cd ∈ G. A random
+challenge x ∈ Z∗p sent from the verifier to the prover is considered public-coin
+if it is public information and is selected uniformly at random. We denote this
+                 $
+process as [x] ← − Coin(Z∗p ), and use x, y, z to denote such public-coin challenges.
+       $
+        − Z∗p are uniformly distributed randomness for batch processing. We use
+θ, ρ, ϑ ←
+                                                           $
+                                                             − Z∗p corresponding to a,
+the superscript ˜· to denote the blinding factors ã, b̃, c̃ ←
+b, and c, respectively. The base for these blinding factors is denoted by G̃ ∈ G.
+    We adopt the additive notation for group operations.      LendWe use ⊕ to denote
+group addition, and O is the identity element of G.             i=start represents the
+summation of multiple group elements indexed by i ∈ range(start, end). For
+                                                                       end
+comparison, the summation of field elements is denoted by Σi=start           . We also
+employ the term exponentiation to indicate the scalar multiplication of group
+elements.
+
+
+Pairing A pairing is a bilinear map, denoted by e : G1 × G2 7→ GT , that maps
+two cryptographic groups G1 and G2 to a third group GT . This third group GT
+is referred to as the target group. The bilinear property is given by the equation:
+
+              e(aG, bH) = ab e(G, H), ∀ a, b ∈ Zp , G ∈ G1 , H ∈ G2 .
+
+    When the same group is used for the first two groups (i.e. G1 = G2 = G), the
+pairing is referred to as symmetric or type-1 pairing. Otherwise, it is asymmetric.
+    Symmetric pairings are easier to read and analyze, but asymmetric pairings
+often offer greater computational efficiency. For our purposes, throughout our
+main text, we will primarily employ symmetric pairings . Our protocols can be
+readily adapted to use asymmetric pairings.
+    In the context of asymmetric pairing, the group generators in G1 and G2 are
+denoted by Ĝ and Ĥ, respectively.
+         zkMatrix: Batched Short Proof for Committed Matrix Multiplication                     9
+
+Matrix and matrix operation We employ a slightly unconventional notation
+for matrices and vectors. Specifically, we use bold letters to represent matrices, ⃗·
+to denote column vectors, and ⃗·⊤ to denote row vectors. To distinguish between
+matrices of field elements (field matrices) and those containing group elements
+(group matrices), we utilize uppercase and lowercase bold letters. Field matrices
+are denoted by a, b, c, and group matrices are denoted by G, H, U .
+    Recall that in linear algebra, a matrix can be partitioned into smaller matri-
+ces known as blocks. Specifically, we use a = {aij } to represent the mn elements
+aij ∈ Zp , i ∈ range(1, m), j ∈ range(1, n) in a matrix. The matrix a can be
+divided into m row-vectors, denoted by ⃗a⊤               a⊤
+                                            1∗ , · · · , ⃗ m∗ , or n column-vectors, de-
+noted by ⃗a∗1 , · · · , ⃗a∗n .
+                                                                           part
+    Informally, we use the notation (⃗a⊤             a⊤
+                                                1∗ , ⃗              a⊤
+                                                       2∗ , · · · , ⃗
+                                                                          ⊤
+                                                                      m∗ ) ←−− a to indicate that
+we have partitioned a into m row vectors, and
+                               part
+(⃗a∗1 , ⃗a∗2 , · · · , ⃗a∗n ) ←−− a to signify that we have partitioned a into n column
+vectors. Additionally, we use the expression:
+
+                                                                                  flat
+               ⃗a := (a11 , a12 , · · · , a1n ; · · · ; am1 , am2 , · · · , amn ) ←−− a,
+
+to indicate that we have flattened a into a (mn)-vector. To distinguish between
+the set of matrices and the set of vectors, we denote the former by Zm×n    p       and
+the latter by Zmn
+               p  . Similar notations apply to group  matrices   and group     vectors.
+    When ⃗a ∈ Znp is a vector, we separate it to the left half ⃗aL ← (a1 , · · · , an/2 )
+                                                                              half
+and the right half ⃗aR ← (an/2+1 , · · · , an ). We use (⃗aL ||⃗aR ) ←−− ⃗a to denote this
+procedure. For simplicity, we assume that n is a power of 2. We use the symbol
+|| to denote the concatenation of two vectors into a longer vector.
+    We can define addition and scalar multiplication on group matrices similarly
+to those on field matrices. Additionally, we define ⟨a, G⟩, the inner product
+between a field matrix a ∈ Zm×n
+                              p       and a group matrix G ∈ Gm×n , as in Eq. 2.
+To avoid ambiguity, we use the bullet symbol • instead of ⟨·⟩ to denote the inner
+product operation between field vectors (this happens to be a coincidence with
+the name Bulletproof).
+
+
+Bracket representation We introduce the bracket representation [·] as a new
+notation. [·] signifies that the value within the bracket has been known by both
+the prover and the verifier. To be more specific, we put into brackets the public
+parameters, the commitments, the public-coin challenges, and the intermediate
+variables computed from values in brackets. The bracket representation is es-
+pecially useful from the verifier’s viewpoint. As a convention of this paper, we
+do not use the bracket representation within the prover’s algorithm, or in cases
+where no ambiguity exists.
+   For instance, in Schnorr’s protocol, by employing the bracket representation,
+we avoid using extra symbols for [aG], [αG], and [α + xa]. The verifier checks
+                         ?
+whether [α + xa][G]=[αG] + [x][aG], which holds obviously.
+10       M. Cong et al.
+
+Miscellaneous Throughout this paper, the security parameter is denoted by
+λ. We use Setup(1λ ) to represent the generation of public parameters, like the
+order p of G, based on the security parameter. P, V, E, S, and A stand for the
+prover, the verifier, the emulator, the simulator, and the adversary, respectively.
+(P ⇌ V) represents the interaction between P and V. We use R ={ Public
+Input : Witness | Relation } to denote a relation with the specified Public Input
+and Witness. For clarity, We separate the inputs of algorithms with commas
+‘,’, semicolons ‘;’, or colons ‘:’, e.g., (Commitments; Bases; Auxiliary bases if
+applicable: Witnesses). When applicable, we place the parameters corresponding
+to c before other parameters, e.g., ([Cc ], [Ca ], [Cb ]; [U ], [G], [H]; [U ′ ], [G′ ], [H ′ ] :
+c, a, b).
+     Furthermore, to avoid ambiguity, we use ← for the assignment operation and
+= to indicate equivalence. We denote the dimensions of matrices or vectors with
+n, m, l, the batch size with t, and the indices with i, j, k, τ .
+
+Symbol table We summarize the symbols used in this paper as follows. Symbols
+not listed below are local and will be defined when they first appear.
+ – c ∈ Zm×n  p    , a ∈ Zm×l
+                         p     , b ∈ Zl×n
+                                      p : Private witness matrices.
+ – m, n, l ∈ N: Dimensions of the matrices.
+ – i, j, k ∈ N: Indices of the matrix/vector elements.
+ – Ĝ ∈ G or Ĝ ∈ G1 , Ĥ ∈ G2 ; ŝ, ν ∈ Z∗p : Group generators and random numbers
+   used to generate the SRS.
+ – U ∈ Gm×n , G ∈ Gm×l , H ∈ Gl×n : Public group matrices serving as bases
+   for c, a, and b.
+ – Cc , Ca , Cb ∈ G: Commitments to the matrices.
+ – q ∈ N: The length of the SRS.
+    ⃗ S
+ – S,    ⃗ ′ ∈ Gq or Gq : The SRS generated from Ĝ, Ĥ, ŝ, and ν. Their specific
+                         1
+   form depends on the setup of the protocols.
+ – ζ⃗ ∈ Zqp : The public coefficients on S     ⃗ in the verification check. Its specific
+   form varies in different protocols.
+ – ϕ(·) ∈ Zp [X]: A polynomial defined by ζ⃗ as in Eq. 10.
+ – s ∈ Zp : The random challenge used to accelerate Bulletproofs and other
+   protocols, as in Subsection 3.1.
+ – x(j) ∈ Z∗p : The random challenge used in the Bulletproof protocol during the
+   jth round of iteration.
+ – L(j) , R(j) ∈ G: Transcript elements generated by the Bulletproof protocol
+   during the jth round of iteration.
+ – â, b̂ ∈ Zp : Transcript elements generated at the end of the Bulletproof pro-
+   tocol.
+ – ξ⃗ ∈ Znp : A public vector computed from x(1) , · · · , x(log2 n) according to the
+   rule in Eq. 7.
+ – x ∈ Z∗p : The random challenge used to multiply Cc in Algorithms 2 and 3.
+ – y⃗ L ∈ Zm                  ⃗ ∈ Zmn
+                  ⃗ R ∈ Znp , y
+               p ,y                 p : The random challenge vectors used in the four
+   inner products in Eq. 3.
+ – y ∈ Z∗p : The random challenge used to compute y            ⃗R , y
+                                                           ⃗L, y    ⃗.
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                 11
+
+ – d ∈ Zp , ⃗ay ∈ Zlp , ⃗by ∈ Zlp : Intermediate variables such that ⃗ay = y
+                                                                           ⃗L⊤
+                                                                               a,
+   ⃗by = b⃗yR , and d = y   ⊤
+                          ⃗ L c⃗
+                               yR .
+ – U ′ ∈ G, G           ⃗ ′ ∈ Gl : Public bases for d, ay , by .
+             ⃗ ′ ∈ Gl , H
+ – γ ∈ Zm×n
+          p    , α ∈ Zm×l
+                        p   , β ∈ Zl×n
+                                    p : Random matrices used by Algorithm 5 for
+    blinding the matrices c, a, and b.
+ – ρ ∈ Z∗p : The random challenge used for batch processing.
+ – ϑ, θ ∈ Z∗p : Random values used to combine multiple verification equations
+    into a single equation, as in Eq. 13 and 21.
+
+2.2    Cryptographic Assumptions and Definitions
+Cryptographic assumptions for our work include the discrete logarithm rela-
+tion assumption [Bünz et al.(2018)], the q-Power Diffie-Hellman (q-PDH) as-
+sumption [Groth(2010), Parno et al.(2016)], the q-Power Knowledge of Expo-
+nent (q-PKE) assumption [Groth(2010), Parno et al.(2016)], and the q-Bilinear
+Strong Diffie-Hellman (q-BSDH) assumption [Kate et al.(2010)]. Our defini-
+tions for for Pedersen vector commitment, zero-knowledge arguments of knowl-
+edge, perfect completeness, computational knowledge soundness, perfect Special
+Honest-Verifier Zero-Knowledge (SHVZK), public-coin, Fiat-Shamir heuristics,
+and fully succinct zk-SNARK align with the definitions presented in [Bünz
+et al.(2018),Attema et al.(2021),Attema et al.(2022),Gabizon et al.(2019)] These
+assumptions and definitions are also provided in the appendix of the online full
+version of this paper.
+
+
+3     Accelerating Bulletproof Verification
+ Bulletproof [Bünz et al.(2018)] provides an efficient argument of knowledge for
+⃗a, ⃗b ∈ Znp with a communication complexity of 2 log2 n group elements and 2
+ field elements for the following relation:
+        Rbullet =                                                                         (4)
+                                           ⃗a ∈ Znp ,     C = (⃗a • ⃗b)U
+        (                       !                   !                            !)
+             [C] ∈ G; [U ] ∈ G;
+                                  :                                                   .
+              ⃗ ∈ Gn , [H]
+             [G]         ⃗ ∈ Gn           ⃗b ∈ Zn                ⃗
+                                                           ⊕⟨⃗a, G⟩⊕⟨   ⃗b, H⟩
+                                                                            ⃗
+                                                p
+
+    To understand Bulletproof in Algorithm 1, let us consider a simplified sce-
+nario where ⃗b = ⃗0. Given the public group vector [G]
+                                                    ⃗ ∈ Gn and a commitment
+[C] ∈ G, the prover aims to prove the knowledge of a secret vector ⃗a ∈ Znp such
+           ⃗ = [C].
+that ⟨⃗a, [G]⟩
+                                            ⃗ into their left and right halves.
+    Bulletproof divides the vectors ⃗a and [G]
+There are four inner products of the half vectors as follows:
+                       ⃗ L ⟩,
+                ⟨⃗aL , G               ⃗ R ⟩,
+                                ⟨⃗aR , G               ⃗ R ⟩,
+                                                ⟨⃗aL , G               ⃗ L ⟩.
+                                                                ⟨⃗aR , G                  (5)
+The last two terms, denoted as:
+                                      ⃗ R ⟩,
+                     [L(1) ] = ⟨⃗aL , G                          ⃗ L ⟩,
+                                                [R(1) ] = ⟨⃗aR , G
+12       M. Cong et al.
+
+are included into the transcript.
+                                                                                                   $
+                                                                                      −
+    Upon receiving [L(1) ] and [R(1) ], the verifier sends a random challenge [x(1) ] ←
+ ∗                                                          ⃗                    −1 ∗
+Zp . The prover scales the right halves of ⃗a and G with factors x(1) ∈ Zp and
+x(1) ∈ Z∗p , respectively, and then folds the right halves with the left halves to
+derive ⃗a′ = ⃗aL + x−1        ⃗          ⃗′       ⃗            ⃗
+                         (1) aR and [G ] = [GL ]⊕[x(1) ][GR ] . Their inner product
+becomes:
+                                       ⃗
+                        ⃗ ′ ]⟩ = ⟨⃗a, [G]⟩⊕([x
+                ⟨⃗a′ , [G                     (1) ][L(1) ])⊕([x(1) ]
+                                                                    −1
+                                                                       [R(1) ]).
+
+This simplifies the original problem to one of half the length. This folding pro-
+cedure can be recursively applied to reduce the original inner product into a
+Pedersen commitment to a scalar.
+    To accelerate Bulletproof, we employ a modified version of the updating
+rule as described in [Gentry et al.(2022)], which results in an approximate 1/4
+reduction in prover time. The corresponding Bulletproof protocol can be found
+in Algorithm 1.
+
+
+
+ Algorithm 1: Bulletproof in [Gentry et al.(2022)]
+                                                ⃗ ∈ Gn ;
+                                            ⃗ [H]
+   Input: Public input: [C] ∈ G; [U ] ∈ G, [G],
+          P’s private input: ⃗    ⃗    n
+                              a , b ∈ Zp
+   Output: TRUE (V accepts) or FALSE (V rejects)
+ 1 if n = 1 then
+ 2     P → V: [a], [b] ∈ Zp ;
+                            ?
+ 3      V checks if [C]=[a][b][U ]⊕[a][G]⊕[b][H]:
+ 4         if yes, return TRUE; otherwise, return FALSE
+ 5 else
+       // P and V compute:
+ 6     n′ ← n/2;
+         ⃗ L ] || [G      half
+                   ⃗ R ]) ←      ⃗ ([H   ⃗ L ] || [H      half
+                                                   ⃗ R ]) ←    ⃗
+ 7     ([G                 −− [G],                         −− [H];
+       // P computes:
+                     half                  half
+ 8           aR ) ←−− ⃗
+        aL ||⃗
+       (⃗                 a, (⃗bL ||⃗bR ) ←−− ⃗b;
+ 9     L ← ⟨⃗  aL , G⃗ R ⟩⊕⟨⃗bR , H⃗ L ⟩⊕(⃗ aL • ⃗bR )U ∈ G ;
+10     R ← ⟨⃗        ⃗       ⃗      ⃗
+               aR , GL ⟩⊕⟨bL , HR ⟩⊕(⃗       aR • ⃗bL )U ∈ G ;
+11     P → V: [L], [R] ∈ G;
+                        $
+12      V → P: [x] ←    − Coin(Z∗p ) ;
+        // P computes:
+                                       ′
+                                         ⃗′    ⃗    ⃗     n′
+13      a′ ← ⃗
+        ⃗       aL + [x]−1 ⃗aR ∈ Zn p , b ← bL + [x]bR ∈ Zp ;
+        // P and V compute:
+14      [C ′ ] ← ([x][L])⊕[C]⊕([x]−1 [R]) ∈ G ;
+15       ⃗ ′ ] ← [G
+        [G                   ⃗ R ] ∈ Gn′ ;
+                   ⃗ L ]⊕[x][G
+16      [H         ⃗ L ]⊕[x]−1 [H
+          ⃗ ′ ] ← [H             ⃗ R ] ∈ Gn′ ;
+17                                                                    ⃗ ′ ], [H
+        P and V recursively run Bulletproof on input: ([C ′ ]; [U ], [G              a′ , ⃗b′ );
+                                                                              ⃗ ′] : ⃗
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                            13
+
+3.1   Verification through Multi-Exponentiation
+The entire verification process in the Bulletproof protocol can be condensed
+into a single multi-exponentiation with the following form (refer to Section 3.1
+of [Bünz et al.(2018)]):
+                        Mlog2 n
+                 [C]⊕               ([x(j) ][L(j) ]⊕[x(j) ]−1 [R(j) ])
+                              j=1
+                                                      ⃗ [G]⟩⊕[
+                               = ([â][b̂])[U ]⊕[â]⟨[ξ], ⃗   b̂]⟨[ξ⃗−1 ], [H]⟩.
+                                                                            ⃗                        (6)
+
+Here, [x(j) ] represents the challenge in the jth round, while [â] and [b̂] denote
+                                                                ⃗ = ([ξ1 ], · · · , [ξn ])
+field elements in the transcript generated in the final round. [ξ]
+is a vector computed from the public-coin challenges as follows:
+                                                log n ι(i,j)
+                                       ξi = Πj=12 x(j) ,
+
+where ι(i, j) is the jth bit of (i − 1) in big-endian format or, equivalently, the
+(log2 n − j + 1)th bit in little-endian format. Alternatively, the vector ξ⃗ can be
+computed recursively as follows:
+
+              ξ⃗(0) ← (1); ξ⃗(j+1) ← (ξ⃗(j) || x(log2 n−j) ξ⃗(j) ); ξ⃗ ← ξ⃗(log2 n) .                (7)
+
+   In subsequent discussion, where the specific coefficients are not relevant,
+                         ⃗ [S]⟩
+we define the symbols ⟨[ζ],  ⃗ to represent the right hand side of the multi-
+exponentiation Eq. 6, by setting:
+
+         ζ⃗ = (âb̂, âξ1 , b̂ξ1−1 , · · · , âξn , b̂ξn−1 ), S
+                                                              ⃗ = (U, G1 , H1 , · · · , Gn , Hn ).   (8)
+
+We can see that the verification of Eq.6 requires 2n+2 log2 n+1 exponentiations.
+
+Our verification acceleration via prover. In Eq.6, the primary compu-
+tational burden arises from the evaluation of the multi-exponentiation on the
+right-hand side. Halo attempts to address this issue by introducing a third party
+“helper” to collaboratively compute this value [Bowe et al.(2019)]. Our proposi-
+tion is to let the prover act as the “helper” if they can provide additional proof
+of the correctness of this computed value.
+    Our acceleration requires a structured reference string (SRS), and employs
+the Bulletproof setup described by computing:
+                                                              log2 i
+                                                               X
+                         ωi
+                       [ŝ Ĝ],     where ωi = ω0 + ϵ                  ι(i, j)2ϵ(j) .                (9)
+                                                               j=1
+
+Here, ι(i, j) represents the jth bit of i−1 in little-endian format. The parameters
+ω0 , ϵ, and ϵ(j) are chosen such that the sets U, G, H contain distinct group
+elements. For example, by setting ω0 = 1, 2, 3 for U, G, H, ϵ = 2 and ϵ(j) = j,
+we derive U = ŝĜ, Gi = ŝ2i Ĝ, and Hi = ŝ1+2i Ĝ.
+14      M. Cong et al.
+
+     During the setup phase, the setup algorithm selects Ĝ and randomly chooses
+ŝ, ν ∈ Z∗p . It computes the SRS as:
+
+           ⃗ [S
+          [S], ⃗ ′ ] := ([ŝĜ], · · · , [ŝq Ĝ]), ([ν Ĝ], [ν ŝĜ], [ν ŝ2 Ĝ], · · · , [ν ŝq Ĝ]),
+
+where q > 2n + 1. It subsequently securely discards ν and ŝ.
+   By employing a change of notation to ζ⃗ = (ζ1 , · · · , ζq ), where [ζi ] = 0 for
+i > 2n + 1, the right-hand side of Eq. 6 can be represented as:
+                        ⃗ [S]⟩
+                      ⟨[ζ], ⃗ = [ζ1 ][ŝĜ]⊕[ζ2 ][ŝ2 Ĝ]⊕ · · · ⊕[ζq ][ŝq Ĝ].
+
+This expression can be viewed as a KZG commitment [Kate et al.(2010)] to the
+following polynomial ϕ(x) ∈ Zp [X]:
+
+                                    ϕ(x) = [ζ1 ]x + · · · + [ζq ]xq .                                     (10)
+
+Observe that the polynomial ϕ(x) is public knowledge, as it is uniquely deter-
+mined by the public parameters [ζ1 ], . . . , [ζq ].
+    During the proving phase, the prover and the verifier runs the original Bul-
+letproof first. Afterward, the verifier sends an additional public-coin challenge
+    $
+    − Coin(Z∗p ). In response, the prover computes:
+[s] ←
+
+                     [V ′ ] ← [ζ1 ][ν ŝĜ]⊕[ζ2 ][ν ŝ2 Ĝ]⊕ · · · ⊕[ζq ][ν ŝq Ĝ],
+                              Mq             si − ŝi       Mq
+                     [W ] ←             ζi (          )Ĝ =            ψi [ŝi−1 Ĝ],
+                                   i=1        s − ŝ               i=1
+
+where the coefficients ψi , i ∈ range(1, q) can be computed recursively using the
+following equations:
+
+                                  ψq ← ζq ,         ψi ← ψi+1 s + ζi .
+
+The prover then sends V ′ and W to the verifier.
+   The verifier computes:
+                            Mlog2 n
+                [V ] ← [C]⊕         ([x(j) ][L(j) ]⊕[x(j) ]−1 [R(j) ]).                                   (11)
+                                           j=1
+
+The verifier checks the consistency of [V ], [V ′ ], [W ], and the public polynomial
+ϕ(x) by verifying the two pairing equations:
+                                          ?
+                        e([V ], [ν Ĝ])=e([V ′ ], [Ĝ]),
+                                                        ?
+                        e(ϕ([s])[Ĝ]⊖[V ], [Ĝ])=e([s][Ĝ]⊖[ŝĜ], [W ]).                                 (12)
+
+These two pairing equations can be consolidated into a single pairing equation
+                                     $
+                                    − Z∗p :
+by using an additional randomness ϑ ←
+
+                     e(ϕ([s])[Ĝ]⊖[V ]⊕[ϑ][V ′ ], [Ĝ])
+                                    ?
+                                   =e([s][Ĝ]⊖[ŝĜ], [W ])⊕e([ϑ][V ], [ν Ĝ]).                           (13)
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                   15
+
+   It is also possible to employ asymmetric pairing to perform our acceleration.
+Let Ĥ ∈ G2 be the generator of G2 and include [Ĥ], [ν Ĥ] ∈ G2 into the SRS,
+Eq. 12 becomes:
+                                   ?
+                    e([V ], [ν Ĥ])=e([V ′ ], [Ĥ]),
+                                                    ?
+                    e(ϕ([s])[Ĝ]⊖[V ], [Ĥ])=e([W ], [s][Ĥ]⊖[ŝĤ]).                      (14)
+The cryptographic assumptions for asymmetric pairing should be altered slightly.
+
+Running time evaluation. As shown above, the running time for the verifier
+includes 2 log2 n exponentiations and 2 log2 n additions in G (for computing V ),
+3 pairing computations, 4 exponentiations and 3 additions in G (for Eq. 13), and
+the computation of the public polynomial ϕ(s) with the form:
+                                           n
+                                           X                    n
+                                                                X
+                     ϕ(s) = âb̂s + â            ξi s2i + b̂         ξi−1 s1+2i
+                                           i=1                  i=1
+
+                                             ⃗G + b̂ξ⃗−1 • s
+                            = âb̂s + âξ⃗ • s             ⃗H ,
+                                   ⃗H = (s3 , · · · , s2n+1 ). Remember that ξ and ξ −1
+      ⃗G = (s2 , · · · , s2n ) and s
+where s
+can be recursively calculated using Eq. 7. When a vector s          ⃗ can be computed
+through a similar updating rule:
+            ⃗(0) ← (s1 );
+            s                          s(j) || υ(j+1) s
+                             ⃗(j+1) ← (⃗
+                             s                        ⃗(j) );              ⃗←s
+                                                                           s ⃗(log2 n) ,
+                                                                            ϵ(j)
+where s1 = sω0 is the first element of s⃗, and υ(j) = ŝϵ·2    by Eq. 9. Then, by
+utilizing the following formula, the verifier can compute ξ⃗ • s
+                                                               ⃗ without explicitly
+             ⃗
+calculating ξ:
+                                       log2 n
+                                        Y
+                       ξ⃗ • s
+                            ⃗ = s1              (1 + x(log2 n−j+1) υ(j) ).                 (15)
+                                       j=1
+
+This method demands only 5 log2 n + 3 multiplications in Zp to compute ξ⃗ • s   ⃗
+and ξ⃗−1 • s
+           ⃗. To compute ϕ(s), there are 4 additional multiplications involving â
+and b̂. As a result, the time complexity for verifying Eq. 13 is logarithmic.
+Theorem 1 (Accelerated Bulletproof ). Under the discrete logarithm rela-
+tion assumption, the q-PDH assumption, the q-PKE assumption, and the q-
+BSDH assumption, our accelerated Bulletproof is an argument of knowledge if
+the original Bulletproof is an argument of knowledge.
+The proof for Theorem 1 is presented in Appendix A.1.
+    In this section alone, we will be relying on the q-PDH, q-PKE and q-BSDH
+assumptions. Importantly, it should be noted that this additional proof serves
+as an accelerating alternative. The verifier retains the option to verify the multi-
+exponentiation directly by computing it themselves, without being reliant on the
+accuracy of the additional proof (V ′ , W ) provided by the prover, or the q-PDH,
+q-PKE and q-BSDH assumptions.
+16      M. Cong et al.
+
+Batch processing. An additional useful point is that the prover can provide a
+batched proof for t multi-exponentiations under the same base by utilizing an
+                              $
+                              − Z∗p . Let the multi-exponentiations be expressed
+extra batching randomness [ρ] ←
+as:
+                              ⃗ V(2) = ⟨ζ⃗(2) , S⟩,
+              V(1) = ⟨ζ⃗(1) , S⟩,               ⃗ · · · , V(t) = ⟨ζ⃗(t) , S⟩.
+                                                                          ⃗
+                                 ′
+Instead of computing t sets of V(i) and W(i) , i ∈ range(1, t), the prover only needs
+               ′
+to compute (V̄ , W̄ ) to prove:
+                                           ¯ ⃗
+                                    V̄ = ⟨⃗ζ, S⟩,
+            Lt                  ¯ Pt
+where V̄ = i=1 ρi−1 V(i) and ⃗ζ = i=1 ρi−1 ζ⃗(i) .
+
+
+4     Building Blocks
+4.1   Semi-Inner-Product Argument
+Bulletproof is an argument of knowledge that the prover knows the openings of
+two Pedersen vector commitments ⃗a, ⃗b that satisfy the inner product relation
+c = (⃗a • ⃗b), where c is public information. When ⃗b is a public vector, we can
+                           ⃗ In this case, ⟨⃗b, H⟩
+set the bases of ⃗b to be O.                    ⃗ in Rbullet is identical to O. We
+refer to the corresponding protocol as semi-inner-product argument. Consider
+the extreme case of n = 1, we have c = ab, where b is public. We have to
+hide both c and a in commitments Cc and Ca respectively. Hence, we define the
+relation of semi-inner-product Rsip as:
+
+
+          Rsip =                                                                (16)
+                                                                         
+              [Cc ] ∈ Zp , [Ca ] ∈ G,                                     !
+                                                          Cc = (⃗a • ⃗b)U
+          
+                                                                          
+                                                                            
+            [⃗b] ∈ Znp ;               : ⃗a ∈ Znp
+                                                   
+                                                                            .
+                                     
+                                                          ∧ Ca = ⟨⃗a, G⟩⃗ 
+                           ⃗ ∈ Gn
+          
+           [U ] ∈ G, [G]                                                 
+                                                                          
+
+    In the semi-inner-product argument protocol, we do not compute the expo-
+nentiations of O. Consequently, the prover’s algorithm involves 3n+4 log2 (n)−1
+exponentiations. This is similar to the Lightweight Bulletproof proposed by [Gen-
+try et al.(2022)], although the details differ. The verifier checks a single multi-
+exponentiation with the following form:
+                               Mlog2 n
+               [x][Cc ]⊕[Ca ]⊕         ([x(j) ][L(j) ]⊕[x(j) ]−1 [R(j) ])
+                                   j=1
+                                                                    ⃗ [G]⟩
+                                                ⃗ • [⃗b])[U ]⊕[â]⟨[ξ],
+                                     = [â][x]([ξ]                      ⃗       (17)
+Theorem 2 (Semi-Inner-Product). The semi-inner-product argument pro-
+tocol is an argument of knowledge if the discrete logarithm relation assumption
+holds and the underlying Bulletproof is an argument of knowledge.
+The proof for Theorem 2 is given in Appendix A.2.
+          zkMatrix: Batched Short Proof for Committed Matrix Multiplication       17
+
+
+ Algorithm 2: Protocol of Semi-Inner-Product Argument
+      Input: Public input: [Cc ], [Ca ] ∈ G, [⃗b] ∈ Zn
+                                                     p;
+                                    ⃗ ∈ Gn ;
+                         [U ] ∈ G, [G]
+            P’s private input: ⃗a ∈ Znp
+      Output: TRUE (V accepts) or FALSE (V rejects)
+                                       $
+ 1                                 − Z∗p ;
+      P → V: [R] ← rU ∈ G, where r ←
+                  $
+ 2               − Coin(Z∗p );
+      V → P: [h] ←
+                                                $
+ 3 P → V : [z] ← r + h(⃗   a • ⃗b) ∈ Zp and [x] ←
+                                                − Coin(Z∗p );
+ 4 V returns FALSE if [z][U ] ̸= [R]⊕[h][Cc ] ;
+ 5 P and V compute [C] ← [x][Cc ]⊕[Ca ] and run Bulletproof on input:
+                    ⃗ O
+    ([C]; [x][U ], [G],    a, [⃗b]) ;
+                        ⃗ :⃗
+
+
+
+
+Variations. Our semi-inner-product argument is similar to the sum argument
+in [Yuen et al.(2021)] with two main differences: (1) the sum argument requires
+that ⃗b = ⃗1, (2) the value c is not committed.
+    It is also worth noting that when Cc = O and ⃗b = ⃗0, our protocol serves as
+a proof for the following relation:
+
+                                        ⃗ ∈ Gn : ⃗a ∈ Znp Ca = ⟨⃗a, G⟩
+                                                                    ⃗ ,
+                        
+               Rcom =       [Ca ] ∈ G, [G]
+
+that is, we know a witness ⃗a for the commitment Ca using the base G.  ⃗ The
+protocol for Rcom enables us to develop a protocol for a linear combination of
+high-dimensional vectors in latter sections.
+
+
+Optimizations. In Algorithm 2, we use the standard proof of knowledge of
+discrete logarithm in line 1-4 to ensure that Cc = cU for some c ∈ Zp . This
+increases the transcript size by 1 group element R and 2 field elements (h, z).
+    To further improve the performance, we can drop the part related to (R, h, z).
+In that case, we are only able to prove a relaxed relation of Rsip , i.e., Cc =
+(⃗a • ⃗b)U ⊕⟨c⃗′ , G⟩
+                   ⃗ for some c⃗′ • ⃗b = 0. Instead of using a proof of knowledge
+of discrete logarithm, an alternative solution involves demonstrating, through a
+separate protocol, that Cc = (⃗a • ⃗b)U ⊕⟨c⃗′′ , G                 ⃗ and G
+                                                 ⃗ ′ ⟩. Given that G     ⃗ ′ share no
+common member, we can confidently deduce that c⃗′ = ⃗0 and c⃗′′ = ⃗0.
+    For the relation Rcom , the verifier can directly observe that Cc = 0. Hence,
+the lines related to (R, h, z) can also be dropped.
+
+
+4.2     High-Dimensional Semi-Inner-Product Argument
+
+We can generalize the semi-inner-product argument to the high-dimensional sce-
+nario where ⃗ai , i ∈ range(1, n) are m-dimensional vectors in Zm
+                                                                p . We provide a
+18        M. Cong et al.
+
+proof for the following relation:
+
+     Rhd−sip =                                                                                (18)
+                                                                                         
+         [Cc ], [Ca ] ∈ G,                                              n            ⃗⟩ 
+                                                                                          
+                                                                ! Cc = ⟨Σi=1 ⃗ai bi , U
+     
+                                                                                           
+                                                                                           
+     [b1 ], · · · , [bn ] ∈ Zp ;           ⃗a1 , · · · , ⃗an 
+                                                                                          
+                                                                                          
+                                    :                          ∧                        .
+      [U⃗ ] ∈ Gm ,                               ∈ Zm   p
+                                                                       Mn                
+     
+     
+     
+       
+      ⃗
+                                     
+                                                                   Ca =               ⃗ i⟩ 
+                                                                               ⟨⃗ai , G     
+                                                                                            
+                         ⃗
+         [G1 ], · · · , [Gn ] ∈ G  m                                      i=1
+                                                                                            
+
+     The protocol is presented in Algorithm 3.
+
+
+ Algorithm 3: High-Dimensional Semi-Inner-Product Argument
+     Input: Public input: [Cc ], [Ca ] ∈ G, [⃗b] ∈ Zn         p;
+                         ⃗ ] ∈ Gm , [G
+                        [U               ⃗ 1 ], · · · , [G⃗ n ] ∈ Gm ;
+           P’s private input: ⃗             an ∈ Zm
+                               a1 , · · · , ⃗           p
+     Output: TRUE (V accepts) or FALSE (V rejects)
+                    $
+ 1 V → P: [x] ←− Coin(Z∗p ) ;
+   // P and V compute:
+ 2 foreach i ∈ range(1, n) and j ∈ range(1, m) do
+ 3    [Wij ] ← [Gij ]⊕[x][bi ][Uj ] ∈ G ;
+ 4  ⃗ ] ← ([W11 ], · · · , [W1m ]; · · · ; [Wn1 ], · · · , [Wnm ]) ∈ Gmn ;
+   [W
+ 5 P and V run the Semi-Inner-Product Argument (Algorithm 2) on input:
+                            ⃗ ] : Pn ⃗
+    (O, [Cc ], ⃗0; [G11 ], [U       i=1 ai bi );
+ 6 P and V run the Semi-Inner-Product Argument (Algorithm 2) on input:
+    (O, [x][Cc ]⊕[Ca ], ⃗0; [U1 ], [W⃗ ] : (⃗    a2 || · · · ||⃗
+                                            a1 ||⃗             an ));
+
+
+
+
+Theorem 3. The high-dimensional semi-inner-product argument is an argu-
+ment of knowledge if the discrete logarithm relation assumption holds and the
+underlying semi-inner-product argument is an argument of knowledge.
+
+The proof for Theorem 3 is given in Appendix A.3.
+
+
+Optimizations. In Algorithm 3, we incorporate an additional semi-inner-product
+argument in line 5 to ensure that Cc = ⟨⃗c, U    ⃗ ⟩ for some ⃗c ∈ Zm . This increases
+                                                                         p
+the transcript size by 2 log2 m group elements and 2 field elements. It is possible
+to eliminate this additional semi-inner-product argument and verify a relaxed
+                                                Pn
+version of this relation Rhd−sip , i.e., Cc = ⟨ i=1 ⃗ai bi , U  ⃗ ⟩⊕Ln ⟨c⃗′ , G
+                                                                              ⃗ i ⟩ for some
+                                                                      i=1 i
+Pn ⃗′
+   i=1 ci bi = 0. We will show in the subsequent section that, in the context of
+the zkMatrix protocol, where Algorithm 3 is used as a sub-protocol, if another
+sub-protocol can ensure that Cc = ⟨⃗c, U                 ⃗ ′ ⟩ for some ⃗c and c⃗′′ , we can
+                                             ⃗ ⟩⊕⟨c⃗′′ , G
+                    n
+infer, given that ∪i=1 G        ⃗ ′ share no common member, that c⃗′ = c⃗′′ = ⃗0, ∀i.
+                        ⃗ i and G
+                                                                            i
+            zkMatrix: Batched Short Proof for Committed Matrix Multiplication                                                19
+
+
+  Algorithm 4: Protocol MatMul
+     Input: Public input: [Cc ], [Ca ], [Cb ] ∈ G;
+                                            ⃗ ′ ] ∈ Gl ;
+                                    ⃗ ′ ], [H
+                       [U ′ ] ∈ G, [G
+                       [U ] ∈ Gm×n , [G] ∈ Gm×l , [H] ∈ Gl×n ;
+           P’s private input: c ∈ Zm×n   p     , a ∈ Zm×l
+                                                        p , b ∈ Zl×n
+                                                                 p
+     Output: TRUE (V accepts) or FALSE (V rejects)
+                        $
+ 1 V → P: [y] ←     − Coin(Z∗p ) ;
+   // P and V compute:
+    y ] ← (1, [y], [y]2 , · · · , [y]mn−1 ) ∈ Zmn
+ 2 [⃗                                              p   ;
+    yL ] ← (1, [y]n , [y]2n , · · · , [y](m−1)n ) ∈ Zm
+ 3 [⃗                                                    p ;
+    yR ] ← (1, [y], [y]2 , · · · , [y]n−1 ) ∈ Zn
+ 4 [⃗                                             p ;
+   // Partition G into m row vectors
+     ⃗⊤       l          ⃗⊤          l ⊤ part
+ 5 (G  1∗ ∈ G , · · · , Gm∗ ∈ G ) ←         −− G ;
+   // Partition H into n column vectors
+                                         part
+ 6 (H                    ⃗ ∗n ∈ Gl ) ←
+     ⃗ ∗1 ∈ Gl , · · · , H                −− H ;
+   // Flatten U into (mn)−dimensional vectors
+   ⃗ = (U11 , · · · , U1n ; · · · ; Um1 , · · · , Umn ) ←  flat
+ 7 U                                                        −− U ;
+   // P computes:
+                                                                           ⊤ part
+   ay ← m             (i−1)n
+                               ai∗ ∈ Zlp , where (⃗   a⊤             a⊤
+          P
+ 8 ⃗        i=1 [y]            ⃗                        1∗ , · · · , ⃗ m∗ ) ← −− a ;
+                                                                        part
+   ⃗
+ 9 by ←
+          P n         j−1⃗           l            ⃗             ⃗
+                 [y] b∗j ∈ Zp , where (b∗1 , · · · , b∗n ) ←−− b ;
+                 j=1
+                                                                                              flat
+10 d←⃗   c•y  ⃗ ∈ Zp , where ⃗        c = (c11 , · · · , c1n ; · · · ; cm1 , · · · , cmn ) ←−− c;
+11 [Cay ] ← ⟨⃗  ay , G ⟩ ∈ G, [Cby ] ← ⟨⃗by , H
+                      ⃗  ′                                ⃗ ′ ⟩ ∈ G, [Cd ] ← d[U ′ ] ∈ G ;
+12 P → V: [Cd ], [Cay ], [Cby ] ;
+13 P and V run Semi-Inner-Product Argument on input:
+                                   ⃗]: ⃗
+                     y ]; [U ′ ], [U
+     ([Cd ], [Cc ], [⃗                    c) ;
+14 P and V run High-Dimensional Semi-Inner-Product Argument on input:
+                      yL ]; [G
+     ([Cay ], [Ca ], [⃗                  ⃗⊤
+                                ⃗ ′ ], ([G                ⃗⊤
+                                           1∗ ], · · · , [Gm∗ ]) : (⃗  a1∗ , · · · , ⃗
+                                                                                     am∗ )) ;
+15 P and V run High-Dimensional Semi-Inner-Product Argument on input:
+     ([Cby ], [Cb ], [⃗
+                      yR ]; [H           ⃗ ∗1 ], · · · , [H
+                                ⃗ ′ ], ([H                 ⃗ ∗n ]) : (⃗b∗1 , ⃗b∗2 , · · · , ⃗b∗n )) ;
+16 P and V run Bulletproof on input: ([Cd ]⊕[Cay ]⊕[Cby ]; [U ], [G
+                                                                                          ′    ⃗ ′ ], [H      ay , ⃗by ) ;
+                                                                                                       ⃗ ′] : ⃗
+17 If all return TRUE, then return TRUE; otherwise return FALSE
+
+
+
+
+Accelerating Verification. In this protocol, the verifier checks a single multi-
+exponentiation as follows:
+                             Mlog2 (mn)
+             [x][Cc ]⊕[Ca ]⊕            ([x(j) ][L(j) ]⊕[x(j) ]−1 [R(j) ])
+                                                 j=1
+
+                                                    = [â][x]⟨[ξ][⃗b], [U
+                                                                        ⃗ ]⟩⊕[â]⟨[ξ], [G]⟩,                            (19)
+
+        ⃗ ∈ Gm×n = ([G      ⃗ 1 ], · · · , [G                  fold ⃗
+                                            ⃗ n ]). [ξ] ∈ Zm×n ←
+where [G]                                                  p    −− [ξ] ∈ Zmn
+                                                                          p  is a matrix
+determined by the public-coin challenges. Direct mathematical derivation shows
+that [ξ] = ξ⃗m ξ⃗n⊤ , where ξ⃗m is computed from the last log2 m public-coin chal-
+lenges via Eq. 7, and ξ⃗n is computed from the first log2 n public-coin challenges
+via Eq. 7.
+20        M. Cong et al.
+
+      Here, we adopt the following setup:
+                   ⃗ = (ŝnm+1 Ĝ, ŝnm+2 Ĝ, · · · , ŝnm+m Ĝ) := ⃗ŝU Ĝ,
+                   U
+                        1
+                           ŝ Ĝ ŝm+1 Ĝ · · · ŝ(n−1)m+1 Ĝ
+                                                              
+                        ŝ2 Ĝ ŝm+2 Ĝ · · · ŝ(n−1)m+2 Ĝ 
+                   G= .
+                                                             
+                              .      ..     ..          ..    
+                        .            .      .           .    
+                              ŝm Ĝ ŝ2m Ĝ · · ·        ŝnm Ĝ
+                       = (ŝ, ŝ2 , · · · , ŝm )T (1, ŝm , · · · , ŝ(n−1)m )Ĝ
+                                  ⊤
+                       := ⃗ŝGL⃗ŝGR Ĝ.
+
+With the above setup, we can derive the following:
+
+                          ⃗ ⟩ = ((ξ⃗b) • ⃗ŝU )Ĝ = (⃗ŝ⊤ ξ⃗m ξ⃗⊤⃗b)Ĝ
+                    ⟨ξ⃗b, U                             U       n
+                                 ⃗     ⃗       ⃗   ⃗
+                              = (ξm • ŝU )(ξn • b)Ĝ.
+                                           ⊤                            ⊤
+                      ⟨ξ, G⟩ = ⟨ξ, ⃗ŝGL⃗ŝGR Ĝ⟩ = ⟨ξ⃗m ξ⃗n⊤ , ⃗ŝGL⃗ŝGR Ĝ⟩
+                             = (ξ⃗m • ⃗ŝGL )(ξ⃗n • ⃗ŝGR )Ĝ.
+
+The inner products on the right-hand sides of these equations can be calculated
+using the formula in Eq. 15. Through these equations, we can apply a proce-
+dure similar to the one described in Section 3 to reduce the verifier time to a
+logarithmic scale.
+
+
+5      zkMatrix
+In this section, we will give a zero-knowledge proof that a matrix c ∈ Zm×n
+                                                                        p   is
+the product of a ∈ Zm×l
+                     p     and b ∈ Z l×n
+                                     p   .
+
+5.1     Committed Matrix Multiplication
+                                     ⊤                                  ⃗ R := (1, y, · · · , y n−1 )⊤
+For any y ∈ Zp , we define vectors y
+                                   ⃗L  := (1, y n , · · · , y (m−1)n ), y
+                       T                                           flat             flat
+and a matrix y := y⃗Ly
+                     ⃗R  ∈ Zpm×n . Recall that ⃗c ←−− c and y
+                                                            ⃗ ←−− y.
+   Matrix multiplication can be performed by combining four sub-protocols,
+based on the following equivalence:
+                                            ⊤              ⊤
+                {c = ab} ⇐⇒ {∀y, y         ⃗L c⃗yR = (⃗ yL       yR )}
+                                                             a)(b⃗
+                                                                Xm
+             ⇐⇒ {∀y, ∃d, ⃗ay , ⃗by s.t. (d = ⃗c • y
+                                                  ⃗ ) ∧ (⃗ay =     ⃗ai∗ y (i−1)n )
+                                                                          i=1
+                                                n
+                                                X
+                                    ∧ (⃗by =          ⃗b∗j y j−1 ) ∧ (d = ⃗ay • ⃗by )}.     (20)
+                                                j=1
+
+We first show the equivalence of Eq. 20 above:
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication          21
+
+                             ⊤
+                   P⃗amy = y
+ 1. For the relation        ⃗L a, recall that ⃗ai∗ is the i-th row-vector of a. Hence,
+    we have ⃗ay = i=1 ⃗ai∗ y (i−1)n .
+ 2. For the relation ⃗by = b⃗ y , recall that ⃗b∗j is the j-th column-vector of b.
+                     ⃗     Pn R ⃗ j−1
+    Hence, we have by = j=1 b∗j y .
+ 3. We define d := ⃗ay • ⃗by = (⃗
+                                yL⊤
+                                    a)(b⃗yR ). Hence we have:
+                         Xm                        m X
+                                                   X n
+                ⊤
+              ⃗L
+            d=y   c⃗
+                   yR = (   ⃗ci∗ y (i−1)n ) • y
+                                              ⃗R =     cij · y (i−1)n+j−1
+                              i=1                         i=1 j=1
+
+              = ⃗c • y
+                     ⃗.
+    The matrix multiplication argument MatMul is provided in Algorithm 4.
+We use the relaxed version of semi-inner-product argument for d = ⃗c • y     ⃗ , and
+the relaxed version of high-dimensional semi-inner-product argument for ⃗ay =
+Pm                           Pn
+       ai∗ y (i−1)n and ⃗by = j=1 ⃗b∗j y j−1 . We use the (accelerated) Bulletproof
+   i=1 ⃗
+for d := ⃗ay • ⃗by . We employ the commitment to d and the Pedersen vector
+commitments to ⃗ay and ⃗by as the bridges between these four sub-protocols.
+Theorem 4 (MatMul Protocol). The protocol MatMul exhibits perfect com-
+pleteness and computational knowledge soundness.
+The proof for Theorem 4 is presented in Appendix A.4.
+
+Accelerating Verification. By employing an additional public-coin batching
+randomness [θ] ∈ Z∗p , we can merge the first four sub-protocols of the MatMul
+protocol into a single multi-exponentiation check as follows:
+            θ · [(LHS - RHS) of Eq. 17 for the inner product ○]
+                                                             1
+             + θ2 · [(LHS - RHS) of Eq. 19 for the inner product ○]
+                                                                 2
+             + θ3 · [(LHS - RHS) of Eq. 19 for the inner product ○]
+                                                                 3
+             + [(LHS - RHS) of Eq. 6 for the inner product ○]4 = 0.              (21)
+ By adopting the following setup and applying the techniques outlined in Sec-
+tion 3, the verifier can efficiently validate this multi-exponentiation equation
+through the calculation of a known polynomial and three pairings, achieving
+logarithmic time complexity.
+
+                                               ŝ2 Ĝ    · · · ŝn Ĝ
+                                                                      
+                                ŝĜ
+                            ŝn+1 Ĝ       ŝn+2
+                                                     Ĝ  · · · ŝ2n Ĝ 
+               U =                                                    ,
+                                                                      
+                                  ..              ..       ..      ..
+                                  .               .        .       .  
+                          ŝ(m−1)n+1 Ĝ   ŝ(m−1)n+2
+                                                     Ĝ · · · ŝ Ĝmn
+
+                                              ŝ2 Ĝ  · · · ŝl Ĝ
+                                                                     
+                               ŝĜ
+                              l+1
+                            ŝ Ĝ          ŝl+2 Ĝ  · · · ŝ2l Ĝ 
+               G=                                                    ,
+                                                                     
+                                 ..              ..     ..      ..
+                                 .               .      .       .    
+                          ŝ(m−1)l+1 Ĝ   ŝ(m−1)l+2 Ĝ · · ·   ŝml Ĝ
+22           M. Cong et al.
+
+                                                         ŝ2 Ĝ    · · · ŝn Ĝ
+                                                                                
+                                      ŝĜ
+                                  ŝn+1 Ĝ           ŝn+2
+                                                               Ĝ  · · · ŝ2n Ĝ 
+                    H=                                                          ,
+                                                                                
+                                        ..                  ..       ..     ..
+                                        .                   .        .      .   
+                                 ŝ(l−1)n+1 Ĝ       ŝ(l−1)n+2              ln
+                                                                Ĝ · · · ŝ Ĝ
+                    U ′ = ŝmax {mn,ml,ln}+1 Ĝ,
+                    ⃗ ′ = ŝmax {mn,ml,ln} (ŝ2 Ĝ, ŝ4 Ĝ, · · · , ŝ2l Ĝ),
+                    G
+                    ⃗ ′ = ŝmax {mn,ml,ln} (ŝ3 Ĝ, ŝ5 Ĝ, · · · , ŝ2l+1 Ĝ).
+                    H                                                                     (22)
+
+
+
+   In this setting, U , G, and H share elements in common. Despite this, the
+computational knowledge soundness of the MatMul protocol, as outlined in the
+proof of Theorem 4, remains unaffected.
+
+
+
+  Algorithm 5: zkMatrix
+     Input: Public input: [Cc ], [Ca ], [Cb ] ∈ G; G̃ ∈ G;
+                        [U ′ ] ∈ G, [G   ⃗ ′ ], [H⃗ ′ ] ∈ Gl ;
+                                     m×n
+                        [U ] ∈ G           , [G] ∈ Gm×l , [H] ∈ Gl×n ;
+           P’s private input: c ∈ Zm×n     p       , a ∈ Zm×l
+                                                           p   , b ∈ Zl×n
+                                                                      p   ,
+                                                ∗
+                               c̃, ã, b̃ ∈ Zp
+     Output: TRUE (V accepts) or FALSE (V rejects)
+     // P chooses the blinding factors at random:
+         $               $                       $
+ 1 α← − Zm×l
+         p   ,β←  − Zl×np  , α̃, β̃, γ̃, δ̃ ←
+                                            − Zp ;
+   // P computes:
+ 2 Cα ← ⟨α, G⟩⊕α̃G̃ ∈ G,            Cβ ← ⟨β, H⟩⊕β̃ G̃ ∈ G;
+ 3 Cγ ← ⟨αβ, U ⟩⊕γ̃ G̃ ∈ G,            Cδ ← ⟨αb + aβ, U ⟩⊕δ̃ G̃ ∈ G;
+ 4 P → V: [Cα ], [Cβ ], [Cγ ], [Cδ ] ;
+                     $
+ 5 V → P : [x] ←    − Coin(Z∗p ) ;
+   // P computes:
+ 6 za ← [−α̃ − xã] ∈ Zp ,                zb ← [−β̃ − xb̃] ∈ Zp ;
+                            2
+ 7 zc ← [−γ̃ − xδ̃ − x c̃] ∈ Zp ;
+ 8 P → V: [za ], [zb ], [zc ] ;
+   // P and V compute:
+ 9 [Pa ] ← [x]([Cα ] + [x][Ca ] + [za ][G̃]) ∈ G;
+10 [Pb ] ← [x]([Cβ ] + [x][Cb ] + [zb ][G̃]) ∈ G ;
+               2                                2
+11 [Pc ] ← [x] ([Cγ ] + [x][Cδ ] + [x] [Cc ] + [zc ][G̃]) ∈ G ;
+12 P and V run Protocol MatMul on input:
+                                           ⃗ ′ ]; [U ], [G], [H] : x2 (α + xa)(β + xb),
+                                   ⃗ ′ ], [H
+    ([Pc ], [Pa ], [Pb ]; [U ′ ], [G
+    x(α + xa), x(β + xb));
+           zkMatrix: Batched Short Proof for Committed Matrix Multiplication        23
+
+5.2       Adding Zero-Knowledge
+
+The zero-knowledge version of committed matrix multiplication corresponds to
+the following relation:
+
+       RzkMatMul =                                                                 (23)
+                                                                              
+           [Cc ], [Ca ], [Cb ] ∈ G
+                                     c ∈ Zpm×n
+                                                                           
+       
+       
+                     m×n
+                                                         c = ab                  
+                                                                                 
+           [U ] ∈           ,
+                                                                              
+       
+                 G                           m×l                          
+                                                                                 
+                                     a   ∈         ,     ∧ C   = ⟨c, U ⟩⊕c̃G̃
+                                                                              
+       
+                     m×l
+                                            Z  p          c                  
+         [G] ∈ G          ,      :                                           .
+                                                   
+                                 b ∈ Zl×n  p ,   ∧ Ca = ⟨a, G⟩⊕ãG̃ 
+                                                                             
+       
+       
+        [H] ∈ Gl×n ;                                                          
+                                                                                 
+                                     c̃, ã, b̃ ∈ Zp     ∧       ⟨b,
+                                                                                
+                                                           C   =     H⟩⊕  b̃G̃
+                                                                              
+                                                            b                   
+           [G̃] ∈ G
+                                                                                
+
+Here, blinding factors are used for the commitments to matrices.
+    To transform a single MatMul protocol into a zero-knowledge protocol, we
+can introduce two blinding matrices α ∈ Zpm×l and β ∈ Zl×n     p , along with addi-
+tional random factors α̃, β̃, γ̃, δ̃ ∈ Zp .
+    In the first step of zkMatrix, the prover sends a series of commitments:
+[Cα ], [Cβ ], [Cγ ], [Cδ ] ∈ G. Subsequently, in response to a public-coin challenge
+      $
+    − Z∗p , the prover provides an argument of knowledge for a relation between
+[x] ←
+x(α + xa), x(β + xb), and x2 (α + xa)(β + xb). The transcript size is increased
+by a constant factor. The zkMatrix protocol is detailed in Algorithm 5.
+    The perfect completeness and computational knowledge soundness of the
+zkMatrix protocol is based on the following equivalence:
+                          (                                         )
+                            ∀[x], [x]2 (αβ + [x](aβ + αb) + [x]2 c)
+              {c = ab} ⇔                                              ,     (24)
+                                   = ([x](α + [x]a))([x](β + [x]b))
+
+and:
+
+           ⟨α + [x]a, G⟩ = [⟨α, G⟩⊕α̃G̃]⊕[x][⟨a, G⟩⊕ãG̃]⊕[−α̃ − xã][G̃],
+           ⟨β + [x]b, H⟩ = [⟨β, H⟩⊕β̃ G̃]⊕[x][⟨b, H⟩⊕b̃G̃]⊕[−β̃ − xb̃][G̃],
+           ⟨αβ + [x](aβ + αb) + [x]2 c, U ⟩⊕[γ̃ + xδ̃ + x2 c̃][G̃]
+              = [⟨αβ, U ⟩⊕γ̃ G̃]⊕[x][⟨a∗β + αb, U ⟩⊕δ̃ G̃]⊕[x]2 [⟨c, U ⟩⊕c̃G̃].
+
+    The zero-knowledge property is based on the observation that x(α + xa) and
+x(β + xb) exhibit uniform distributions, regardless of the distributions of a and
+b. Consequently, the simulator of the proof is able to generate a valid transcript
+using two random matrices, which is indistinguishable from a genuine one.
+
+Theorem 5. The zkMatrix protocol exhibits perfect completeness, perfect special
+honest verifier zero-knowledge, and computational knowledge soundness.
+
+The proof for Theorem 5 is provided in Appendix A.5.
+24      M. Cong et al.
+
+    Line 3 of Algorithm 5 requires O(n3 ) filed multiplications for n × n matrix
+multiplications. This conflicts with our goal of achieving O(n2 ) prover time. De-
+spite this, we note that: (1) Algorithm 5 can be applied to any bilinear matrix or
+vector operations; (2) The additional prover time reduces to O(n2 ) when either
+a or b is a n-vector, which applies to the inner products ○ 2 and ○;  3 (3) Comput-
+ing the inner products of two n2 -vectors takes O(n2 ) field multiplications, which
+applies to the inner product ○; 1 (4) Blinding matrices are unnecessary for public
+matrices or vectors, which applies to the inner products ○,  1 ○,2 and ○.    3 There-
+fore, in the final zkMatrix protocol, we introduce the blinding matrices within
+the sub-protocols of lines 13-16 in Algorithm 4. Specifically, we use blinding ma-
+trices γ ∈ Zm×n
+              p     for the inner product ○,
+                                           1 α ∈ Zm×l
+                                                    p    for the inner product ○,    2
+β ∈ Zl×n   for  the inner product  ○,
+                                   3  and two blinding  vectors ⃗
+                                                                α y , β⃗ y ∈ Zl
+                                                                                for the
+       p                                                                      p
+inner product ○.  4 As a result, the additional prover time to add zero-knowledge
+is O(n2 ) exponentiations and O(n2 ) field multiplications.
+
+6     Optimizations
+6.1   Batched zkMatrix
+It is feasible to batch process t matrix multiplication relations. This insight stems
+from the observation that when a matrix [b] is publicly known and shared across
+t relations, the prover can prove:
+                
+                  a(i) [b] = c(i) , ∀i ∈ (1, t)
+                         (                t                 t
+                                                                    )
+                                         X                  X
+                                    ∗           i−1            i−1
+                  ⇐⇒ ∀ρ ∈ Zp , (              ρ a(i) )[b] =   ρ c(i) ,            (25)
+                                     i=1                 i=1
+
+            $
+where [ρ] ← − Coin(Z∗p ) is an additional public-coin randomness for batch pro-
+cessing. Consequently, the prover is able to batch processing the inner-product
+           1 ○,
+relations ○,  2 and ○.  3 In the batched zkMatrix, the marginal prover time for
+each additional matrix multiplication is on the order of O(n) (∼ 10n exponenti-
+ations) for n × n matrix multiplications.
+Theorem 6. The batched zkMatrix protocol exhibits perfect completeness, per-
+fect special honest verifier zero-knowledge, and computational knowledge sound-
+ness.
+The proof for Theorem 6 is provided in Appendix A.6.
+
+6.2   Fixed-Base Optimization and Parallelization
+It is standard practice to accelerate multi-exponentiations by using fixed-base op-
+timization and parallelization. Each additional fixed-base multi-exponentiation
+of length n requires on average n(log2 p)/2 group additions. Almost all opera-
+tions in zkMatrix are parallelizable. This means that the performance of zkMa-
+trix can scale with the number of cores available on the machine. It can also
+leverage GPUs in some applications.
+          zkMatrix: Batched Short Proof for Committed Matrix Multiplication                         25
+
+
+    Algorithm 6: zkMatrix (Batched Proof)
+     Input: Public input: [Cc(i) ], [Ca(i) ], [Cb(i) ] ∈ G,
+                                                   i ∈ range(1, t);
+                                                   ⃗ ′ ] ∈ Gl ;
+                                           ⃗ ′ ], [H
+                    [G̃] ∈ G; [U ′ ] ∈ G, [G
+                    [U ] ∈ Gm×n , [G] ∈ Gm×l , [H] ∈ Gl×n ;
+           P’s private input: c(i) ∈ Zm×np     , a(i) ∈ Zm×l
+                                                           p    ,
+                                       l×n
+                             b(i) ∈ Zp , c̃(i) , ã(i) , b̃(i) ∈ Zp ,
+                                                   i ∈ range(1, t)
+     Output: TRUE (V accepts) or FALSE (V rejects)
+     // V sends the challenge for reducing matrix multiplication:
+                   $
+ 1 V → P: [y] ←    − Coin(Z∗p );
+   // P makes hiding commitments to t sets of intermediate variables:
+ 2 foreach i ∈ range(1, t) do
+ 3    P runs line 2-13 of MatMul to compute ⃗        ay(i) ∈ Zlp , ⃗by(i) ∈ Zlp , d(i) ∈ Zp ;
+                               $
+ 4    d˜(i) , ãy(i) , b̃y(i) ←− Zp ;
+ 5    Cay(i) ← ⟨⃗               ⃗ ′ ⟩⊕ãy(i) G̃ ∈ G;
+                        ay(i) , G
+ 6                     ⃗        ⃗
+      Cby(i) ← ⟨by(i) , H ′ ⟩⊕b̃y(i) G̃ ∈ G;
+ 7    Cd(i) ← dy(i) U ′ ⊕d˜(i) G̃ ∈ G;
+ 8    P → V: [Cd(i) ], [Cay(i) ], [Cby(i) ] ∈ G;
+     // V sends the batching randomness
+                    $
+ 9 V → P: [ρ] ←        − Coin(Z∗p ) ;
+   // P and V compute:
+              Pt           i−1
+                                Cc(i) , [C̄a ] ← ti=1 [ρ]i−1 Ca(i) , [C̄b ] ← ti=1 [ρ]i−1 Cb(i) ,
+                                                        P                    P
+10 [C̄c ] ←       i=1 [ρ]
+     [C̄d ] ← Pti=1 [ρ]i−1 Cd(i) , [C̄ay ] ← ti=1 [ρ]i−1 Cay(i) ,
+                 P                                          P
+     [C̄by ] ← ti=1 [ρ]i−1 Cby(i) ;
+                           ¯
+                           ˜ c̃,
+                              ¯ ā, ã    ¯ b̄; ¯b̃y , ¯b̃;
+                                     ¯y , ã,
+11 P computes c̄, d,
+   // P and V run homomorphic sub-protocols on batched inputs
+12 P and V run zk semi-inner-product argument on batched inputs:
+                                     ⃗ ], [G11 ] : c̄; d,   ¯
+                                                            ˜ c̃)
+                                                              ¯ ;
+                       y ]; [U ′ ], [U
+     ([C̄d ], [C̄c ], [⃗
+13 P and V run zk high-dimensional semi-inner-product argument on batched
+     inputs: ([C̄ay ], [C̄a ], [⃗    yL ]; [G ⃗ ′ ] [Ḡ] : ā; ã     ¯ ;
+                                                                 ¯y , ã)
+14 P and V run zk high-dimensional semi-inner-product argument on batched
+     inputs: ([C̄by ], [C̄b ], [⃗    yR ]; [H ⃗ ′ ], [H] : b̄; ¯b̃y , ¯b̃) ;
+   // P and V run t Bulletproofs in parallel
+15 foreach i ∈ range(1, t) do
+16       P and V run zk Bulletproof on input: ([Cd(i) ]⊕[Cay(i) ]⊕[Cby(i) ]; [U ′ ],
+            ⃗ ′ ], [H
+           [G       ⃗ ′] : ⃗                   ¯y(i) , ¯b̃y(i) ) ;
+                             ay(i) , ⃗by(i) ; ã
+17   If all return TRUE, then return TRUE; otherwise return FALSE
+
+
+
+7     Theoretical Performance
+
+The theoretical performance of the protocols discussed in this paper is detailed
+in Table 2. When estimating this table, we use the same random challenges for
+26        M. Cong et al.
+
+concurrent Bulletproof protocols. An inverse operation in Zp takes log2 p field
+multiplications. When using the BLS12-381 curve, the size of elements in Zp and
+G1 are 256bits and 382 bits, respectively. We tested the performance of the Rust
+BLS12 381 library5 on a machine equipped with Intel Core i7 and 64G RAM.
+The execution times for a single exponentiations in G1 and G2 were 0.355ms and
+1.123ms, respectively. A doubling operation and a group addition in G1 took
+0.520µs and 0.829µs, respectively. A pairing computation took 1.400ms. A field
+multiplication took 0.031µs. Based on these metrics and assuming parallelization
+across 16 threads, we estimated the performance of zkMatrix in Table 3.
+    Without using pairings for faster verification, we may also implement zkMa-
+trix using curve255196 . A single exponentiation on curve25519 took 24.664µs.
+A single group addition took 0.179µs. Pre-computation for a fixed-base multi-
+exponentiation of length 1, 024 took 6.527ms; each subsequent fixed-base multi-
+exponentiation took 1.614ms. A field multiplication took 0.082µs. Given this,
+the estimated runtimes for the prover and the verifier for a single multiplication
+of 1, 024 × 1, 024 matrices are 11.37s and 1.64s, respectively. For each additional
+matrix multiplication in batched zkMatrix, the incremental runtime is 0.44s for
+the prover and 0.82ms for the verifier.
+
+
+
+
+5
+     https://github.com/zkcrypto/bls12_381https://github.com/zkcrypto/bls12 381
+6
+     https://github.com/dalek-cryptography/curve25519-dalekhttps://github.com/dalek-
+     cryptography/curve25519-dalek
+                                 Table 2: Theoretical performance for n × n matrix multiplication
+
+                        Transcript Size                 RAM Usage                                          Timing
+Protocol                                          Prover          Verifier                    Prover                     Verifier
+                                                                                               2
+                                                                                    7 F-ME1 (n )               (14 log2 n + 38)E1
+                                                                                    +(n + 5) F-ME1 (2n)        +(3 log2 n · log2 p
+Single                  (14 log2 n + 15)G1    n2 G1 +4n2 Zp                         +(5n2 + 6n                   +10 log2 n
+                                                                 O(log n)MISC
+zkMatrix                      +14Zp           +O(n)MISC                               +2 log2 n + 38)E1          +O(1))M
+                                                                                    +(17n2 + O(n))M            +1E2 + 4P
+                                                                                    +(3 log2 n + 9)H           +(3 log2 n + 9)H
+                                                                                    7 F-ME1 (n2 )              ((2t + 12) log2 n
+                                            2        2                              +(n + 3t + 2) F-ME1 (2n)     +13t + 25)E1
+Batched              (2t log2 n            n G1 +4n Zp
+                                                                                    +(5n2 + 2tn + 2t log2 n    +((2t + 8) log2 n
+zkMatrix                 +12 log2 n        +4ntZp
+                                                                O(t log n)MISC        +4n + 16t + O(1))E1        +3 log2 n · log2 p
+for t matrix             +7t + 8)G1        +O(n)MISC
+                                                                                    +(5tn2 + 12n2 + 14tn         +5t + O(1))M
+multiplications      +(5t + 9)Zp           +O(t log n)MISC
+                                                                                      +O(t) + O(n))M           +1E2 + 4P
+                                                                                    +(3 log2 n + 10)H          +(3 log2 n + 10)H
+Note: G1 and Zp denote the numbers of elements in G1 and Zp , respectively. M, E1 , and E2 represent the numbers of field multiplications
+and exponentiations in each respective group. P and H represent the numbers of pairings and hashing operations. MISC can generally
+represent any fixed-size type. F-ME1 (n2 ) and F-ME1 (2n) denote the Fixed-base Multi-Exponentiations (F-ME) in G1 of length n2
+and 2n, respectively. Each group or field multiplication is accompanied by either one or no group or field addition, which has been
+omitted for simplicity.
+                                                                                                                                            zkMatrix: Batched Short Proof for Committed Matrix Multiplication
+                                                                                                                                            27
+28      M. Cong et al.
+
+
+
+
+Table 3: Estimated performance using BLS12-381 for multiplication of 1, 024 ×
+1, 024 matrices
+                                   Transcript RAM Prover Verifier
+                    Protocol
+                                      Size    Usage Time Time
+               Single zkMatrix      7.67KB 176M B 197.04s 70.15ms
+               Batched zkMatrix
+                       (total)      1.42MB 304M B 512.48s 12.06s
+                       (per proof) 1.42KB 304KB 0.50s 11.77ms
+Note: The batched proof handles 1, 024 instances of multiplications of 1, 024 × 1, 024
+matrices. We assume parallelization of the multi-exponentiations on an 8-core machine
+with 16 threads.
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication          29
+
+References
+[Agrawal and Srikant(2000)] Rakesh Agrawal and Ramakrishnan Srikant. 2000.
+    Privacy-Preserving Data Mining. In SIGMOD 2000 (Dallas, Texas, USA) (Pro-
+    ceedings of the 2000 ACM SIGMOD International Conference on Management of
+    Data). ACM, 439–450.
+[Attema et al.(2021)] Thomas Attema, Ronald Cramer, and Lisa Kohl. 2021. A com-
+    pressed Σ-protocol theory for lattices. In CRYPTO 2021 (Lecture Notes in Com-
+    puter Science, Vol. 12826), Tal Malkin and Chris Peikert (Eds.). Springer, 549–
+    579.
+[Attema et al.(2022)] Thomas Attema, Serge Fehr, and Michael Klooß. 2022. Fiat-
+    shamir transformation of multi-round interactive proofs. In TCC 2022 (Lecture
+    Notes in Computer Science, Vol. 13747), Eike Kiltz and Vinod Vaikuntanathan
+    (Eds.). Springer, 113–142.
+[Bowe et al.(2019)] Sean Bowe, Jack Grigg, and Daira Hopwood. 2019. Halo: Recursive
+    proof composition without a trusted setup. Cryptology ePrint Archive (2019), 1021.
+    https://eprint.iacr.org/2019/1021
+[Bünz et al.(2018)] Benedikt Bünz, Jonathan Bootle, Dan Boneh, Andrew Poelstra,
+    Pieter Wuille, and Greg Maxwell. 2018. Bulletproofs: Short proofs for confidential
+    transactions and more. In S&P 2018 (Proceedings of 2018 IEEE symposium on
+    security and privacy). IEEE, 315–334.
+[Bünz et al.(2020)] Benedikt Bünz, Ben Fisch, and Alan Szepieniec. 2020. Transpar-
+    ent SNARKs from DARK compilers. In EUROCRYPT 2020 (Lecture Notes in
+    Computer Science, Vol. 12105), Anne Canteaut and Yuval Ishai (Eds.). Springer,
+    677–706.
+[Campanelli et al.(2019)] Matteo Campanelli, Dario Fiore, and Anaı̈s Querol. 2019.
+    Legosnark: Modular design and composition of succinct zero-knowledge proofs.
+    In CCS 2019 (Proceedings of the ACM SIGSAC Conference on Computer and
+    Communications Security), Lorenzo Cavallaro, Johannes Kinder, XiaoFeng Wang,
+    and Jonathan Katz (Eds.). ACM, 2075–2092.
+[Chen et al.(2023)] Binyi Chen, Benedikt Bünz, Dan Boneh, and Zhenfei Zhang. 2023.
+    Hyperplonk: Plonk with linear-time prover and high-degree custom gates. In EU-
+    ROCRYPT 2023 (Lecture Notes in Computer Science, Vol. 14005), Carmit Hazay
+    and Martijn Stam (Eds.). Springer, 499–530.
+[Chiesa et al.(2020a)] Alessandro Chiesa, Yuncong Hu, Mary Maller, Pratyush Mishra,
+    Noah Vesely, and Nicholas Ward. 2020a. Marlin: Preprocessing zkSNARKs with
+    universal and updatable SRS. In EUROCRYPT 2020 (Lecture Notes in Computer
+    Science, Vol. 12105), Anne Canteaut and Yuval Ishai (Eds.). Springer, 738–768.
+[Chiesa et al.(2020b)] Alessandro Chiesa, Dev Ojha, and Nicholas Spooner. 2020b.
+    Fractal: Post-quantum and transparent recursive proofs from holography. In EU-
+    ROCRYPT 2020 (Lecture Notes in Computer Science, Vol. 12105), Anne Canteaut
+    and Yuval Ishai (Eds.). Springer, 769–793.
+[Duan and Canny([n. d.])] Yitao Duan and John Canny. [n. d.]. Practical Private Com-
+    putation and Zero-Knowledge Tools for Privacy-Preserving Distributed Data Min-
+    ing. In SDM 2008 (Proceedings of the SIAM International Conference on Data
+    Mining). SIAM, 265–276.
+[Gabizon et al.(2019)] Ariel Gabizon, Zachary J Williamson, and Oana Ciobotaru.
+    2019. Plonk: Permutations over lagrange-bases for oecumenical noninteractive ar-
+    guments of knowledge. Cryptology ePrint Archive (2019), 953. https://eprint.
+    iacr.org/2019/953
+30      M. Cong et al.
+
+[Gentry et al.(2022)] Craig Gentry, Shai Halevi, and Vadim Lyubashevsky. 2022. Prac-
+    tical non-interactive publicly verifiable secret sharing with thousands of parties. In
+    EUROCRYPT 2022 (Lecture Notes in Computer Science, Vol. 13275), Orr Dunkel-
+    man and Stefan Dziembowski (Eds.). Springer, 458–487.
+[Groth(2004)] Jens Groth. 2004. Honest verifier zero-knowledge arguments applied.
+    Ph. D. Dissertation. BRICS.
+[Groth(2009)] Jens Groth. 2009. Linear algebra with sub-linear zero-knowledge argu-
+    ments. In CRYPTO 2009 (Lecture Notes in Computer Science, Vol. 5677), Shai
+    Halevi (Ed.). Springer, 192–208.
+[Groth(2010)] Jens Groth. 2010. Short pairing-based non-interactive zero-knowledge
+    arguments. In ASIACRYPT 2010 (Lecture Notes in Computer Science, Vol. 6477),
+    Masayuki Abe (Ed.). Springer, 321–340.
+[Groth(2016)] Jens Groth. 2016. On the size of pairing-based non-interactive argu-
+    ments. In EUROCRYPT 2016 (Lecture Notes in Computer Science, Vol. 9666),
+    Marc Fischlin and Jean-Sébastien Coron (Eds.). Springer, 305–326.
+[Kate et al.(2010)] Aniket Kate, Gregory M Zaverucha, and Ian Goldberg. 2010.
+    Constant-size commitments to polynomials and their applications. In ASIACRYPT
+    2010 (Lecture Notes in Computer Science, Vol. 6477), Masayuki Abe (Ed.).
+    Springer, 177–194.
+[Liu et al.(2021)] Tianyi Liu, Xiang Xie, and Yupeng Zhang. 2021. zkCNN: Zero
+    knowledge proofs for convolutional neural network predictions and accuracy. In
+    CCS 2021 (Proceedings of the ACM SIGSAC Conference on Computer and Com-
+    munications Security), Yongdae Kim, Jong Kim, Giovanni Vigna, and Elaine Shi
+    (Eds.). ACM, 2968–2985.
+[Maller et al.(2019)] Mary Maller, Sean Bowe, Markulf Kohlweiss, and Sarah Meikle-
+    john. 2019. Sonic: Zero-knowledge SNARKs from linear-size universal and updat-
+    able structured reference strings. In CCS 2019 (Proceedings of the ACM SIGSAC
+    Conference on Computer and Communications Security), Lorenzo Cavallaro, Jo-
+    hannes Kinder, XiaoFeng Wang, and Jonathan Katz (Eds.). ACM, 2111–2128.
+[Parno et al.(2016)] Bryan Parno, Jon Howell, Craig Gentry, and Mariana Raykova.
+    2016. Pinocchio: Nearly practical verifiable computation. Commun. ACM 59, 2
+    (2016), 103–112.
+[Thaler(2013)] Justin Thaler. 2013. Time-optimal interactive proofs for circuit eval-
+    uation. In CRYPTO 2013 (Lecture Notes in Computer Science, Vol. 8043), Ran
+    Canetti and Juan A. Garay (Eds.). Springer, 71–89.
+[Vasudevan et al.(2017)] Aravind Vasudevan, Andrew Anderson, and David Gregg.
+    2017. Parallel Multi Channel convolution using General Matrix Multiplication.
+    In ASAP 2017 (Proceedings of the IEEE International Conference on Application-
+    specific Systems, Architectures and Processors). IEEE, 19–24. https://doi.org/
+    10.1109/ASAP.2017.7995254
+[Weng et al.(2021)] Chenkai Weng, Kang Yang, Xiang Xie, Jonathan Katz, and Xiao
+    Wang. 2021. Mystique: Efficient Conversions for Zero-Knowledge Proofs with Ap-
+    plications to Machine Learning. In USENIX 2021 (Proceedings of the 28th USENIX
+    Conference on Security Symposium), Michael Bailey and Rachel Greenstadt (Eds.).
+    USENIX Association, 501–518.
+[Xie et al.(2019)] Tiacheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papa-
+    manthou, and Dawn Song. 2019. Libra: Succinct zero-knowledge proofs with opti-
+    mal prover computation. In CRYPTO 2019 (Lecture Notes in Computer Science,
+    Vol. 11694), Alexandra Boldyreva and Daniele Micciancio (Eds.). Springer, 733–
+    764.
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                          31
+
+[Yang et al.(2021)] Kang Yang, Pratik Sarkar, Chenkai Weng, and Xiao Wang. 2021.
+    Quicksilver: Efficient and affordable zero-knowledge proofs for circuits and polyno-
+    mials over any field. In CCS 2021 (Proceedings of the ACM SIGSAC Conference
+    on Computer and Communications Security), Yongdae Kim, Jong Kim, Giovanni
+    Vigna, and Elaine Shi (Eds.). ACM, 2986–3001.
+[Yuen et al.(2021)] Tsz Hon Yuen, Muhammed F. Esgin, Joseph K. Liu, Man Ho Au,
+    and Zhimin Ding. 2021. DualRing: Generic Construction of Ring Signatures with
+    Efficient Instantiations. In CRYPTO 2021 (Lecture Notes in Computer Science,
+    Vol. 12825), Tal Malkin and Chris Peikert (Eds.). Springer, 251–281.
+
+
+A     Proofs of Theorems
+
+A.1    Proof of Theorem 3.1
+
+Proof (Accelerated Bulletproof ). Perfect completeness. To establish perfect com-
+pleteness, we demonstrate that if P possesses a valid witness satisfying the re-
+lation Rbullet as outlined in Eq. 4, then P can generate a valid transcript:
+
+               [L(1) ], [R(1) ], · · · , [L(log2 n) ], [R(log2 n) ], [â], [b̂], [V ′ ], [W ′ ],
+
+such that Eq. 12 is satisfied.
+    Utilizing the perfect completeness of the original Bulletproof, we assert that
+if P holds a valid witness for Rbullet , then the [V ] computed by the verifier as
+per Eq. 11 must satisfy:
+                                     Mlog2 n
+                     [V ] = [C]⊕                  ([x(j) ][L(j) ]⊕[x(j) ]−1 [R(j) ])
+                                          j=1
+                                             ⃗ [G]⟩⊕[â]⟨[
+                      = ([â][b̂])[U ]⊕[â]⟨[ξ], ⃗        ξ⃗−1 ], [H]⟩.
+                                                                   ⃗
+
+Here, the coefficients on the RHS can be computed by both parties. These coef-
+                                      ⃗ ∈ Z2n+1 , in accordance with the notation
+ficients are collectively denoted by [ζ]   p
+change in Eq. 8. We assert:
+
+        [V ] = [ζ1 ][ŝĜ] + [ζ2 ][ŝ2 Ĝ] + · · · + [ζ2n+1 ][ŝ2n+1 Ĝ] + .. + [ζq ][ŝq Ĝ],
+
+where [ζ]2n+2 = [ζ]2n+3 · · · = [ζ]q = 0.
+   Given a random challenge [s] ∈ Z∗p , the verifier can compute:
+
+                     ϕ([s]) = [ζ1 ][s] + [ζ2 ][s]2 + · · · + [ζ2n+1 ][s]2n+1 .
+
+From the computation formula of [V ′ ] and [W ′ ], we deduce:
+
+       e([V ′ ], [Ĝ]) = e([ζ1 ][ν ŝĜ] + [ζ2 ][ν ŝ2 Ĝ] + · · · + [ζq ][ν ŝq Ĝ], [Ĝ])
+        = e([ζ1 ][ŝĜ] + [ζ2 ][ŝ2 Ĝ] + · · · + [ζq ][ŝq Ĝ], [ν Ĝ]) = e([V ], [ν Ĝ]),
+                                                                     si − ŝi
+                                                     Mq                         
+       e([ŝ][Ĝ]⊖[ŝĜ], [W ]) = e (ŝ − s)Ĝ,                 ζi (          )Ĝ
+                                                            i=1       s − ŝ
+32      M. Cong et al.
+
+                                                 q
+                                                                               !
+             Mq                                X             Mq
+                            i       i                  i               i
+        =e              ζi (s − ŝ )Ĝ, Ĝ = e (   ζi s )Ĝ − (   ζi ŝ Ĝ), Ĝ
+                  i=1                                                                  i=1
+                                                            i=1
+
+        = e(ϕ([s])[Ĝ]⊖[V ], [Ĝ]).
+
+ As a consequence, the perfect completeness property of the accelerated Bullet-
+proof protocol is established.
+    Computational knowledge soundness. To establish computational knowledge
+soundness (implied by witness-extended emulation [Groth(2004)] or special sound-
+ness [Attema et al.(2021)]), we aim to demonstrate that if an adversarial prover
+A can generate transcript elements [V ], [V ′ ], [W ] that satisfy Eq.12, then we
+show how to construct an adversary B that uses A and a q-PKE assumption
+knowledge extractor to break either the q-PDH assumption, the q-BSDH as-
+sumption or the witness-extended emulation of the (original) Bulletproof with
+high probability.
+    The Setup algorithm picks a random ν ∈ Zp and uses the q-PDH problem
+instance Ĝ, ŝĜ, . . . , ŝq Ĝ, to generate the SRS for the original Bulletproof. B re-
+ceives the Bulletproof challenges from the challenger of the original Bulletproof.
+    Suppose that A wants to prove a relation with size 2n + 1 ≤ q. In the
+                                                                  $
+accelerated Bulletproof, B picks a random challenge [s] ←         − Z∗p . A generates valid
+                                     ′
+transcript elements [V ], [V ], [W ]. From the first pairing equation of Eq.12, we
+have V ′ = νV . By using the q-PKE assumption knowledge extractor KA , with
+probability no less than 1 − neglPKE , KA can extract ζ0′ , · · · , ζq′ such that:
+
+                           V = (ζ0′ + ζ1′ ŝ + ζ2′ ŝ2 + · · · + ζq′ ŝq )Ĝ.
+
+If:
+
+                 (ζ0′ , ζ1′ , ζ2′ , · · · , ζq′ ) = (0, ζ1 , ζ2 , · · · , ζ2n+1 , 0, . . . , 0),   (26)
+
+then V is equal to the right-hand side of Eq.6 of the original Bulletproof. Hence, B
+can use them to break the witness-extended emulation of the original Bulletproof.
+    If Eq.26 does not hold, we define a bivariate polynomial g : Zp × Zp 7→ Zp
+as:
+
+                   g(s, ŝ) :=(ζ1 s + ζ2 s2 + · · · + ζ2n+1 s2n+1 )
+                                   − (ζ0′ + ζ1′ ŝ + ζ2′ ŝ2 + · · · + ζq′ ŝq ) ̸= 0.             (27)
+
+    First, if (s − ŝ) (considered as a bivariate function) divides g(s, ŝ), then, it
+also divides:
+                                                                      ′
+             g ′ (s, ŝ) := − ζ0′ + (ζ1 − ζ1′ )ŝ + · · · + (ζ2n+1 − ζ2n+1 )ŝ2n+1
+                              ′
+                           − ζ2n+2 ŝ2n+2 − . . . − ζq′ ŝq .
+
+In this case, when ŝ is fixed, and both (s− ŝ) and g ′ (s, ŝ) are treated as univariate
+functions, (s − ŝ) must divide g ′ (s, ŝ). Considering that the degree of s in g ′ (s, ŝ)
+         zkMatrix: Batched Short Proof for Committed Matrix Multiplication                  33
+
+is 0, this division only occurs under the conditions when:
+                                                            ′
+                  − ζ0′ + (ζ1 − ζ1′ )ŝ + · · · + (ζ2n+1 − ζ2n+1 )ŝ2n+1
+                                           ′
+                                        − ζ2n+2 ŝ2n+2 − . . . − ζq′ ŝq = 0.
+We define ζ0 = ζ2n+2 = · · · = ζq := 0, and let q ∗ ∈ [1, q] represents the biggest
+index for which (ζq∗ − ζq′ ∗ ) ̸= 0, we obtain:
+                                                    ∗
+                                                   qX −1
+                                            ∗
+                           (ζq∗ − ζq′ ∗ )ŝq = −         (ζi − ζi′ )ŝi .
+                                                   i=0
+                                                           ∗
+Consequently, by multiplying (ζq∗ −ζq′ ∗ )−1 ŝq+1−q Ĝ to both sides of the equation,
+we have:
+                                         Mq∗ −1                       ∗
+            ŝq+1 Ĝ = ⊖(ζq∗ − ζq′ ∗ )−1         (ζi − ζi′ )[ŝi+q+1−q Ĝ].
+                                                i=1
+
+Here, B solves the q-PDH problem. By the q-PDH assumption, the probability
+of this occurrence is no more than neglPDH .
+    Otherwise, if g(s, ŝ) is coprime with s − ŝ, the prover can find two bivariate
+functions, α(s, ŝ) and β(s, ŝ), both with degrees less than q, such that:
+                           α(s, ŝ)g(s, ŝ) + β(s, ŝ)(s − ŝ) = 1.
+
+   Then B can compute E ← α(s, ŝ)e(Ĝ, W ) ⊕ β(s, ŝ)e(Ĝ, Ĝ) by using s, the
+coefficients of α(s, ŝ), β(s, ŝ), and [Ĝ], [ŝĜ], . . . , [ŝq Ĝ]. According to the second
+pairing equation in Eq. 12, E satisfies:
+           (s − ŝ)E
+         =(s − ŝ){α(s, ŝ)e(Ĝ, W )⊕β(s, ŝ)e(Ĝ, Ĝ)}
+         ={α(s, ŝ)e((s − ŝ)Ĝ, W )}⊕{β(s, ŝ)(s − ŝ)e(Ĝ, Ĝ)}
+         ={α(s, ŝ)e(ϕ(s)Ĝ − V, Ĝ)}⊕{β(s, ŝ)(s − ŝ)e(Ĝ, Ĝ)}           by Eq. 12
+         ={α(s, ŝ)g(s, ŝ)e(Ĝ, Ĝ)}⊕{β(s, ŝ)(s − ŝ)e(Ĝ, Ĝ)}           by Eq.27
+         =e(Ĝ, Ĝ).
+As a result, B obtains a solution (⊖E, s) to the q-BSDH problem. According to
+the q-BSDH assumption, the probability for this case is no greater than neglBSDH .
+   Consequently, the probability that Eq.6 holds true is no less than (1 −
+neglPKE )(1 − neglPDH − neglBSDH ). Suppose A generates an acceptable transcript
+with probability p(A) and the knowledge error of the original Bulletproof pro-
+tocol is κbullet . Then, B can output a valid witness with probability:
+            (p(A)(1 − neglPKE )(1 − neglPDH − neglBSDH ) − κbullet )/poly(n)
+          ≥(p(A) − neglPKE − neglPDH − neglBSDH − κbullet )/poly(n)
+As a result, we obtain the computational knowledge soundness of the accelerated
+Bulletproof protocol.
+34      M. Cong et al.
+
+Variation. We can also accelerate Bulletproof using asymmetric pairings. Under
+the assumptions of the asymmetric versions of q-PKE and q-BSDH, the pairing
+equations in Eq. 12 evolve to:
+                                   ?
+                    e([V ], [ν Ĥ])=e([V ′ ], [Ĥ]),
+                                               ?
+                    e(ϕ([s])[Ĝ]⊖[V ], [Ĥ])=e([W ], [s][Ĥ]⊖[ŝĤ]).
+
+Here, [Ĥ] ∈ G2 is a generator of G2 . [Ĥ], [ν Ĥ], and [ŝĤ] are also included into
+the SRS.
+   The demonstration of computational knowledge soundness for the acceler-
+ated Bulletproof using asymmetric pairings is in essence identical to that using
+symmetric pairing. Further details are omitted here due to page limitations.
+
+A.2    Proof of Theorem 4.1
+Proof (Semi-Inner-Product). Perfect completeness. If P possesses a valid witness
+for Rsip , then it also holds a valid witness for Rbullet under the following notation
+substitution:
+
+        U ← xU,      ⃗ ← G,
+                     G     ⃗    ⃗ ← O,
+                                H     ⃗
+        C = (⃗a • ⃗b)U ⊕⟨⃗a, G⟩⊕⟨
+                             ⃗       ⃗ ← (⃗a • ⃗b)xU ⊕⟨⃗a, G⟩
+                                 ⃗b, H⟩                    ⃗ = xCc ⊕Ca .
+
+Given the perfect completeness of Bulletproof, P can generate a valid transcript
+acceptable by the verifier of Bulletproof. Consequently, the verification check in
+line 5 of Algorithm 2 returns true. Additionally, since:
+
+          [z][U ] = [r + h(⃗a • ⃗b)][U ] = [rU ]⊕[h][(⃗a • ⃗b)U ] = [R]⊕[h][Cc ],
+
+we know that the verification check in line 4 of Algorithm 2 also returns true.
+Consequently, P generates a valid transcript that is accepted by the verifier of
+the semi-inner-product argument.
+    Computational knowledge soundness. To prove the witness-extended emula-
+tion (this implies computational knowledge soundness as per [Groth(2004)]),
+we first notice that lines 1 to 4 are the argument of knowledge of the discrete
+logarithm of Cc with respect to the base U . We can construct an extractor KDL
+to output c such that Cc = cU if the discrete logarithm assumption holds.
+    Next, we notice that in line 5 we run Bulletproof with H ⃗ = O. ⃗ This special
+case of Bulletproof is actually the same as the algorithm 10 of the full version
+of [Yuen et al.(2021)]. Yuen et al. showed that there exists an efficient extractor
+Ksemi that can output either a discrete logarithm relation among U , G,     ⃗ or a
+witness ⃗a such that:
+                                       ⃗   a • ⃗b)xU.
+                              C = ⟨⃗a, G⟩⊕(⃗
+(It is relation 6 of the full version of [Yuen et al.(2021)]). Since C = xCc ⊕Ca =
+xcU ⊕Ca , we have:
+                                           ⃗   a • ⃗b)xU.
+                            xcU ⊕Ca = ⟨⃗a, G⟩⊕(⃗                                    (28)
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                  35
+
+    For our protocol, we construct an extractor K which receives a witness c using
+KDL , and receives witnesses ⃗a(1) , ⃗a(2) using Ksemi twice with different challenges
+x(1) , x(2) . By Eq. 28, we have:
+                                             ⃗
+         (x(1) − x(2) )cU = ⟨⃗a(1) − ⃗a(2) , G⟩⊕((x    ⃗a − x(2) ⃗a(2) ) • ⃗b)U.
+                                                    (1) (1)
+
+
+Assuming that we cannot find a non-trivial discrete logarithm relation among
+    ⃗ we have ⃗a(1) = ⃗a(2) , and hence c = (⃗a(1) • ⃗b).
+U , G,
+    By Eq. 28, we also have:
+                                                                ⃗
+                   (x(1) − x(2) )Ca =⟨x(1) ⃗a(2) − x(2) ⃗a(1) , G⟩
+                                     ⊕((⃗a(1) − ⃗a(2) ) • ⃗b)x(1) x(2) U
+                                                                   ⃗
+                                       =⟨x(1) ⃗a(1) − x(2) ⃗a(2) , G⟩.
+
+Hence we have Ca = ⟨⃗a(1) , G⟩⃗ and Cc = cU = (⃗a(1) • ⃗b)U . As a result, we
+conclude that our protocol has witness-extended emulation.
+    For the relaxed version of the semi-inner-product argument, the subsequent
+relation remains valid for each x(τ ) with τ = 1, 2:
+                                         ⃗   a(τ ) • ⃗b)x(τ ) U,
+                x(τ ) Cc ⊕Ca = ⟨⃗a(τ ) , G⟩⊕(⃗                         τ = 1, 2.          (29)
+
+   We can compute:
+
+                x(1) x(2) (⃗a(2) − ⃗a(1) ) • ⃗b               x(1) ⃗a(2) − x(2) ⃗a(1)
+          aU :=                                 ,      ⃗aG :=                         ,
+                         x(1) − x(2)                                x(1) − x(2)
+                (x(1) ⃗a(1) − x(2) ⃗a(2) ) • ⃗b              ⃗a(1) − ⃗a(2)
+          cU :=                                 ,      ⃗cG := (1)          .
+                         x(1) − x(2)                          x − x(2)
+Then, we have:
+                                       ⃗
+                     Ca = aU U ⊕⟨⃗aG , G⟩,                            ⃗
+                                                    Cc = cU U ⊕⟨⃗cG , G⟩.                 (30)
+
+By comparing Eq.29 and Eq.30, if the pairwise discrete logarithm between U
+                ⃗ is difficult, we obtain:
+and elements in G
+
+           (x(τ ) )(⃗a(τ ) • ⃗b) = (x(τ ) )cU + aU ,       ⃗a(τ ) = (x(τ ) )⃗cG + ⃗aG .
+
+Putting them together, we have:
+
+                   (x(τ ) )2 ⃗cG • ⃗b + (x(τ ) )⃗aG • ⃗b = (x(τ ) )cU + aU .
+
+By comparing the coefficients corresponding to different degrees of x(τ ) , we de-
+duce:
+
+                      aU = 0,         ⃗cG • ⃗b = 0,         ⃗aG • ⃗b = cU .
+
+By the definition of aU , and x(1) ̸= 0, x(2) ̸= 0, we have:
+
+                             x(1) x(2) ((⃗a(2) − ⃗a(1) ) • ⃗b)
+                                                               = 0.
+                                      x(1) − x(2)
+36      M. Cong et al.
+
+Hence, we have ⃗a(1) • ⃗b = ⃗a(2) • ⃗b. Putting it back to the definition of cU , we
+have:
+                                   cU = ⃗a(1) • ⃗b.
+   Let ⃗a = ⃗aG and c⃗′ = ⃗cG . Then, we obtain a valid witness for the relaxed
+version of Rsip .
+
+
+A.3    Proof of Theorem 4.2
+
+Proof (High-dimensional semi-inner-product).
+   Perfect completeness. If P possesses a valid witness ⃗a1 , · · · , ⃗an ∈ Zm      p for
+Rhd−sip , then it also holds a valid witness (⃗a1 || · · · ||⃗an ) for Rsip under the fol-
+lowing notation substitution:
+
+          U ← U1 ,     ⃗ ← (G
+                       G                ⃗ || · · · ||G
+                               ⃗ 1 ⊕xb1 U                     ⃗ ),
+                                                     ⃗ n ⊕xbn U          ⃗b ← ⃗0,
+
+          C = (⃗a • ⃗b)U ⊕⟨⃗a, G⟩
+                                ⃗
+                                                     ⃗ 1 ⊕xb1 U
+             ← (⃗a • ⃗0)U1 ⊕⟨(⃗a1 || · · · ||⃗an ), (G                      ⃗ n ⊕xbn U
+                                                               ⃗ || · · · ||G        ⃗ )⟩
+                     Mn
+             = O⊕{                    ⃗ i ⊕xbi U
+                              ⟨⃗ai , (G         ⃗ ⟩}
+                         i=1
+                Mn
+             ={         ⟨⃗ai , G⃗ i ⟩}⊕x⟨Σ n ⃗ai bi , U  ⃗ ⟩)} = xCc ⊕Ca .
+                                              i=1
+                      i=1
+
+Given the perfect completeness of Bulletproof, P can generate a valid transcript
+acceptable by the verifier. Consequently, the verification check in line 6 of Algo-
+rithm 2 returns true.                              Pn
+    Similarly, P can also compute a valid witness i=1 ⃗ai bi ∈ Zm p for Rsip under
+the following notation substitution:
+
+       U ← G11 , G   ⃗ ←U   ⃗ , ⃗b ← ⃗0,
+       C = (⃗a • ⃗b)U ⊕⟨⃗a, G⟩                              ⃗ ⟩ = O⊕Cc = Cc .
+                            ⃗ ← (⃗a • ⃗0)G11 ⊕⟨Σ n ⃗ai bi , U
+                                                i=1
+
+Hence, the verification check in line 5 of Algorithm 2 also returns true. As a
+result, P generates a valid transcript acceptable by the verifier of the high-
+dimensional semi-inner-product argument.
+    Computational knowledge soundness. To demonstrate computational knowl-
+edge soundness, let Kcom and Ksip be the extractor for the relation Rcom and Rsip
+                                                                               ⃗ ⟩.
+in line 5 and line 6 respectively. By Kcom , it outputs ⃗c such that Cc = ⟨⃗c, U
+                          (τ )
+    Then, for challenges x , τ = 1, 2 in the high-dimensional semi-inner-product
+                                                                   (τ )
+argument protocol, Ksip can extract, with very high probability, aij , i ∈ range(1, n), j ∈
+range(1, m) such that:
+                                       Mn Mm                (τ )
+                Ca ⊕{(x(τ ) )Cc } =                       {aij (Gij ⊕x(τ ) bi Uj )}
+                                            i=1     j=1
+                Mn Mm (τ )             Mm X n
+                                               (τ )
+              ={      aij Gij }⊕{x(τ )    (   aij bi )Uj }.                                 (31)
+                      i=1     j=1                          j=1
+                                                                   i=1
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication                    37
+
+By Eq. 31, we have:
+                              Mn Mm   (1)   (2)
+           (x(1) − x(2) )Cc ={      (aij − aij )Gij }
+                                         i=1         j=1
+                                       Mm Xn
+                                                   (1)        (2)
+                                     ⊕{   ( (x(1) aij − x(2) aij )bi )Uj }.
+                                               j=1
+                                                      i=1
+
+                                                                  ⃗ and all
+Suppose that the pairwise discrete logarithms between elements in U
+                                      (1)   (2)
+Gij are difficult. By Kcom , we have aij = aij , ∀i, j and:
+
+                                Mm            n                 n
+                                                 (1)                (1)
+                                             X                 X
+                        ⃗⟩=
+              Cc = ⟨⃗c, U                   (   aij bi )Uj := ⟨            ⃗ ⟩.
+                                                                  ⃗ai bi , U
+                                      j=1
+                                               i=1                           i=1
+
+                 (1)     (2)
+By Eq. 31 and aij = aij , we also have:
+                          Mn Mm              (2)        (1)
+       (x(1) − x(2) )Ca ={            (x(1) aij − x(2) aij )Gij }
+                                     i=1        j=1
+                                               Mm            n
+                                                                (2)   (1)
+                                                             X
+                             ⊕{x(1) x(2)                    ( (aij − aij )bi )Uj }
+                                                     j=1
+                                                                i=1
+                             Mn Mm                                       (1)
+                                                          (1)
+                         =                           (x         − x(2) )aij Gij .
+                                   i=1         j=1
+
+Hence we obtain:
+                         Mn Mm                 (1)
+                                                                   Mn           (1)
+                  Ca =                        a Gij =                               ⃗ i ⟩.
+                                                                             ⟨⃗ai , G
+                               i=1         j=1 ij                      i=1
+
+                 (1)         (1)
+Consequently, ⃗a1 , · · · , ⃗an form a valid witness for Rhd−sip .
+   Utilizing reasoning analogous to what was presented in the proof of Theo-
+rem 4.1, we can demonstrate that the relaxed version of the high-dimensional
+semi-inner-product protocol serves as an argument of knowledge for the relaxed
+version of Rhd−sip .
+
+A.4    Proof of Theorem 5.1
+Proof (MatMul Protocol). Perfect completeness. Building on the equivalence es-
+tablished in Eq. 20, if P possesses a valid witness for RcomMatMul , then for any
+y ∈ Zp , P is capable of generating witnesses for the four inner products ○,     1
+ 2 ○,
+○,      3 and ○  4 in Eq. 3. Given the perfect completeness of Bulletproof, the
+semi-inner-product argument, and the high-dimensional semi-inner-product ar-
+gument, it follows that P can produce transcripts that are acceptable to the
+verifiers of the corresponding sub-protocols.
+     Computational knowledge soundness. To demonstrate computational knowl-
+edge soundness, we rewind the MatMul protocol mn times and provide it with
+mn pairwise distinct challenges y (τ ) , τ ∈ range(1, mn). Utilizing Theorem 2 and
+Theorem 3, we employ the extractors Ksip and Khd−sip to obtain a(τ ) , b(τ ) , c(τ ) ,
+         (τ )  (τ ) (τ )             (τ )
+d(τ ) , C , Cay , C , a⃗y (τ ) , b⃗y
+       d           by                     as follows.
+38        M. Cong et al.
+
+                                                                                              ′
+                                                                                                  (τ )
+      First, we employ the extractor Ksip to obtain ⃗c(τ ) and ⃗ccy such that:
+                                                  (τ )                                    ′
+                                 ⃗ ⟩,
+                  Cc = ⟨⃗c(τ ) , U             Cd                                              ⃗ ⟩.
+                                                                      ⃗ (τ ) )U ′ ⊕⟨⃗ccy(τ ) , U
+                                                          = (⃗c(τ ) • y                                  (32)
+
+                                             ⃗ ⟩ and the pairwise discrete logarithm
+                     ⃗ ⟩ = . . . = ⟨⃗c(mn) , U
+ Since Cc = ⟨⃗c(1) , U
+                       ⃗
+between elements in U is unknown, we have ⃗c := ⃗c(1) = . . . = ⃗c(mn) such that
+          ⃗ ⟩.
+Cc = ⟨⃗c, U
+                                                          ′
+                                                  (τ )      (τ )
+   We use the extractor Khd−sip to obtain ⃗ai and ⃗cay such that:
+                                   Mm              (τ )
+                          Ca =                        ⃗ ⊤ ⟩,
+                                               ⟨⃗ai , G i∗
+                                         i=1
+                                m
+                                    (τ )                ⃗ ′ ⟩⊕⟨⃗c′ (τ ) , G⟩.
+                               X
+                        Cay = ⟨   ⃗ai (y (τ ) )(i−1)n , G                 ⃗                              (33)
+                                                                 ay
+                                     i=1
+
+                             (1)           (mn)                Lm          ⃗ ⊤ ⟩, if
+ Similarly, we have ⃗ai := ⃗ai = . . . = ⃗ai     such that Ca = i=1 ⟨⃗ai , G i∗
+                                                        ⃗  ⊤
+the pairwise discrete logarithm between elements in Gi∗ is unknown.
+                                                        ′
+                                              (τ )        (τ )
+   We use the extractor Khd−sip to obtain ⃗bj and ⃗cby such that:
+                                     Mn             (τ ) ⃗
+                             Cb =                ⟨⃗bj , H  ∗j ⟩,
+                                           i=1
+                                  n
+                                                                   ′
+                                                          ⃗ ′ ⟩⊕⟨⃗c (τ ) , H⟩.
+                                    ⃗b(τ ) (y (τ ) )j−1 , H
+                                 X
+                          Cby = ⟨                                          ⃗                             (34)
+                                      j                            by
+                                      j=1
+
+                             (1)           (mn)                   Ln
+ Similarly, we have ⃗bj := ⃗bj = . . . = ⃗bj    such that Cb = i=1 ⟨⃗bj , H
+                                                                          ⃗ ∗j ⟩, if
+the pairwise discrete logarithm between elements in H  ⃗ ∗j is unknown.
+                                                           ′
+                                                             (τ ) ′ (τ )
+   Next, we apply the Bulletproof extractor to obtain ⃗ay , ⃗by :
+                                  ′         ′              ′
+              (τ ) (τ )
+             Cd ⊕Cay
+                          (τ )                                     ⃗ ′ ⟩⊕⟨⃗b′ (τ ) , H
+                        ⊕Cby = (⃗ay(τ ) • ⃗by(τ ) )U ′ ⊕⟨⃗ay(τ ) , G                 ⃗ ′ ⟩.
+                                                                            y
+
+                                                                              ⃗ ′,
+                                                                         ⃗ ′, H
+   Assume that the pairwise discrete logarithm between elements in U ′ , G
+⃗    ⃗   ⃗             7
+U ∪ G ∪ H are difficult . Comparing the above equation with Eq. 32, Eq. 33
+and Eq. 34, we deduce:
+                             m                                               n
+                   ′
+                                                                ⃗b′ (τ ) =
+                             X                                               X
+                 ⃗ay(τ ) =         ⃗ai (y (τ ) )(i−1)n ,                           ⃗bj (y (τ ) )j−1 ,
+                                                                  y
+                             i=1                                             j=1
+                   ′         ′
+                 ⃗ay(τ ) • ⃗by(τ ) = ⃗c • y
+                                          ⃗ (τ ) .
+
+We define a as a matrix formed by row vectors ⃗a1 , . . . , ⃗am , b as a matrix formed
+by column vectors ⃗b1 , . . . , ⃗bn , c is an m × n matrix formed by the reverse oper-
+ation of flat over ⃗c. By Eq. 20, the above relation is equivalent to:
+7                                                ⃗ ′ has no known discrete logarithm with
+                                            ⃗ ′, H
+     Here we require that elements in U ′ , G
+     elements in U⃗ ∪G     ⃗ It is possible to have common elements within U
+                      ⃗ ∪ H.                                                        ⃗ and
+                                                                                 ⃗ ,G
+      ⃗ In fact, we use common elements within these sets for accelerating verification.
+     H.
+         zkMatrix: Batched Short Proof for Committed Matrix Multiplication                                            39
+
+
+
+
+                             (τ )T          (τ )                (τ )T         (τ )
+                            ⃗L
+                            y            c⃗    ⃗L
+                                          yR = y                        ab⃗
+                                                                          yR ,       ∀τ ∈ range(1, mn).
+
+                     T
+                   ⃗L
+     Consider that y    yR is a polynomial of y with degree mn − 1, and its coef-
+                       c⃗
+                                                        ⃗L T
+ficients are determined by c. Similarly, we can define y       yR as a polynomial
+                                                             ab⃗
+of y with degree mn − 1, and its coefficients are determined by a, b. Since the
+equation above holds for mn different values of y, we conclude that c = ab.
+Hence, the extracted witness c, a, b satisfies RcomMatMul .
+
+
+
+A.5     Proof of Theorem 5.2
+
+
+Proof (zkMatrix (Single Proof )).
+     Perfect completeness. Given the perfect completeness of the MatMul protocol
+and the equivalence established in Eq. 24, if P holds a valid witness a, b, c such
+that c = ab, then for any x ∈ Zp , P is able to produce the valid witness
+x(α + xa), x(β + xb), and (x(α + xa))(x(β + xb)), which will be accepted by
+the verifier of the MatMul protocol.
+     Computational knowledge soundness. To demonstrate computational knowl-
+edge soundness, we will show that by rewinding the zkMatrix protocol multiple
+times and applying the extractor of the MatMul protocol, we can extract a valid
+witness for RzkMatMul .
+     In the zkMatrix protocol, by rewinding six times with different values of
+                                                                            ′        ′        ′        (τ )
+x(τ ) , τ = 1, . . . , 6 and applying the extractor KcomMatMul , we obtain c (τ ) , a (τ ) , b (τ ) , Pc ,
+  (τ )    (τ )   (τ ) (τ ) (τ )
+Pa , Pb , zc , za , zb such that:
+
+                                     ′                                          ′           (τ )         ′
+             Pc(τ ) = ⟨c (τ ) , U ⟩,                            Pa(τ ) = ⟨a (τ ) , G⟩,    Pb       = ⟨b (τ ) , H⟩,   (35)
+                 ′               ′               ′
+                     (τ )            (τ )            (τ )
+             c              =a              ∗b              ,                                                        (36)
+             Pc(τ ) = (x(τ ) )2 (Cγ′ ⊕x(τ ) Cδ′ ⊕(x(τ ) )2 Cc ⊕zc(τ ) G̃),                                           (37)
+             Pa(τ ) = (x(τ ) )(Cα′ ⊕x(τ ) Ca ⊕za(τ ) G̃),                                                            (38)
+               (τ )                            (τ )
+             Pb = (x(τ ) )(Cβ′ ⊕x(τ ) Cb ⊕zb G̃).                                                                    (39)
+
+ Drawing from Eq. 35, 37, 38, 39, we can represent Cγ′ , Cδ′ , Cα′ , Cβ′ , Cc , Ca , Cb in
+the following form:
+
+           Cγ′ = ⟨γ ∗ , U ⟩⊕γ̃ ∗ G̃, Cδ′ = ⟨δ ∗ , U ⟩⊕δ̃ ∗ G̃,                                                       (40)
+           Cα′ = ⟨α∗ , G⟩⊕α̃∗ G̃,                               Cβ′ = ⟨β ∗ , H⟩⊕β̃ ∗ G̃,                             (41)
+                             ∗                ∗                           ∗          ∗               ∗         ∗
+           Cc = ⟨c , U ⟩⊕c̃ G̃, Ca = ⟨a , G⟩⊕ã G̃, Cb = ⟨b , H⟩⊕b̃ G̃.                                              (42)
+40        M. Cong et al.
+
+Upon comparing Eq. 40, 41, 42 with Eq. 35, 37, 38, 39, we derive either a
+non-trivial logarithm relation or the subsequent equations:
+                 ′
+                c (τ ) = (x(τ ) )2 (γ ∗ + x(τ ) δ ∗ + (x(τ ) )2 c∗ ),                                (43)
+                zc(τ ) = (x(τ ) )2 (γ̃ ∗ + x(τ ) δ̃ ∗ + (x(τ ) )2 c̃∗ ),
+                    ′
+                a (τ ) = (x(τ ) )(α∗ + x(τ ) a∗ ), za(τ ) = (x(τ ) )(α̃∗ + x(τ ) ã∗ ),              (44)
+                    ′                                             (τ )
+                                                ∗        (τ ) ∗
+                b       (τ )
+                               = (x   (τ )
+                                             )(β + x        b ), zb = (x(τ ) )(β̃ ∗ + x(τ ) b̃∗ ).   (45)
+
+We have:
+                                  ′     (1) ′     (1) ′     (1)
+                                                                 
+                                  c (1) zc a (1) za b (1) zb
+                                  ′ (2) (2) ′ (2) (2) ′ (2) (2) 
+                                 c     zc a      za b      zb 
+                                  .      ..  ..   ..    ..   .. 
+                                  .                             
+                                  .       .   .    .     .    . 
+                                      ′        (6)   ′       (6)   ′     (6)
+                                   c (6) zc   a (6) za b (6) zb
+                                                                                 
+                                  (1)           (1) 5
+                                                         0 0 0 0 0 0
+                                  1 x . . . (x )  0 0 α∗ α̃∗ β ∗ β̃ ∗ 
+                                 1 x(2) . . . (x(2) )5                         
+                                                         γ ∗ γ̃ ∗ a∗ ã∗ b∗ b̃∗ 
+                               = . . .                                           .
+                                 
+                                                  ..   ∗ ∗
+                                                          
+                                  .. .. ..        .   δ δ̃ 0 0 0 0 
+                                                                                  
+                                                           c∗ c̃∗ 0 0 0 0 
+                                  1 x(6) . . . (x(6) )5
+                                                            0 0 0 0 0 0
+   By utilizing the inverse of the Vandermonde matrix, we can compute γ ∗ , δ ∗ ,
+  ∗
+α , β ∗ , c̃∗ , ã∗ , b̃∗ , γ ∗ , δ ∗ , α∗ , β ∗ , c∗ , a∗ , b∗ . Substituting Eq. 43, 44, 45 into Eq. 36
+and comparing the coefficients of (x(τ ) )4 , we obtain:
+
+                                                          c∗ = a∗ b∗ .                               (46)
+
+Eq. 42 and Eq. 46 show that c∗ , a∗ , b∗ and c̃∗ , ã∗ , b̃∗ form a valid witness for the
+zkMatrix protocol. As a result, we obtain the extractor KzkMatrix .
+   Perfect special honest-verifier zero-knowledge. When S knows the public-coin
+                                                    $               $
+challenge [x] in advance, it randomly selects a′ ←  − Zm×l p   , b′ ←
+                                                                    − Zl×n
+                                                                        p . S computes:
+
+                          Pc∗ = ⟨a′ b′ , U ⟩,             Pa∗ = ⟨a′ , G⟩,      Pb∗ = ⟨b′ , H⟩.
+
+Then, S can generate the transcript elements for the zkMatrix protocol by uti-
+lizing the random matrices a′ and b′ .
+                                              $
+                                              − Zp and calculates Cγ∗ , Cα∗ , Cβ∗ , and Cδ∗ ,
+    S randomly chooses zc∗ , za∗ , zb∗ , δ̃ ∗ ←
+using the following method:
+
+      Cδ∗ ← δ̃ ∗ G̃,                                         Cγ∗ ← x−2 (Pc∗ ⊖xCδ∗ ⊖x2 Cc ⊖zc∗ G̃),
+      Cα∗ ← x−1 (Pa∗ ⊖xCa ⊖za∗ G̃),                          Cβ∗ ← x−1 (Pb∗ ⊖xCb ⊖zb∗ G̃).
+
+    Additionally, these transcript elements conform to uniform distributions,
+identical to the distributions of a genuine transcript. To observe this, we uti-
+lize the fact that when α̃ ∈ Zp follows a uniform distribution over Zp , then for
+         zkMatrix: Batched Short Proof for Committed Matrix Multiplication                         41
+
+any arbitrary P ∈ G that is independent of α̃, P ⊕α̃G̃ ∈ G follows a uniform
+distribution that is independent of the distribution of P . The input matrices of
+the zkMatrix protocol in line 12 also follow uniform distributions.
+    Therefore, no PPT distinguisher D can differentiate between a simulated
+transcript and a genuine one. Consequently, the zkMatrix protocol exhibits the
+SHVZK property.
+
+A.6     Proof of Theorem 6
+Proof (zkMatrix (Batched Proof )).
+    Perfect completeness. The perfect completeness follows directly from the per-
+fect completeness of the protocols in Section 4, the equivalence in Eq. 25, and
+the equation:
+               t
+               X                     Xt                  t
+                                                         M
+           ⟨         ρi−1 a(i) , G⟩⊕(   ρi−1 ã(i) )G̃ =   ρi−1 [⟨a(i) , G⟩⊕ã(i) G̃],
+               i=1                      i=1                       i=1
+
+as well as similar equations for b(i) , c(i) , i ∈ range(1, t).
+     Computational knowledge soundness. By rewinding batched zkMatrix mn × t
+times, we provide it with mn values of y (τ ) , τ ∈ range(1, mn). For each y (τ ) , we
+                                              ′
+provide t instances of ρ(τ ) , τ ′ ∈ range(1, t).
+     By using the extractors of the zero-knowledge semi-inner-product argument
+and the zero-knowledge high-dimensional-inner-product argument, we extract
+    ′        ′
+                             ¯(τ ′ ) , ¯b̃(τ ′ ) , c̃¯(τ ′ ) such that:
+                   ¯(τ ′ ) , ã
+ā(τ ) , b̄(τ ) , ⃗c
+                      ′           ′
+                                            ¯(τ ′ ) G̃,      (τ ′ )          ′       ¯ ′
+                 C̄a(τ ) = ⟨ā(τ ) , G⟩⊕ã                 C̄b        = ⟨b̄(τ ) , H⟩⊕b̃(τ ) G̃,
+                      ′
+                                       ⃗ ⟩⊕d¯˜(τ ′ ) G̃.
+                             ¯(τ ′ ) , U
+                 C̄c(τ ) = ⟨⃗c
+     By applying the inverse of the Vandermonde matrix composed of t values of
+   ′
+ρ(τ ) , we can extract a(i) , b(i) , ⃗c(i) , ã(i) , b̃(i) , c̃(i) for each i ∈ range(1, t) such that:
+
+                      Ca(i) = ⟨a(i) , G⟩⊕ã(i) G̃,         Cb(i) = ⟨b(i) , H⟩⊕b̃(i) G̃,
+                                       ⃗ ⟩⊕c̃(i) G̃.
+                      Cc(i) = ⟨⃗c(i) , U
+   Further, applying the extractor of the zero-knowledge Bulletproof and pro-
+ceeding with a process analogous to the one described in Appendix A.4, we can
+ensure that:
+                                   c(i) = a(i) b(i) , ∀i ∈ range(1, t).                           (47)
+   Perfect special honest-verifier zero-knowledge. Every element in the transcript
+of Algorithm 6 adheres to a uniform distribution.
+   When the randomness involved in Algorithm 6 is known in advance, S can
+                                                   $
+                                                   − G for i ∈ range(1, t). Then,
+randomly select values for Cd(i) , Cay(i) , Cby(i) ←
+S uses the sub-protocol’s simulators to generate a simulated transcript. The
+simulated transcript cannot be distinguished from a genuine one.
+42      M. Cong et al.
+
+B     Cryptographic Preliminaries
+B.1    Assumptions
+Assumption for knowledge soundness of zkMatrix. The computational knowl-
+edge soundness of the fundamental zkMatrix protocol (without acceleration) is
+dependent solely on the assumption of the following discrete logarithm relation.
+Assumption 1 (Discrete Logarithm Relation [Bünz et al.(2018)]) For all
+PPT adversaries A and for all n ≥ 2 there exists a negligible function negl(λ)
+such that:
+           ∃ai ̸= 0
+                                                                               !
+                                                    λ                    $
+                              (p, G)     ←  Setup(1   ), G1 , · · · , Gn ←
+                                                                         − G;
+       Pr    Mn
+           ∧        ai Gi = O a1 , · · · , an ∈ Zp ← A(p, G, G1 , · · · , Gn )
+                   i=1
+           ≤ negl(λ).
+                Ln
+    We say i=1 ai Gi = O is a non-trivial discrete logarithm relation between
+G1 , · · · , Gn . The discrete logarithm relation assumption states that an adversary
+cannot find a non-trivial discrete logarithm relation between randomly chosen
+group elements. This assumption implies the standard discrete logarithm as-
+sumption (i.e., given (p, G, G1 , G2 ), output (1, −x) such that G1 ⊕(−x)G2 = O).
+
+Assumption for accelerating zkMatrix. To accelerate zkMatrix, we will also re-
+quire assumptions related to a bilinear pairing e : G×G 7→ GT , including q-PDH,
+q-PKE, and q-BSDH.
+Assumption 2 (q-PDH [Groth(2010), Parno et al.(2016)]) The q-Power
+Diffie-Hellman (q-PDH) assumption holds for the bilinear group generator Setup
+if for all PPT adversary A we have:
+                           (p, G, GT , e) ← Setup(1λ );
+                                                                               
+
+                               $        $
+                                       − Z∗p ;
+                                                                               
+                      q+1 Ĝ ←− G; ŝ ←                                        
+            Pr  C = ŝ Ĝ
+                                                                               
+                                                                         q      
+                          srs ← (p, G, GT , e; [Ĝ], [ŝĜ], · · · , [ŝ Ĝ]); 
+                               C ← A(srs)
+            ≤ negl(λ).
+Assumption 3 (q-PKE [Groth(2010), Parno et al.(2016)]) The q-Power Knowl-
+edge of Exponent (q-PKE) assumption holds for (G, GT ) if for all PPT adversary
+A, there exists a non-uniform PPT extractor KA such that:
+                                    (p, G, GT , e) ← Setup(1λ );
+                                                                                                
+            ′                          $              $
+            V = νV                                   − Z∗p ;
+                                                                                                 
+                                   Ĝ ←− G; ν, ŝ ←                                             
+                                                                                                 
+                       q
+        Pr                                                                               q
+                                                                                                
+            ∧ V ̸= (
+                     X
+                               i    srs ←   (p,  G,  G  T  , e; [ Ĝ], [ŝĜ], · · · , [ŝ  Ĝ], 
+                          αi ŝ )Ĝ                                                              
+                                                                     q                          
+                     i=0              [ν Ĝ], [ν ŝĜ], · · · , [ν ŝ Ĝ]);                     
+                                    (V ′ , V ; α0 , · · · , αq ) ← (A||KA )(srs, z)
+        ≤ negl(λ),
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication               43
+
+for any auxiliary information z ∈ {0, 1}poly(λ) that is generated independently of
+ν. Note that (y1 ; y2 ) ← (A||KA )(x) means that on input x, A outputs y1 and
+that KA with the same input x and A’s random tape, produces y2 .
+
+Assumption 4 (q-BSDH [Kate et al.(2010)]) The q-Bilinear Strong Diffie-
+Hellman (q-BSDH) assumption holds for (G, GT ) if for all PPT adversary A we
+have:
+                                     (p, G, GT , e) ← Setup(1λ );
+                                                                                         
+
+                                         $        $
+                                                 − Z∗p ;
+                                                                                         
+                      −1            Ĝ ←− G; ŝ ←                                        
+      Pr  E = (ŝ − r)   e( Ĝ, Ĝ)                                                      
+                                     srs ← (p, G, GT , e; [Ĝ], [ŝĜ], · · · , [ŝq Ĝ]) 
+                                                                                         
+         
+                                      (E ∈ GT , r ∈ Z∗p ) ← A(srs)
+       ≤ negl(λ).
+
+B.2    Pedersen Vector Commitment
+Definition 1 (Commitment). A non-interactive commitment scheme con-
+sists of a pair of probabilistic polynomial time algorithms (Setup, Com). The
+setup algorithm pp ← Setup(1λ ) generates public parameters pp for the scheme,
+for security parameter λ. The commitment algorithm Compp defines a function
+Mpp × Rpp 7→ Cpp for the message space Mpp , the randomness space Rpp , and
+the commitment space Cpp determined by pp. for a message a ∈ Mpp , the al-
+                     $
+gorithm draws ã ← − Rpp uniformly at random, and computes the commitment
+Ca ← Compp (a; ã).
+
+Definition 2 (Pedersen Vector Commitment). Let the message space Mpp =
+Znp , the randomness space Rpp = Zp , and the commitment space Cpp = G with
+G of order p. The Pedersen vector commitment of a vector ⃗a ∈ Znp and a ran-
+domness ã ∈ Zp is
+                     $
+                   ⃗ ←         $                           ⃗
+           Setup : G − Gn , G̃ ←
+                               − G, Com(a; ã) : Ca ← ⟨⃗a, G⟩⊕ãG̃.
+
+With the bracket representation introduced in Section 2.1, we write the Pedersen
+                              ⃗
+vector commitment as [⟨⃗a, G⟩⊕ã  G̃]. We often set ã = 0, in which case the
+commitment is binding but not hiding.
+    Pedersen vector commitment for a matrix is the Pedersen vector commitment
+to the flattened vector of the matrix.
+
+B.3    Zero-Knowledge Arguments of Knowledge
+An Argument of Knowledge (AoK) is a protocol that allows a computationally
+bounded prover P to convince a verifier V that he knows a witness w for a
+certain statement u. Zero-knowledge Arguments of Knowledge (zkAoK) or zero-
+knowledge proofs further require that the prover can convince the verifier that
+the statement holds without revealing any information about why it holds.
+44      M. Cong et al.
+
+    Let R ⊂ {0, 1}∗ ×{0, 1}∗ ×{0, 1}∗ be a polynomial-time-decidable ternary re-
+lation. Given a structured reference string srs, we call w a witness for a statement
+u if (srs, u, w) ∈ R, and define the SRS-dependent language:
+
+                         Lsrs = {u | ∃w s.t. (srs, u, w) ∈ R},
+
+as the set of statements u that have a witness w in the relation R.
+    We consider arguments consisting of three interactive algorithms (Setup, P, V),
+all running in probabilistic polynomial time. On input 1λ , the algorithm Setup
+produces a structured reference string (SRS) srs. Then, P and V interact on
+input (srs, u : w), responding to the verifier’s randomness rand and producing
+a transcript tr. This process is denoted by tr ← (P ⇌ V)(srs, u : w), where the
+prover’s view is (srs, u : w) and the verifier’s view is (srs, u; tr; rand). We mark
+flag = V(srs, u; tr; rand) depending on whether the verifier rejects, flag = FALSE,
+or accepts, flag = TRUE.
+
+Definition 3 (Argument of Knowledge). The triple (Setup, P, V) is called
+an argument of knowledge for the relation R if it satisfies perfect completeness
+and knowledge soundness as defined below.
+
+Definition 4 (Perfect Completeness [Attema et al.(2021)]). (Setup, P, V)
+has perfect completeness if for all non-uniform polynomial time adversaries A:
+
+                                          srs ← Setup(1λ );
+                                                                  
+                         /R
+           (srs, u : w) ∈
+       Pr                                (u, w) ← A(srs);          = 1.
+                                                                   
+             ∨ V(srs, u; tr; rand) = TRUE
+                                          tr ← (P ⇌ V)(srs, u : w)
+
+Definition 5 (Computational Knowledge Soundness [Attema et al.(2021)]).
+
+(Setup, P, V) for the relation R is knowledge sound with error κλ (|u|) : N 7→ [0, 1]
+if there exists an algorithm K, called a knowledge extractor, with the following
+properties. Given input u and -box oracle access to a (potentially dishonest)
+prover P ∗ , the extractor K runs in an expected number of steps that is poly-
+nomial in |u| (counting queries to P as a single step) and outputs a witness
+(srs, u : w) ∈ R with probability:
+
+                                               p(P ∗ , u) − κλ (|u|)
+                  Pr((srs, u : K(u)) ∈ R) ≥                          ,
+                                                    poly(|u|)
+
+where p(P ∗ , u) is the probability that P ∗ generates an accepted transcript.
+
+    Previous studies have shown that with the utilization of public-coin ran-
+domness, as defined in the subsequent subsection, witness-extended emulation
+is an alternative approach to define knowledge soundness [Groth(2004), Attema
+et al.(2022), Attema et al.(2021)].
+
+Definition 6 (Witness-Extended Emulation [Bünz et al.(2018)]). (Setup, P, V)
+has witness-extended emulation if for all deterministic polynomial time P ∗ , and
+       zkMatrix: Batched Short Proof for Committed Matrix Multiplication       45
+
+PPT adversaries A and all PPT distinguishers D, there exists a negligible func-
+                                                                           ∗
+tion neglλ (|u|) and an expected polynomial time emulator E (P ⇌V) such that:
+                                                                             
+                                          srs ← Setup(1λ );
+                               ∗
+                  D(srs, u; tr ; rand)                                       
+              Pr                                 $         ∗
+                              = TRUE     rand    −
+                                                  ← {0, 1}    ;               
+                                                                              
+                                          tr∗ ← (P ∗ ⇌V)(srs, u; rand)
+                                                                λ
+                    (D(srs, u; tr∗ ; rand) srs ← Setup(1 );
+                                                                                
+                         = TRUE) ∧                  $
+                                                    − {0, 1}∗ ;
+                                                                                
+                                ∗           rand ←                              
+            −Pr  (V(srs, u; tr ; rand)
+                 
+                                                ∗       ∗
+                                                                                 
+                                             tr   ←  (P   ⇌V)(srs,      u; rand)
+                                                                                 
+                        = TRUE ⇒                                                
+                                  ∗                       ∗
+                      (srs, u : w ) ∈ R) w ← E  ∗     (P    ⇌V)
+                                                                  (srs, u)
+           ≤ neglλ (|u|),
+          ∗
+where E (P ⇌V) is the emulator on the oracle (P ∗ ⇌V) that permits rewinding to
+a specific point and resuming with fresh randomness rand for the verifier from
+this point onwards.
+Definition 7 (Perfect Zero-Knowledge). A non-interactive argument of knowl-
+edge (Setup, P, V) is perfect zero-knowledge if there exists a PPT simulator S
+and a trapdoor trap such that for all stateful distinguishers D the following two
+probabilities are equal:
+                                                                        !
+                                              (srs, trap) ← Setup(1λ );
+            Pr D(srs, u; tr; trap) = TRUE
+                                              tr ← (P ⇌ V)(srs, u : w)
+                                                                      !
+                           ∗                (srs, trap) ← Setup(1λ );
+          =Pr D(srs, u; tr ; trap) = TRUE ∗                             .
+                                            tr ← S(srs, u; trap)
+    When using public-coin challenges, perfect Special Honest-Verifier Zero-Knowledge
+(SHVZK) offers a more convenient means of defining perfect zero-knowledge. It
+is feasible to transform an SHVZK argument into a perfect zero-knowledge ar-
+gument, utilizing established techniques [Groth(2004)].
+Definition 8 (Perfect Special Honest-Verifier Zero-Knowledge). An ar-
+gument of knowledge (Setup, P, V) has perfect special honest-verifier zero-knowledge
+if there exists a PPT simulator S such that for all pairs of interactive adversaries
+A and D, the following two probabilities are equal:
+                                                 srs ← Setup(1λ );
+                                                                        
+                  (srs, u, w) ∈ R
+            Pr                                  (u, w, rand) ← A(srs); 
+                                                                        
+                   ∧ D(srs, u; tr; rand) = TRUE
+                                                 tr ← (P ⇌ V)(srs, u, w)
+                                                  srs ← Setup(1λ );
+                                                                        
+                (srs, u, w) ∈ R
+          =Pr                                    (u, w, rand) ← A(srs);  ,
+                                                                         
+                   ∧ D(srs, u; tr∗ ; rand) = TRUE ∗
+                                                  tr ← S(srs, u, rand)
+where rand is the public-coin randomness used by the verifier.
+46      M. Cong et al.
+
+Definition 9 (Fully Succinct zk-SNARK [Gabizon et al.(2019)]). A non-
+interactive zero-knowledge argument of knowledge is fully succinct if:
+ – The SRS generation time is quasilinear relative to the witness size;
+ – The prover time is quasilinear relative to the witness size;
+ – The transcript size is logarithmic relative to the witness size;
+ – The verifier time is polylogarithmic relative to the witness size.
+
+B.4    Fiat-Shamir Heuristics
+Definition 10 (Public-Coin). A (2µ + 1)−move public-coin interactive pro-
+tocol is an argument of knowledge (Setup, P, V) where in the (2j)th move, V
+                                $
+sends the jth challenge xj ← − Xj . All challenges x1 , · · · , xµ sent from the veri-
+fier to the prover are public information and chosen uniformly at random and
+independently of the prover’s messages.
+
+     The Fiat-Shamir heuristic replaces the public-coin challenge sent by the ver-
+ifier with a hash function, thereby turning an interactive protocol into a non-
+interactive one [Attema et al.(2022)].
+Definition 11 (Adaptive Fiat-Shamir Transformation). The adaptive Fiat-
+Shamir transformation on an interactive argument of knowledge FS(Setup, P, V) 7→
+(Setup, PFS , VFS ) is a two-round argument of knowledge where PFS (srs, u, w) runs
+P(srs, u, w) but instead of asking the verifier for the challenge xi on message ai ,
+the challenges are computed as:
+
+                            xi = Hashi (u, a1 , · · · , ai−1 , ai );
+
+the output is then the transcript tr = (a1 , · · · , ai , ai+1 ). On input of a statement
+u and a proof tr = (a1 , · · · , ai , ai+1 ), VFS (srs, u, w) accepts if, for xi as above, V
+accepts the transcript tr = (a1 , · · · , ai , ai+1 ) on input u.
+
+
+C     Adaptation to Floating-Point Matrix Multiplication
+In floating-point arithmetic, the mantissa of the product of two floating-point
+numbers is obtained by multiplying their mantissas and rounding to the specified
+precision. According to the IEEE 754 standard, a double-precision floating-point
+number consists of 64 bits: 1 bit for the sign, 11 bits for the exponent, and 52
+bits for the mantissa. In the context of floating-point matrices, the floating-point
+numbers within a matrix can share a common exponent.
+                                       (m)                                      (m)
+    Consider a matrix a = {aij = aij · 2.0eij } ∈ Rm×n with elements aij ·
+                      (m)
+2.0eij ∈ R, where aij ∈ Z and eij ∈ Z are the signed mantissa and exponent,
+respectively. Let ηa := emin represent the smallest and emax the largest exponents.
+Each element can then be expressed as:
+                             (m)                            (m)
+                     aij = aij · 2.0eij = (2eij −ηa · aij ) · 2.0ηa ,
+        zkMatrix: Batched Short Proof for Committed Matrix Multiplication       47
+
+where powers of 2.0 are computed in the real field and powers of 2 in the integer
+                                    (m)
+field. The new mantissa 2eij −ηa · aij is a signed integer with at most (emax −
+emin + 52) bits. If the ratio between the largest and smallest non-zero elements
+of the matrix does not exceed 2.032 , the new mantissa is at most 32 + 52 = 84
+bits. Therefore, committing to the floating-point matrix a ∈ Rm×n is equivalent
+                                      (m)
+to committing to a(m) := {2eij −ηa · aij } ∈ Zpm×n and ηa ∈ Zp .
+    Consider three floating-point matrices a, b, and c satisfying:
+
+           c = c(m) · 2.0−ηc ,   a = a(m) · 2.0−ηa ,   b = b(m) · 2.0−ηb ,
+
+where c(m) , a(m) , b(m) are the signed mantissa matrices, and ηc , ηa , and ηb are
+the common exponents. We assert:
+                             ′                            ′
+       c = ab ⇐⇒ {∃c(m) ∈ Zm×n
+                           p   , η ∈ Zp , s.t. c(m) = a(m) b(m) ∧
+                                            ′
+       η = ηa + ηb − ηc ∧ −284 · 1 < c(m) · 284−η − c(m) · 284 < 284 · 1},
+
+where 1 ∈ Zm×n
+             p    represents the matrix with all elements being 1. If a has at
+                                             ′
+most 286 columns, then the elements of c(m) in the equation each have at most
+84 + 84 + 86 = 254bits. Therefore, the matrix multiplication in Zp is identical to
+that in Z. This relation can be verified using the zkMatrix protocol and range
+proofs for committed matrices, with further details to be discussed in subsequent
+work.
+

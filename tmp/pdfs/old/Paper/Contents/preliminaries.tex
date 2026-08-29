@@ -1,0 +1,347 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+We introduce notation and recall the building blocks used in our construction.
+Throughout, $\mathbb{F}$ denotes a finite field of size $|\mathbb{F}| = p$ for a prime $p$, and $\lambda$ denotes the security parameter.
+We write $\textsf{negl}(\lambda)$ for any function that is negligible in~$\lambda$, and $\ppt$ for probabilistic polynomial-time.
+
+\subsection{Notation}
+\label{sec:notation}
+
+Matrices are denoted by bold uppercase letters $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$, and vectors by bold lowercase letters $\vect{x}, \vect{y}, \vect{z} \in \mathbb{F}^k$.
+For a vector $\vect{x}$, we write $\vect{x}[i]$ for its $i$-th entry. For a
+matrix $\mat{M}$, we write $\mat{M}[i,j]$ for the entry in the $i$-th row and $j$-th column. 
+We denote the $i$-th row of $\mat{M}$ by $\mat{M}[i,*]$, and we will often write it simply as $\mat{M}[i]$. 
+Similarly, we denote the $j$-th column of $\mat{M}$ by $\mat{M}[*,j]$. We write $[n] = \{0,1,\ldots,n-1\}$. For $t \in \mathbb{N}$, $I \sample [n]^t$ denotes the uniform sampling of $t$ indices from $[n]$. Similarly, $r \sample \mathbb{F}$ denotes uniform random sampling from
+$\mathbb{F}$.
+
+
+
+\subsection{Linear Error-Correcting Codes}
+\label{sec:prelim-codes}
+
+A \emph{linear code} over $\mathbb{F}$ is an $\mathbb{F}$-linear map
+$\mathcal{C}: \mathbb{F}^k \to \mathbb{F}^n$ defined by a generator matrix
+$\mat{G} \in \mathbb{F}^{k \times n}$, so that
+$\mathcal{C}(\vect{m}) = \vect{m} \cdot \mat{G}$ for any input vector
+$\vect{m} \in \mathbb{F}^k$.
+The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\vect{c} \neq \vect{c}'} \Delta(\vect{c}, \vect{c}')$,
+where the minimum is taken over distinct codewords
+$\vect{c}, \vect{c}' \in \mathcal{C}$, and $\Delta$ denotes the Hamming distance.
+The \emph{relative distance} is $\delta = d/n$.
+
+We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
+For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the
+\emph{row-wise encoding} $\widehat{\mat{M}} := \enc(\mat{M}) \in \mathbb{F}^{k \times n}$ as the matrix whose $i$-th row is $\enc(\mat{M}[i,*])$ for each $i \in [k]$.
+The $j$-th column of $\widehat{\mat{M}}$ is denoted by
+$\widehat{\mat{M}}[*,j] \in \mathbb{F}^k$ for each $j \in [n]$.
+
+\begin{definition}[Interleaved code]\label{def:interleaved-code}
+For an integer \(\ell\ge 1\), the \(\ell\)-fold interleaved code
+\(\mathcal{C}^{\langle \ell\rangle}\) is obtained by grouping \(\ell\)
+codewords of \(\mathcal{C}\) position by position.  More concretely, for
+codewords
+\[
+  \vect{c}^{(0)},\ldots,\vect{c}^{(\ell-1)}\in\mathcal{C},
+\]
+their interleaving is the word
+\(\vect{w}\in(\mathbb{F}^{\ell})^n\) whose \(j\)-th symbol is
+\[
+  \vect{w}[j]
+  =
+  \big(
+    \vect{c}^{(0)}[j],
+    \ldots,
+    \vect{c}^{(\ell-1)}[j]
+  \big)
+  \in\mathbb{F}^{\ell}
+  \quad\text{for }j\in[n].
+\]
+The code \(\mathcal{C}^{\langle \ell\rangle}\) is the set of all such
+interleavings.
+
+The row-wise encoding of a matrix is an interleaved codeword in this sense.
+Indeed, for \(\mat{M}\in\mathbb{F}^{k\times k}\), the rows
+\(\enc(\mat{M}[0,*]),\ldots,\enc(\mat{M}[k-1,*])\) are \(k\) codewords of
+\(\mathcal{C}\), and their interleaving is exactly
+\(\widehat{\mat{M}}\in\mathbb{F}^{k\times n}\).  The \(j\)-th interleaved
+symbol is the encoded column
+\(\widehat{\mat{M}}[*,j]\in\mathbb{F}^{k}\).
+\end{definition}
+
+The key property we exploit is \emph{linearity}: for any coefficients
+$r_0, \ldots, r_{k-1} \in \mathbb{F}$,
+\begin{equation}\label{eq:code-linearity}
+\sum_{i=0}^{k-1} r_i \cdot \widehat{\mat{M}}[i,*]
+=
+\enc\!\left(\sum_{i=0}^{k-1} r_i \cdot \mat{M}[i,*]\right)
+\end{equation}
+
+
+\begin{definition}[Fold]\label{def:fold}
+For vectors $\vect{c},\vect{r}\in \mathbb{F}^k$ with
+$\vect{c}=(c_0,\ldots,c_{k-1})^\top$ and
+$\vect{r}=(r_0,\ldots,r_{k-1})$, define
+\[
+\fold(\vect{r}, \vect{c}) \coloneqq \langle \vect{r}, \vect{c} \rangle = \sum_{i=0}^{k-1} r_i \cdot c_i.
+\]
+Equivalently, for the $j$-th column of a row-wise encoded matrix,
+$\fold(\vect{r}, \widehat{\mat{M}}[*,j])$ equals the $j$-th coordinate of
+$\enc(\vect{r}\mat{M})$.
+This follows directly from the linearity of the code (Equation~\ref{eq:code-linearity}).
+\end{definition}
+
+\paragraph{Concrete instantiations}
+Our protocol is compatible with any linear code.
+Two natural choices are: (i) \emph{Reed--Solomon codes}, where $\mathcal{C}(\vect{m})$ evaluates the polynomial $\sum_i m_i X^i$ over a domain of size $n > k$, achieving the optimal (MDS) distance $\delta = 1 - k/n + 1/n$; and (ii) \emph{expander-based codes} as used in Brakedown~\cite{golovnev2023brakedown}, which achieve linear-time encoding $\mathcal{O}(n)$ with constant relative distance.
+
+
+\subsection{Commitment Schemes}
+\label{sec:prelim-commitments}
+A commitment scheme allows a committer to bind itself to a message and later
+open it. Some commitment schemes also hide the message before opening; our
+soundness arguments use only binding. In this work, we use two types of
+commitments: Merkle tree commitments and Pedersen vector commitments.
+
+\subsubsection{Merkle tree commitments}
+% A Merkle tree commitment over a collision-resistant hash function
+% $H: \{0,1\}^* \to \{0,1\}^\lambda$ is a vector commitment for a vector
+% $\vect{v}=(\vect{v}[1],\ldots,\vect{v}[n]) \in \mathbb{F}^n$.
+% It consists of the following algorithms.
+
+A Merkle tree commitment over a collision-resistant hash function $H: \{0,1\}^* \to \{0,1\}^\lambda$ is a vector commitment for a sequence $\vect{v}=(\vect{v}[j])_{j\in[n]}$.
+The leaves may be randomized or deterministic. We write
+\(\merkleC(\vect{v};\vect{o})\) for randomized leaves and
+\(\merkleC(\vect{v};\bot)\) for deterministic leaves.
+
+\begin{itemize}
+\item $\rt \gets \merkleC(\vect{v};\vect{o})$:
+outputs a root hash $\rt$ obtained by constructing a binary hash tree with
+randomized leaves
+% $
+%   \ell_j = H(\vect{v}[j], \vect{o}[j])
+%   \qquad \text{for } j\in[n].
+% $
+\[
+\ell_j =
+\begin{cases}
+  H(\vect{v}[j], \vect{o}[j]) & \text{if } \vect{o}\neq\bot,\\
+  H(\vect{v}[j]) & \text{if } \vect{o}=\bot.
+\end{cases}
+\]
+
+Internal nodes are computed by hashing their two children.
+
+\item $(\vect{v}[j],o_j,\pi_j) \gets \merkleO(\vect{v},\vect{o},j)$:
+outputs the leaf value $\vect{v}[j]$, its opening randomness $o_j$, and its
+authentication path $\pi_j$ for position $j\in[n]$.
+In the deterministic case \(\vect{o}=\bot\), we omit the randomness and write
+\((\vect{v}[j],\pi_j)\gets\merkleO(\vect{v},j)\).
+
+\item $b \gets \merkleV(\rt,j,\vect{v}[j],\vect{o}[j],\pi_j)$:
+recomputes the randomized leaf
+$
+  \ell_j = H(\vect{v}[j], \vect{o}[j])
+$
+and outputs $b=1$ if the authentication path is consistent with root $\rt$ at
+position $j$, and outputs $b=0$ otherwise.
+In the deterministic case, we write
+\(\merkleV(\rt,j,\vect{v}[j],\pi_j)\).
+\end{itemize}
+
+
+Merkle tree commitments are \emph{position-binding}: under the collision
+resistance of $H$, no $\ppt$ adversary can produce a root $\rt$, an index
+$j\in[n]$, two distinct openings $(v,o)\neq(v',o')$, and authentication paths
+$\pi_j,\pi'_j$ such that
+\[
+  \merkleV(\rt,j,v,o,\pi_j)
+  =
+  \merkleV(\rt,j,v',o',\pi'_j)
+  =
+  1,
+\]
+except with probability
+$\epsilon_{\mathsf{merkle}}(\lambda)=\mathsf{negl}(\lambda)$.
+
+
+
+\subsubsection{Pedersen commitments}
+Pedersen commitments can be viewed as algebraic vector commitments over a group $\mathbb{G}$ of prime order $q$. Let $\mathsf{ck}=(G_1,\ldots,G_n,H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
+
+\begin{itemize}
+\item $\cm \gets \pedC(\ck,\vect{v};o)$:
+outputs a commitment $\cm := \sum_{i=1}^{n}\vect{v}[i]G_i + oH \in \mathbb{G}$ for a vector $\vect{v}\in\mathbb{F}^n$ and randomness $o\sample\mathbb{F}$.
+
+\item $\pi \gets \pedO(\vect{v},o)$:
+outputs the opening $\pi=(\vect{v},o)$ consisting of the committed vector and the randomness.
+
+\item $b \gets \pedV(\ck,\cm,\vect{v},o)$:
+outputs $b=1$ if $\cm \stackrel{?}{=} \sum_{i=1}^{n}\vect{v}[i]G_i + oH$,
+and outputs $b=0$ otherwise.
+\end{itemize}
+
+Pedersen commitments are \emph{perfectly hiding} and
+\emph{computationally binding}: under the discrete logarithm assumption,
+no $\ppt$ adversary can produce a commitment $\cm$, two distinct vectors
+$\vect{v}\neq\vect{v}'$, and randomness values $o,o'$ such that
+\[
+\pedV(\ck,\cm,\vect{v},o) = \pedV(\ck,\cm,\vect{v}',o') = 1,
+\]
+except with probability
+$\epsilon_{\mathsf{ped}}(\lambda)=\mathsf{negl}(\lambda)$.
+
+They are also \emph{additively homomorphic}: for
+$\cm_1=\pedC(\ck,\vect{v}_1;o_1)$ and
+$\cm_2=\pedC(\ck,\vect{v}_2;o_2)$, $\cm_1+\cm_2 = \pedC(\ck,\vect{v}_1+\vect{v}_2;o_1+o_2).$
+
+
+\subsection{Succinct Non-interactive Arguments of Knowledge}
+\label{sec:prelim-snark}
+
+A SNARK (succinct non-interactive argument of knowledge) for an NP relation
+$\relation$ is a tuple of algorithms $\bPi=(\setup,\prove,\verify)$.
+
+\begin{itemize}
+\item $\para \gets \bPi.\setup(1^\lambda,\relation)$:
+generates public parameters $\para$ for the relation $\relation$.
+
+\item $\pi \gets \bPi.\prove(\para,\stmt,\wit)$:
+outputs a proof $\pi$ for a statement $\stmt$ and witness $\wit$ satisfying $(\stmt,\wit)\in\relation$.
+
+\item $b \gets \bPi.\verify(\para,\stmt,\pi)$:
+outputs $b=1$ if $\pi$ is accepted as a valid proof for $\stmt$, and outputs $b=0$ otherwise.
+\end{itemize}
+
+\begin{remark}[Security Properties]
+We use the standard SNARK notions of completeness, knowledge soundness, and
+zero knowledge.  Appendix~\ref{app:snark-security} recalls these notions
+formally, including their negligible error bounds. 
+\end{remark}
+
+
+\subsubsection{Commit-and-Prove SNARKs}
+A commit-and-prove SNARK (CP-SNARK)~\cite{gnark, legosnark} is a variant of a SNARK that proves statements about witnesses bound to an external commitment. We call such a commitment a \emph{witness commitment}. Let $\com$ be a commitment scheme with commitment key $\ck$. For an NP relation $\relation$ over tuples $(\stmt,\comwit,\omega)$, a CP-SNARK proves knowledge of a witness
+$\wit := (\comwit,\omega)$ such that $(\stmt,\comwit,\omega)\in\relation$,
+where $\comwit$ is the committed part of the witness and $\omega$ is the
+remaining private witness.  The committed witness is bound separately by a
+witness commitment
+$\widetilde{\cm} = \com(\ck_S, m_0 || ... || m_{q-1}; \widetilde{o})$, where $\tilde{o}$ is the
+opening randomness.  Equivalently, the CP proof is verified with respect to the
+extended public statement $\stmt_{\cp}:=(\stmt,\widetilde{\cm})$.  When the
+context is clear, we write this extended statement simply as $\stmt$.
+A CP-SNARK scheme is a tuple of algorithms
+$\bPi_{\cp}=(\setup,\com,\prove,\verify)$.
+
+\begin{itemize}
+    \item $\para \gets \bPi_{\cp}.\setup(1^\lambda,\relation)$: generates public parameters $\para=(\pk,\vk,\ck)$ for the relation $\relation$, where $\pk$ is the proving key, $\vk$ is the verifying key, and $\ck$ is the commitment key.
+
+    \item $\widetilde{\cm} \gets \bPi_{\cp}.\com(\para,\comwit;\tilde{o})$:
+    outputs a witness commitment to the committed witness part $\comwit$.
+
+    \item $\pi_{\cp} \gets \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit)$:
+    outputs a proof for the extended statement $\stmt_{\cp}$ and witness
+    $\wit=(\comwit,\omega)$.
+
+    \item $b \gets \bPi_{\cp}.\verify(\para,\stmt_{\cp},\pi_{\cp})$:
+    outputs $b=1$ if $\pi_{\cp}$ is accepted as a valid proof for the extended
+    statement $\stmt_{\cp}$, and outputs $b=0$ otherwise. Equivalently, we may
+    write verification as
+    $\bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})$.
+\end{itemize}
+\subsection{CP-Link}
+\label{sec:prelim-cplink}
+
+A CP-Link proof is a proof system for linking commitments.  In the form used by
+\(\protocol\), it proves that one SNARK-side commitment to an ordered
+concatenation of sampled blocks is consistent with external commitments to the
+individual blocks, without revealing the blocks or the opening randomness.
+
+Let $\com$ be a commitment scheme.  For a SNARK-side key \(\ck_S\), an external
+key \(\ck_E\), a SNARK-side commitment \(\widetilde{\cm}\), and external
+commitments \(\cm_0,\ldots,\cm_{q-1}\), the blockwise linking relation is
+defined over the statement and witness
+\[
+\begin{aligned}
+\stmt_{\mathsf{link}}
+&=
+((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1})),\\
+\wit_{\mathsf{link}}
+&=
+((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
+\end{aligned}
+\]
+The pair \((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) is in
+\(\relation_{\mathsf{link}}\) if and only if
+\[
+\begin{aligned}
+\widetilde{\cm}
+&=
+\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+\cm_i
+&=
+\com(\ck_E,\vect{m}_i;o_i)
+\quad \text{for all } i=0,\ldots,q-1.
+\end{aligned}
+\]
+A proof for $\relation_{\mathsf{link}}$ convinces the verifier that the ordered
+blocks committed inside the CP-SNARK are exactly the blocks committed by the
+corresponding external commitments.
+
+We use CP-Link through the standard statement/witness interface for a linking
+relation.
+
+A CP-Link proof system is a tuple of algorithms
+$\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
+
+\begin{itemize}
+\item $\para_{\mathsf{link}} \gets
+\bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})$:
+generates public parameters for the linking relation.
+
+\item $\pi_{\mathsf{link}} \gets
+\bPi_{\mathsf{link}}.\prove(
+\para_{\mathsf{link}},
+\stmt_{\mathsf{link}},
+\wit_{\mathsf{link}})$:
+outputs a proof that the statement-witness pair satisfies the linking relation.
+
+\item $b \gets
+\bPi_{\mathsf{link}}.\verify(
+\para_{\mathsf{link}},
+\stmt_{\mathsf{link}},
+\pi_{\mathsf{link}})$:
+outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
+\end{itemize}
+
+\begin{remark}[Security Properties]
+For the soundness of \(\protocol\), we require CP-Link soundness: an accepting
+linking proof should imply membership in \(\relation_{\mathsf{link}}\), except
+with error \(\epsilon_{\mathsf{link}}(\lambda)\).  If the linking backend is used
+to protect the linked blocks and openings, one may additionally require witness
+zero knowledge.  Appendix~\ref{app:cplink-security} states these properties.
+\end{remark}
+
+\subsection{Freivalds' Algorithm}
+\label{sec:prelim-freivalds}
+
+Freivalds' algorithm~\cite{freivalds1977probabilistic} is a classical randomized algorithm for verifying matrix multiplication.
+Given $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$, it samples $\vect{r} \sample \mathbb{F}^k$ and checks whether $\vect{r}(\mat{A}\mat{B}) = \vect{r}\mat{C}$.
+The correctness relies on the following:
+
+\begin{lemma}[Schwartz--Zippel~\cite{schwartz1980fast,zippel1979probabilistic}]\label{lem:sz}
+Let $P(X_1, \ldots, X_m)$ be a non-zero polynomial of total degree $d$ over a finite field $\mathbb{F}$.
+Then for $r_1, \ldots, r_m \sample \mathbb{F}$ chosen uniformly and independently,
+\[
+\Pr[P(r_1, \ldots, r_m) = 0] \le \frac{d}{|\mathbb{F}|}.
+\]
+\end{lemma}
+
+In our protocol, we use a structured variant: instead of sampling $\vect{r} \sample \mathbb{F}^k$ uniformly, we sample one scalar $r \sample \mathbb{F}$ and set $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
+This keeps the Freivalds challenge compact in the transcript and in the SNARK
+statement: the verifier records one field element rather than $k$ independent
+ones. If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero
+column $\vect{d}_j$ of $\mat{D}$, the value $\langle \vect{r}, \vect{d}_j \rangle$ is a non-zero univariate polynomial in
+$r$ of degree at most $k-1$.
+By Lemma~\ref{lem:sz}, it vanishes with probability at most $(k-1)/|\mathbb{F}|$.

@@ -37,6 +37,9 @@ classical algorithm samples a challenge vector \(\vect{r}\in\mathbb{F}^k\) and c
   
 In \(\protocol\), the verifier derives one scalar \(r\) and uses the structured
 vector \((1,r,\ldots,r^{k-1})\), which keeps the public challenge compact.
+At the same transcript point, it derives an independent scalar \(s\) and the
+structured vector \(\vect{s}=(1,s,\ldots,s^{k-1})\).  This second challenge is
+used only to test the committed encoding of \(\mat{B}\).
 Equivalently, the prover introduces intermediate vectors
 \[
   \vect{x}=\vect{r}\mat{A},
@@ -86,6 +89,15 @@ form
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \end{aligned}
 \]
+The prover additionally computes \(\vect{b}=\vect{s}\mat{B}\), encodes it as
+\(\widehat{\vect{b}}=\enc(\vect{b})\), and the circuit checks
+\[
+  \widehat{\vect{b}}[j]
+  =
+  \fold(\vect{s},\widehat{\mat{B}}[*,j]).
+\]
+This additional fold tests the committed encoding of \(\mat{B}\) independently
+of the product relation.
 Only the queried columns
 \(\widehat{\mat{A}}[*,j]\), \(\widehat{\mat{B}}[*,j]\),
 \(\widehat{\mat{C}}[*,j]\) are used by the circuit.  Thus, for \(t\) queried
@@ -134,24 +146,28 @@ Similarly, if \(\vect{y}=\vect{x}\mat{B}\) and
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \]
 
-The prover commits to the encoded objects before the query positions are
-sampled.  After the query set \(I=(j_1,\ldots,j_t)\) is derived, the SNARK
+The prover commits to the encoded input matrices and, after \((r,s)\), to the
+complete intermediate messages and encoded views before the query positions
+are sampled.  After the query set \(I=(j_1,\ldots,j_t)\) is derived, the SNARK
 checks the above equations only for \(j\in I\), together with the equality
 \[
   \widehat{\vect{y}}[j]=\widehat{\vect{z}}[j].
 \]
 The SNARK also checks that
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are valid
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}},
+\widehat{\vect{b}}\) are valid
 encodings of the intermediate vectors
-\(\vect{x},\vect{y},\vect{z}\). These code-consistency checks are separate from
+\(\vect{x},\vect{y},\vect{z},\vect{b}\). These code-consistency checks are separate from
 the sampled fold checks and prevent the prover from using arbitrary length-\(n\)
 words as the intermediate encoded views.
 
-This is a proximity test: if a claimed vector relation is false, then the two
-corresponding codewords are distinct.  Since the code has relative distance
-\(\delta\), distinct codewords disagree on at least a \(\delta\)-fraction of
-positions.  Random sampling therefore detects an inconsistent relation with
-probability governed by \(\delta\) and the number of sampled positions.
+The sampled equations have two related roles.  The \(r\)-folds for
+\(\mat{A},\mat{C}\) and the independent \(s\)-fold for \(\mat{B}\) test that
+the committed input words are close to row-wise encodings.  Once the inputs
+are uniquely decoded, a false vector relation induces two distinct codewords,
+which disagree on at least a \(\delta\)-fraction of positions.
+Section~\ref{sec:security} states the corresponding proximity and sampling
+errors.
 
 \subsection{Sampled-Opening Layer}
 \label{sec:overview-commit-link}
@@ -160,73 +176,16 @@ The sampled checks above are meaningful only if the values used inside the
 SNARK are bound to data fixed before the relevant challenges are sampled.
 \(\protocol\) achieves this through a sampled-opening layer.
 The prover first commits to the interleaved symbols, equivalently the encoded
-matrix columns, and fixes a Merkle root before the Freivalds challenge is
-derived.  After the challenge is fixed, the prover computes the intermediate
-vectors, commits to their encoded symbols, and fixes a second Merkle root before
-the sampled positions are derived.
+matrix columns, and fixes a Merkle root before the Freivalds and independent
+input-proximity challenges are derived.  After the challenges are fixed, the
+prover computes the intermediate vectors and makes one binding commitment to
+the messages and their complete encoded views before the sampled positions and
+code-check points are derived.
 
 % The SNARK circuit itself only checks field equations on the sampled values.
-The SNARK circuit itself checks field equations: the sampled fold and equality
-checks, together with the code-consistency checks for the intermediate vectors.
-It does not verify Pedersen openings or Merkle paths internally.  Instead, the
-commit-and-prove SNARK commits to the sampled witness blocks used by the
-circuit, and the prover supplies:
-\begin{itemize}
-  \item Merkle openings showing that the external Pedersen commitments
-  \(\cm_{ABC,j}\) and \(\cm_{XYZ,j}\) are authenticated under
-  \(\rt_{ABC}\) and \(\rt_{XYZ}\);
-  \item CP-Link proofs showing that the witness commitments from CP-SNARK and the
-  external Pedersen commitments open to the corresponding sampled blocks.
-\end{itemize}
-Thus the verifier obtains a chain of consistency:
-\begin{gather*}
-\myblock{SNARK witness values} \\
-\Updownarrow \ \text{\small CP-Link} \\
-\myblock{External Pedersen leaf commitments} \\
-\Updownarrow \ \text{\small Merkle openings} \\
-\myblock{Fixed Merkle roots}
-\end{gather*}
-This separation is essential for efficiency.  The SNARK checks only arithmetic
-relations on field elements, while Merkle authentication and commitment
-linking are verified outside the circuit.
-
-\subsection{Soundness Intuition}
-\label{sec:overview-soundness}
-The soundness argument has three layers. \\
-
-% \paragraph{Freivalds soundness}
-\noindent\textbf{Freivalds soundness.}
-If \(\mat{A}\mat{B}\neq\mat{C}\), then
-\(\mat{D}=\mat{A}\mat{B}-\mat{C}\) is nonzero.  With the structured challenge
-\(\vect{r}=(1,r,\ldots,r^{k-1})\), the vector
-\(\vect{r}\mat{D}\) is nonzero except with probability at most
-\((k-1)/|\mathbb{F}|\), by Schwartz--Zippel.  Therefore, except with this
-probability, at least one of the vector relations in the Freivalds reduction is
-false. \\
-
-% \paragraph{Proximity soundness}
-\noindent\textbf{Proximity soundness.}
-Condition on the commitments being binding and fixed before the sampled
-positions are derived.  If a vector relation is false, then the two associated
-encoded vectors are distinct codewords.  Since the code has relative distance
-\(\delta\), they differ on at least \(\delta n\) positions.  A random query
-misses this disagreement with probability at most \(1-\delta\), and \(t\)
-independent queries miss it with probability at most $(1-\delta)^t.$
-Union-bounding over the local relations checked by the protocol gives the
-proximity term used in the security analysis. \\
-
-% \paragraph{Commitment and linking soundness}
-\noindent\textbf{Commitment and linking soundness.}
-The distance argument applies only to values fixed before the query positions
-are sampled.  Merkle position binding prevents the prover from opening a root
-to two different leaves at the same position.  Pedersen binding prevents a
-committed leaf from being opened to two different messages.  CP-Link ensures
-that the values used by the SNARK are the same values authenticated by the
-external commitments.  Therefore, except for the binding and linking failure
-probabilities, any accepting proof corresponds to fixed encoded objects that
-pass the sampled proximity checks. \\
-
-Putting the layers together, a cheating prover must either break one of the
-commitment/linking mechanisms, violate SNARK soundness, hit the Freivalds
-failure event, or avoid all sampled disagreements in the encoded domain.  The
-formal theorem in Section~\ref{sec:security} makes this union bound explicit.
+The SNARK checks only the sampled field equations and intermediate-vector
+encoding checks.  Merkle openings authenticate the sampled input-column
+leaves.  CP-Link binds those leaves to the sampled CP-SNARK block and separately
+binds the complete intermediate CP-SNARK witness to its pre-query commitment.
+Consequently, the expensive authentication and linking checks remain outside
+the circuit.  Section~\ref{sec:security} gives the formal soundness argument.

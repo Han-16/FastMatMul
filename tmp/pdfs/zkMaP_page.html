@@ -1,0 +1,855 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="/css/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/css/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs</title>
+    <meta name="tdm-reservation" content="1">
+    <!-- TODO: make this customizable -->
+    
+    <link rel="stylesheet" href="/css/iacrcc.css">
+    
+    <link rel="icon" type="image/png" href="/favicon.ico">
+    
+<style>
+ div.authorname {
+   font-weight: 500;
+   margin-bottom: .3rem;
+ }
+ div.author {
+   margin-bottom: 1rem;
+ }
+ span.keyword {
+   font-weight: 500;
+ }
+ span.keyword a {
+   color: black;
+ }
+ div.reference {
+   margin-bottom: .5rem;
+ }
+ ol.bib li:before {
+   margin-left: -1.5rem;
+   content: "[" counter(bcounter) "] ";
+   margin-right: .5rem;
+ }
+ol.bib {
+  list-style: none;
+  counter-reset: bcounter;
+}
+ ol.bib li {
+   counter-increment: bcounter;
+   margin-bottom: .5rem;
+ }
+ .card-header {
+   background-color: #d1e7dd !important;
+ }
+ .authorlist {
+/*   border: 1px solid #aaa;
+   padding: 1rem;
+   margin-bottom: 1rem;
+   background-color: white;*/
+ }
+ 
+</style>
+<script>
+  MathJax = {
+     tex: {
+       inlineMath: [['$', '$'], ['\\(', '\\)']],
+       displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+       processEnvironments: false,
+       processEscapes: true
+     },
+    "HTML-CSS": { linebreaks: { automatic: true } }
+   };
+  </script>
+  
+  <script id="MathJax-script" async src="/js/mathjax/tex-chtml.js"></script>
+
+<link rel="schema.DC" href="https://purl.org/dc/elements/1.1/">
+<meta name="DC.Creator.PersonalName" content="Biniyam Deressa">
+<meta name="DC.Creator.PersonalName" content="M. Anwar Hasan">
+<meta name="DC.Date.created" content="2025-10-06 18:18:53">
+<meta name="DC.Date.dateSubmitted" content="2025-07-06">
+<meta name="DC.Date.dateAccepted" content="2025-09-02">
+<meta name="DC.Description" xml:lang="en" lang="en" content="&lt;p&gt;We introduce zkMaP (Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs), a novel non-interactive zero-knowledge proof system for verifying matrix multiplication with significant improvements in efficiency and scalability. Our protocol leverages KZG polynomial commitments and an innovative inner-product reduction technique to reduce the verification of n x n matrix multiplication to a single pairing equation, thereby enabling constant-time verification independent of the matrix size. In particular, zkMaP requires only two pairing operations and produces proofs as small as 320 bytes, yielding a 96 percent reduction in proof size compared to prior schemes. Furthermore, the prover&#39;s computational complexity follows the state-of-the-art at O(n^2), with experimental results demonstrating that proofs for 1024 x 1024 matrices can be generated in approximately 12.21 seconds, offering a 16.14x speedup over previous methods. Our implementation also exhibits better memory efficiency, using only 24.58 MB of prover-side RAM for 1024 x 1024 matrices, and supports scalable batch processing, achieving per-proof generation times of 46.79 milliseconds for 1024 instances while maintaining a constant verification time of 3.6 ms. &lt;/p&gt;">
+<meta name="DC.Format" content="application/pdf">
+<meta name="DC.Identifier.DOI" content="10.62056/angy11fgx">
+<meta name="DC.Identifier.URI" content="https://cic.iacr.org/p/2/3/23">
+<meta name="DC.Language" content="en">
+<meta name="DC.Rights" content="Copyright (c) 2023 held by author(s)">
+<meta name="DC.Rights" content="https://creativecommons.org/licenses/by/4.0/">
+<meta name="DC.Source" content="IACR Communications in Cryptology">
+<meta name="DC.Source.ISSN" content="3006-5496">
+<meta name="DC.Source.Issue" content="3">
+<meta name="DC.Source.Volume" content="2"><meta name="DC.Title" content="zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs">
+<meta name="DC.Type" content="Text.Serial.Journal">
+<meta name="DC.Type.articleType" content="Articles">
+<meta name="citation_journal_title" content="IACR Communications in Cryptology">
+<meta name="citation_journal_abbrev" content="CiC">
+<meta name="citation_issn" content="3006-5496"><meta name="citation_author" content="Biniyam Deressa">
+<meta name="citation_author_institution" content="University of Waterloo">
+<meta name="citation_author" content="M. Anwar Hasan">
+<meta name="citation_author_institution" content="University of Waterloo">
+<meta name="citation_title" content="zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs">
+<meta name="citation_language" content="en">
+<meta name="citation_date" content="2025-10-06">
+<meta name="citation_volume" content="2">
+<meta name="citation_issue" content="3">
+<meta name="citation_doi" content="10.62056/angy11fgx">
+<meta name="citation_abstract_html_url" content="https://cic.iacr.org/p/2/3/23">
+
+<meta name="citation_pdf_url" content="https://cic.iacr.org/p/2/3/23/pdf">
+
+  </head>
+
+  <body>
+    <noscript>
+      <h1 class="text-center">What a lovely hat</h1>
+      <h4 class="text-center">Is it made out of <a href="https://iacr.org/tinfoil.html">tin foil</a>?</h4>
+    </noscript>
+    <div class="pageTop d-flex justify-content-md-around justify-content-between align-items-center">
+      
+      <a href="https://iacr.org"><img id="logo" class="d-none d-lg-block ms-5" src="/images/iacrlogo_small.png" title="International Association for Cryptologic Research" alt="IACR logo"></a>
+      <span class="headerTitle d-none d-md-block">IACR Communications in Cryptology</span>
+      <span class="headerTitle d-md-none">IACR CiC</span>
+      <div class="dropdown ps-lg-2 me-5">
+        <button class="btn border-0" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="true">
+          <img src="/images/search.svg" class="searchIcon" alt="Search Button" style="width:33px;">
+        </button>
+        <div id="searchDd" class="dropdown-menu dropdown-menu-end bg-transparent border-0" aria-labelledby="dropdownMenuButton1" data-bs-popper="none">
+          <form action="/search" method="GET" class="me-3">
+            <div class="input-group">
+              <input id="searchbox" name="q" type="search" class="form-control shadow-none" autocomplete="off" >
+              
+              <input type="hidden" name="d" value="/var/www/wsgi/cicjournal/webapp/search_index/xapian.db">
+              
+              <button class="btn btn-outline-dark border border-dark input-group-append">
+                Search
+              </button>
+            </div>
+          </form>
+          <div id="results" class="bg-light"></div>
+          
+        </div>
+      </div>
+    </div>
+    <nav id="sitenav" class="navbar navbar-expand-md">
+      <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContent" aria-controls="collapseContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapseContent">
+          <ul class="navbar-nav nav-fill w-100 justify-content-between">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/contents">Papers</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Submissions
+              </a>
+              <ul class="dropdown-menu ms-3 ms-lg-5">
+                
+                <li><a class="dropdown-item" href="/page/callforpapers">Call for papers</a></li>
+                
+                <li><a class="dropdown-item" href="/page/faq">Frequently asked questions</a></li>
+                
+                <li><a class="dropdown-item" href="/page/ethics">Publication ethics</a></li>
+                
+                <li><a class="dropdown-item" href="/page/irregular">Irregular submissions</a></li>
+                
+                <li><a class="dropdown-item" href="/page/conflicts">Conflict of interest</a></li>
+                
+                <li><a class="dropdown-item" href="/page/retraction">Retraction policy</a></li>
+                
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/contact">Contact</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/board">Editorial board</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#" class="ms-md-5 nav-link dropdown-toggle" data-bs-toggle="dropdown"><img alt="Login" src="/images/user.svg"></a>
+              <ul class="dropdown-menu">
+                
+                <li><a href="/login" class="dropdown-item">Admin login</a></li>
+                
+              </ul>
+            </li>
+	  </ul>
+        </div>
+      </div>
+    </nav>
+    <main id="mainContent" class="container">
+    
+<nav aria-label="breadcrumb" class="mt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/v/2">Volume 2</a></li>
+    <li class="breadcrumb-item"><a href="/i/2/3">Issue 3</a></li>
+    <li class="breadcrumb-item active" aria-current="page">23</li>
+  </ol>
+</nav>
+<h2>zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs</h2>
+
+<div class="row mt-3">
+  <div class="col-12 col-md-8">
+    
+    
+    <h3 class="mt-2">Authors</h3>
+    <div class="fs-4 mb-4 mt-2 d-flex justify-content-between flex-column flex-lg-row">
+      <div>Biniyam Deressa, M. Anwar Hasan</div>
+      <button role="button" aria-expanded="false" aria-controls="authorlist" class="ms-4 btn me-3 dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#authorlist">Author Info</button>
+    </div>
+    <div id="authorlist" class="authorlist collapse">
+    
+    <div class="author">
+      <div class="authorname">Biniyam Deressa
+        
+        <a target="_blank" href="https://orcid.org/0000-0002-9612-8695"><img alt="ORCID" class="align-baseline orcidIcon" src="/images/orcid.svg"></a>
+        
+      </div>
+      <div class="ms-4 mb-2">
+      
+      
+      University of Waterloo, Waterloo, Canada<br>
+      
+      
+      <span class="font-monospace">bderessa at uwaterloo dot ca</span>
+      
+      </div>
+    </div>
+    
+    <div class="author">
+      <div class="authorname">M. Anwar Hasan
+        
+        <a target="_blank" href="https://orcid.org/0000-0003-4103-7945"><img alt="ORCID" class="align-baseline orcidIcon" src="/images/orcid.svg"></a>
+        
+      </div>
+      <div class="ms-4 mb-2">
+      
+      
+      University of Waterloo, Waterloo, Canada<br>
+      
+      
+      <span class="font-monospace">ahasan at uwaterloo dot ca</span>
+      
+      </div>
+    </div>
+    
+    </div>
+    <h3 class="mt-4">Abstract</h3>
+    <p><p>We introduce zkMaP (Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs), a novel non-interactive zero-knowledge proof system for verifying matrix multiplication with significant improvements in efficiency and scalability. Our protocol leverages KZG polynomial commitments and an innovative inner-product reduction technique to reduce the verification of n x n matrix multiplication to a single pairing equation, thereby enabling constant-time verification independent of the matrix size. In particular, zkMaP requires only two pairing operations and produces proofs as small as 320 bytes, yielding a 96 percent reduction in proof size compared to prior schemes. Furthermore, the prover's computational complexity follows the state-of-the-art at O(n^2), with experimental results demonstrating that proofs for 1024 x 1024 matrices can be generated in approximately 12.21 seconds, offering a 16.14x speedup over previous methods. Our implementation also exhibits better memory efficiency, using only 24.58 MB of prover-side RAM for 1024 x 1024 matrices, and supports scalable batch processing, achieving per-proof generation times of 46.79 milliseconds for 1024 instances while maintaining a constant verification time of 3.6 ms. </p></p>
+    
+    
+    <h3 class="mb-3">References</h3>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[AFLN24]</div>
+      <div><div id="ref-albrecht2024slap" class="bibitem">Martin R. Albrecht, Giacomo Fenzi, Oleksandra Lapiha, and Ngoc Khanh Nguyen.  SLAP: Succinct Lattice-Based Polynomial Commitments from Standard Assumptions. In <em>Advances in Cryptology – EUROCRYPT 2024: 43rd Annual International Conference on the Theory and Applications of Cryptographic Techniques, Zurich, Switzerland, May 26–30, 2024, Proceedings, Part VII</em>, volume 14657 of <em>LNCS</em>, pages 90–119. 2024.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-031-58754-2_4">10.1007/978-3-031-58754-2_4</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Martin+R.+Albrecht+Giacomo+Fenzi+Oleksandra+Lapiha+Ngoc+Khanh+Nguyen+SLAP%3A+Succinct+Lattice-Based+Polynomial+Commitments+from+Standard+Assumptions+2024" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Martin+R.+Albrecht+Giacomo+Fenzi+Oleksandra+Lapiha+Ngoc+Khanh+Nguyen&amp;title=SLAP%3A+Succinct+Lattice-Based+Polynomial+Commitments+from+Standard+Assumptions&amp;submittedafter=2023&amp;submittedbefore=2025" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BBB<sup>+</sup>18]</div>
+      <div><div id="ref-bunz2018bulletproofs" class="bibitem">Benedikt Bünz, Jonathan Bootle, Dan Boneh, Andrew Poelstra, Pieter Wuille, and Greg Maxwell.  Bulletproofs: Short Proofs for Confidential Transactions and More. In <em>2018 IEEE Symposium on Security and Privacy</em>, pages 315–334. 2018.  IEEE.  DOI: <a href="https://doi.org/10.1109/SP.2018.00020">10.1109/SP.2018.00020</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Benedikt+B%C3%BCnz+Jonathan+Bootle+Dan+Boneh+Andrew+Poelstra+Pieter+Wuille+Greg+Maxwell+Bulletproofs%3A+Short+Proofs+for+Confidential+Transactions+and+More+2018" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Benedikt+B%C3%BCnz+Jonathan+Bootle+Dan+Boneh+Andrew+Poelstra+Pieter+Wuille+Greg+Maxwell&amp;title=Bulletproofs%3A+Short+Proofs+for+Confidential+Transactions+and+More&amp;submittedafter=2017&amp;submittedbefore=2019" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BCCT12]</div>
+      <div><div id="ref-bitansky2012extractable" class="bibitem">Nir Bitansky, Ran Canetti, Alessandro Chiesa, and Eran Tromer.  From Extractable Collision Resistance to Succinct Non-Interactive Arguments of Knowledge, and Back Again. In <em>ITCS '12: Proceedings of the 3rd Innovations in Theoretical Computer Science Conference</em>, pages 326–349. 2012.  ACM.  DOI: <a href="https://doi.org/10.1145/2090236.2090263">10.1145/2090236.2090263</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Nir+Bitansky+Ran+Canetti+Alessandro+Chiesa+Eran+Tromer+From+Extractable+Collision+Resistance+to+Succinct+Non-Interactive+Arguments+of+Knowledge%2C+and+Back+Again+2012" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Nir+Bitansky+Ran+Canetti+Alessandro+Chiesa+Eran+Tromer&amp;title=From+Extractable+Collision+Resistance+to+Succinct+Non-Interactive+Arguments+of+Knowledge%2C+and+Back+Again&amp;submittedafter=2011&amp;submittedbefore=2013" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BGM17]</div>
+      <div><div id="ref-bowe2017scalable" class="bibitem">Sean Bowe, Ariel Gabizon, and Ian Miers.  <a href="https://eprint.iacr.org/2017/1050">Scalable Multi-Party Computation for zk-SNARK Parameters in the Random Beacon Model</a>.  <em>Cryptology ePrint Archive</em>, 2017.</div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Sean+Bowe+Ariel+Gabizon+Ian+Miers+Scalable+Multi-Party+Computation+for+zk-SNARK+Parameters+in+the+Random+Beacon+Model+2017" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Sean+Bowe+Ariel+Gabizon+Ian+Miers&amp;title=Scalable+Multi-Party+Computation+for+zk-SNARK+Parameters+in+the+Random+Beacon+Model&amp;submittedafter=2016&amp;submittedbefore=2018" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BLS04]</div>
+      <div><div id="ref-boneh2004short" class="bibitem">Dan Boneh, Ben Lynn, and Hovav Shacham.  Short Signatures from the Weil Pairing.  <em>Journal of Cryptology</em>, 17(4):297–319, 2004. DOI: <a href="https://doi.org/10.1007/s00145-004-0314-9">10.1007/s00145-004-0314-9</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Dan+Boneh+Ben+Lynn+Hovav+Shacham+Short+Signatures+from+the+Weil+Pairing+2004" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Dan+Boneh+Ben+Lynn+Hovav+Shacham&amp;title=Short+Signatures+from+the+Weil+Pairing&amp;submittedafter=2003&amp;submittedbefore=2005" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BN06]</div>
+      <div><div id="ref-bellare2006multi" class="bibitem">Mihir Bellare and Gregory Neven.  Multi-Signatures in the Plain Public-Key Model and a General Forking Lemma. In <em>CCS '06: Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, pages 390–399. 2006.  ACM.  DOI: <a href="https://doi.org/10.1145/1180405.1180453">10.1145/1180405.1180453</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Mihir+Bellare+Gregory+Neven+Multi-Signatures+in+the+Plain+Public-Key+Model+and+a+General+Forking+Lemma+2006" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Mihir+Bellare+Gregory+Neven&amp;title=Multi-Signatures+in+the+Plain+Public-Key+Model+and+a+General+Forking+Lemma&amp;submittedafter=2005&amp;submittedbefore=2007" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BR93]</div>
+      <div><div id="ref-bellare1993random" class="bibitem">Mihir Bellare and Phillip Rogaway.  Random Oracles Are Practical: A Paradigm for Designing Efficient Protocols. In <em>CCS '93: Proceedings of the 1st ACM Conference on Computer and Communications Security</em>, pages 62–73. 1993.  ACM.  DOI: <a href="https://doi.org/10.1145/168588.168596">10.1145/168588.168596</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Mihir+Bellare+Phillip+Rogaway+Random+Oracles+Are+Practical%3A+A+Paradigm+for+Designing+Efficient+Protocols+1993" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Mihir+Bellare+Phillip+Rogaway&amp;title=Random+Oracles+Are+Practical%3A+A+Paradigm+for+Designing+Efficient+Protocols&amp;submittedafter=1992&amp;submittedbefore=1994" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[BSBHR18]</div>
+      <div><div id="ref-ben2018scalable" class="bibitem">Eli Ben-Sasson, Iddo Bentov, Yinon Horesh, and Michael Riabzev.  <a href="https://eprint.iacr.org/2018/046">Scalable, Transparent, and Post-Quantum Secure Computational Integrity</a>. Cryptology ePrint Archive, Report 2018/046. 2018.</div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Eli+Ben-Sasson+Iddo+Bentov+Yinon+Horesh+Michael+Riabzev+Scalable%2C+Transparent%2C+and+Post-Quantum+Secure+Computational+Integrity+2018" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Eli+Ben-Sasson+Iddo+Bentov+Yinon+Horesh+Michael+Riabzev&amp;title=Scalable%2C+Transparent%2C+and+Post-Quantum+Secure+Computational+Integrity&amp;submittedafter=2017&amp;submittedbefore=2019" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[CBBZ23]</div>
+      <div><div id="ref-chen2023hyperplonk" class="bibitem">Binyi Chen, Benedikt Bünz, Dan Boneh, and Zhenfei Zhang.  HyperPlonk: Plonk with Linear-Time Prover and High-Degree Custom Gates. In <em>Advances in Cryptology – EUROCRYPT 2023: 42nd Annual International Conference on the Theory and Applications of Cryptographic Techniques, Lyon, France, April 23–27, 2023, Proceedings, Part II</em>, volume 14077 of <em>LNCS</em>, pages 499–530. 2023.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-031-30617-4_17">10.1007/978-3-031-30617-4_17</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Binyi+Chen+Benedikt+B%C3%BCnz+Dan+Boneh+Zhenfei+Zhang+HyperPlonk%3A+Plonk+with+Linear-Time+Prover+and+High-Degree+Custom+Gates+2023" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Binyi+Chen+Benedikt+B%C3%BCnz+Dan+Boneh+Zhenfei+Zhang&amp;title=HyperPlonk%3A+Plonk+with+Linear-Time+Prover+and+High-Degree+Custom+Gates&amp;submittedafter=2022&amp;submittedbefore=2024" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[CFQ19]</div>
+      <div><div id="ref-campanelli2019legosnark" class="bibitem">Matteo Campanelli, Dario Fiore, and Anaïs Querol.  LegoSNARK: Modular Design and Composition of Succinct Zero-Knowledge Proofs. In <em>CCS '19: Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security</em>, pages 2075–2092. 2019.  ACM.  DOI: <a href="https://doi.org/10.1145/3319535.3339820">10.1145/3319535.3339820</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Matteo+Campanelli+Dario+Fiore+Ana%C3%AFs+Querol+LegoSNARK%3A+Modular+Design+and+Composition+of+Succinct+Zero-Knowledge+Proofs+2019" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Matteo+Campanelli+Dario+Fiore+Ana%C3%AFs+Querol&amp;title=LegoSNARK%3A+Modular+Design+and+Composition+of+Succinct+Zero-Knowledge+Proofs&amp;submittedafter=2018&amp;submittedbefore=2020" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[CHM<sup>+</sup>20]</div>
+      <div><div id="ref-chiesa2020marlin" class="bibitem">Alessandro Chiesa, Yuncong Hu, Mary Maller, Pratyush Mishra, Noah Vesely, and Nicholas Ward.  Marlin: Preprocessing zkSNARKs with Universal and Updatable SRS. In <em>Advances in Cryptology – EUROCRYPT 2020: 39th Annual International Conference on the Theory and Applications of Cryptographic Techniques, Zagreb, Croatia, May 10–14, 2020, Proceedings, Part I</em>, volume 12105 of <em>LNCS</em>, pages 738–768. 2020.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-030-45721-1_26">10.1007/978-3-030-45721-1_26</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Alessandro+Chiesa+Yuncong+Hu+Mary+Maller+Pratyush+Mishra+Noah+Vesely+Nicholas+Ward+Marlin%3A+Preprocessing+zkSNARKs+with+Universal+and+Updatable+SRS+2020" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Alessandro+Chiesa+Yuncong+Hu+Mary+Maller+Pratyush+Mishra+Noah+Vesely+Nicholas+Ward&amp;title=Marlin%3A+Preprocessing+zkSNARKs+with+Universal+and+Updatable+SRS&amp;submittedafter=2019&amp;submittedbefore=2021" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[CYY24]</div>
+      <div><div id="ref-cong2024zkmatrix" class="bibitem">Mingshu Cong, Tsz Hon Yuen, and Siu-Ming Yiu.  zkMatrix: Batched Short Proof for Committed Matrix Multiplication. In <em>AsiaCCS '24: Proceedings of the 19th ACM Asia Conference on Computer and Communications Security</em>, pages 289–305. 2024.  ACM.  DOI: <a href="https://doi.org/10.1145/3634737.3645003">10.1145/3634737.3645003</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Mingshu+Cong+Tsz+Hon+Yuen+Siu-Ming+Yiu+zkMatrix%3A+Batched+Short+Proof+for+Committed+Matrix+Multiplication+2024" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Mingshu+Cong+Tsz+Hon+Yuen+Siu-Ming+Yiu&amp;title=zkMatrix%3A+Batched+Short+Proof+for+Committed+Matrix+Multiplication&amp;submittedafter=2023&amp;submittedbefore=2025" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[FKL18]</div>
+      <div><div id="ref-fuchsbauer2018algebraic" class="bibitem">Georg Fuchsbauer, Eike Kiltz, and Julian Loss.  The Algebraic Group Model and Its Applications. In <em>Advances in Cryptology – CRYPTO 2018: 38th Annual International Cryptology Conference, Santa Barbara, CA, USA, August 19–23, 2018, Proceedings, Part II</em>, volume 10991 of <em>LNCS</em>, pages 33–62. 2018.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-319-96881-0_2">10.1007/978-3-319-96881-0_2</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Georg+Fuchsbauer+Eike+Kiltz+Julian+Loss+The+Algebraic+Group+Model+and+Its+Applications+2018" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Georg+Fuchsbauer+Eike+Kiltz+Julian+Loss&amp;title=The+Algebraic+Group+Model+and+Its+Applications&amp;submittedafter=2017&amp;submittedbefore=2019" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[FS86]</div>
+      <div><div id="ref-fiat1986prove" class="bibitem">Amos Fiat and Adi Shamir.  How to Prove Yourself: Practical Solutions to Identification and Signature Problems. In <em>Advances in Cryptology – CRYPTO 1986: 6th Annual International Cryptology Conference, Santa Barbara, CA, USA, August 18–22, 1986, Proceedings</em>, volume 263 of <em>LNCS</em>, pages 186–194. 1986.  Springer.  DOI: <a href="https://doi.org/10.1007/3-540-47721-7_12">10.1007/3-540-47721-7_12</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Amos+Fiat+Adi+Shamir+How+to+Prove+Yourself%3A+Practical+Solutions+to+Identification+and+Signature+Problems+1986" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Amos+Fiat+Adi+Shamir&amp;title=How+to+Prove+Yourself%3A+Practical+Solutions+to+Identification+and+Signature+Problems&amp;submittedafter=1985&amp;submittedbefore=1987" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[GO94]</div>
+      <div><div id="ref-goldreich1994definitions" class="bibitem">Oded Goldreich and Yair Oren.  Definitions and Properties of Zero-Knowledge Proof Systems.  <em>Journal of Cryptology</em>, 7(1):1–32, 1994. DOI: <a href="https://doi.org/10.1007/BF00195207">10.1007/BF00195207</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Oded+Goldreich+Yair+Oren+Definitions+and+Properties+of+Zero-Knowledge+Proof+Systems+1994" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Oded+Goldreich+Yair+Oren&amp;title=Definitions+and+Properties+of+Zero-Knowledge+Proof+Systems&amp;submittedafter=1993&amp;submittedbefore=1995" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[Gro09]</div>
+      <div><div id="ref-groth2009linear" class="bibitem">Jens Groth.  Linear Algebra with Sub-Linear Zero-Knowledge Arguments. In <em>Advances in Cryptology – CRYPTO 2009: 29th Annual International Cryptology Conference, Santa Barbara, CA, USA, August 16–20, 2009, Proceedings</em>, volume 5677 of <em>LNCS</em>, pages 192–208. 2009.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-642-03356-8_12">10.1007/978-3-642-03356-8_12</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Jens+Groth+Linear+Algebra+with+Sub-Linear+Zero-Knowledge+Arguments+2009" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Jens+Groth&amp;title=Linear+Algebra+with+Sub-Linear+Zero-Knowledge+Arguments&amp;submittedafter=2008&amp;submittedbefore=2010" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[Gro16]</div>
+      <div><div id="ref-groth2016size" class="bibitem">Jens Groth.  On the Size of Pairing-Based Non-Interactive Arguments. In <em>Advances in Cryptology – EUROCRYPT 2016: 35th Annual International Conference on the Theory and Applications of Cryptographic Techniques, Vienna, Austria, May 8-12, 2016, Proceedings, Part II</em>, volume 9666 of <em>LNCS</em>, pages 305–326. 2016.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-662-49896-5_11">10.1007/978-3-662-49896-5_11</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Jens+Groth+On+the+Size+of+Pairing-Based+Non-Interactive+Arguments+2016" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Jens+Groth&amp;title=On+the+Size+of+Pairing-Based+Non-Interactive+Arguments&amp;submittedafter=2015&amp;submittedbefore=2017" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[GWC19]</div>
+      <div><div id="ref-gabizon2019plonk" class="bibitem">Ariel Gabizon, Zachary J Williamson, and Oana Ciobotaru.  <a href="https://eprint.iacr.org/2019/953">Plonk: Permutations Over Lagrange-Bases for Oecumenical Noninteractive Arguments of Knowledge</a>. Cryptology ePrint Archive, Report 2019/953. 2019.</div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Ariel+Gabizon+Zachary+J+Williamson+Oana+Ciobotaru+Plonk%3A+Permutations+Over+Lagrange-Bases+for+Oecumenical+Noninteractive+Arguments+of+Knowledge+2019" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Ariel+Gabizon+Zachary+J+Williamson+Oana+Ciobotaru&amp;title=Plonk%3A+Permutations+Over+Lagrange-Bases+for+Oecumenical+Noninteractive+Arguments+of+Knowledge&amp;submittedafter=2018&amp;submittedbefore=2020" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[KZG10]</div>
+      <div><div id="ref-kate2010constant" class="bibitem">Aniket Kate, Gregory M Zaverucha, and Ian Goldberg.  Constant-Size Commitments to Polynomials and Their Applications. In <em>Advances in Cryptology – ASIACRYPT 2010: 16th International Conference on the Theory and Application of Cryptology and Information Security, Singapore, December 5-9, 2010, Proceedings</em>, volume 6476 of <em>LNCS</em>, pages 177–194. 2010.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-642-17373-8_11">10.1007/978-3-642-17373-8_11</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Aniket+Kate+Gregory+M+Zaverucha+Ian+Goldberg+Constant-Size+Commitments+to+Polynomials+and+Their+Applications+2010" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Aniket+Kate+Gregory+M+Zaverucha+Ian+Goldberg&amp;title=Constant-Size+Commitments+to+Polynomials+and+Their+Applications&amp;submittedafter=2009&amp;submittedbefore=2011" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[MBKM19]</div>
+      <div><div id="ref-maller2019sonic" class="bibitem">Mary Maller, Sean Bowe, Markulf Kohlweiss, and Sarah Meiklejohn.  Sonic: Zero-Knowledge SNARKs from Linear-Size Universal and Updatable Structured Reference Strings. In <em>CCS '19: Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security</em>, pages 2111–2128. 2019.  ACM.  DOI: <a href="https://doi.org/10.1145/3319535.3339817">10.1145/3319535.3339817</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Mary+Maller+Sean+Bowe+Markulf+Kohlweiss+Sarah+Meiklejohn+Sonic%3A+Zero-Knowledge+SNARKs+from+Linear-Size+Universal+and+Updatable+Structured+Reference+Strings+2019" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Mary+Maller+Sean+Bowe+Markulf+Kohlweiss+Sarah+Meiklejohn&amp;title=Sonic%3A+Zero-Knowledge+SNARKs+from+Linear-Size+Universal+and+Updatable+Structured+Reference+Strings&amp;submittedafter=2018&amp;submittedbefore=2020" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[PHGR16]</div>
+      <div><div id="ref-parno2016pinocchio" class="bibitem">Bryan Parno, Jon Howell, Craig Gentry, and Mariana Raykova.  Pinocchio: Nearly Practical Verifiable Computation.  <em>Communications of the ACM</em>, 59(2):103–112, 2016. DOI: <a href="https://doi.org/10.1145/2856449">10.1145/2856449</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Bryan+Parno+Jon+Howell+Craig+Gentry+Mariana+Raykova+Pinocchio%3A+Nearly+Practical+Verifiable+Computation+2016" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Bryan+Parno+Jon+Howell+Craig+Gentry+Mariana+Raykova&amp;title=Pinocchio%3A+Nearly+Practical+Verifiable+Computation&amp;submittedafter=2015&amp;submittedbefore=2017" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[Sch80]</div>
+      <div><div id="ref-schwartz1980fast" class="bibitem">Jacob T Schwartz.  Fast Probabilistic Algorithms for Verification of Polynomial Identities.  <em>Journal of the ACM (JACM)</em>, 27(4):701–717, 1980. DOI: <a href="https://doi.org/10.1145/322217.322225">10.1145/322217.322225</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Jacob+T+Schwartz+Fast+Probabilistic+Algorithms+for+Verification+of+Polynomial+Identities+1980" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Jacob+T+Schwartz&amp;title=Fast+Probabilistic+Algorithms+for+Verification+of+Polynomial+Identities&amp;submittedafter=1979&amp;submittedbefore=1981" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[Tha13]</div>
+      <div><div id="ref-thaler2013time" class="bibitem">Justin Thaler.  Time-Optimal Interactive Proofs for Circuit Evaluation. In <em>Advances in Cryptology – CRYPTO 2013: 33rd Annual International Cryptology Conference, Santa Barbara, CA, USA, August 18–22, 2013, Proceedings</em>, pages 71–89. 2013.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-642-40084-1_5">10.1007/978-3-642-40084-1_5</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Justin+Thaler+Time-Optimal+Interactive+Proofs+for+Circuit+Evaluation+2013" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Justin+Thaler&amp;title=Time-Optimal+Interactive+Proofs+for+Circuit+Evaluation&amp;submittedafter=2012&amp;submittedbefore=2014" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[WTS<sup>+</sup>18]</div>
+      <div><div id="ref-wahby2018doubly" class="bibitem">Riad S Wahby, Ioanna Tzialla, Abhi Shelat, Justin Thaler, and Michael Walfish.  Doubly-Efficient zkSNARKs Without Trusted Setup. In <em>2018 IEEE Symposium on Security and Privacy</em>, pages 926–943. 2018.  IEEE.  DOI: <a href="https://doi.org/10.1109/SP.2018.00060">10.1109/SP.2018.00060</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Riad+S+Wahby+Ioanna+Tzialla+Abhi+Shelat+Justin+Thaler+Michael+Walfish+Doubly-Efficient+zkSNARKs+Without+Trusted+Setup+2018" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Riad+S+Wahby+Ioanna+Tzialla+Abhi+Shelat+Justin+Thaler+Michael+Walfish&amp;title=Doubly-Efficient+zkSNARKs+Without+Trusted+Setup&amp;submittedafter=2017&amp;submittedbefore=2019" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[XZZ<sup>+</sup>19]</div>
+      <div><div id="ref-xie2019libra" class="bibitem">Tiacheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou, and Dawn Song.  Libra: Succinct Zero-Knowledge Proofs with Optimal Prover Computation. In <em>Advances in Cryptology – CRYPTO 2019: 39th Annual International Cryptology Conference, Santa Barbara, CA, USA, August 18–22, 2019, Proceedings, Part III</em>, volume 11693 of <em>LNCS</em>, pages 733–764. 2019.  Springer.  DOI: <a href="https://doi.org/10.1007/978-3-030-26954-8_24">10.1007/978-3-030-26954-8_24</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Tiacheng+Xie+Jiaheng+Zhang+Yupeng+Zhang+Charalampos+Papamanthou+Dawn+Song+Libra%3A+Succinct+Zero-Knowledge+Proofs+with+Optimal+Prover+Computation+2019" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Tiacheng+Xie+Jiaheng+Zhang+Yupeng+Zhang+Charalampos+Papamanthou+Dawn+Song&amp;title=Libra%3A+Succinct+Zero-Knowledge+Proofs+with+Optimal+Prover+Computation&amp;submittedafter=2018&amp;submittedbefore=2020" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    <div class="d-flex">
+      <div style="min-width:9rem;">[YSWW21]</div>
+      <div><div id="ref-yang2021quicksilver" class="bibitem">Kang Yang, Pratik Sarkar, Chenkai Weng, and Xiao Wang.  Quicksilver: Efficient and Affordable Zero-Knowledge Proofs for Circuits and Polynomials Over Any Field. In <em>CCS '21: Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security</em>, pages 2986–3001. 2021.  ACM.  DOI: <a href="https://doi.org/10.1145/3460120.3484556">10.1145/3460120.3484556</a></div></div>
+    </div>
+    <div class="text-end mb-4">
+      
+      <a href="https://scholar.google.com/scholar?hl=en&amp;q=Kang+Yang+Pratik+Sarkar+Chenkai+Weng+Xiao+Wang+Quicksilver%3A+Efficient+and+Affordable+Zero-Knowledge+Proofs+for+Circuits+and+Polynomials+Over+Any+Field+2021" target="_blank" class="ms-3">Google Scholar</a>
+      
+      <a href="https://eprint.iacr.org/search?relevance=on&amp;authors=Kang+Yang+Pratik+Sarkar+Chenkai+Weng+Xiao+Wang&amp;title=Quicksilver%3A+Efficient+and+Affordable+Zero-Knowledge+Proofs+for+Circuits+and+Polynomials+Over+Any+Field&amp;submittedafter=2020&amp;submittedbefore=2022" target="_blank" class="ms-3">ePrint</a>
+      
+    </div>
+    
+    
+  </div>
+  <div class="col-12 col-md-4">
+    <p class="mt-4">
+      <a class="btn btn-outline-dark" href="/p/2/3/23/pdf"><img alt="PDF" class="icon" src="/images/file-pdf.svg">PDF</a> <img style="margin-left: 1rem;max-width: 1.2rem;" src="/images/open_access.svg" title="Open access" alt="Open access">
+    </p>
+    <div class="my-4">
+      <span class="fw-bold me-2">DOI:</span> <a href="https://doi.org/10.62056/angy11fgx">https://doi.org/10.62056/angy11fgx</a>
+    </div>
+    <div class="card mb-4">
+      <h5 class="card-header">History</h5>
+      <div class="card-body">
+        <strong>Submitted</strong>: 2025-07-06<br>
+        <strong>Accepted</strong>: 2025-09-02<br>
+        <strong>Published</strong>: 2025-10-06<br>
+        
+        <a href="https://crossmark.crossref.org/dialog?doi=10.62056/angy11fgx&domain=html&date_stamp=2025-10-06"><img style="margin-top:4px;" src="/images/CROSSMARK_Color_horizontal.svg" width="150" alt="Crossmark logo"/></a>
+      </div>
+    </div>
+    <div class="card mb-4">
+      <h5 class="card-header">How to cite</h5>
+      <div class="card-body">
+        <p>Biniyam Deressa and M. Anwar Hasan, zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs. <span class="fst-italic">IACR Communications in Cryptology</span>, vol. 2, no. 3, Oct 06, 2025, doi: 10.62056/angy11fgx.
+        </p>
+        <button type="button" id="citationModalLabel" class="float-end btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#citationModal">
+        BibTeX, etc
+        </button>
+      </div>
+    </div>
+    
+    <div class="card mb-4">
+      <h5 class="card-header">Citations</h5>
+      <div class="card-body">
+        <p>There is at least one citation.</p>
+        <button type="button" id="citationsModalLabel" class="float-end btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#citationsModal">Show citations</button>
+      </div>
+    </div>
+    
+    <div class="card mb-4">
+      <h5 class="card-header">License</h5>
+      <div class="card-body">
+        <p>Copyright is held by the author(s)</p>
+        <p>
+          This work is licensed under a <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution (CC BY)</a> license.
+        </p>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+
+<div class="modal fade" id="citationModal" tabindex="-1" aria-labelledby="citationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-3">How to cite this</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="bibtex-tab" data-bs-toggle="tab" data-bs-target="#bibtex-pane" type="button" role="tab" aria-controls="bibtex-pane" aria-selected="true">BibTeX</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ris-tab" data-bs-toggle="tab" data-bs-target="#ris-pane" type="button" role="tab" aria-controls="ris-pane" aria-selected="false">RIS/Endnote/Zotero/Mendeley</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-pane" type="button" role="tab" aria-controls="text-pane" aria-selected="false">Text</button>
+          </li>
+        </ul>
+        <div class="tab-content p-4">
+          <div class="tab-pane active" id="bibtex-pane" role="tabpanel" aria-labelledby="bibtex-tab" tabindex="0">
+            <pre id="bib">@article{10.62056/angy11fgx,
+         author={Biniyam Deressa and M. Anwar Hasan},
+         title={zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs},
+         volume={2},
+         number={3},
+         year={2025},
+         date={2025-10-06},
+         issn={3006-5496},
+         doi={10.62056/angy11fgx},
+         journal={{IACR} Communications in Cryptology},
+         publisher={International Association for Cryptologic Research}
+}</pre>
+            <button id="bibtexcopy" class="btn btn-sm btn-primary"
+                    aria-label="Copy to clipboard"
+                    onclick="copyMetadata('bibtexcopy', 'bib')">Copy to clipboard</button>
+            <button id="bibtexdownload" class="ms-3 btn btn-sm btn-primary"
+                    aria-label="Download BibTeX .bib file"
+                    onclick="sendCitation('bib')">Download .bib file</button>
+          </div>
+          <div class="tab-pane" id="ris-pane" role="tabpanel" aria-labelledby="ris-tab" tabindex="0">
+            <pre id="ris">TY  - JOUR
+AU  - Biniyam Deressa
+AU  - M. Anwar Hasan
+PY  - 2025
+TI  - zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs
+JF  - IACR Communications in Cryptology
+JA  - CIC
+VL  - 2
+IS  - 3
+DO  - 10.62056/angy11fgx
+UR  - https://doi.org/10.62056/angy11fgx
+AB  - &lt;p&gt;We introduce zkMaP (Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs), a novel non-interactive zero-knowledge proof system for verifying matrix multiplication with significant improvements in efficiency and scalability. Our protocol leverages KZG polynomial commitments and an innovative inner-product reduction technique to reduce the verification of n x n matrix multiplication to a single pairing equation, thereby enabling constant-time verification independent of the matrix size. In particular, zkMaP requires only two pairing operations and produces proofs as small as 320 bytes, yielding a 96 percent reduction in proof size compared to prior schemes. Furthermore, the prover&#39;s computational complexity follows the state-of-the-art at O(n^2), with experimental results demonstrating that proofs for 1024 x 1024 matrices can be generated in approximately 12.21 seconds, offering a 16.14x speedup over previous methods. Our implementation also exhibits better memory efficiency, using only 24.58 MB of prover-side RAM for 1024 x 1024 matrices, and supports scalable batch processing, achieving per-proof generation times of 46.79 milliseconds for 1024 instances while maintaining a constant verification time of 3.6 ms. &lt;/p&gt;
+ER  -</pre>
+            <button id="riscopy" class="btn btn-sm btn-primary"
+                    aria-label="Copy to clipboard"
+                    onclick="copyMetadata('riscopy', 'ris')">Copy to clipboard</button>
+            <button id="risdownload" class="ms-3 btn btn-sm btn-primary"
+                    aria-label="Download RIS file"
+                    onclick="sendCitation('ris')">Download .ris file</button>
+          </div>
+          <div class="tab-pane" id="text-pane" role="tabpanel" aria-labelledby="text-tab" tabindex="0">
+            <div class="w-75" id="textcitation">Biniyam Deressa and M. Anwar Hasan, zkMaP: Zero-Knowledge Succinct Non-Interactive Matrix Multiplication Proofs. <span class="fst-italic">IACR Communications in Cryptology</span>, vol. 2, no. 3, Oct 06, 2025, doi: 10.62056/angy11fgx.</div>
+            <button id="textcopy" class="btn btn-sm btn-primary mt-3"
+                    aria-label="Copy to clipboard"
+                    onclick="copyMetadata('textcopy', 'textcitation')">Copy to clipboard</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="citationsModal" tabindex="-1" aria-labelledby="citationsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-3">Known citations</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p>
+          We do not crawl the web, so we are only able to identify
+          citations from papers that are registered with a DOI in
+          crossref.org and the publisher reports their citations to
+          crossref, and crossref can identify a DOI from the
+          reference.  That includes (most) articles from Springer and
+          many from ACM, but it excludes citations from USENIX because
+          they don't issue DOIs. It also excludes citations from arxiv
+          and eprint. You may find more citations in
+          <a href="https://scholar.google.com/scholar?hl=en&q=zkMaP%3A+Zero-Knowledge+Succinct+Non-Interactive+Matrix+Multiplication+Proofs">Google Scholar</a>.
+        </p>
+        <ol>
+          
+          <li>Biniyam Deressa and M. Hasan. zkExp: Zero-Knowledge Succinct Exponentiation Proofs. <em>IACR Communications in Cryptology</em> (2026) Vol 3, Issue 1 DOI: <a href="https://doi.org/10.62056/ahsg893y6" target="_blank">10.62056/ahsg893y6</a></li>
+          
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+ function copyMetadata(buttid, id) {
+    let range = document.createRange();
+    range.selectNode(document.getElementById(id));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    const copyTooltip = new bootstrap.Tooltip('#' + buttid,
+                                              {trigger: 'manual',
+                                               title: 'Copied!'});
+    copyTooltip.show();
+   setTimeout(function() {
+     copyTooltip.dispose();
+   }, 2000);
+ }
+
+ function sendCitation(typ) {
+   // typ is 'bib' or 'ris'
+   let data = document.getElementById(typ).innerHTML;
+   atag = document.createElement('a');
+   atag.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+   atag.setAttribute('download', '2-3-23.' + typ);
+   if (document.createEvent) {
+     let event = document.createEvent('MouseEvents');
+     event.initEvent('click', true, true);
+     atag.dispatchEvent(event);
+   } else {
+     atag.click();
+   }
+ }
+</script>
+
+    </main>
+    
+    <div class="container-fluid mt-auto" id="pageFooter">
+    </div>
+    
+    <footer class="text-center footer py-3">
+      <small>
+        <a href="https://iacr.org/copyright.html">Copyright © 2026</a>
+        <span class="d-none d-md-inline">by the </span><span class="d-md-none">IACR</span>
+        <span class="d-none d-md-inline">International Association for Cryptologic Research</span>
+        <span class="d-none d-md-inline">• </span><br class="d-md-none">
+        <a href="https://iacr.org/privacy.html">Privacy Policy</a>
+      </small>
+    </footer>
+    
+    
+
+<script id="results-template" type="text/x-handlebars-template">
+  <div class="p-3 shadow" style="margin-bottom:1rem;max-height:70vh;overflow-y:scroll">
+    <p>{{estimated_results}} results (if more than 100, then refine your query)</p>
+    <ol>
+      {{#each results}}
+      <li role="presentation"><a href="{{url}}">{{title}}</a><br>
+        {{#each authors }}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</li>
+      {{/each}}
+    </ol>
+  </div>
+</script>
+
+<script src="/static/js/handlebars-v4.7.7.js"></script>
+<script>
+ var theTemplateScript = document.getElementById('results-template').innerHTML;
+ var resultsTemplate = Handlebars.compile(theTemplateScript);
+ var textinput = document.getElementById('searchbox');
+
+ // Returns a function, that, as long as it continues to be invoked, will not
+ // be triggered. The function will be called after it stops being called for
+ // N milliseconds. If `immediate` is passed, trigger the function on the
+ // leading edge, instead of the trailing.
+ function debounce(func, wait, immediate) {
+   var timeout;
+   return function() {
+     var context = this, args = arguments;
+     var later = function() {
+       timeout = null;
+       if (!immediate) func.apply(context, args);
+     };
+     var callNow = immediate && !timeout;
+     clearTimeout(timeout);
+     timeout = setTimeout(later, wait);
+     if (callNow) func.apply(context, args);
+   };
+ };
+ 
+ let controller;
+ let signal;
+ 
+ var doSearch = debounce(function() {
+   
+   args = {'d': '/var/www/wsgi/cicjournal/webapp/search_index/xapian.db'}
+   if (textinput.value) {
+     args['q'] = textinput.value;
+     if (controller !== undefined) {
+       console.log('killing');
+       controller.abort();
+     }
+     controller = new AbortController();
+     signal = controller.signal;
+     let search_url = "https://cic.iacr.org/api/search" + "?" + new URLSearchParams(args);
+     console.log(search_url);
+     fetch(search_url, {signal})
+       .then((response) => response.json())
+       .then((data) => {
+         console.log(data);
+         let elem = document.getElementById('view');
+         if (elem) {elem.innerHTML = '';}
+         if (data.results.length > 0) {
+           document.getElementById('results').innerHTML = resultsTemplate(data);
+         } else {
+           document.getElementById('results').innerHTML = '<div class="p-3 shadow">no results</div>';
+         }
+         controller = undefined;
+       }).catch((error) => {
+         console.log('error in fetch');
+         console.log(error);
+       });
+   } else {
+     console.log('no query');
+   }
+ }, 500); // only after 250 ms.
+
+ document.querySelectorAll('input').forEach((elem) => {
+   elem.addEventListener('input', doSearch);
+ });
+</script>
+  </body>
+</html>
