@@ -87,16 +87,23 @@
 \newlabel{def:lamp-backend-assumptions}{{6.1}{7}{Backend assumptions}{theorem.6.1}{}}
 \newlabel{thm:security}{{6.2}{7}{Completeness, soundness, and zero knowledge}{theorem.6.2}{}}
 \citation{gnark,legosnark}
+\citation{qa-nizk}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Implementation and Evaluation}{8}{section.7}\protected@file@percent }
 \newlabel{sec:implementation}{{7}{8}{Implementation and Evaluation}{section.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Matched Freivalds Baseline}{8}{subsection.7.1}\protected@file@percent }
-\newlabel{sec:eval-freivalds}{{7.1}{8}{Matched Freivalds Baseline}{subsection.7.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Comparison with Dedicated Matrix Proofs}{8}{subsection.7.2}\protected@file@percent }
-\newlabel{sec:eval-dedicated}{{7.2}{8}{Comparison with Dedicated Matrix Proofs}{subsection.7.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Component Costs and Application Workloads}{8}{subsection.7.3}\protected@file@percent }
-\newlabel{sec:eval-components}{{7.3}{8}{Component Costs and Application Workloads}{subsection.7.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{8}{section.8}\protected@file@percent }
-\newlabel{sec:conclusion}{{8}{8}{Conclusion}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Comparison with a Freivalds Baseline}{8}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:eval-freivalds}{{7.1}{8}{Comparison with a Freivalds Baseline}{subsection.7.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}LAMP Component Breakdown}{8}{subsection.7.2}\protected@file@percent }
+\newlabel{sec:eval-lamp-breakdown}{{7.2}{8}{LAMP Component Breakdown}{subsection.7.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \(\textsf  {LAMP}\) compared with a Freivalds baseline.}}{9}{table.3}\protected@file@percent }
+\newlabel{tab:lamp-vs-freivalds}{{3}{9}{\(\protocol \) compared with a Freivalds baseline}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Component-level measurements for \(\textsf  {LAMP}\).}}{9}{table.4}\protected@file@percent }
+\newlabel{tab:lamp-breakdown}{{4}{9}{Component-level measurements for \(\protocol \)}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Batching \(q\) independent matrix-multiplication claims \(\{\mathbf  {A}_i\mathbf  {B}_i=\mathbf  {C}_i\}_{i\in [q]}\) at fixed \(k=2^7\).}}{9}{table.5}\protected@file@percent }
+\newlabel{tab:lamp-batch}{{5}{9}{Batching \(q\) independent matrix-multiplication claims \(\{\mat {A}_i\mat {B}_i=\mat {C}_i\}_{i\in [q]}\) at fixed \(k=2^7\)}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Batching Matrix-Multiplication Claims}{9}{subsection.7.3}\protected@file@percent }
+\newlabel{sec:eval-batch}{{7.3}{9}{Batching Matrix-Multiplication Claims}{subsection.7.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}GPT-2 Workload}{9}{subsection.7.4}\protected@file@percent }
+\newlabel{sec:eval-gpt2}{{7.4}{9}{GPT-2 Workload}{subsection.7.4}{}}
 \bibstyle{IEEEtran}
 \bibdata{Styles/bibliography}
 \bibcite{groth2016size}{1}
@@ -116,7 +123,11 @@
 \bibcite{zhang2025zkvc}{15}
 \bibcite{liu2021zkcnn}{16}
 \bibcite{zkGPT}{17}
-\@writefile{toc}{\contentsline {section}{References}{9}{section*.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces GPT-2 at sequence length \(2^{10}\).}}{10}{table.6}\protected@file@percent }
+\newlabel{tab:lamp-gpt2}{{6}{10}{GPT-2 at sequence length \(2^{10}\)}{table.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{10}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{10}{Conclusion}{section.8}{}}
+\@writefile{toc}{\contentsline {section}{References}{10}{section*.1}\protected@file@percent }
 \bibcite{zkLLM}{18}
 \bibcite{weng2021mystique}{19}
 \bibcite{chen2024zkml}{20}
@@ -135,20 +146,21 @@
 \bibcite{legosnark}{33}
 \bibcite{schwartz1980fast}{34}
 \bibcite{zippel1979probabilistic}{35}
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Detailed Proof of Theorem~\ref {thm:security}}{10}{section*.2}\protected@file@percent }
-\newlabel{app:security-proof}{{A}{10}{\appendixname \nobreakspace \thesectiondis \\* Detailed Proof of Theorem~\ref {thm:security}}{section*.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{\relax Perfect completeness}{10}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Bad-event decomposition}{10}{section*.4}\protected@file@percent }
+\bibcite{qa-nizk}{36}
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Detailed Proof of Theorem~\ref {thm:security}}{11}{section*.2}\protected@file@percent }
+\newlabel{app:security-proof}{{A}{11}{\appendixname \nobreakspace \thesectiondis \\* Detailed Proof of Theorem~\ref {thm:security}}{section*.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{\relax Perfect completeness}{11}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Bad-event decomposition}{11}{section*.4}\protected@file@percent }
 \citation{bensasson2023proximity}
-\@writefile{toc}{\contentsline {paragraph}{\relax Input proximity and extraction}{11}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Freivalds randomization}{11}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Sampled relation checks}{11}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Combining the bounds}{11}{section*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Zero knowledge}{11}{section*.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\relax Fiat--Shamir variant}{11}{section*.10}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: Barycentric Reed--Solomon Consistency Check}{12}{section*.11}\protected@file@percent }
-\newlabel{app:rs-barycentric}{{B}{12}{\appendixname \nobreakspace \thesectiondis \\* Barycentric Reed--Solomon Consistency Check}{section*.11}{}}
-\newlabel{lem:rs-barycentric-soundness}{{B.1}{12}{Barycentric code-consistency soundness}{theorem.Appendix.B.1}{}}
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  C: CP-Link Instantiation}{12}{section*.12}\protected@file@percent }
-\newlabel{app:cplink-instant}{{C}{12}{\appendixname \nobreakspace \thesectiondis \\* CP-Link Instantiation}{section*.12}{}}
-\gdef \@abspage@last{12}
+\@writefile{toc}{\contentsline {paragraph}{\relax Input proximity and extraction}{12}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Freivalds randomization}{12}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Sampled relation checks}{12}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Combining the bounds}{12}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Zero knowledge}{12}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\relax Fiat--Shamir variant}{12}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: Barycentric Reed--Solomon Consistency Check}{13}{section*.11}\protected@file@percent }
+\newlabel{app:rs-barycentric}{{B}{13}{\appendixname \nobreakspace \thesectiondis \\* Barycentric Reed--Solomon Consistency Check}{section*.11}{}}
+\newlabel{lem:rs-barycentric-soundness}{{B.1}{13}{Barycentric code-consistency soundness}{theorem.Appendix.B.1}{}}
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  C: CP-Link Instantiation}{13}{section*.12}\protected@file@percent }
+\newlabel{app:cplink-instant}{{C}{13}{\appendixname \nobreakspace \thesectiondis \\* CP-Link Instantiation}{section*.12}{}}
+\gdef \@abspage@last{13}

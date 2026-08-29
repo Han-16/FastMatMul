@@ -93,7 +93,8 @@
   pre-rebuttal protocol의 수치로 분리 보관하고 revised protocol의 결과로
   재사용하지 않는다.
 - Abstract, Introduction, Evaluation 및 Conclusion에서는 revised transcript와
-  `t=512`를 포함한 raw log가 준비되기 전까지 직접 성능 수치를 주장하지 않는다.
+  최종 sampling parameter를 사용한 raw log가 준비되기 전까지 직접 성능
+  수치를 주장하지 않는다.
 - GPT-2를 revised protocol로 재측정한 경우에만 proving 개선과 verification 및
   proof-size overhead를 함께 trade-off로 보고한다.
 - Freivalds의 `196 B`를 다시 사용할 경우 Groth16 proof가 constraint 수와
@@ -240,15 +241,15 @@ Freivalds 명령에 3회 반복, deterministic seed, run ID, code commit,
 manifest와 failure exit code를 남긴다. 아래 측정값은 아직 서버에서
 생성하지 않았다.
 
-Rate $1/2$에서는 $t=512$개의 서로 다른 query를 사용하려면
-$n\ge512$여야 하므로 revised square range는 기본적으로
-$k\ge256$ (`logK >= 8`)에서 시작한다. $k=128$을 반드시
-포함하려면 rate $1/4$로 $n=512$를 사용하거나, 전체 코드워드를
-검사하는 $t'=n=256$ configuration으로 별도 표기해야 한다.
+추가 $B$ proximity test 자체는 sampling parameter $t$의 변경을 요구하지
+않는다. 수정 protocol의 측정은 Section 7에 보고하는 $t$와 code rate를
+그대로 사용하되, $t\le n$과 query uniqueness를 만족해야 한다. 기존 결과는
+$B$ 검사가 없는 pre-rebuttal protocol의 측정이므로 revised protocol의
+결과로 재사용하지 않고 동일 parameter로 다시 측정한다.
 
 각 raw log/CSV에 다음을 기록한다.
 
-- `k`, `t=512`, code rate, field/curve, security setting
+- `k`, `t`, code rate, field/curve, security setting
 - code commit hash, 실행 명령, seed, `run_id`
 - constraint count, setup/prove/verify time, serialized proof bytes
 - $\mathbf sB$, encoding, commitment, Merkle, Groth16, CP-Link component time
@@ -304,12 +305,12 @@ $k\ge256$ (`logK >= 8`)에서 시작한다. $k=128$을 반드시
 - 기존 $A/C$ structured folding argument를 명시한다.
 - 독립적인 structured $s$-fold에 의한 $B$ proximity, pre-query binding,
   extraction 및 composition arguments를 작성한다.
-- Rate $1/2$, $\tau=\delta/3$, $t=512$와 전체 soundness bound를
-  구현·실험 configuration에 반영한다.
+- 선택한 code rate, proximity radius $\tau$, sampling parameter $t$와 전체
+  soundness bound를 구현·실험 configuration에 일관되게 반영한다.
 - Backend failure, code consistency, $A/C$ test, $B$ test, Freivalds 및 sampling error를 구분한다.
-- 기존 $t=128$ 데이터는 revised security parameter를 만족하는 결과로
-  재사용하지 않는다. $\tau=\delta/3$일 때 $t=512$의 sampling error는
-  $2^{-133}$ 미만이다.
+- 기존 $t=128$ 데이터는 $B$ 검사가 없는 pre-rebuttal protocol의 결과이므로
+  revised protocol의 결과로 재사용하지 않는다. 추가 $B$ 검사를 포함한 동일
+  parameter configuration을 다시 측정한다.
 - $A=0$, rank-deficient $A$, $C=0$ 및 malformed symbols를 검토한다.
 - 수정된 Theorem 6.2의 full proof를 포함하고 공동저자 한 명 이상이 독립 검토한다.
 
@@ -393,7 +394,7 @@ Proof 작성자가 단독으로 최종 soundness를 승인하지 않는다. 실�
   challenge/commit/query 순서가 동일함
 - [x] $A/C$ folding과 독립 $B$ test가 construction, implementation 및 proof에 반영됨
 - [x] Revised theorem과 full proof가 미검증 valid-codeword assumption 없이 soundness를 분석함
-- [ ] Failure bound의 $t=512$, code rate 및 목표 security level이 구현과 일치함
+- [ ] Failure bound의 $t$, code rate, $\tau$ 및 목표 security level이 구현과 일치함
 - [ ] 수정 LAMP의 성능 수치가 추가 $B$ 검사를 포함한 raw log로 재현됨
 - [ ] 수정 LAMP--DualMatrix 결과와 네 기법의 comparison table이 Section 7에 포함됨
 - [ ] 모든 직접 수치가 raw evidence에 연결되고 비교 범위 차이가 명시됨

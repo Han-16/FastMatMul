@@ -519,12 +519,13 @@ failure events gives
 &\quad+4(1-\delta+\tau)^t .
 \end{aligned}
 \]
-For the rate-\(1/2\) Reed--Solomon code, setting
-\(\tau=\delta/3\approx 1/6\) and \(t=512\) makes the sampling contribution
-\(3(1-\tau)^t+4(1-\delta+\tau)^t\) smaller than \(2^{-133}\).
-For BN254 and the evaluated dimensions, the two field-size terms and the
-encoding-check term are smaller still.  The final security level also includes
-the computational security of the CP-SNARK, commitments, and CP-Link.
+The bound is parameterized by the proximity radius \(\tau\) and the number
+\(t\) of sampled positions.  Section~\ref{sec:implementation} reports the
+concrete \(t\) used in each experiment; its statistical sampling error is
+obtained by substituting that value and the selected \(\tau\) into
+\(3(1-\tau)^t+4(1-\delta+\tau)^t\).  The final security level also includes
+the field-size terms, the encoding-check error, and the computational security
+of the CP-SNARK, commitments, and CP-Link.
 
 \paragraph{Zero knowledge}
 Consider a hybrid that replaces the CP-SNARK proof by its simulator output and

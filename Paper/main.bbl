@@ -259,4 +259,11 @@ R.~Zippel, ``Probabilistic algorithms for sparse polynomials,'' in
   \emph{Symbolic and Algebraic Computation (EUROSAM '79)}.\hskip 1em plus 0.5em
   minus 0.4em\relax Berlin, Heidelberg: Springer, 1979, pp. 216--226.
 
+\bibitem{qa-nizk}
+\BIBentryALTinterwordspacing
+E.~Kiltz and H.~Wee, ``Quasi-adaptive {NIZK} for linear subspaces revisited,''
+  Cryptology {ePrint} Archive, Paper 2015/216, 2015. [Online]. Available:
+  \url{https://eprint.iacr.org/2015/216}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}
