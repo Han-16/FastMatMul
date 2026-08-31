@@ -34,13 +34,13 @@
 \citation{bensasson2023proximity,diamond2024logarithmic}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
 \newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Preliminaries}{2}{section.3}\protected@file@percent }
-\newlabel{sec:prelim}{{3}{2}{Preliminaries}{section.3}{}}
 \citation{gnark,legosnark}
 \citation{freivalds1977probabilistic}
 \citation{schwartz1980fast,zippel1979probabilistic}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Asymptotic comparison with dedicated committed-matrix-multiplication proofs. A dash means that the approach does not use a separate arithmetic circuit for the matrix-multiplication relation. For DualMatrix, \(K=\Theta (k^2)\) on dense matrices.}}{3}{table.1}\protected@file@percent }
-\newlabel{tab:related-matrix-comparison}{{1}{3}{Asymptotic comparison with dedicated committed-matrix-multiplication proofs. A dash means that the approach does not use a separate arithmetic circuit for the matrix-multiplication relation. For DualMatrix, \(K=\Theta (k^2)\) on dense matrices}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Asymptotic comparison with dedicated committed-matrix-multiplication proofs. A dash means that the approach does not use a separate arithmetic circuit for the matrix-multiplication relation. For DualMatrix, \(K=\Theta (k^2)\) on dense matrices, and \(\mathsf  {Pair}\) denotes a pairing operation.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:related-matrix-comparison}{{1}{3}{Asymptotic comparison with dedicated committed-matrix-multiplication proofs. A dash means that the approach does not use a separate arithmetic circuit for the matrix-multiplication relation. For DualMatrix, \(K=\Theta (k^2)\) on dense matrices, and \(\mathsf {Pair}\) denotes a pairing operation}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Preliminaries}{3}{section.3}\protected@file@percent }
+\newlabel{sec:prelim}{{3}{3}{Preliminaries}{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Linear Codes and Folding}{3}{subsection.3.1}\protected@file@percent }
 \newlabel{sec:prelim-codes}{{3.1}{3}{Linear Codes and Folding}{subsection.3.1}{}}
 \newlabel{def:interleaved-code}{{3.1}{3}{Interleaved code}{theorem.3.1}{}}
@@ -85,25 +85,22 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6}Security Analysis}{7}{section.6}\protected@file@percent }
 \newlabel{sec:security}{{6}{7}{Security Analysis}{section.6}{}}
 \newlabel{def:lamp-backend-assumptions}{{6.1}{7}{Backend assumptions}{theorem.6.1}{}}
-\newlabel{thm:security}{{6.2}{7}{Completeness, soundness, and zero knowledge}{theorem.6.2}{}}
 \citation{gnark,legosnark}
 \citation{qa-nizk}
+\newlabel{thm:security}{{6.2}{8}{Completeness, soundness, and zero knowledge}{theorem.6.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Implementation and Evaluation}{8}{section.7}\protected@file@percent }
 \newlabel{sec:implementation}{{7}{8}{Implementation and Evaluation}{section.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Comparison with a Freivalds Baseline}{8}{subsection.7.1}\protected@file@percent }
 \newlabel{sec:eval-freivalds}{{7.1}{8}{Comparison with a Freivalds Baseline}{subsection.7.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}LAMP Component Breakdown}{8}{subsection.7.2}\protected@file@percent }
-\newlabel{sec:eval-lamp-breakdown}{{7.2}{8}{LAMP Component Breakdown}{subsection.7.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \(\textsf  {LAMP}\) compared with a Freivalds baseline.}}{9}{table.3}\protected@file@percent }
-\newlabel{tab:lamp-vs-freivalds}{{3}{9}{\(\protocol \) compared with a Freivalds baseline}{table.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Component-level measurements for \(\textsf  {LAMP}\).}}{9}{table.4}\protected@file@percent }
-\newlabel{tab:lamp-breakdown}{{4}{9}{Component-level measurements for \(\protocol \)}{table.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Batching \(q\) independent matrix-multiplication claims \(\{\mathbf  {A}_i\mathbf  {B}_i=\mathbf  {C}_i\}_{i\in [q]}\) at fixed \(k=2^7\).}}{9}{table.5}\protected@file@percent }
-\newlabel{tab:lamp-batch}{{5}{9}{Batching \(q\) independent matrix-multiplication claims \(\{\mat {A}_i\mat {B}_i=\mat {C}_i\}_{i\in [q]}\) at fixed \(k=2^7\)}{table.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Batching Matrix-Multiplication Claims}{9}{subsection.7.3}\protected@file@percent }
-\newlabel{sec:eval-batch}{{7.3}{9}{Batching Matrix-Multiplication Claims}{subsection.7.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}GPT-2 Workload}{9}{subsection.7.4}\protected@file@percent }
-\newlabel{sec:eval-gpt2}{{7.4}{9}{GPT-2 Workload}{subsection.7.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Comparison with DualMatrix}{8}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}LAMP Component Breakdown}{8}{subsection.7.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Revised \(\textsf  {LAMP}\), including the independent \(B\)-proximity test, compared with a Freivalds-in-Groth16 baseline. Proving time excludes native matrix multiplication and setup. Proof sizes count the serialized proof objects reported by each implementation and exclude public inputs and setup material.}}{9}{table.3}\protected@file@percent }
+\newlabel{tab:lamp-vs-freivalds}{{3}{9}{Revised \(\protocol \), including the independent \(B\)-proximity test, compared with a Freivalds-in-Groth16 baseline. Proving time excludes native matrix multiplication and setup. Proof sizes count the serialized proof objects reported by each implementation and exclude public inputs and setup material}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Concrete comparison with the public DualMatrix implementation on dense square matrices. Both proving-time columns include commitment and proof generation and exclude setup.}}{9}{table.4}\protected@file@percent }
+\newlabel{tab:lamp-vs-dualmatrix}{{4}{9}{Concrete comparison with the public DualMatrix implementation on dense square matrices. Both proving-time columns include commitment and proof generation and exclude setup}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Batching Matrix-Multiplication Claims}{9}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{9}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{9}{Conclusion}{section.8}{}}
 \bibstyle{IEEEtran}
 \bibdata{Styles/bibliography}
 \bibcite{groth2016size}{1}
@@ -123,13 +120,13 @@
 \bibcite{zhang2025zkvc}{15}
 \bibcite{liu2021zkcnn}{16}
 \bibcite{zkGPT}{17}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces GPT-2 at sequence length \(2^{10}\).}}{10}{table.6}\protected@file@percent }
-\newlabel{tab:lamp-gpt2}{{6}{10}{GPT-2 at sequence length \(2^{10}\)}{table.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{10}{section.8}\protected@file@percent }
-\newlabel{sec:conclusion}{{8}{10}{Conclusion}{section.8}{}}
-\@writefile{toc}{\contentsline {section}{References}{10}{section*.1}\protected@file@percent }
 \bibcite{zkLLM}{18}
 \bibcite{weng2021mystique}{19}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Component-level measurements for the revised \(\textsf  {LAMP}\). Setup is reported separately and is not included in proving time.}}{10}{table.5}\protected@file@percent }
+\newlabel{tab:lamp-breakdown}{{5}{10}{Component-level measurements for the revised \(\protocol \). Setup is reported separately and is not included in proving time}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Batching \(q\) independent matrix-multiplication claims at fixed \(k=2^7\), using the revised protocol.}}{10}{table.6}\protected@file@percent }
+\newlabel{tab:lamp-batch}{{6}{10}{Batching \(q\) independent matrix-multiplication claims at fixed \(k=2^7\), using the revised protocol}{table.6}{}}
+\@writefile{toc}{\contentsline {section}{References}{10}{section*.1}\protected@file@percent }
 \bibcite{chen2024zkml}{20}
 \bibcite{FRI}{21}
 \bibcite{STIR}{22}

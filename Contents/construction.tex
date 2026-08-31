@@ -43,17 +43,22 @@ witness: the external root binds the encoded matrices, and the CP-SNARK commits
 to the \(\mathcal{O}(tk)\) sampled input columns and the
 \(\mathcal{O}(k+n)\)-size intermediate block.  If an application
 circuit already uses \(\mat{A},\mat{B},\mat{C}\), a commit-and-prove backend
-can instead commit to all \(\mathcal{O}(k^2)\) entries and reuse the same
-witness variables in the application and \(\protocol\) relations.  With a
-systematic encoding, the application reads these entries from designated
-codeword coordinates; a non-systematic encoding must additionally enforce and
-account for the encoding-to-message map.  If the backend natively binds queried
-encoded coordinates to this full pre-query witness commitment, the separate
-Merkle/CP-Link bridge to an independently committed application witness is
-unnecessary.  The witness-commitment work is quadratic, while the
-matrix-multiplication checks remain
-\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints.  Binding the commitment to
-the intended application data remains application-specific.
+can instead commit to all \(\mathcal{O}(k^2)\) entries before the challenges
+and reuse those variables in both the application and \(\protocol\) relations.
+For each queried position \(j\), the circuit derives the required encoded
+columns as linear forms determined by the public generator column
+\(\mat{G}[*,j]\).  The product fold for \(\mat{B}\) then uses \(k\)
+multiplication constraints per query, while the \(\mat{A}\), \(\mat{C}\), and
+independent \(\mat{B}\)-proximity folds are linear; the total
+matrix-multiplication check therefore remains
+\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints.  The intermediate messages
+and encoded views are fixed by a second native witness commitment before the
+query and code-check challenges.  In this variant, the native committed
+witnesses replace the external input Merkle tree and CP-Link bridges.  The
+commitment and dense linear-form work is quadratic, and a backend that does
+not support these committed-witness projections must account for an explicit
+encoding/linking layer.  Binding the initial commitment to the intended
+application data remains application-specific.
 
 % \subsection{Commitment Layout and Public Challenges}
 % \label{sec:commitment-challenge}

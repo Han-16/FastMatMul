@@ -4,7 +4,7 @@
 
 이 문서는 2026년 8월 28일 text rebuttal 제출 이후부터 9월 3일 수정 원고 제출까지 수행할 작업을 관리한다.
 
-- **제출한 rebuttal:** `Rebuttal_EN.md`, 729 words
+- **제출한 rebuttal:** `Rebuttal.md`, 729 words
 - **9월 3일 제출물:** revised paper PDF와 submitted version 대비 diff PDF
 - **공식 마감:** 2026년 9월 3일, HotCRP 표시 시각 기준
 - **내부 마감:** 2026년 9월 2일 18:00 KST
@@ -21,8 +21,9 @@
   맞추지 않고, 내용의 삭제·축약·재배치로만 제한을 맞춘다.
 - 2026-08-28 최초 확장본은 **20페이지**로 본문 및 전체 페이지 제한을
   초과했다. 중복 설명과 전체 protocol figure를 제거하고 상세 증명을
-  Appendix로 재배치한 2026-08-29 작업본은 **12페이지**이다. Conclusion과
-  References가 9페이지에서 시작하고 Appendix는 10페이지에서 시작하므로,
+  Appendix로 재배치한 뒤 실험 결과까지 반영한 현재 작업본은
+  **13페이지**이다. Conclusion은 9페이지, References는 10페이지,
+  Appendix는 11페이지에서 시작하므로,
   현재는 본문 13페이지, References+Appendix 5페이지, 전체 18페이지 제한을
   모두 만족한다.
 - 최종 목표는 **본문 13페이지 이하**, **References+Appendix 5페이지 이하**,
@@ -72,10 +73,11 @@
 
 - Standard LAMP에서 $\rt_{ABC}$가 모든 encoded columns의 commitments를 고정하고, commit-carrying SNARK는 online relation에 필요한 sampled values만 commit한다는 점을 명확히 한다.
 - Original matrices가 다른 application computation에서도 circuit witnesses로 사용되면 commit-carrying SNARK가 전체 $O(k^2)$ matrix entries에 commit하는 variant를 설명한다.
-- Systematic encoding과 full committed-witness projection을 지원하는 backend에서는
-  application computation과 LAMP check가 동일 witness variables를 재사용할 수
-  있음을 설명한다. Non-systematic encoding의 message-map constraint와 backend
-  projection/linking 비용을 생략하지 않는다.
+- Application computation과 LAMP check가 동일 matrix witness variables를
+  재사용하고, sampled encoded columns는 public generator columns가 정하는
+  linear forms로 circuit 안에서 계산함을 설명한다. Backend가 필요한
+  committed-witness projection을 지원하지 않으면 별도의 encoding/linking
+  비용을 포함한다.
 - Witness-commitment cost는 $O(k^2)$이지만 matrix-multiplication check는 $O(tk+E_{\mathsf{code}})$ constraints를 유지한다고 명시한다.
 - Commitment가 verifier가 의도한 model weights를 나타내는지 확인하는 문제는 별도의 application-level guarantee로 구분한다.
 
@@ -169,8 +171,8 @@
 
 - 본문은 최대 13페이지로 동결하고, 13페이지를 채우기 위한 불필요한 확장은
   하지 않는다.
-- 현재 작업본은 총 12페이지이고 Conclusion과 References가 9페이지,
-  Appendix가 10페이지에서 시작한다. References+Appendix는 9--12페이지의
+- 현재 작업본은 총 13페이지이고 Conclusion은 9페이지, References는
+  10페이지, Appendix는 11페이지에서 시작한다. References+Appendix는 10--13페이지의
   4페이지 안에 들어간다.
 - 본문에는 최대 4페이지의 형식상 여유가 있으나, 이는 수정 LAMP 및
   DualMatrix 실험 결과와 필수 비교표를 위한 상한이며 목표 분량이 아니다.
@@ -307,6 +309,24 @@ $B$ 검사가 없는 pre-rebuttal protocol의 측정이므로 revised protocol�
   extraction 및 composition arguments를 작성한다.
 - 선택한 code rate, proximity radius $\tau$, sampling parameter $t$와 전체
   soundness bound를 구현·실험 configuration에 일관되게 반영한다.
+- **Concrete parameter 확정 방침:** 기존 결과와 수정 프로토콜을
+  직접 비교하기 위해 모든 LAMP 실험은 rate-$1/2$ RS code와
+  $t=128$로 통일한다. 이 선택을 128-bit security와 동일시하지
+  않고, Security에서 다음 두 설정을 분리해 명시한다.
+  - 외부 certification proof나 trusted registration이 $\rt_{ABC}$가 valid
+    row-wise encodings에 bind함을 보장하는 certified-encoding 설정에서는
+    input-proximity 항을 제외할 수 있고, $\delta=1/2$, $t=128$의
+    관계-sampling 항은 $4(1-\delta)^t=2^{-126}$이다.
+  - 별도의 encoding-validity 가정 없이 수정 LAMP 자체가 $A,B,C$의
+    proximity를 검사하는 end-to-end 설정에서는
+    $3(1-\tau)^t+4(1-\delta+\tau)^t$이 추가된다. $t=128$,
+    $\tau\approx0.249$에서 이 항은 약 $2^{-50.3}$이며(필드·backend
+    항 제외), 현재 bound로 약 128-bit statistical soundness를 목표로
+    하면 $t\ge316$이 필요하다.
+  - Evaluation은 비교 일관성을 위해 $t=128$을 사용했음을
+    밝히고, $t$에 의존하는 circuit·opening 비용은 $t$에 선형적으로
+    증가함을 명시한다. 실험 수치를 unconditional 128-bit 설정으로
+    포장하지 않는다.
 - Backend failure, code consistency, $A/C$ test, $B$ test, Freivalds 및 sampling error를 구분한다.
 - 기존 $t=128$ 데이터는 $B$ 검사가 없는 pre-rebuttal protocol의 결과이므로
   revised protocol의 결과로 재사용하지 않는다. 추가 $B$ 검사를 포함한 동일
@@ -343,7 +363,15 @@ $B$ 검사가 없는 pre-rebuttal protocol의 측정이므로 revised protocol�
 - 설치된 `latexdiff`를 사용해 추가·수정 부분은 노란색 배경으로 표시하고,
   삭제 부분은 별도로 식별 가능하게 표시한다. 하이라이트가 수식·표·그림을
   깨뜨리는 지점만 수동 보정하며 clean revised PDF에는 diff macro를 넣지 않는다.
-- Revised PDF와 diff PDF를 HotCRP에 사전 업로드하고 다시 내려받아 확인한다.
+- 공식 이메일은 특정 diff 양식을 지정하지 않고, 9월 3일까지
+  updated paper draft 또는 requested section을 첨부하고 리뷰어가 변경을
+  쉽게 확인할 수 있도록 diff를 포함하라고만 요구한다.
+- HotCRP가 두 파일을 받으면 clean revised paper `Paper/main.pdf`와
+  submitted version 대비 전체 변경본 `Paper/LAMP-diff.pdf`를 각각
+  업로드한다. 하나의 attachment만 허용하면 업로드 UI를 확인한 뒤
+  clean revised paper 다음에 diff를 붙인 하나의 PDF로 합친다.
+- 최종 업로드 파일을 다시 내려받아 파일 수, 페이지 수,
+  하이라이트, 익명성 및 열람 가능 여부를 확인한다.
 
 ## 6. 일정
 
@@ -394,12 +422,14 @@ Proof 작성자가 단독으로 최종 soundness를 승인하지 않는다. 실�
   challenge/commit/query 순서가 동일함
 - [x] $A/C$ folding과 독립 $B$ test가 construction, implementation 및 proof에 반영됨
 - [x] Revised theorem과 full proof가 미검증 valid-codeword assumption 없이 soundness를 분석함
-- [ ] Failure bound의 $t$, code rate, $\tau$ 및 목표 security level이 구현과 일치함
+- [ ] 모든 revised LAMP 실험이 rate-$1/2$, $t=128$로 통일되고,
+  Security가 certified-encoding 설정의 $2^{-126}$ 관계-sampling 항과
+  가정 없는 설정의 약 $2^{-50.3}$ 항을 구분해 보고함
 - [ ] 수정 LAMP의 성능 수치가 추가 $B$ 검사를 포함한 raw log로 재현됨
 - [ ] 수정 LAMP--DualMatrix 결과와 네 기법의 comparison table이 Section 7에 포함됨
 - [ ] 모든 직접 수치가 raw evidence에 연결되고 비교 범위 차이가 명시됨
 - [ ] Abstract부터 Conclusion까지 수치와 claim scope가 일치함
-- [ ] `Rebuttal_EN.md`의 모든 미래형 약속이 revised PDF와 diff PDF에서 확인됨
+- [ ] `Rebuttal.md`의 모든 미래형 약속이 revised PDF와 diff PDF에서 확인됨
 - [ ] pdfLaTeX clean build와 diff PDF 생성이 성공함
 - [ ] 본문 $\le 13$페이지, References+Appendix $\le 5$페이지, 전체
   $\le 18$페이지이고 IEEE S&P 2027 형식을 유지함

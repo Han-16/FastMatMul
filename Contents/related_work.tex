@@ -46,7 +46,7 @@ zkMatrix~\cite{cong2024zkmatrix}
 & \(\mathcal{O}(k^2)\) & -- & \(\mathcal{O}(\log k)\)
 & \(\mathcal{O}(\log k)\) \\
 DualMatrix~\cite{cong2026dualmatrix}
-& \(\mathcal{O}(K+k)\,\mathbb{F}+\mathcal{O}(k)\,\mathbb{G}\) & --
+& \(\mathcal{O}(K+k)\,\mathbb{F}+\mathcal{O}(k)(\mathbb{G}+\mathsf{Pair})\) & --
 & \(\mathcal{O}(\log k)\) & \(\mathcal{O}(\log k)\) \\
 zkMaP~\cite{zkMaP}
 & \(\mathcal{O}(k^2)\) & -- & \(\mathcal{O}(1)\)
@@ -63,7 +63,8 @@ zkMaP~\cite{zkMaP}
 \caption{Asymptotic comparison with dedicated committed-matrix-multiplication
 proofs. A dash means that the approach does not use a separate arithmetic
 circuit for the matrix-multiplication relation. For DualMatrix,
-\(K=\Theta(k^2)\) on dense matrices.}
+\(K=\Theta(k^2)\) on dense matrices, and \(\mathsf{Pair}\) denotes a pairing
+operation.}
 \label{tab:related-matrix-comparison}
 \end{table*}
 

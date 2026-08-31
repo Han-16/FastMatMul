@@ -41,7 +41,11 @@ verifier then checks only a small number of lightweight algebraic relations
 that are sufficient to detect inconsistent claims.
 The technical core of this approach is proximity testing over linear
 error-correcting codes.  Let \(\mathcal{C}\) be a linear code with relative
-distance \(\delta\).  We encode each matrix row-wise and consider the Freivalds
+distance \(\delta\), meaning that any two distinct codewords differ on at
+least a \(\delta\)-fraction of their coordinates.  A proximity test uses a
+small number of random coordinates to check whether a committed word is close
+to some codeword, rather than reading the entire word.  We encode each matrix
+row-wise and consider the Freivalds
 intermediate vectors
 \[
   \vect{x}=\vect{r}\mat{A},\qquad

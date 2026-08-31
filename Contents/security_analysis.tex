@@ -15,14 +15,15 @@ vector, we use the one-parameter Reed--Solomon proximity gap of
 Ben-Sasson et al.~\cite[Theorem~1.5]{bensasson2023proximity}; the
 randomness--soundness tradeoff of this form of batching is also discussed
 by Diamond and Posen~\cite{diamond2024logarithmic}.
-For a code \(\mathcal C\) of relative distance \(\delta\), a word
+For the rate-\(\rho=k/n\) Reed--Solomon code \(\mathcal C\) used by
+\(\protocol\), let \(\delta\) be its relative distance.  For a word
 \(W\in\mathbb{F}^{k\times n}\), and
 \(\vect{a}=(1,a,\ldots,a^{k-1})\), write
 \[
   \mathsf{FoldWord}(\vect{a},W)[j]
   \coloneqq \fold(\vect{a},W[*,j]).
 \]
-For \(0<\tau<\delta/2\), Theorems~1.2 and~1.5 of
+For \(0<\tau<(1-\rho)/2\), Theorems~1.2 and~1.5 of
 Ben-Sasson et al.~\cite{bensasson2023proximity} imply that if \(W\) is farther
 than \(\tau\) from the \(k\)-fold interleaved code, then
 \[
@@ -33,9 +34,12 @@ than \(\tau\) from the \(k\)-fold interleaved code, then
 \]
 \begin{definition}[Backend assumptions]
 \label{def:lamp-backend-assumptions}
-The CP-SNARK, sampled openings, and CP-Link are sound with errors
+The CP-SNARK, sampled-opening layer, CP-Link, and encoding checks are perfectly
+complete.  The CP-SNARK, sampled openings, and CP-Link are sound with errors
 \(\epsilon_{\mathsf{cp}}\), \(\epsilon_{\mathsf{open}}\), and
-\(\epsilon_{\mathsf{link}}\), respectively.  In particular, CP-Link binds the
+\(\epsilon_{\mathsf{link}}\), respectively.  Except with
+\(\epsilon_{\mathsf{open}}\), the input root is position binding to a fixed
+sequence of leaves before the query challenges.  In particular, CP-Link binds the
 complete intermediate witness used by the four encoding checks to
 \(\cm_{XYZB}\), and binds the sampled input columns to the leaves under
 \(\rt_{ABC}\).  The four intermediate-vector encoding checks have error
@@ -51,17 +55,17 @@ Pedersen commitments are hiding.
 
 \begin{theorem}[Completeness, soundness, and zero knowledge]
 \label{thm:security}
-Let \(\mathcal{C}\) have relative distance \(\delta\), choose
-\(0<\tau<\delta/2\) in the unique-decoding regime of the cited
-Reed--Solomon proximity-gap theorem, and assume
+Let \(\mathcal{C}\) be the rate-\(\rho=k/n\) Reed--Solomon code above, with
+relative distance \(\delta\), and choose
+\(0<\tau<(1-\rho)/2\), which is within its unique-decoding radius.  Assume
 Definition~\ref{def:lamp-backend-assumptions}.  If \(\rt_{ABC}\) is fixed
 before \((r,s)\) and \(\cm_{XYZB}\) is fixed before
 \((I,\alpha_x,\alpha_y,\alpha_z,\alpha_b)\), then the interactive
-\(\protocol\) protocol has perfect completeness and zero knowledge.
-Moreover, for any PPT prover, let \(\mathsf{BadInput}\) denote the event that
-an input word is farther than \(\tau\) from the interleaved code or that the
-uniquely decoded matrices satisfy
-\(\mat{A}\mat{B}\ne\mat{C}\).  Then
+\(\protocol\) protocol has perfect completeness and computational zero
+knowledge.  Moreover, for any PPT prover, let \(\mathsf{BadInput}\) denote
+the event that either an input word is farther than \(\tau\) from the
+interleaved code, or all three words are within distance \(\tau\) and their
+unique decodings satisfy \(\mat{A}\mat{B}\ne\mat{C}\).  Then
 \[
 \begin{aligned}
 \Pr[\mathsf{Acc}\land\mathsf{BadInput}]
@@ -88,7 +92,7 @@ equation alone does not test the committed word for \(\mat{B}\); the independent
 interleaved code, except with probability
 \(3(k-1)n/|\mathbb F|+3(1-\tau)^t\).
 
-Otherwise, \(\tau<\delta/2\) yields unique decoded matrices.  If their product
+Otherwise, \(\tau<(1-\rho)/2<\delta/2\) yields unique decoded matrices.  If their product
 relation is false, structured Freivalds fails with probability at most
 \((k-1)/|\mathbb F|\).  Conditioned on its success, at least one sampled
 encoded relation disagrees on a \((\delta-\tau)\)-fraction of positions,

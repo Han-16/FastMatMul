@@ -438,7 +438,9 @@ fixed matrices \(\mat{A},\mat{B},\mat{C}\).  These are the matrices bound by
 the accepted committed statement.
 
 \paragraph{Freivalds randomization}
-Suppose \(\mat{A}\mat{B}\neq\mat{C}\), and let
+On the event that all three input words are within distance \(\tau\), their
+unique decodings \(\mat{A},\mat{B},\mat{C}\) are fixed by the input root and
+do not depend on \(r\).  Suppose \(\mat{A}\mat{B}\neq\mat{C}\), and let
 \(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
 \(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
 \(\vect{r}\mat{D}=0\) implies
@@ -458,9 +460,13 @@ is sampled after \(\rt_{ABC}\) is fixed, Schwartz--Zippel gives
   \le
   \frac{k-1}{|\mathbb{F}|}.
 \]
+Call this event \(\mathsf{Bad}_{\mathsf{Fr}}\).  Its bound is unconditional
+over the verifier's choice of \(r\); it is union-bounded with
+\(\mathsf{Bad}_{\mathsf{uni}}\), so no independence between the two events is
+required.
 
 \paragraph{Sampled relation checks}
-Now also condition on \(\vect{r}\mat{D}\neq 0\).  No vectors
+Now also condition on \(\neg\mathsf{Bad}_{\mathsf{Fr}}\).  No vectors
 \(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
 \[
   \vect{x}=\vect{r}\mat{A},

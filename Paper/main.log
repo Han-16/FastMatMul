@@ -1,9 +1,12 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.15)  29 AUG 2026 15:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.15)  31 AUG 2026 20:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**\makeatletter\def\input@path{{../}}\makeatother\input{main.tex}
-(./main.tex (c:/texlive/2026/texmf-dist/tex/latex/ieeetran/IEEEtran.cls
+**main.tex
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+(c:/texlive/2026/texmf-dist/tex/latex/ieeetran/IEEEtran.cls
 Document Class: IEEEtran 2015/08/26 V1.8b by Michael Shell
 -- See the "IEEEtran_HOWTO" manual for usage information.
 -- http://www.michaelshell.org/tex/ieeetran/
@@ -1176,25 +1179,28 @@ lds' clas-si-cal ran-dom-ized
 
 
 ]
-Underfull \hbox (badness 1558) in paragraph at lines 94--98
+Underfull \hbox (badness 1558) in paragraph at lines 98--102
 []\T1/ptm/b/n/10.03749 Soundness anal-y-sis. \T1/ptm/m/n/10.03749 We prove soun
 d-ness of the
  []
 
 
-Underfull \hbox (badness 1688) in paragraph at lines 94--98
+Underfull \hbox (badness 1688) in paragraph at lines 98--102
 \T1/ptm/m/n/10.03749 public-coin in-ter-ac-tive pro-to-col for com-mit-ted in-
  []
 
 
-Underfull \hbox (badness 3612) in paragraph at lines 99--106
+Underfull \hbox (badness 3612) in paragraph at lines 103--110
 []\T1/ptm/b/n/10.03749 Implementation and eval-u-a-tion. \T1/ptm/m/n/10.03749 W
 e im-ple-ment
  []
 
 ) (../Contents/related_work.tex
 LaTeX Font Info:    Calculating math sizes for size <8.03> on input line 40.
-) (../Contents/preliminaries.tex [2]
+) (../Contents/preliminaries.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [2]
 Underfull \hbox (badness 1694) in paragraph at lines 37--41
 \T1/ptm/m/n/10.03749 Our im-ple-men-ta-tion uses a Reed--Solomon code; Ap-
  []
@@ -1211,52 +1217,53 @@ Underfull \hbox (badness 3058) in paragraph at lines 53--58
 
 ) (../Contents/technical_overview.tex [3]) (../Contents/construction.tex
 [4] [5]
-Underfull \hbox (badness 2165) in paragraph at lines 355--361
+Underfull \hbox (badness 2165) in paragraph at lines 360--366
 []\T1/ptm/m/n/10.03749 The en-cod-ing checks val-i-date the four pre-query-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 443--450
+Underfull \hbox (badness 10000) in paragraph at lines 448--455
 []\T1/ptm/m/n/10.03749 Together, these checks es-tab-lish $[][] \OMS/cmsy/m/n/1
 0 $
  []
 
-
-Underfull \hbox (badness 2035) in paragraph at lines 532--546
+[6]
+Underfull \hbox (badness 2035) in paragraph at lines 537--551
 \OML/cmm/m/it/10 k$ \T1/ptm/m/n/10.03749 vec-tor into one length-$\OML/cmm/m/it
 /10 n$ \T1/ptm/m/n/10.03749 code-word. Let $\OML/cmm/m/it/10 E[] \OT1/cmr/m/n/1
 0 =
  []
 
-[6]
-Underfull \hbox (badness 10000) in alignment at lines 599--599
+
+Underfull \hbox (badness 10000) in alignment at lines 604--604
 [][][] 
  []
 
-) (../Contents/security_analysis.tex
+) (../Contents/security_analysis.tex [7]
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.03749> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 57.
- [7]
-Underfull \hbox (badness 2005) in paragraph at lines 79--82
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 61.
+
+Underfull \hbox (badness 2005) in paragraph at lines 83--86
 []\T1/ptm/m/n/10.03749 Condition on the sound-ness of the CP-
  []
 
 ) (../Contents/evaluation.tex
-Underfull \hbox (badness 10000) in paragraph at lines 10--11
-
+Underfull \hbox (badness 2884) in paragraph at lines 19--27
+\T1/ptm/b/n/10.03749 Experimental setup. \T1/ptm/m/n/10.03749 We im-ple-ment $[
+]$ and the
  []
 
-LaTeX Font Info:    Calculating math sizes for size <7.02625> on input line 134
+LaTeX Font Info:    Calculating math sizes for size <7.02625> on input line 127
 .
-[8] [9]) (../Contents/conclusion.tex) (./main.bbl [10])
+[8]) (../Contents/conclusion.tex [9]) (./main.bbl [10])
 (../Contents/appendix.tex [11] [12]
-Underfull \hbox (badness 2809) in paragraph at lines 559--563
+Underfull \hbox (badness 2809) in paragraph at lines 565--569
 \T1/ptm/m/n/10.03749 be the pub-lic eval-u-a-tion do-main. A mes-sage $\OT1/cmr
 /bx/n/10 v \OT1/cmr/m/n/10 =
  []
 
 
-Underfull \hbox (badness 1721) in paragraph at lines 656--662
+Underfull \hbox (badness 1721) in paragraph at lines 662--668
 []\T1/ptm/m/n/10.03749 In $[]$, this check is ap-plied in-de-pen-dently to
  []
 
@@ -1278,16 +1285,16 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 5D18FB2FA4FC5CC55C4C6BFF149DE60A;5044.
+(rerunfilecheck)             Checksum: 5765E8BE73E581CF57D2B48E3BA29982;5107.
  ) 
 Here is how much of TeX's memory you used:
- 38633 strings out of 467525
- 884256 string characters out of 5423209
- 1416360 words of memory out of 5000000
- 66724 multiletter control sequences out of 15000+600000
- 833936 words of font info for 244 fonts, out of 8000000 for 9000
+ 38625 strings out of 467525
+ 883780 string characters out of 5423209
+ 1415526 words of memory out of 5000000
+ 66713 multiletter control sequences out of 15000+600000
+ 834546 words of font info for 246 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 108i,24n,114p,804b,1103s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 104i,24n,111p,749b,1103s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/tex
 live/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb><c:/texlive/2026/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2026/texmf-dist
@@ -1301,31 +1308,32 @@ c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive
 /2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2026/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2026/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmmi9.pfb><c:/texlive/2026/texmf-dist/fonts/type1/p
-ublic/amsfonts/cmextra/cmmib8.pfb><c:/texlive/2026/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr10.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr5.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pf
-b><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texli
-ve/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2026/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb><c:/texlive/2026/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2026/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmss8.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmss9.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/c
-msy10.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb>
-<c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texliv
-e/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2026/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb><c:/texlive/2026/texmf-dist/fo
-nts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2026/texmf-dist/fonts/
-type1/public/amsfonts/symbols/msbm7.pfb><c:/texlive/2026/texmf-dist/fonts/type1
-/urw/helvetic/uhvb8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/u
-hvr8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb><c:/
-texlive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2026/texmf
--dist/fonts/type1/urw/times/utmbi8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1
-/urw/times/utmr8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw/times/utmri8a
-.pfb>
-Output written on main.pdf (13 pages, 471393 bytes).
+ublic/amsfonts/cmextra/cmmib7.pfb><c:/texlive/2026/texmf-dist/fonts/type1/publi
+c/amsfonts/cmextra/cmmib8.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr10.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr5.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c
+:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2
+026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2026/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmr9.pfb><c:/texlive/2026/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmss10.pfb><c:/texlive/2026/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmss8.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmss9.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
+0.pfb><c:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/
+texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/20
+26/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2026/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy9.pfb><c:/texlive/2026/texmf-dist/fonts/
+type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2026/texmf-dist/fonts/type
+1/public/amsfonts/symbols/msbm7.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw
+/helvetic/uhvb8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvr8
+a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb><c:/texl
+ive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2026/texmf-dis
+t/fonts/type1/urw/times/utmbi8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw
+/times/utmr8a.pfb><c:/texlive/2026/texmf-dist/fonts/type1/urw/times/utmri8a.pfb
+>
+Output written on main.pdf (13 pages, 481255 bytes).
 PDF statistics:
- 594 PDF objects out of 1000 (max. 8388607)
- 498 compressed objects within 5 object streams
+ 597 PDF objects out of 1000 (max. 8388607)
+ 499 compressed objects within 5 object streams
  131 named destinations out of 1000 (max. 500000)
  229 words of extra memory for PDF output out of 10000 (max. 10000000)
 
