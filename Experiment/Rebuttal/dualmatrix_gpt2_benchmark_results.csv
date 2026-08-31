@@ -1,0 +1,2 @@
+SeqLog,SeqLen,NumClaims,NumCommitments,MatrixComputeTime(s),TransformTime(s),SetupTime(s),CommitTime(s),ProverTime(s),TotalProveTime(s),VerifierTime(s),ProofSize(B),CommitmentSize(B),TotalProofSize(B),TranscriptSize(B)
+10,1024,36,90,3.70,0.02,1.69,363.49,156.48,519.97,5.22,2899664,35288,2934952,2942432
