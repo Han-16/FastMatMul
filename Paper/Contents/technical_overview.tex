@@ -35,8 +35,21 @@ classical algorithm samples a challenge vector \(\vect{r}\in\mathbb{F}^k\) and c
   =
   \vect{r}\mat{C}.$
   
-In \(\protocol\), the verifier derives one scalar \(r\) and uses the structured
-vector \((1,r,\ldots,r^{k-1})\), which keeps the public challenge compact.
+% In \(\protocol\), the verifier derives one scalar \(r\) and uses the structured
+% vector \((1,r,\ldots,r^{k-1})\), which keeps the public challenge compact.
+\begin{revblock}
+  In \(\protocol\), the verifier derives a scalar \(r\in\mathbb{F}\) and
+sets $\vect{r}=(1,r,\ldots,r^{k-1})$,
+which keeps the public challenge compact.
+  At the same transcript point, the verifier derives an independent scalar
+\(s\in\mathbb{F}\) and sets
+  $\vect{s}=(1,s,\ldots,s^{k-1})$. The independent challenge \(\vect{s}\) is used to test the proximity of the
+committed encoding of \(\mat{B}\). The vector
+\(\vect{x}=\vect{r}\mat{A}\) cannot serve this purpose in general because its
+distribution depends on \(\mat{A}\); for example, if \(\mat{A}=0\), then
+\(\vect{x}=0\) for every challenge \(r\), independently of the validity of
+the committed encoding of \(\mat{B}\).
+\end{revblock}
 Equivalently, the prover introduces intermediate vectors
 \[
   \vect{x}=\vect{r}\mat{A},
@@ -86,6 +99,16 @@ form
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \end{aligned}
 \]
+\begin{revblock}
+  The prover additionally computes $\vect{b} = \vect{s}\mat{B}$, the circuit checks
+  \[
+    \enc(\vect{b})[j] = \fold(\vect{s},\widehat{\mat{B}}[*,j]).
+  \]
+  The two folds involving \(\widehat{\mat{B}}\) have different roles:
+the \(\vect{s}\)-fold establishes proximity of the committed encoding of
+\(\mat{B}\), whereas the \(\vect{x}\)-fold checks the consistency of the
+claimed product \(\vect{y}=\vect{x}\mat{B}\).
+\end{revblock}
 Only the queried columns
 \(\widehat{\mat{A}}[*,j]\), \(\widehat{\mat{B}}[*,j]\),
 \(\widehat{\mat{C}}[*,j]\) are used by the circuit.  Thus, for \(t\) queried
@@ -94,28 +117,32 @@ linear in \(k\) for fixed \(t\).
 
 \subsection{Encoding and Proximity Testing}
 \label{sec:overview-encoding}
+\begin{revblock}
+We use the proximity threshold $\tau \leq \tau_{\ud}$ defined in
+Section~\ref{sec:prelim-codes}. For a committed row-wise encoding, proximity
+is measured with respect to the corresponding interleaved code
+$\mathcal{C}^{\langle k\rangle}$.
+\end{revblock}
 
-Let \(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code
-with relative distance \(\delta\).  For a matrix
-\(\mat{M}\in\mathbb{F}^{k\times k}\), the prover row-wise encodes \(\mat{M}\)
-as $\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
+For a matrix $\mat{M}\in\mathbb{F}^{k\times k}$, the prover row-wise encodes
+$\mat{M}$ as
+$\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
 By Definition~\ref{def:interleaved-code}, this row-wise encoding can also be
-viewed as a \(k\)-fold interleaved codeword, where the \(j\)-th interleaved
-symbol is the encoded column \(\widehat{\mat{M}}[*,j]\).
+viewed as a $k$-fold interleaved codeword, where the $j$-th interleaved
+symbol is the encoded column $\widehat{\mat{M}}[*,j]$.
 
-The key identity is the linearity of the code.  For any vector
-\(\vect{u}\in\mathbb{F}^k\),
+\begin{revblock}
+The linearity of the code allows a linear combination of the rows of
+$\mat{M}$ to be evaluated directly from its encoded columns.
+In particular, for any $\vect{u}=(u_0,\ldots,u_{k-1})\in\mathbb{F}^k$,
 \[
-  \big(
-  \fold(\vect{u},\widehat{\mat{M}}[*,1]),
-  \ldots,
-  \fold(\vect{u},\widehat{\mat{M}}[*,n])
-  \big)
-  =
-  \enc(\vect{u}\mat{M}).
+  \enc(\vect{u}\mat{M})[j] = \sum_{i=0}^{k-1} u_i\widehat{\mat{M}}[i,j] = \fold\bigl( \vect{u}, \widehat{\mat{M}}[*,j] \bigr)
 \]
-Therefore, one coordinate of the encoded vector-matrix product can be checked
-using one encoded column.  For example, if
+for every $j \in [n]$.
+Thus, each coordinate of an encoded vector--matrix product can be checked
+using only the corresponding encoded column.
+
+For example, if
 \(\vect{x}=\vect{r}\mat{A}\), then for every \(j\in[n]\),
 \[
   \widehat{\vect{x}}[j]
@@ -134,24 +161,68 @@ Similarly, if \(\vect{y}=\vect{x}\mat{B}\) and
   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
 \]
 
-The prover commits to the encoded objects before the query positions are
-sampled.  After the query set \(I=(j_1,\ldots,j_t)\) is derived, the SNARK
-checks the above equations only for \(j\in I\), together with the equality
-\[
-  \widehat{\vect{y}}[j]=\widehat{\vect{z}}[j].
-\]
-The SNARK also checks that
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are valid
-encodings of the intermediate vectors
-\(\vect{x},\vect{y},\vect{z}\). These code-consistency checks are separate from
-the sampled fold checks and prevent the prover from using arbitrary length-\(n\)
-words as the intermediate encoded views.
+\end{revblock}
+% \begin{revblock}
+%   We use the proximity threshold $\tau \leq \tau_{\ud}$ defined in
+% Section~\ref{sec:prelim-codes}. For a committed row-wise encoding, proximity
+% is measured with respect to the corresponding interleaved code
+% $\mathcal{C}^{\langle k\rangle}$.
+% \end{revblock}
+% For a matrix \(\mat{M}\in\mathbb{F}^{k\times k}\), the prover row-wise encodes \(\mat{M}\)
+% as $\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$.
+% By Definition~\ref{def:interleaved-code}, this row-wise encoding can also be
+% viewed as a \(k\)-fold interleaved codeword, where the \(j\)-th interleaved
+% symbol is the encoded column \(\widehat{\mat{M}}[*,j]\).
 
-This is a proximity test: if a claimed vector relation is false, then the two
-corresponding codewords are distinct.  Since the code has relative distance
-\(\delta\), distinct codewords disagree on at least a \(\delta\)-fraction of
-positions.  Random sampling therefore detects an inconsistent relation with
-probability governed by \(\delta\) and the number of sampled positions.
+% The key identity is the linearity of the code.  For any vector
+% \(\vect{u}\in\mathbb{F}^k\),
+% \[
+%   \big(
+%   \fold(\vect{u},\widehat{\mat{M}}[*,1]),
+%   \ldots,
+%   \fold(\vect{u},\widehat{\mat{M}}[*,n])
+%   \big)
+%   =
+%   \enc(\vect{u}\mat{M}).
+% \]
+% Therefore, one coordinate of the encoded vector-matrix product can be checked
+% using one encoded column.  For example, if
+% \(\vect{x}=\vect{r}\mat{A}\), then for every \(j\in[n]\),
+% \[
+%   \widehat{\vect{x}}[j]
+%   =
+%   \fold(\vect{r},\widehat{\mat{A}}[*,j]).
+% \]
+% Similarly, if \(\vect{y}=\vect{x}\mat{B}\) and
+% \(\vect{z}=\vect{r}\mat{C}\), then
+% \[
+%   \widehat{\vect{y}}[j]
+%   =
+%   \fold(\vect{x},\widehat{\mat{B}}[*,j]),
+%   \qquad
+%   \widehat{\vect{z}}[j]
+%   =
+%   \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+% \]
+
+% The prover commits to the encoded objects before the query positions are
+% sampled.  After the query set \(I=(j_1,\ldots,j_t)\) is derived, the SNARK
+% checks the above equations only for \(j\in I\), together with the equality
+% \[
+%   \widehat{\vect{y}}[j]=\widehat{\vect{z}}[j].
+% \]
+% The SNARK also checks that
+% \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are valid
+% encodings of the intermediate vectors
+% \(\vect{x},\vect{y},\vect{z}\). These code-consistency checks are separate from
+% the sampled fold checks and prevent the prover from using arbitrary length-\(n\)
+% words as the intermediate encoded views.
+
+% This is a proximity test: if a claimed vector relation is false, then the two
+% corresponding codewords are distinct.  Since the code has relative distance
+% \(\delta\), distinct codewords disagree on at least a \(\delta\)-fraction of
+% positions.  Random sampling therefore detects an inconsistent relation with
+% probability governed by \(\delta\) and the number of sampled positions.
 
 \subsection{Sampled-Opening Layer}
 \label{sec:overview-commit-link}

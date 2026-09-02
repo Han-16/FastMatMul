@@ -28,7 +28,10 @@ $\vect{m} \in \mathbb{F}^k$.
 The code has \emph{rate} $\rho = k/n$ and \emph{minimum distance} $d = \min_{\vect{c} \neq \vect{c}'} \Delta(\vect{c}, \vect{c}')$,
 where the minimum is taken over distinct codewords
 $\vect{c}, \vect{c}' \in \mathcal{C}$, and $\Delta$ denotes the Hamming distance.
-The \emph{relative distance} is $\delta = d/n$.
+\begin{revblock}
+  The \emph{relative distance} is $\delta = d/n$. The unique-decoding radius is \(\tau_\ud=\frac{1}{n}\left\lfloor\frac{d-1}{2}\right\rfloor\), within which a received word has at most one nearby codeword. We use a proximity threshold \(\tau \leq \tau_\ud\) throughout the protocol.
+\end{revblock}
+
 
 We write $\enc(\vect{m}) \coloneqq \mathcal{C}(\vect{m})$ for the encoding of an input vector.
 For a matrix $\mat{M} \in \mathbb{F}^{k \times k}$, we define the

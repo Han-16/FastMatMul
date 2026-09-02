@@ -1,0 +1,56 @@
+\begin{table*}[t]
+\centering
+\footnotesize
+  \ifshowrevisions
+    \rowcolors{1}{yellow!20}{yellow!20}
+  \fi
+\setlength{\tabcolsep}{4pt}
+\label{tab:asymptotic_comparison}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{System} &
+\textbf{Prover Work} &
+\textbf{Circuit Constraints} &
+\textbf{Verifier Work} &
+\textbf{Proof Size} \\
+\midrule
+Groth16
+& $\mathcal{O}(k^3 \log k)$
+& $\mathcal{O}(k^3)$
+& $\mathcal{O}(1)$
+& $\mathcal{O}(1)$ \\
+    LegoSNARK
+    & $\mathcal{O}(k^2 \log k)$
+    & $\mathcal{O}(k^2)$
+    & $\mathcal{O}(1)$
+    & $\mathcal{O}(1)$ \\
+
+    zkMatrix
+    & $\mathcal{O}(k^2)$
+    & -- 
+    & $\mathcal{O}(\log k)$
+    & $\mathcal{O}(\log k)$ \\
+
+    DualMatrix
+    & $\mathcal{O}(K+k)$
+    & --
+    & $\mathcal{O}(\log k)$
+    & $\mathcal{O}(\log k)$ \\
+
+    zkMaP
+    & $\mathcal{O}(k^2)$
+    & --
+    & $\mathcal{O}(1)$
+    & $\mathcal{O}(1)$ \\
+
+    \textbf{LAMP}
+    & $\mathcal{O}(k^2)$
+    & $\mathcal{O}(tk)$
+    & $\mathcal{O}(t\log k)$
+    & $\mathcal{O}(t\log k)$ \\
+    \bottomrule
+\end{tabular}
+\vspace{4pt}
+\caption{Asymptotic comparison with systems for matrix multiplication. \\
+Here, $K=\Theta(k^2)$ for dense matrices and $t$ is constant.}
+\end{table*}

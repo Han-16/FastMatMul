@@ -2,21 +2,41 @@
 \label{sec:related}
 
 \noindent\textbf{Matrix multiplication.}
-Several proof systems have studied how to verify matrix multiplication more
-efficiently than by arithmetizing the full cubic computation. Thaler's
-sum-check-based protocol~\cite{thaler2013time} shows that matrix multiplication
-can be verified with quadratic prover work by reducing the claim to checks over
-low-degree extensions. This avoids the naive \(\mathcal{O}(n^3)\) arithmetic
-cost, but the verifier's work still grows linearly with the matrix dimension,
-which is costly when the goal is succinct verification for large committed
-matrices.
-More recent protocols design proof systems directly for committed matrix
-multiplication. zkMatrix~\cite{cong2024zkmatrix} reduces committed
-\(n\times n\) matrix multiplication to four inner-product relations and applies
-Bulletproofs' verification techniques, achieving \(\mathcal{O}(n^2)\)
-prover time and \(\mathcal{O}(\log n)\) verifier time. zkMaP~\cite{zkMaP}
-instead uses KZG commitments to obtain \(\mathcal{O}(n^2)\) prover time with
-constant verifier time. \\
+\begin{revblock}
+Pinocchio~\cite{pinocchio} and Groth16~\cite{groth2016size} provide constant-size proofs and constant verifier time, but directly applying them to matrix multiplication requires arithmetizing the entire computation. 
+Thus, verifying the multiplication of two $k \times k$ matrices requires $\mathcal{O}(k^3)$ constraints, resulting in $\mathcal{O}(k^3 \log k)$ prover computation.
+
+To overcome this limitation, several proof systems have studied how to verify matrix multiplication more efficiently without directly arithmetizing the full cubic computation.
+LegoSNARK~\cite{legosnark} extends Groth16 with a commit-and-prove mechanism that ensures consistency between committed values and the SNARK witness.
+Combined with Freivalds' randomized verification, matrix multiplication can be expressed using $\mathcal{O}(k^2)$ constraints, resulting in $\mathcal{O}(k^2 \log k)$ prover complexity while retaining constant-size proofs and constant verifier time.
+Thaler's sum-check-based protocol~\cite{thaler2013time} reduces matrix multiplication to checks over low-degree extensions, achieving $\mathcal{O}(k^2)$ prover work. 
+However, the verifier computation still grows linearly with the matrix dimension, which can be costly for succinct verification of large matrices.
+
+More recent works have developed specialized proof systems that verify matrix multiplication without relying on arithmetic circuits.
+zkMatrix~\cite{cong2024zkmatrix} reduces matrix multiplication to four inner-product relations and adapts the techniques of Bulletproofs~\cite{bunz2018bulletproofs}, achieving $\mathcal{O}(k^2)$ prover complexity and $\mathcal{O}(\log k)$ verifier complexity and proof size.
+DualMatrix~\cite{cong2026dualmatrix}, a follow-up work by the authors of zkMatrix, improves the prover complexity to $\mathcal{O}(K+k)$, where $K$ denotes the number of non-zero entries.
+However, for dense matrices with $K=\Theta(k^2)$, its prover complexity remains $\mathcal{O}(k^2)$. zkMaP~\cite{zkMaP} employs KZG commitments to achieve $\mathcal{O}(k^2)$ prover work together with constant-size proofs and constant verifier time.
+
+While these protocols achieve efficient verification of matrix multiplication, they are specialized to matrix multiplication itself. Therefore, in applications such as deep neural networks, where operations beyond matrix multiplication must be proved using a separate SNARK, an additional linking proof is required to ensure consistency between the witnesses used in the matrix multiplication proof and the SNARK.
+
+Table~\ref{tab:asymptotic_comparison} compares the computational complexities and proof characteristics of existing proof systems for matrix multiplication, including our approach.
+\end{revblock}
+\input{Tables/asymptotic_comparison.tex}
+% Several proof systems have studied how to verify matrix multiplication more
+% efficiently than by arithmetizing the full cubic computation. Thaler's
+% sum-check-based protocol~\cite{thaler2013time} shows that matrix multiplication
+% can be verified with quadratic prover work by reducing the claim to checks over
+% low-degree extensions. This avoids the naive \(\mathcal{O}(n^3)\) arithmetic
+% cost, but the verifier's work still grows linearly with the matrix dimension,
+% which is costly when the goal is succinct verification for large committed
+% matrices.
+% More recent protocols design proof systems directly for committed matrix
+% multiplication. zkMatrix~\cite{cong2024zkmatrix} reduces committed
+% \(n\times n\) matrix multiplication to four inner-product relations and applies
+% Bulletproofs' verification techniques, achieving \(\mathcal{O}(n^2)\)
+% prover time and \(\mathcal{O}(\log n)\) verifier time. zkMaP~\cite{zkMaP}
+% instead uses KZG commitments to obtain \(\mathcal{O}(n^2)\) prover time with
+% constant verifier time. \\
 
 \noindent\textbf{Verifiable AI.}
 Matrix multiplication is also a dominant cost in verifiable machine-learning
