@@ -170,17 +170,17 @@ $\epsilon_{\mathsf{merkle}}(\lambda)=\mathsf{negl}(\lambda)$.
 
 
 \subsubsection{Pedersen commitments}
-Pedersen commitments can be viewed as algebraic vector commitments over a group $\mathbb{G}$ of prime order $q$. Let $\mathsf{ck}=(G_1,\ldots,G_n,H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
+Pedersen commitments can be viewed as algebraic vector commitments over a group $\mathbb{G}$ of prime order $q$. Let $\mathsf{ck}=(G_0,\ldots,G_{n-1},H)$ be a commitment key consisting of fixed generators in $\mathbb{G}$. A Pedersen commitment is defined by the following algorithms.
 
 \begin{itemize}
 \item $\cm \gets \pedC(\ck,\vect{v};o)$:
-outputs a commitment $\cm := \sum_{i=1}^{n}\vect{v}[i]G_i + oH \in \mathbb{G}$ for a vector $\vect{v}\in\mathbb{F}^n$ and randomness $o\sample\mathbb{F}$.
+outputs a commitment $\cm := \sum_{i=0}^{n-1}\vect{v}[i]G_i + oH \in \mathbb{G}$ for a vector $\vect{v}\in\mathbb{F}^n$ and randomness $o\sample\mathbb{F}$.
 
 \item $\pi \gets \pedO(\vect{v},o)$:
 outputs the opening $\pi=(\vect{v},o)$ consisting of the committed vector and the randomness.
 
 \item $b \gets \pedV(\ck,\cm,\vect{v},o)$:
-outputs $b=1$ if $\cm \stackrel{?}{=} \sum_{i=1}^{n}\vect{v}[i]G_i + oH$,
+outputs $b=1$ if $\cm \stackrel{?}{=} \sum_{i=0}^{n-1}\vect{v}[i]G_i + oH$,
 and outputs $b=0$ otherwise.
 \end{itemize}
 

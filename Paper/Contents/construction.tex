@@ -279,7 +279,7 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
     $\qquad$parse \\
     $\qquad \qquad \stmt =
       \big(
-        \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
+        \rt_{ABC},\rt_{XYZ},r, \revmath{s}, I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
       \big)$ \\
     $\qquad \qquad \wit=(\comwit,\omega)$ \\
     $\qquad \qquad \comwit =
@@ -347,9 +347,9 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
 
 
 The first \rev{four} checks certify that
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are valid
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}\) are valid
 encodings of the claimed intermediate vectors
-\(\vect{x},\vect{y},\vect{z}\).  The remaining checks are local equations on the
+\(\vect{x},\vect{y},\vect{z}, \revmath{\vect{b}}\).  The remaining checks are local equations on the
 sampled codeword positions.  For each queried position \(j\), the circuit
 unpacks the sampled matrix-column block \(\vect{m}_{ABC,j}\) and the sampled
 vector-symbol block \(\vect{m}_{XYZ,j}\), and then verifies the \rev{four} fold
@@ -359,21 +359,8 @@ relations together with the final equality
 Thus, the online relation only checks arithmetic consistency of the sampled
 values.  It does not by itself guarantee that these sampled values came from
 the pre-query Merkle roots \(\rt_{ABC}\) and \(\rt_{XYZ}\).  That binding is
-provided by the offline relation below.
-
-For compactness, Figure~\ref{relation:lamp-off} writes the CP-Link statement
-for \(T\in\{ABC,XYZ\}\) as
-\[
-  \stmt_{\mathsf{link}}^T
-  \coloneqq
-  \big(
-    (\ck_{\cp,T},\widetilde{\cm}_{T}),
-    (\ck_T,\cm_{T,j})_{j\in I}
-  \big),
-\]
-where \(\ck_{\cp,T}\) is the witness-commitment key used by the CP-SNARK
-commitment \(\widetilde{\cm}_{T}\), and \(\ck_T\) is the external Pedersen
-commitment key for the Merkle leaves of type \(T\).
+provided by the offline relation \rev{in
+Section~\ref{sec:openings-and-cplink}}.
 
 
 
@@ -413,8 +400,14 @@ The CP-Link relation is interpreted blockwise.  Each block
 The SNARK-side witness commitment \(\widetilde{\cm}_{T}\) commits to the
 concatenated sampled witness \(\vect{M}_{T,I}\), while each external Pedersen
 leaf \(\cm_{T,j_\ell}\) commits to the corresponding block
-\(\vect{m}_{T,j_\ell}\).  The public CP-Link statement includes the
-corresponding commitment keys:
+\(\vect{m}_{T,j_\ell}\).
+
+\begin{revblock}
+For \(T\in\{ABC,XYZ\}\), let \(\ck_{\cp,T}\) denote the public commitment
+key used for the CP-SNARK witness commitment \(\widetilde{\cm}_{T}\), and let
+\(\ck_T\) denote the external Pedersen commitment key used for Merkle leaves
+of type \(T\). Using this notation, Figure~\ref{relation:lamp-off} writes the
+public CP-Link statement compactly as
 \[
   \stmt_{\mathsf{link}}^T
   \coloneqq
@@ -423,6 +416,7 @@ corresponding commitment keys:
     (\ck_T,\cm_{T,j_\ell})_{\ell\in[t]}
   \big).
 \]
+\end{revblock}
 Therefore, the CP-Link proof for \(T\) proves the existence of openings such that
   $\widetilde{\cm}_{T}
   =
@@ -619,10 +613,10 @@ their opening randomness as the witness. \\
 
 % \paragraph{Cost model}
 \noindent\textbf{Cost model.}
-We report the cost of the \protocol.  The computation of the claimed output matrix \(C=AB\) is outside this cost model.  
-We do count the work performed by the \protocol prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
+We report the cost of \protocol.  The computation of the claimed output matrix \(C=AB\) is outside this cost model.  
+We do count the work performed by the \protocol{} prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
 
-Let \(E_{\enc}(k,n)\) denote cost of the corresponding encoding phase. 
+Let \(E_{\enc}(k,n)\) denote the cost of the corresponding encoding phase. 
 Let \(E_{\mathsf{code}}=E_{\mathsf{code}}(k,n)\) denote the constraint cost of the intermediate
 code-consistency checks; for the Reed--Solomon check in
 Appendix~\ref{app:rs-barycentric}, this is \(\mathcal{O}(k+n)\) after

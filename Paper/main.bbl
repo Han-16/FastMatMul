@@ -132,10 +132,8 @@ H.~Zeilberger, B.~Chen, and B.~Fisch, ``{BaseFold}: Efficient field-agnostic pol
 S.~Ames, C.~Hazay, Y.~Ishai, and M.~Venkitasubramaniam, ``Ligero: Lightweight sublinear arguments without a trusted setup,'' Cryptology {ePrint} Archive, Paper 2022/1608, 2022. [Online]. Available: \url{https://eprint.iacr.org/2022/1608}
 \BIBentrySTDinterwordspacing
 
-\bibitem{brakedown}
-\BIBentryALTinterwordspacing
-A.~Golovnev, J.~Lee, S.~Setty, J.~Thaler, and R.~S. Wahby, ``Brakedown: Linear-time and field-agnostic {SNARKs} for {R1CS},'' Cryptology {ePrint} Archive, Paper 2021/1043, 2021. [Online]. Available: \url{https://eprint.iacr.org/2021/1043}
-\BIBentrySTDinterwordspacing
+\bibitem{golovnev2023brakedown}
+A.~Golovnev, J.~Lee, S.~Setty, J.~Thaler, and R.~S. Wahby, ``Brakedown: Linear-time and field-agnostic snarks for r1cs,'' in \emph{Advances in Cryptology -- CRYPTO 2023}.\hskip 1em plus 0.5em minus 0.4em\relax Cham: Springer, 2023, pp. 193--226.
 
 \bibitem{blaze}
 \BIBentryALTinterwordspacing
@@ -151,9 +149,6 @@ T.~Xie, Y.~Zhang, and D.~Song, ``Orion: Zero knowledge proof with linear prover 
 \BIBentryALTinterwordspacing
 T.~den Hollander and D.~Slamanig, ``A crack in the firmament: Restoring soundness of the orion proof system and more,'' Cryptology {ePrint} Archive, Paper 2024/1164, 2024. [Online]. Available: \url{https://eprint.iacr.org/2024/1164}
 \BIBentrySTDinterwordspacing
-
-\bibitem{golovnev2023brakedown}
-A.~Golovnev, J.~Lee, S.~Setty, J.~Thaler, and R.~S. Wahby, ``Brakedown: Linear-time and field-agnostic snarks for r1cs,'' in \emph{Advances in Cryptology -- CRYPTO 2023}.\hskip 1em plus 0.5em minus 0.4em\relax Cham: Springer, 2023, pp. 193--226.
 
 \bibitem{gnark}
 \BIBentryALTinterwordspacing

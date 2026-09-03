@@ -29,7 +29,7 @@ If the probability is \(1\), we say that \(\bPi\) has perfect completeness. \\
 
 \noindent\textbf{Knowledge soundness.}
 \(\bPi\) satisfies knowledge soundness if, for every \(\ppt\) prover
-\(\mathcal{A}\), there exists an \(\ppt\) extractor
+\(\mathcal{A}\), there exists a \(\ppt\) extractor
 \(\mathsf{Ext}^{\mathcal{A}}\) such that
 \[
 \begin{aligned}
@@ -320,176 +320,195 @@ commitments are blockwise linkable.
 \label{app:security-proof}
 
 \begin{proof}
-We prove the public-coin interactive protocol first.  The Fiat--Shamir variant
-is handled at the end.
+We consider the public-coin interactive protocol.
 
 \paragraph{Perfect completeness}
-Assume that the honest prover holds matrices
-\(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\) with
-\(\mat{A}\mat{B}=\mat{C}\).  Let
-\(\vect{r}=(1,r,\ldots,r^{k-1})\), and define
+Let the honest prover hold \(\mat A,\mat B,\mat C\) such that
+\(\mat A\mat B=\mat C\).  For
 \[
-  \vect{x}=\vect{r}\mat{A},
-  \qquad
-  \vect{y}=\vect{x}\mat{B},
-  \qquad
-  \vect{z}=\vect{r}\mat{C}.
+  \vect r=(1,r,\ldots,r^{k-1}),\qquad
+  \vect s=(1,s,\ldots,s^{k-1}),
 \]
-Then \(\vect{y}=\vect{z}\).  The honest prover commits to the packed encoded
-matrix blocks \(\{\vect{m}_{ABC,j}\}_{j\in[n]}\) under \(\rt_{ABC}\), commits
-to the packed encoded vector blocks \(\{\vect{m}_{XYZ,j}\}_{j\in[n]}\) under
-\(\rt_{XYZ}\), and supplies the sampled openings and CP-Link proofs required
-by Section~\ref{sec:openings-and-cplink}.
-
-For every queried position \(j\in I\), code linearity gives
+set
 \[
-  \fold(\vect{r},\widehat{\mat{A}}[*,j])
-  =
-  \widehat{\vect{x}}[j],
+  \vect x=\vect r\mat A,\qquad
+  \vect y=\vect x\mat B,\qquad
+  \vect z=\vect r\mat C,\qquad
+  \vect b=\vect s\mat B.
 \]
-and similarly
-\[
-  \fold(\vect{x},\widehat{\mat{B}}[*,j])
-  =
-  \widehat{\vect{y}}[j],
-  \qquad
-  \fold(\vect{r},\widehat{\mat{C}}[*,j])
-  =
-  \widehat{\vect{z}}[j].
-\]
-Since \(\vect{y}=\vect{z}\), the equality check
-\(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\) also holds.  All SNARK,
-Merkle, and CP-Link checks are honestly generated, so the verifier accepts.
-
-\paragraph{Bad-event decomposition}
-Let \(\mathsf{Acc}\) be the event that the verifier accepts a false committed
-matrix multiplication statement.  We decompose the failure probability into
-the following events:
-\begin{itemize}
-  \item \(\mathsf{Bad}_{\mathsf{SNARK}}\): the CP-SNARK accepts although the
-  sampled relation of Section~\ref{sec:snark-relation} is false for the
-  committed sampled witnesses;
-  \item \(\mathsf{Bad}_{\mathsf{open}}\): a Merkle opening or Pedersen leaf
-  opening is accepted in a way that violates position binding or commitment
-  binding;
-	  \item \(\mathsf{Bad}_{\mathsf{link}}\): a CP-Link proof accepts although the
-	  SNARK-side sampled blocks are not the corresponding blocks opened from the
-	  Pedersen leaves under \(\rt_{ABC}\) and \(\rt_{XYZ}\).
-  \item \(\mathsf{Bad}_{\mathsf{code}}\): the probabilistic code-consistency
-  checks accept encoded views that are not encodings of their corresponding
-  intermediate vectors.
-\end{itemize}
-By the assumed soundness of the selected backends,
+Then \(\vect y=\vect z\), and linearity of the code gives, for every
+\(j\in I\),
 \[
 \begin{aligned}
-\Pr[\mathsf{Bad}_{\mathsf{SNARK}}]
-  &\le \epsilon_{\mathsf{cp}}(\lambda),\\
-\Pr[\mathsf{Bad}_{\mathsf{open}}]
-  &\le \epsilon_{\mathsf{open}}(\lambda),\\
-\Pr[\mathsf{Bad}_{\mathsf{link}}]
-  &\le \epsilon_{\mathsf{link}}(\lambda),\\
-\Pr[\mathsf{Bad}_{\mathsf{code}}]
-  &\le \epsilon_{\mathsf{code}}(\lambda).
+ \widehat{\vect x}[j]&=\fold(\vect r,\widehat{\mat A}[*,j]),&
+ \widehat{\vect y}[j]&=\fold(\vect x,\widehat{\mat B}[*,j]),\\
+ \widehat{\vect z}[j]&=\fold(\vect r,\widehat{\mat C}[*,j]),&
+ \widehat{\vect b}[j]&=\fold(\vect s,\widehat{\mat B}[*,j]).
 \end{aligned}
 \]
-Condition on the complement of these events.  Then \(\rt_{ABC}\) fixes a
-unique sequence of packed matrix-column commitments at all queried positions,
-\(\rt_{XYZ}\) fixes a unique sequence of packed vector-symbol commitments at
-all queried positions, and the sampled values used by the SNARK are exactly the
-messages opened from those commitments.  In particular, the adversary cannot
-choose different sampled blocks after seeing \(I\) without breaking the
-opening or linking layer.
+All remaining checks are generated honestly and therefore accept.
 
-\paragraph{Freivalds randomization}
-The matrix root \(\rt_{ABC}\) is fixed before \(r\) is derived. 
-% In the committed statement, \(\rt_{ABC}\) binds to row-wise encoded matrices
-% \(\mat{A},\mat{B},\mat{C}\).  
-In the committed statement, \(\rt_{ABC}\) binds to row-wise encodings of matrices
-\(\mat{A},\mat{B},\mat{C}\).
-Suppose
-\(\mat{A}\mat{B}\neq\mat{C}\), and let
-\(\mat{D}=\mat{A}\mat{B}-\mat{C}\neq 0\).  Some column
-\(\vect{d}\) of \(\mat{D}\) is nonzero.  The event
-\(\vect{r}\mat{D}=0\) implies
+\paragraph{Backend bad events}
+Write \(\mathsf{Bad}_{\mathsf{cp}}\),
+\(\mathsf{Bad}_{\mathsf{open}}\), \(\mathsf{Bad}_{\mathsf{link}}\), and
+\(\mathsf{Bad}_{\mathsf{code}}\) for failure of the CP-SNARK, commitment
+binding, CP-Link soundness, and encoding consistency, respectively, and let
+\(\mathsf{Bad}_{\mathsf{back}}\) be their union.  By
+Definition~\ref{def:lamp-backend-assumptions},
 \[
-  P(r)
-  \coloneqq
-  \langle (1,r,\ldots,r^{k-1}),\vect{d}\rangle
-  =
-  \sum_{i=0}^{k-1} d_i r^i
-  =
-  0 .
+\begin{aligned}
+\Pr[\mathsf{Bad}_{\mathsf{back}}]
+\le{}&\epsilon_{\mathsf{cp}}(\lambda)
+       +\epsilon_{\mathsf{open}}(\lambda)\\
+     &+\epsilon_{\mathsf{link}}(\lambda)
+       +\epsilon_{\mathsf{code}}(\lambda).
+\end{aligned}
 \]
-The polynomial \(P\) is nonzero and has degree at most \(k-1\).  Since \(r\)
-is sampled after \(\rt_{ABC}\) is fixed, Schwartz--Zippel gives
+For the remainder of the proof, condition on
+\(\neg\mathsf{Bad}_{\mathsf{back}}\).  The input words are fixed before
+\(r,s\), the intermediate words are fixed before the query tuple, and each
+sampled value is bound to the value opened from its commitment.
+
+\paragraph{Far-input case}
+For an interleaved word \(M\in\mathbb F^{k\times n}\), write
 \[
-  \Pr[\vect{r}\mat{D}=0]
-  \le
-  \frac{k-1}{|\mathbb{F}|}.
+ \Delta_{\mathsf{IRS}}(M,\mathcal C^k)
+ =\min_{M'\in\mathcal C^k}
+   \frac{1}{n}|\{j\in[n]:M[*,j]\ne M'[*,j]\}|.
+\]
+For \(\vect\rho=(1,\rho,\ldots,\rho^{k-1})\), the structured-fold proximity
+bound is
+\[
+ \Pr_{\rho\sample\mathbb F}
+ \bigl[\Delta(\vect\rho M,\mathcal C)\le\tau\bigr]
+ \le\frac{(k-1)n}{|\mathbb F|}
+\]
+whenever \(\Delta_{\mathsf{IRS}}(M,\mathcal C^k)>\tau\).  Indeed, cancellation
+at a given position is governed by a nonzero polynomial in \(\rho\) of degree
+at most \(k-1\); summing over the \(n\) positions gives the stated bound.
+
+Suppose that an input word is \(\tau\)-far from \(\mathcal C^k\), and choose
+the first such word in the order
+\(\widehat{\mat A},\widehat{\mat B},\widehat{\mat C}\).  This choice is made
+from the committed words before the challenges are sampled.  Use the
+\(\vect r\)-fold for \(\widehat{\mat A}\) or \(\widehat{\mat C}\), and the
+independent \(\vect s\)-fold for \(\widehat{\mat B}\); the
+\(\vect x\widehat{\mat B}\) fold is not needed in this case.  Applying the
+bound to this single chosen word, the probability of a bad fold is at most
+\[
+ \frac{(k-1)n}{|\mathbb F|}.
+\]
+Conditioned on the complementary event, the chosen fold is more than
+\(\tau\)-far from the claimed intermediate codeword.  Hence independent
+queries \(I=(j_1,\ldots,j_t)\sample[n]^t\) all miss the disagreement set with
+probability at most
+\[
+ (1-\tau)^t.
 \]
 
-\paragraph{Proximity sampling}
-Now also condition on \(\vect{r}\mat{D}\neq 0\).  No vectors
-\(\vect{x},\vect{y},\vect{z}\) can satisfy all four global relations
+\paragraph{Close-input case}
+Now suppose that the three words have unique decodings
+\(\mat A^*,\mat B^*,\mat C^*\) such that
 \[
-  \vect{x}=\vect{r}\mat{A},
-  \qquad
-  \vect{y}=\vect{x}\mat{B},
-  \qquad
-  \vect{z}=\vect{r}\mat{C},
-  \qquad
-  \vect{y}=\vect{z}.
+\begin{aligned}
+ \Delta_{\mathsf{IRS}}(\widehat{\mat A},\enc(\mat A^*))&\le\tau,\\
+ \Delta_{\mathsf{IRS}}(\widehat{\mat B},\enc(\mat B^*))&\le\tau,\\
+ \Delta_{\mathsf{IRS}}(\widehat{\mat C},\enc(\mat C^*))&\le\tau.
+\end{aligned}
 \]
-Otherwise they would imply
-\(\vect{r}\mat{A}\mat{B}=\vect{r}\mat{C}\), contradicting
-\(\vect{r}\mat{D}\neq 0\).
+Each error set contains at most \(\tau n\) interleaved columns, so
+\[
+\begin{aligned}
+ \vect r\widehat{\mat A}&\text{ is $\tau$-close to }
+   \enc(\vect r\mat A^*),\\
+ \vect x\widehat{\mat B}&\text{ is $\tau$-close to }
+   \enc(\vect x\mat B^*),\\
+ \vect r\widehat{\mat C}&\text{ is $\tau$-close to }
+   \enc(\vect r\mat C^*),\\
+ \vect s\widehat{\mat B}&\text{ is $\tau$-close to }
+   \enc(\vect s\mat B^*).
+\end{aligned}
+\]
 
-Therefore at least one checked encoded relation is false.  Consider the case
-\(\vect{x}\neq\vect{r}\mat{A}\); the other three cases are identical.  The
-codewords \(\enc(\vect{x})\) and \(\enc(\vect{r}\mat{A})\) are distinct, so by
-relative distance they disagree on at least \(\delta n\) coordinates.  For any
-queried coordinate \(j\), code linearity gives
+Assume \(\mat A^*\mat B^*\ne\mat C^*\).  Some coordinate of
+\(\vect r(\mat A^*\mat B^*-\mat C^*)\) is a nonzero polynomial in \(r\) of
+degree at most \(k-1\).  Thus
 \[
-  \enc(\vect{r}\mat{A})[j]
-  =
-  \fold(\vect{r},\widehat{\mat{A}}[*,j]).
+ \Pr_r[\vect r(\mat A^*\mat B^*-\mat C^*)=0]
+ \le\frac{k-1}{|\mathbb F|}.
 \]
-The sampled-opening backend ensures that the SNARK uses the opened
-\(\widehat{\mat{A}}[*,j]\) block under \(\rt_{ABC}\) and the opened
-\(\widehat{\vect{x}}[j]\) symbol under \(\rt_{XYZ}\).  Thus the fold check
-rejects whenever \(j\) lands in the disagreement set.  A uniformly sampled
-coordinate misses this set with probability at most \(1-\delta\), and \(t\)
-independent samples miss it with probability at most \((1-\delta)^t\).
-Union-bounding over the four possible violated relations gives
+Except with this probability, the equality \(\vect y=\vect z\) and the four
+relations
 \[
-  4(1-\delta)^t .
+ \vect x=\vect r\mat A^*,\qquad
+ \vect y=\vect x\mat B^*,\qquad
+ \vect z=\vect r\mat C^*,\qquad
+ \vect b=\vect s\mat B^*
 \]
+cannot hold simultaneously.  The fourth relation supplies an independent
+check of the middle input.  The equality \(\vect y=\vect z\) is checked over
+the complete vector and is not another sampled relation.
+
+Choose the first false fold relation in a fixed order.  This choice is made
+after the intermediate commitment but before \(I\) is sampled.  Let \(c^*\)
+be the correct Reed--Solomon codeword for this relation, let \(c\ne c^*\) be
+the claimed codeword, and let \(w\) be the folded input word.  We have
+\(\Delta(w,c^*)\le\tau\) and
+\(\Delta(c,c^*)\ge\delta_{\mathsf{RS}}\), whence
+\[
+\begin{aligned}
+ \Delta(w,c)
+ &\ge \Delta(c,c^*)-\Delta(w,c^*)\\
+ &\ge \delta_{\mathsf{RS}}-\tau.
+\end{aligned}
+\]
+The probability that all \(t\) queries miss the disagreement set is at most
+\[
+ (1-\delta_{\mathsf{RS}}+\tau)^t.
+\]
+Acceptance requires this fixed relation to pass, so no union bound over the
+four relations is necessary.
 
 \paragraph{Combining the bounds}
-Adding the SNARK, opening, linking, code-consistency, Freivalds, and proximity
-failure events gives
+Combining the two cases with the backend errors yields
 \[
 \begin{aligned}
-\Pr[\mathsf{Acc}\mid\mat{A}\mat{B}\neq\mat{C}]
+\Pr[\mathsf{Acc}]
 &\le
-\epsilon_{\mathsf{cp}}(\lambda)
-+\epsilon_{\mathsf{open}}(\lambda)
-+\epsilon_{\mathsf{link}}(\lambda)
-+\epsilon_{\mathsf{code}}(\lambda)\\
-&\quad+\frac{k-1}{|\mathbb{F}|}+4(1-\delta)^t .
+ \epsilon_{\mathsf{cp}}(\lambda)
+ +\epsilon_{\mathsf{open}}(\lambda)
+ +\epsilon_{\mathsf{link}}(\lambda)
+ +\epsilon_{\mathsf{code}}(\lambda)\\
+&\quad
+ +\frac{(k-1)n}{|\mathbb F|}
+ +\frac{k-1}{|\mathbb F|}\\
+&\quad
+ +\max\!\left\{
+   (1-\tau)^t,
+   (1-\delta_{\mathsf{RS}}+\tau)^t
+ \right\}.
 \end{aligned}
 \]
-For the measured rows, \(t=128\).  When \(\delta=1/2\), the proximity term is
-\(4\cdot2^{-128}=2^{-126}\).  Larger \(t\) or a larger-distance code can be
-used when the deployment target requires a smaller proximity term.
 
-\paragraph{Fiat--Shamir variant}
-The non-interactive protocol derives \(r\), \(I\), and backend batch challenges
-from domain-separated hashes of the transcript.  In the random oracle model,
-the public-coin proof above applies with the standard Fiat--Shamir loss
-\(\epsilon_{\mathsf{FS}}(q_H)\) for an adversary making \(q_H\)
-random-oracle queries.
-This proves Theorem~\ref{thm:security}.
+For the rate-one-half parameters \(n=2k\) with even \(k\),
+\[
+ \delta_{\mathsf{RS}}=\frac12+\frac{1}{2k},
+ \qquad \tau=\tau_{\mathsf{UD}}=\frac14.
+\]
+The larger sampling term is \((3/4)^t\), and
+\[
+ \left(\frac34\right)^t\le2^{-128}
+ \quad\Longleftrightarrow\quad
+ t\ge\frac{-128}{\log_2(3/4)}\approx308.38.
+\]
+Thus \(t=309\) gives 128-bit sampling error.  This numerical choice omits the
+backend and field-size terms, which are assumed negligible.
+
+\paragraph{Zero knowledge}
+Use the CP-SNARK and CP-Link simulators and replace the witness blocks by hiding
+Pedersen commitments.  Since the Merkle layer authenticates only these
+commitments and reveals no openings, the resulting transcript is
+computationally indistinguishable from a real execution.
 \end{proof}
 
 \section{Barycentric Reed--Solomon Consistency Check}
@@ -825,3 +844,70 @@ accepts only if \(\sum_h \lambda_h\delta_h=0\).  Since at least one
 linear equation with probability at most \(1/(|\mathbb{F}|-1)\).  In the
 non-interactive implementation this probability is interpreted in the random
 oracle model for the Fiat--Shamir-derived batching coefficients.
+
+\section{LAMP Results Across Code Rates}
+\label{app:lamp-code-rates}
+
+Table~\ref{tab:lamp-code-rates} reports the performance of \(\protocol\) for
+code rates \(\rho\in\{1/2,1/4,1/8\}\).  The setup time is the sum of the
+Groth16 and CP-Link setup times.  Encoding and commitment generation are
+reported separately, where commitment is the sum of the ABC and XYZ
+commitment times and excludes encoding.  Proving time is the sum of the
+Merkle, Groth16, and CP-Link proof-generation times and excludes both encoding
+and commitment generation.  For \(k=2^7\) and \(\rho=1/2\),
+the codeword length is
+\(n=256\), which is smaller than the required number of queries \(t=309\);
+therefore, no measurement is reported for this parameter set.
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{ccrrrrrrrrr}
+\toprule
+\textbf{\(k\)} & \textbf{\(\rho\)} & \textbf{\(n\)} & \textbf{\(t\)}
+& \textbf{Constraints} & \textbf{Setup (s)} & \textbf{Encode (s)}
+& \textbf{Commit (s)} & \textbf{Prove (s)}
+& \textbf{Verify (s)} & \textbf{Proof (B)} \\
+\midrule
+\multirow{3}{*}{\(2^7\)}
+& \(1/2\) & 256   & 309 & --        & --     & --    & --     & --     & --   & --      \\
+& \(1/4\) & 512   & 189 & 107{,}502 & 6.71   & 0.02  & 0.15   & 0.98   & 0.08 & 36{,}484 \\
+& \(1/8\) & 1{,}024 & 155 & 95{,}916  & 5.97   & 0.03  & 0.29   & 0.86   & 0.07 & 40{,}964 \\
+\midrule
+\multirow{3}{*}{\(2^8\)}
+& \(1/2\) & 512   & 309 & 329{,}377 & 21.31  & 0.04  & 0.23   & 2.67   & 0.13 & 50{,}308 \\
+& \(1/4\) & 1{,}024 & 189 & 211{,}456 & 13.38  & 0.06  & 0.47   & 1.73   & 0.08 & 48{,}580 \\
+& \(1/8\) & 2{,}048 & 155 & 188{,}615 & 11.85  & 0.10  & 0.89   & 1.61   & 0.07 & 49{,}220 \\
+\midrule
+\multirow{3}{*}{\(2^9\)}
+& \(1/2\) & 1{,}024 & 309 & 655{,}245 & 42.48  & 0.14  & 0.78   & 4.80   & 0.14 & 65{,}860 \\
+& \(1/4\) & 2{,}048 & 189 & 420{,}117 & 26.60  & 0.21  & 1.53   & 3.23   & 0.08 & 57{,}412 \\
+& \(1/8\) & 4{,}096 & 155 & 374{,}648 & 23.06  & 0.31  & 3.04   & 2.82   & 0.07 & 59{,}652 \\
+\midrule
+\multirow{3}{*}{\(2^{10}\)}
+& \(1/2\) & 2{,}048 & 309 & 1{,}306{,}972 & 85.59  & 0.46  & 2.80   & 9.30   & 0.13 & 80{,}772 \\
+& \(1/4\) & 4{,}096 & 189 & 837{,}448   & 52.38  & 0.69  & 5.46   & 5.95   & 0.08 & 69{,}060 \\
+& \(1/8\) & 8{,}192 & 155 & 746{,}714   & 46.42  & 1.08  & 10.76  & 5.21   & 0.07 & 68{,}356 \\
+\midrule
+\multirow{3}{*}{\(2^{11}\)}
+& \(1/2\) & 4{,}096  & 309 & 2{,}609{,}193 & 168.33 & 1.51  & 8.38   & 17.59  & 0.13 & 99{,}012 \\
+& \(1/4\) & 8{,}192  & 189 & 1{,}671{,}348 & 105.08 & 2.23  & 16.25  & 11.07  & 0.08 & 80{,}580 \\
+& \(1/8\) & 16{,}384 & 155 & 1{,}490{,}211 & 91.52  & 3.88  & 32.01  & 9.49   & 0.07 & 77{,}636 \\
+\midrule
+\multirow{3}{*}{\(2^{12}\)}
+& \(1/2\) & 8{,}192  & 309 & 5{,}214{,}877 & 335.68 & 5.13  & 29.85  & 34.96  & 0.13 & 119{,}556 \\
+& \(1/4\) & 16{,}384 & 189 & 3{,}339{,}901 & 208.62 & 8.14  & 57.61  & 21.67  & 0.08 & 91{,}332  \\
+& \(1/8\) & 32{,}768 & 155 & 2{,}977{,}840 & 182.35 & 14.29 & 111.57 & 18.38  & 0.07 & 86{,}148  \\
+\midrule
+\multirow{3}{*}{\(2^{13}\)}
+& \(1/2\) & 16{,}384 & 309 & 10{,}426{,}236 & 677.08 & 18.09 & 107.37 & 68.44 & 0.13 & 136{,}260 \\
+& \(1/4\) & 32{,}768 & 189 & 6{,}677{,}016  & 425.24 & 31.59 & 209.37 & 42.59 & 0.08 & 103{,}108 \\
+& \(1/8\) & 65{,}536 & 155 & 5{,}953{,}098  & 369.93 & 59.08 & 406.62 & 36.68 & 0.07 & 97{,}348  \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\caption{Performance of \(\protocol\) across code rates.}
+\label{tab:lamp-code-rates}
+\end{table*}

@@ -23,7 +23,7 @@ instead of recomputing the full product.  This reduces the verification cost
 from \(\mathcal{O}(k^3)\) to \(\mathcal{O}(k^2)\).  The resulting
 \(\mathcal{O}(k^2)\)-size circuit is an improvement, but it is still expensive:
 for example, at \(k=2^{12}\), it already requires \(50.5\) million R1CS
-constraints and \(405.04\,\text{s}\) of proving time with Groth16.  Thus, a large gap remains
+constraints and \revmath{411.28\,\text{s}} of proving time with Groth16.  Thus, a large gap remains
 between the \(\mathcal{O}(k^2)\) SNARK cost and practical large-scale
 matrix-multiplication verification. \\
 
@@ -96,25 +96,31 @@ matrix-multiplication statements.  Our contributions are as follows.
   fixed-rate Reed--Solomon setting used in our implementation.
 
   \item \textbf{Soundness analysis.}
-  We prove soundness for the committed-input setting.  If
-  \(\mat{A}\mat{B}\ne\mat{C}\), then any prover that commits to inconsistent
-  encoded values is detected with probability governed by the code distance
-  \(\delta\) and the number \(t\) of sampled positions.  The analysis also
-  accounts for Merkle openings and CP-Link proofs, which bind the values
+  \begin{revblock}
+  We prove soundness in the committed-input setting by leveraging the relative
+  distance and unique-decoding radius of the Reed--Solomon code.  The analysis
+  also accounts for Merkle openings and CP-Link proofs, which bind the values
   checked inside the SNARK circuit to the data committed before the sampling
   challenges are derived.
+  \end{revblock}
 
   \item \textbf{Implementation and evaluation.}
-  We implement \(\protocol\) in Go and compare it with a Freivalds-based SNARK
-  circuit for matrix dimensions \(k=2^7\) through \(2^{13}\).  At
-\(k=2^{12}\), \(\protocol\) reduces the constraint count by \(30.3\times\)
-and proving time by \(8.43\times\), while verification remains independent of
-the matrix dimension and stays around \(0.06\,\text{s}\).  
-% We also evaluate
-%   \(\protocol\) on a GPT-2 workload with sequence length \(2^{10}\), where it
-%   reduces the constraint count by \(2.3\times\) and proving time by
-%   \(1.78\times\).  This shows that the approach extends beyond square matrix
-%   benchmarks to matrix-heavy neural-network workloads.
+  \begin{revblock}
+  We implement \(\protocol\) in Go and evaluate it against a Freivalds-based
+  SNARK baseline and DualMatrix.  In the square-matrix experiments with
+  \(\rho=1/2\) and \(t=309\), \(\protocol\) reduces the constraint count by
+  \(9.68\times\) and proving time by \(5.88\times\) relative to the Freivalds
+  baseline at \(k=2^{12}\).  It also proves faster than DualMatrix at every
+  matrix dimension measured for both systems, achieving a \(3.65\times\)
+  speedup at \(k=2^{13}\).
+
+  We further evaluate batching and a GPT-2 workload.  Batching matrix products
+  with a shared leaf layout keeps the Merkle proof size and verification time
+  nearly constant as the number of claims increases.  On GPT-2, \(\protocol\)
+  proves faster than both the Freivalds baseline and DualMatrix, although
+  heterogeneous matrix dimensions require multiple commitment layouts and
+  increase proof size and verification cost.
+  \end{revblock}
 \end{itemize}
 
 % \noindent\textbf{Paper organization.}
