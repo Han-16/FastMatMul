@@ -20,7 +20,7 @@ relative distance \(\delta\).  The target matrix-multiplication relation is
   \{(\mat{A},\mat{B},\mat{C}) :
     \mat{A}\mat{B}=\mat{C}\}.
 \]
-The verifier does not receive the raw matrices as public input.  Instead, the
+The verifier does not receive the original matrices as public input.  Instead, the
 prover commits to row-wise encodings of the matrices and proves that the
 committed objects satisfy the multiplication relation.
 
@@ -161,21 +161,25 @@ Merkle tree, since the leaves are Pedersen commitments that already provide
 hiding. The root \(\rt_{ABC}\) is fixed before the Freivalds challenge is
 derived.
 
-After receiving \(\rt_{ABC}\), the verifier samples \(r\sample\mathbb{F}\). 
-The prover sets {\footnotesize \(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\)}
+After receiving \(\rt_{ABC}\), the verifier samples \(r, \revmath{s}\sample\mathbb{F}\). 
+The prover sets {\footnotesize \(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\), \revmath{\vect{s}=(1,s,\ldots,s^{k-1}),
+}}
 and computes
 {\footnotesize
 \(\vect{x}=\vect{r}\mat{A},
   \vect{y}=\vect{x}\mat{B},
-  \vect{z}=\vect{r}\mat{C}\).
+  \vect{z}=\vect{r}\mat{C},
+  \revmath{\vect{b}=\vect{s}\mat{B}.}
+  \)
 }
 It then encodes the intermediate vectors:
 {\footnotesize
 \(\widehat{\vect{x}}=\enc(\vect{x}),
   \widehat{\vect{y}}=\enc(\vect{y}),
-  \widehat{\vect{z}}=\enc(\vect{z})\).
+  \widehat{\vect{z}}=\enc(\vect{z}),
+  \revmath{\widehat{\vect{b}}=\enc(\vect{b})}\).
 }
-The encoded intermediate vectors form a \(3\)-fold interleaved codeword.  For
+The encoded intermediate vectors form a \(\revmath{4}\)-fold interleaved codeword.  For
 each \(j\in[n]\), the prover packs its \(j\)-th interleaved symbol into
 {\footnotesize
 \(\vect{m}_{XYZ,j}
@@ -183,9 +187,10 @@ each \(j\in[n]\), the prover packs its \(j\)-th interleaved symbol into
   \big(
     \widehat{\vect{x}}[j]\,
     \|\,\widehat{\vect{y}}[j]\,
-    \|\,\widehat{\vect{z}}[j]
+    \|\,\widehat{\vect{z}}[j]\,
+    \revmath{\|\,\widehat{\vect{b}}[j]}
   \big)
-  \in\mathbb{F}^{3}\).
+  \in\mathbb{F}^{\revmath{4}}\).
 }
 Using a Pedersen commitment key \(\ck_{XYZ}\), the prover samples
 \(o_{XYZ,j}\sample\mathbb{F}\), computes
@@ -206,12 +211,12 @@ Only after receiving \(\rt_{XYZ}\) does the verifier sample the query tuple
 {\footnotesize \(I=(j_1,\ldots,j_t)\sample [n]^t\).}
 It also samples public code-check points
 {\footnotesize
-\(\alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D\),
+\(\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\sample\mathbb{F}\setminus D\),
 }
 where \(D\) is the
 code evaluation domain. These points are used by the circuit to check that
 {\footnotesize
-\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\)
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}\)
 }
 are encodings of
 the claimed intermediate vectors. For the Reed--Solomon code used in our
@@ -229,7 +234,7 @@ positions are consistent with the Freivalds reduction.
 The public statement contains the Merkle roots and verifier-sampled
 challenges:
 \[
-\stmt = \big( \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z
+\stmt = \big( \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
   \big).
 \]
 The roots are included in the statement to bind the CP-SNARK proof to the same
@@ -246,8 +251,8 @@ and the remaining private witness is
   $\omega
   =
   \big(
-    \vect{x},\vect{y},\vect{z},
-    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
+    \vect{x},\vect{y},\vect{z},\revmath{\vect{b}},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
   \big).$
 The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
 prover first computes the SNARK-side witness commitments
@@ -274,7 +279,7 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
     $\qquad$parse \\
     $\qquad \qquad \stmt =
       \big(
-        \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z
+        \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
       \big)$ \\
     $\qquad \qquad \wit=(\comwit,\omega)$ \\
     $\qquad \qquad \comwit =
@@ -284,16 +289,19 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
       \big)$ \\
     $\qquad \qquad \omega =
       \big(
-        \vect{x},\vect{y},\vect{z},
-        \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
+        \vect{x},\vect{y},\vect{z},\revmath{\vect{b}},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
       \big)$ \\[0.5ex]
     $\qquad \vect{r}\gets(1,r,\ldots,r^{k-1})$ \\[0.5ex]
+    $\qquad \revmath{\vect{s}\gets(1,s,\ldots,s^{k-1})}$ \\[0.5ex]
     $\qquad \mathsf{EncCheck}_{\mathcal{C}}
       (\widehat{\vect{x}},\vect{x};\alpha_x)=1$ \\
     $\qquad \mathsf{EncCheck}_{\mathcal{C}}
       (\widehat{\vect{y}},\vect{y};\alpha_y)=1$ \\
     $\qquad \mathsf{EncCheck}_{\mathcal{C}}
-      (\widehat{\vect{z}},\vect{z};\alpha_z)=1$ \\[0.5ex]
+      (\widehat{\vect{z}},\vect{z};\alpha_z)=1$ \\
+    $\qquad \revmath{\mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{b}},\vect{b};\alpha_b)=1}$ \\[0.5ex]
     $\qquad \forall j\in I:$ \\
     $\qquad \qquad$parse
       $\vect{m}_{ABC,j}$ as
@@ -307,7 +315,8 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
       $\big(
         \widehat{\vect{x}}[j]\,
         \|\,\widehat{\vect{y}}[j]\,
-        \|\,\widehat{\vect{z}}[j]
+        \|\,\widehat{\vect{z}}[j]\,
+        \revmath{\|\,\widehat{\vect{b}}[j]}
       \big)$ \\[0.5ex]
     $\qquad \qquad
       \widehat{\vect{x}}[j]
@@ -321,6 +330,10 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
       \widehat{\vect{z}}[j]
       =
       \fold(\vect{r},\widehat{\mat{C}}[*,j])$ \\
+    $\qquad \qquad \revmath{
+      \widehat{\vect{b}}[j]
+      =
+      \fold(\vect{s},\widehat{\mat{B}}[*,j])}$ \\
     $\qquad \qquad
       \widehat{\vect{y}}[j]
       =
@@ -333,13 +346,13 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
 \FloatBarrier
 
 
-The first three checks certify that
+The first \rev{four} checks certify that
 \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\) are valid
 encodings of the claimed intermediate vectors
 \(\vect{x},\vect{y},\vect{z}\).  The remaining checks are local equations on the
 sampled codeword positions.  For each queried position \(j\), the circuit
 unpacks the sampled matrix-column block \(\vect{m}_{ABC,j}\) and the sampled
-vector-symbol block \(\vect{m}_{XYZ,j}\), and then verifies the three fold
+vector-symbol block \(\vect{m}_{XYZ,j}\), and then verifies the \rev{four} fold
 relations together with the final equality
 \(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\).
 
@@ -571,8 +584,8 @@ bound by \(\rt_{ABC}\) and \(\rt_{XYZ}\).  This separation is what allows the SN
 \label{sec:protocol-complexity}
 Figure~\ref{fig:protocol} presents the public-coin version of
 \(\protocol\).  The protocol can be made non-interactive via the
-Fiat--Shamir transform, by deriving \(r\) after \(\rt_{ABC}\) and deriving
-\(I,\alpha_x,\alpha_y,\alpha_z\) after \(\rt_{XYZ}\).
+Fiat--Shamir transform, by deriving \(r\revmath{, s}\) after \(\rt_{ABC}\) and deriving
+\(I,\alpha_x,\alpha_y,\alpha_z\revmath{, \alpha_b}\) after \(\rt_{XYZ}\).
 
 The proof consists of the CP-SNARK proof, the sampled leaf commitments and
 Merkle openings, and the CP-Link proofs.  The sampled matrix-column blocks and
@@ -646,11 +659,11 @@ Intermediate
 & \(\mathcal{O}(k^2)\,\mathbb{F}\)
 & -- \\
 
-XYZ encoding
+Intermediate encoding
 & \(E_{\enc}(k,n)\)
 & -- \\
 
-XYZ commit
+Intermediate commit
 & \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
 & -- 
 \\
@@ -690,19 +703,23 @@ the resulting leaves.  After the Freivalds challenge \(r\) is sampled, the
 prover computes the intermediate witnesses
   $\vect{x}=\vect{r}\mat{A},
   \vect{y}=\vect{x}\mat{B},
-  \vect{z}=\vect{r}\mat{C},$
+  \vect{z}=\vect{r}\mat{C},
+  \revmath{\vect{b}=\vect{s}\mat{B}}$
 which costs \(\mathcal{O}(k^2)\) field operations.  This is distinct from the
 excluded native computation of \(C=AB\).  The prover then encodes
 \(\vect{x},\vect{y},\vect{z}\), commits to their encoded symbols, opens the
 sampled Merkle paths, proves the online CP-SNARK relation, and produces the
 CP-Link proofs.
 
-For each queried position \(j\in I\), the CP-SNARK circuit checks three
+For each queried position \(j\in I\), the CP-SNARK circuit checks \rev{four}
 length-\(k\) fold equations:
 \[
-  \fold(\vect{r},\widehat{\mat{A}}[*,j]),\qquad
-  \fold(\vect{x},\widehat{\mat{B}}[*,j]),\qquad
-  \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]),
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),
+\]
+\[
+\fold(\vect{r},\widehat{\mat{C}}[*,j]),
+  \revmath{\fold(\vect{b},\widehat{\mat{B}}[*,j])}.
 \]
 Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. 
 
@@ -756,31 +773,32 @@ fixed-rate code used in our implementation.
     \rt_{ABC} \gets \merkleC((\cm_{ABC,j})_{j\in[n]};\bot) 
     \< \sendmessageright*[1.3cm]{\rt_{ABC}} 
     \\
-    \< \sendmessageleft*[1.3cm]{r} \<  r \sample \FF 
+    \< \sendmessageleft*[1.3cm]{r\revmath{, s}} \<  r\revmath{, s} \sample \FF 
     \\
-    \vect{r}\coloneqq(1,r,\ldots,r^{k-1}) \\ 
-    \vect{x}\gets\vect{r}\mat{A}, \qquad \vect{y}\gets\vect{x}\mat{B}, \qquad \vect{z}\gets\vect{r}\mat{C} 
-    \\ \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}) \\ 
+    \vect{r}\coloneqq(1,r,\ldots,r^{k-1}), 
+    \revmath{\vect{s}\coloneqq(1,s,\ldots,s^{k-1})} \\
+    \vect{x}\gets\vect{r}\mat{A}, \qquad \vect{y}\gets\vect{x}\mat{B}, \qquad \vect{z}\gets\vect{r}\mat{C}, \qquad \revmath{\vect{b}\gets\vect{s}\mat{B}} 
+    \\ \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}), \revmath{\enc(\vect{b})} \\ 
     \text{for each } j\in[n]: \\ 
-    \quad \vect{m}_{XYZ,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j] \big) \in\mathbb{F}^{3} \\ 
+    \quad \vect{m}_{XYZ,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j], \revmath{\|\,\widehat{\vect{b}}[j]} \big) \in\mathbb{F}^{\revmath{4n}} \\ 
     \quad o_{XYZ,j}\sample\mathbb{F} \\ 
     \quad \cm_{XYZ,j} \gets \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}) \\ 
     \rt_{XYZ} \gets \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot) \< \sendmessageright*[1.3cm]{\rt_{XYZ}} \< \\
     \< \< I=(j_1,\ldots,j_t)\sample[n]^t 
     \\ 
-    \< \sendmessageleft*[1.3cm]{I, \alpha_x, \alpha_y, \alpha_z} \< \alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D 
+    \< \sendmessageleft*[1.3cm]{I, \alpha_x, \alpha_y, \alpha_z, \revmath{\alpha_b}} \< \alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\sample\mathbb{F}\setminus D 
     \\
     \mathcal{T}\coloneqq(ABC,XYZ) \\
     \text{For every } T\in\mathcal{T}\text{ and every } j\in I,\\ 
     \quad \pi_{\mathsf{mem},j}^{T} \gets \merkleO((\cm_{T,\ell})_{\ell\in[n]},j) \\[0.3ex]
     \stmt \coloneqq
-      \big(\rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z\big) \\
+      \big(\rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\big) \\
     \comwit \coloneqq
       \big((\vect{m}_{T,j})_{j\in I}\big)_{T\in\mathcal{T}}, \quad
     \omega \coloneqq
       \big(
-      \vect{x},\vect{y},\vect{z},
-      \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}
+      \vect{x},\vect{y},\vect{z}, \revmath{\vect{b}},
+      \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
       \big) \\
     \wit \coloneqq \big(\comwit,\omega\big) \\
     \text{For every } T\in\mathcal{T},\\

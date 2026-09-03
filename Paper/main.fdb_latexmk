@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1788390441.38995 "main.aux" "main.bbl" "main" 1788390442.86062 0
-  "./Styles/bibliography.bib" 1788370595.42228 19893 0d4a2ce8e6795dd79fe34e810c514aad ""
+["bibtex main"] 1788396065.63784 "main.aux" "main.bbl" "main" 1788396067.03938 0
+  "./Styles/bibliography.bib" 1788393362.66863 20214 94a58bbea2306d7cd7bce7c313338ede ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1788390442.62981 13584 c413bc0d370f89faf80bf857b6a982bd "pdflatex"
+  "main.aux" 1788396066.80858 13641 d8ebe4803ba9e2d950de0b4a7044f104 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1788390441.51068 "/Users/bkhan_16/Desktop/Research/SNP/MatMul/FastMatMul/Paper/main.tex" "main.pdf" "main" 1788390442.86075 0
+["pdflatex"] 1788396065.72686 "/Users/bkhan_16/Desktop/Research/SNP/MatMul/FastMatMul/Paper/main.tex" "main.pdf" "main" 1788396067.0395 0
   "/Users/bkhan_16/Desktop/Research/SNP/MatMul/FastMatMul/Paper/main.tex" 1788370232.41577 1099 2ea73944efb2572de6d8f546e8c960a9 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -324,19 +324,19 @@
   "Contents/abstract.tex" 1788367951.71626 1643 e30260ad1c653d07d74583d81f38363c ""
   "Contents/appendix.tex" 1788367951.71659 25459 1bed4cb8b504c57f7121999f73c59d48 ""
   "Contents/conclusion.tex" 1788367951.71696 2230 4e0c7c00336c785565676b5fc41e603b ""
-  "Contents/construction.tex" 1788367951.71713 30018 54c4735d5ba383decf590f793c13e6f5 ""
+  "Contents/construction.tex" 1788396064.15004 31233 99061c8899ff75491a1572f6e47cf105 ""
   "Contents/evaluation.tex" 1788367951.71729 12020 0734e5834d1b84f77e62928cf5f51502 ""
   "Contents/introduction.tex" 1788385020.31012 8277 69cef229e235607a741814b81808f603 ""
   "Contents/preliminaries.tex" 1788388205.56114 15857 fdb66c116a70dbd288d1bee61baafb89 ""
   "Contents/related_work.tex" 1788373725.42274 12646 8da2bbf83ac2aa42f4d6f1adf2680b32 ""
   "Contents/security_analysis.tex" 1788367951.71816 12133 e5f8cb968d87d38d6f4bc267869ff05a ""
-  "Contents/technical_overview.tex" 1788390439.93855 12316 3ef53e66b5d491660ed5679c021f76a9 ""
+  "Contents/technical_overview.tex" 1788393552.10936 11400 038b64e71bf3e236dcf0ca154c811972 ""
   "Styles/commands.tex" 1788387222.42928 3955 13c4a7323e0a98177b6c82436a8feec7 ""
-  "Styles/packages.tex" 1788373708.38846 1921 e938713570db1db776e28482e1b9b14c ""
+  "Styles/packages.tex" 1788395448.0431 2414 528710f7afb02e5fadee182112a53ad8 ""
   "Tables/asymptotic_comparison.tex" 1788373836.1174 1182 8b4f0753bb47d0d2b8186c13ca78a261 ""
-  "main.aux" 1788390442.62981 13584 c413bc0d370f89faf80bf857b6a982bd "pdflatex"
-  "main.bbl" 1788390441.50672 12130 1f809b34c7d3af54a3f6d9068729002a "bibtex main"
-  "main.out" 1788390442.63075 6664 3d526ed0ed0f76999061b75f8399f1e0 "pdflatex"
+  "main.aux" 1788396066.80858 13641 d8ebe4803ba9e2d950de0b4a7044f104 "pdflatex"
+  "main.bbl" 1788396065.72344 12431 53702e2f82793528b9e031ca9c06fae1 "bibtex main"
+  "main.out" 1788396066.8095 6664 3d526ed0ed0f76999061b75f8399f1e0 "pdflatex"
   "main.tex" 1788370232.41577 1099 2ea73944efb2572de6d8f546e8c960a9 ""
   (generated)
   "main.aux"

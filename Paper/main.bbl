@@ -166,6 +166,11 @@ J.~T. Schwartz, ``Fast probabilistic algorithms for verification of polynomial i
 \bibitem{zippel1979probabilistic}
 R.~Zippel, ``Probabilistic algorithms for sparse polynomials,'' in \emph{Symbolic and Algebraic Computation (EUROSAM '79)}.\hskip 1em plus 0.5em minus 0.4em\relax Berlin, Heidelberg: Springer, 1979, pp. 216--226.
 
+\bibitem{proximity_gaps}
+\BIBentryALTinterwordspacing
+E.~Ben-Sasson, D.~Carmon, Y.~Ishai, S.~Kopparty, and S.~Saraf, ``Proximity gaps for reed-solomon codes,'' Cryptology {ePrint} Archive, Paper 2020/654, 2020. [Online]. Available: \url{https://eprint.iacr.org/2020/654}
+\BIBentrySTDinterwordspacing
+
 \bibitem{qa-nizk}
 \BIBentryALTinterwordspacing
 E.~Kiltz and H.~Wee, ``Quasi-adaptive {NIZK} for linear subspaces revisited,'' Cryptology {ePrint} Archive, Paper 2015/216, 2015. [Online]. Available: \url{https://eprint.iacr.org/2015/216}

@@ -40,29 +40,51 @@
   top=4pt, bottom=4pt, left=8pt, right=8pt % 내부 여백
 }
 
-  \sethlcolor{yellow}
+  % Revision highlighting
+  \colorlet{revisionyellow}{yellow!20}
+  \sethlcolor{revisionyellow}
 
   \newif\ifshowrevisions
-  \showrevisionstrue % 하이라이트 표시
-  % \showrevisionsfalse % 최종본에서는 이 줄 사용
+  \showrevisionstrue
+  % \showrevisionsfalse
 
   \ifshowrevisions
+    % 일반 텍스트
     \newcommand{\rev}[1]{\hl{#1}}
-    \newcommand{\revrow}{\rowcolor{yellow!25}}
+
+    % 인라인 수식
+    \newcommand{\revmath}[1]{%
+      \mbox{%
+        \colorbox{revisionyellow}{%
+          \ensuremath{\displaystyle #1}%
+        }%
+      }%
+    }
+
+    % 테이블 행
+    \newcommand{\revrow}{\rowcolor{revisionyellow}}
   \else
     \newcommand{\rev}[1]{#1}
+    \newcommand{\revmath}[1]{\ensuremath{#1}}
     \newcommand{\revrow}{}
   \fi
 
-    \tcbuselibrary{breakable}
+  % \rev 내부에서 사용할 명령 등록
+  \soulregister\cite7
+  \soulregister\ref7
+  \soulregister\pageref7
+  \soulregister\revmath7
+
+  % 여러 문장 또는 문단을 위한 블록 하이라이트
+  \tcbuselibrary{breakable}
 
   \newenvironment{revblock}
   {%
     \ifshowrevisions
       \begin{tcolorbox}[
         breakable,
-        colback=yellow!20,
-        colframe=yellow!20,
+        colback=revisionyellow,
+        colframe=revisionyellow,
         boxrule=0pt,
         arc=0pt,
         left=2pt,

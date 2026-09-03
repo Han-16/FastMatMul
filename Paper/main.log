@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.9.2)  2 SEP 2026 18:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.9.2)  2 SEP 2026 19:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1046,92 +1046,97 @@ Underfull \hbox (badness 5939) in paragraph at lines 337--339
  []
 
 ) (./Contents/technical_overview.tex [5]
-Underfull \hbox (badness 10000) in paragraph at lines 266--267
+Underfull \hbox (badness 10000) in paragraph at lines 199--200
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 269--277
-
- []
-
-
-Underfull \hbox (badness 1748) in paragraph at lines 279--288
-\T1/ptm/b/n/10.03749 Proximity sound-ness. \T1/ptm/m/n/10.03749 Con-di-tion on the com-mit-ments
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 279--288
+Underfull \hbox (badness 10000) in paragraph at lines 202--210
 
  []
 
 [6]
-Underfull \hbox (badness 3815) in paragraph at lines 290--299
+Underfull \hbox (badness 3815) in paragraph at lines 238--247
 \T1/ptm/b/n/10.03749 Commitment and link-ing sound-ness. \T1/ptm/m/n/10.03749 The dis-tance
  []
 
 
-Underfull \hbox (badness 1776) in paragraph at lines 290--299
+Underfull \hbox (badness 1776) in paragraph at lines 238--247
 \T1/ptm/m/n/10.03749 There-fore, ex-cept for the bind-ing and link-ing fail-ure
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 290--299
+Underfull \hbox (badness 10000) in paragraph at lines 238--247
 
  []
 
-) (./Contents/construction.tex [7]
-Overfull \hbox (0.53249pt too wide) detected at line 399
-\OT1/cmr/bx/n/10 M[] [][]\OT1/cmr/m/n/10 = []\OT1/cmr/bx/n/10 m[] \OMS/cmsy/m/n/10 k \OT1/cmr/bx/n/10 m[] \OMS/cmsy/m/n/10 k  []  k \OT1/cmr/bx/n/10 m[][]\OML/cmm/m/it/10 ;  I \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 j[]; [] ; j[]\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 :
+) (./Contents/construction.tex
+Underfull \hbox (badness 4518) in paragraph at lines 164--209
+[]\OT1/cmr/m/n/8 (\OT1/cmr/bx/n/8 y\OT1/cmr/m/n/8 )\OML/cmm/m/it/8 ; [] \OT1/cmr/m/n/8 = [](\OT1/cmr/bx/n/8 z\OT1/cmr/m/n/8 )\OML/cmm/m/it/8 ; []$\T1/ptm/m/n/8.03 .  \T1/ptm/m/n/10.03749 The en-coded in-ter-
+ []
+
+
+Underfull \hbox (badness 1394) in paragraph at lines 164--209
+\T1/ptm/m/n/10.03749 me-di-ate vec-tors form a $[]$-fold in-ter-leaved code-word.
+ []
+
+
+Underfull \hbox (badness 1642) in paragraph at lines 164--209
+\T1/ptm/m/n/10.03749 For each $\OML/cmm/m/it/10 j \OMS/cmsy/m/n/10 2 \OT1/cmr/m/n/10 [\OML/cmm/m/it/10 n\OT1/cmr/m/n/10 ]$\T1/ptm/m/n/10.03749 , the prover packs its $\OML/cmm/m/it/10 j$\T1/ptm/m/n/10.03749 -th in-ter-
+ []
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 249--274
+\T1/ptm/m/n/10.03749 and the re-main-ing pri-vate wit-ness is $\OML/cmm/m/it/10 ! \OT1/cmr/m/n/10 =
  []
 
 [8]
-Underfull \hbox (badness 2012) in paragraph at lines 577--583
+Overfull \hbox (0.53249pt too wide) detected at line 412
+\OT1/cmr/bx/n/10 M[] [][]\OT1/cmr/m/n/10 = []\OT1/cmr/bx/n/10 m[] \OMS/cmsy/m/n/10 k \OT1/cmr/bx/n/10 m[] \OMS/cmsy/m/n/10 k  []  k \OT1/cmr/bx/n/10 m[][]\OML/cmm/m/it/10 ;  I \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 j[]; [] ; j[]\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 :
+ []
+
+
+Underfull \hbox (badness 2012) in paragraph at lines 590--596
 []\T1/ptm/m/n/10.03749 The proof con-sists of the CP-SNARK proof, the
  []
 
 
-Underfull \hbox (badness 1383) in paragraph at lines 577--583
+Underfull \hbox (badness 1383) in paragraph at lines 590--596
 \T1/ptm/m/n/10.03749 they are not se-ri-al-ized as pub-lic proof ma-te-rial. The
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 577--583
+Underfull \hbox (badness 10000) in paragraph at lines 590--596
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 602--606
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 627--628
-
- []
-
-
-Underfull \hbox (badness 10000) in alignment at lines 678--678
-[][][] 
- []
-
-
-Overfull \hbox (2.0305pt too wide) detected at line 706
-[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r\OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 [\OMS/cmsy/m/n/10 ^^C\OML/cmm/m/it/10 ; j\OT1/cmr/m/n/10 ])\OML/cmm/m/it/10 ;  []\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 x\OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 [\OMS/cmsy/m/n/10 ^^C\OML/cmm/m/it/10 ; j\OT1/cmr/m/n/10 ])\OML/cmm/m/it/10 ;  []\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r\OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 [\OMS/cmsy/m/n/10 ^^C\OML/cmm/m/it/10 ; j\OT1/cmr/m/n/10 ])\OML/cmm/m/it/10 :
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 709--714
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 716--725
+Underfull \hbox (badness 10000) in paragraph at lines 615--619
 
  []
 
 [9]
-Overfull \hbox (2.2871pt too wide) detected at line 834
+Underfull \hbox (badness 10000) in paragraph at lines 640--641
+
+ []
+
+
+Underfull \hbox (badness 10000) in alignment at lines 691--691
+[][][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 726--731
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 733--742
+
+ []
+
+
+Overfull \hbox (20.11238pt too wide) detected at line 852
 []
  []
 
@@ -1150,18 +1155,20 @@ Underfull \hbox (badness 1412) in paragraph at lines 54--61
 []\T1/ptm/m/it/10.03749 CP-SNARK sound-ness. \T1/ptm/m/n/10.03749 Any ac-cept-ing CP-SNARK
  []
 
+[10] [11]
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.03749> not available
 (Font)              Font shape `T1/phv/m/sl' tried instead on input line 91.
-[10] [11]) (./Contents/evaluation.tex
+) (./Contents/evaluation.tex
 Underfull \hbox (badness 10000) in paragraph at lines 10--11
 
  []
 
+[12]
 LaTeX Font Info:    Calculating math sizes for size <7.02625> on input line 134.
-[12])
-Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [13] (./Contents/conclusion.tex) (./main.bbl [14]) (./Contents/appendix.tex
+Underfull \vbox (badness 6758) has occurred while \output is active []
+
+ [13]) (./Contents/conclusion.tex [14]) (./main.bbl [15]) (./Contents/appendix.tex
 Underfull \hbox (badness 10000) in paragraph at lines 4--9
 []\T1/ptm/m/n/10.03749 Let $\OMS/cmsy/m/n/10 R \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 fR[]g[]$ \T1/ptm/m/n/10.03749 be a fam-ily of NP
  []
@@ -1191,7 +1198,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 50--54
 
  []
 
-[15]
+
 Underfull \hbox (badness 1603) in paragraph at lines 151--158
 \T1/ptm/m/n/10.03749 is im-ple-mented as a NIZK or QA-NIZK, as in our
  []
@@ -1206,7 +1213,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 191--194
 
  []
 
-
+[16]
 Underfull \hbox (badness 10000) in paragraph at lines 227--236
 
  []
@@ -1216,7 +1223,7 @@ Underfull \hbox (badness 1629) in paragraph at lines 310--315
 \T1/ptm/m/n/10.03749 for-ma-tion about the blocks $\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 m[]\OT1/cmr/m/n/10 )[]$ \T1/ptm/m/n/10.03749 or the open-ings
  []
 
-[16]
+[17]
 Overfull \hbox (4.90654pt too wide) detected at line 481
 [][]
  []
@@ -1226,12 +1233,12 @@ Underfull \hbox (badness 2809) in paragraph at lines 506--510
 \T1/ptm/m/n/10.03749 be the pub-lic eval-u-a-tion do-main. A mes-sage $\OT1/cmr/bx/n/10 v \OT1/cmr/m/n/10 =
  []
 
-[17]
+
 Underfull \hbox (badness 10000) in paragraph at lines 618--622
 
  []
 
-
+[18]
 Underfull \hbox (badness 10000) in paragraph at lines 630--633
 []\T1/ptm/m/n/10.03749 The pub-lic state-ment is $\OT1/cmss/m/n/10 x[] \OT1/cmr/m/n/10 =
  []
@@ -1251,7 +1258,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 714--716
 
  []
 
-[18]
+
 Underfull \hbox (badness 10000) in paragraph at lines 757--759
 
  []
@@ -1271,6 +1278,7 @@ Underfull \hbox (badness 2213) in paragraph at lines 817--50
 \T1/ptm/m/n/10.03749 terms and one fi-nal ex-po-nen-ti-a-tion. It also per-forms
  []
 
+[19]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -1282,7 +1290,9 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[19] (./main.aux)
+[20
+
+] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -1291,18 +1301,18 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 3D526ED0ED0F76999061B75F8399F1E0;6664.
  ) 
 Here is how much of TeX's memory you used:
- 39508 strings out of 467525
- 905828 string characters out of 5418983
- 1465965 words of memory out of 5000000
- 67507 multiletter control sequences out of 15000+600000
+ 39517 strings out of 467525
+ 905965 string characters out of 5418983
+ 1480177 words of memory out of 5000000
+ 67511 multiletter control sequences out of 15000+600000
  843894 words of font info for 252 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  104i,31n,111p,810b,1644s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (19 pages, 535187 bytes).
+Output written on main.pdf (20 pages, 540979 bytes).
 PDF statistics:
- 722 PDF objects out of 1000 (max. 8388607)
- 616 compressed objects within 7 object streams
- 191 named destinations out of 1000 (max. 500000)
+ 737 PDF objects out of 1000 (max. 8388607)
+ 630 compressed objects within 7 object streams
+ 196 named destinations out of 1000 (max. 500000)
  301 words of extra memory for PDF output out of 10000 (max. 10000000)
 
