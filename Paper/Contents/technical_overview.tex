@@ -44,7 +44,7 @@ which keeps the public challenge compact.
   At the same transcript point, the verifier derives an independent scalar
 \(s\in\mathbb{F}\) and sets $\vect{s}=(1,s,\ldots,s^{k-1})$. 
 The role of this additional challenge in testing the proximity of the
-committed encoding of $\mat{B}$ is described in Section~\ref{sec:overview-encoding}
+committed encoding of $\mat{B}$ is described in Section~\ref{sec:overview-encoding}.
 \end{revblock}
 Equivalently, the prover introduces intermediate vectors
 \[
@@ -96,7 +96,7 @@ form
 \end{aligned}
 \]
 \begin{revblock}
-  The prover additionally computes $\vect{b} = \vect{s}\mat{B}$, the circuit checks
+  The prover additionally computes $\vect{b} = \vect{s}\mat{B}$, and the circuit checks
   \[
     \enc(\vect{b})[j] = \fold(\vect{s},\widehat{\mat{B}}[*,j]).
   \]
@@ -134,25 +134,31 @@ For any $\vect{u}=(u_0,\ldots,u_{k-1})\in\mathbb{F}^k$ and every $j \in [n]$,
 \]
 Thus, each coordinate of an encoded vector--matrix product can be checked
 using only the corresponding encoded column.
-Applying this identity to the Freivalds intermediates gives, for every
-$j\in[n]$,
-\(\vect{x}=\vect{r}\mat{A}\), then for every \(j\in[n]\),
+Applying this identity to the Freivalds intermediates
+\(\vect{x}=\vect{r}\mat{A}\),
+\(\vect{y}=\vect{x}\mat{B}\), and
+\(\vect{z}=\vect{r}\mat{C}\)
+gives, for every \(j\in[n]\),
 \[
-\widehat{\vect{x}}[j] = \fold(\vect{r},\widehat{\mat{A}}[*,j]), \qquad \widehat{\vect{z}}[j] = \fold(\vect{r},\widehat{\mat{C}}[*,j]),
-\] and 
-\[
-\widehat{\vect{y}}[j] = \fold(\vect{x},\widehat{\mat{B}}[*,j]).
+\begin{aligned}
+\widehat{\vect{x}}[j]
+  &= \fold(\vect{r},\widehat{\mat{A}}[*,j]),\\
+\widehat{\vect{y}}[j]
+  &= \fold(\vect{x},\widehat{\mat{B}}[*,j]),\\
+\widehat{\vect{z}}[j]
+  &= \fold(\vect{r},\widehat{\mat{C}}[*,j]).
+\end{aligned}
 \]
 \end{revblock}
 
 \begin{revblock}
-  The last equation alone, however, does not provide a proximity test for the
+  The second equation alone, however, does not provide a proximity test for the
 committed encoding $\widehat{\mat{B}}$. The folding vector $\vect{x}=\vect{r}\mat{A}$ depends on $\mat{A}$ and can be degenerate.
 For example, if \(\mat{A}=0\), then \(\vect{x}=0\) for every challenge \(r\), and the resulting $\vect{x}$-fold reveals no information about whether $\widehat{\mat{B}}$ is close to a valid interleaved codeword.
 To obtain an independent proximity test for $\widehat{\mat{B}}$, the
 prover computes $\vect{b}=\vect{s}\mat{B}.$
 By the same linearity property, $\widehat{\vect{b}}[j] = \fold(\vect{s}, \widehat{\mat{B}}[*, j])$ for every $j \in [n]$.
-Thus, the $\vect{r}$-fold for $\mat{A}, \mat{C}$ and the $\vect{s}$-fold for $\mat{B}$ tests the proximity of $\widehat{\mat{A}}, \widehat{\mat{C}}$ and $\widehat{\mat{B}}$, whereas the $\vect{x}$-fold checks consistency of the claimed relation $\vect{y} = \vect{x}\mat{B}$.
+Thus, the $\vect{r}$-fold for $\mat{A}, \mat{C}$ and the $\vect{s}$-fold for $\mat{B}$ test the proximity of $\widehat{\mat{A}}, \widehat{\mat{C}}$ and $\widehat{\mat{B}}$, whereas the $\vect{x}$-fold checks consistency of the claimed relation $\vect{y} = \vect{x}\mat{B}$.
 \end{revblock}
 
 
@@ -223,7 +229,7 @@ $\tau\leq\tau_{\ud}$ implies $\delta-\tau\geq\tau$, an invalid claim leaves
 at least a $\tau$-fraction of inconsistent positions in either case. Therefore, $t$ random queries miss all inconsistencies with probability at
 most $(1-\tau)^t$.
 The proximity-gap failure over the folding challenges is accounted for
-separately in the formal soundness analysis~\ref{sec:security}.
+separately in the analysis in Section~\ref{sec:security}. \\
 \end{revblock}
 % Condition on the commitments being binding and fixed before the sampled
 % positions are derived.  If a vector relation is false, then the two associated

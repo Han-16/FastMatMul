@@ -223,54 +223,12 @@ the claimed intermediate vectors. For the Reed--Solomon code used in our
 implementation, this check is the barycentric out-of-domain consistency test
 recalled in Appendix~\ref{app:rs-barycentric}.
 
-
 \subsection{The Online Relation}
 \label{sec:snark-relation}
 The online relation is the arithmetic relation proved inside the
 inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
 Instead, it checks only the field equations that certify the sampled encoded
 positions are consistent with the Freivalds reduction.
-
-The public statement contains the Merkle roots and verifier-sampled
-challenges:
-\[
-\stmt = \big( \rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
-  \big).
-\]
-The roots are included in the statement to bind the CP-SNARK proof to the same
-transcript and offline checks; the online field equations themselves do not
-evaluate Merkle paths.
-
-The complete SNARK witness is
-  $\wit=(\comwit,\omega)$,
-where the committed part of the witness is
-\[
-\comwit = \big( (\vect{m}_{ABC,j})_{j\in I},(\vect{m}_{XYZ,j})_{j\in I} \big),
-\]
-and the remaining private witness is
-  $\omega
-  =
-  \big(
-    \vect{x},\vect{y},\vect{z},\revmath{\vect{b}},
-    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
-  \big).$
-The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
-prover first computes the SNARK-side witness commitments
-\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) using
-\(\bPi_{\cp}.\com\), and then proves the online relation with witness
-\(\wit=(\comwit,\omega)\).  These witness commitments are not checked against
-the Merkle roots inside the circuit.  Instead, they are connected to the
-externally committed Merkle leaves by the offline relation in
-Section~\ref{sec:openings-and-cplink}.
-For the CP-Link statements below, let \(\ck_{\cp,T}\) denote the public
-commitment key used by the CP-SNARK witness commitment
-\(\widetilde{\cm}_{T}\), for \(T\in\{ABC,XYZ\}\).
-Write
-  $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
-when the out-of-domain code-consistency check accepts that
-\(\widehat{\vect{v}}\) is consistent with \(\enc(\vect{v})\) at the public
-point \(\alpha\).  The online relation is defined in
-Figure~\ref{relation:online}.
 
 \begin{figure}[t]
 \begin{tcolorbox}[colback=white, colframe=black]
@@ -334,16 +292,53 @@ $\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
       \widehat{\vect{b}}[j]
       =
       \fold(\vect{s},\widehat{\mat{B}}[*,j])}$ \\
-    $\qquad \qquad
-      \widehat{\vect{y}}[j]
-      =
-      \widehat{\vect{z}}[j]$
+    $\qquad \vect{y} = \vect{z}$
 }
 \end{tcolorbox}
 \caption{The Online Relation}
 \label{relation:online}
 \end{figure}
-\FloatBarrier
+
+The public statement contains the Merkle roots and verifier-sampled
+challenges:
+\[
+\stmt = \big( \rt_{ABC},\rt_{XYZ},r, \revmath{s}, I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
+  \big).
+\]
+The roots are included in the statement to bind the CP-SNARK proof to the same
+transcript and offline checks; the online field equations themselves do not
+evaluate Merkle paths.
+
+The complete SNARK witness is
+  $\wit=(\comwit,\omega)$,
+where the committed part of the witness is
+\[
+\comwit = \big( (\vect{m}_{ABC,j})_{j\in I},(\vect{m}_{XYZ,j})_{j\in I} \big),
+\]
+and the remaining private witness is
+  $\omega
+  =
+  \big(
+    \vect{x},\vect{y},\vect{z},\revmath{\vect{b}},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
+  \big).$
+The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
+prover first computes the SNARK-side witness commitments
+\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) using
+\(\bPi_{\cp}.\com\), and then proves the online relation with witness
+\(\wit=(\comwit,\omega)\).  These witness commitments are not checked against
+the Merkle roots inside the circuit.  Instead, they are connected to the
+externally committed Merkle leaves by the offline relation in
+Section~\ref{sec:openings-and-cplink}.
+For the CP-Link statements below, let \(\ck_{\cp,T}\) denote the public
+commitment key used by the CP-SNARK witness commitment
+\(\widetilde{\cm}_{T}\), for \(T\in\{ABC,XYZ\}\).
+Write
+  $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
+when the out-of-domain code-consistency check accepts that
+\(\widehat{\vect{v}}\) is consistent with \(\enc(\vect{v})\) at the public
+point \(\alpha\).  The online relation is defined in
+Figure~\ref{relation:online}.
 
 
 The first \rev{four} checks certify that
@@ -354,13 +349,14 @@ sampled codeword positions.  For each queried position \(j\), the circuit
 unpacks the sampled matrix-column block \(\vect{m}_{ABC,j}\) and the sampled
 vector-symbol block \(\vect{m}_{XYZ,j}\), and then verifies the \rev{four} fold
 relations together with the final equality
-\(\widehat{\vect{y}}[j]=\widehat{\vect{z}}[j]\).
+\(\widehat{\vect{y}}=\widehat{\vect{z}}\).
 
 Thus, the online relation only checks arithmetic consistency of the sampled
 values.  It does not by itself guarantee that these sampled values came from
 the pre-query Merkle roots \(\rt_{ABC}\) and \(\rt_{XYZ}\).  That binding is
 provided by the offline relation \rev{in
 Section~\ref{sec:openings-and-cplink}}.
+
 
 
 
@@ -713,7 +709,7 @@ length-\(k\) fold equations:
 \]
 \[
 \fold(\vect{r},\widehat{\mat{C}}[*,j]),
-  \revmath{\fold(\vect{b},\widehat{\mat{B}}[*,j])}.
+  \revmath{\fold(\vect{s},\widehat{\mat{B}}[*,j])}.
 \]
 Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. 
 
@@ -774,7 +770,7 @@ fixed-rate code used in our implementation.
     \vect{x}\gets\vect{r}\mat{A}, \qquad \vect{y}\gets\vect{x}\mat{B}, \qquad \vect{z}\gets\vect{r}\mat{C}, \qquad \revmath{\vect{b}\gets\vect{s}\mat{B}} 
     \\ \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}), \revmath{\enc(\vect{b})} \\ 
     \text{for each } j\in[n]: \\ 
-    \quad \vect{m}_{XYZ,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j], \revmath{\|\,\widehat{\vect{b}}[j]} \big) \in\mathbb{F}^{\revmath{4n}} \\ 
+    \quad \vect{m}_{XYZ,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j] \revmath{\|\,\widehat{\vect{b}}[j]} \big) \in\mathbb{F}^{\revmath{4}} \\ 
     \quad o_{XYZ,j}\sample\mathbb{F} \\ 
     \quad \cm_{XYZ,j} \gets \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}) \\ 
     \rt_{XYZ} \gets \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot) \< \sendmessageright*[1.3cm]{\rt_{XYZ}} \< \\
@@ -786,7 +782,7 @@ fixed-rate code used in our implementation.
     \text{For every } T\in\mathcal{T}\text{ and every } j\in I,\\ 
     \quad \pi_{\mathsf{mem},j}^{T} \gets \merkleO((\cm_{T,\ell})_{\ell\in[n]},j) \\[0.3ex]
     \stmt \coloneqq
-      \big(\rt_{ABC},\rt_{XYZ},r,I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\big) \\
+      \big(\rt_{ABC},\rt_{XYZ},r, \revmath{s}, I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\big) \\
     \comwit \coloneqq
       \big((\vect{m}_{T,j})_{j\in I}\big)_{T\in\mathcal{T}}, \quad
     \omega \coloneqq

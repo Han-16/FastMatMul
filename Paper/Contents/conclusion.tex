@@ -1,53 +1,34 @@
 \section{Conclusion}
-\label{sec:conclusion}
+  \label{sec:conclusion}
 
-We proposed \(\protocol\), a protocol for verifying matrix multiplication by
-moving expensive vector--matrix products outside the SNARK circuit and checking
-them through sampled local tests over encoded data.  The prover commits to the
-encoded matrices and Freivalds intermediate vectors, while the SNARK circuit
-proves only the \rev{fold relations at the sampled positions}.  Merkle openings and CP-Link proofs
-ensure that the values used inside the CP-SNARK are consistent with the
-externally committed data fixed before the sampling challenges are known.
+  We proposed \(\protocol\), which moves vector--matrix products outside the
+  SNARK and verifies sampled fold relations over encoded data. Merkle openings
+  and CP-Link bind the CP-SNARK witnesses to data committed before sampling.
 
-Our implementation confirms the intended tradeoff.  For a fixed number \(t\) of
-queries, the main arithmetic relation has
-\(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints rather than the
-\(\mathcal{O}(k^2)\) constraints of a Freivalds baseline.  Thus, when \(t\) is
-fixed and the code-consistency checks are linear, the constraint count of
-\(\protocol\) grows linearly with the matrix dimension \(k\).
+  For fixed \(t\) and linear code-consistency checks, the main relation has
+  \(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints and therefore grows linearly
+  in \(k\), unlike the Freivalds baseline's \(\mathcal{O}(k^2)\) constraints.
 
-\begin{revblock}
-The experimental results show that this structural advantage becomes more
-pronounced as the matrix dimension increases. At \(k=2^{12}\), \(\protocol\)
-reduces the constraint count of the Freivalds baseline from \(50{,}495{,}818\)
-to \(5{,}214{,}877\), a \(9.68\times\) reduction, and decreases the proving time
-from \(411.28\) s to \(69.95\) s, a \(5.88\times\) speedup. \(\protocol\) also
-achieves faster proof generation than DualMatrix at every matrix dimension
-measured for both systems, with a \(3.65\times\) speedup at \(k=2^{13}\).
-\end{revblock}
+  \begin{revblock}
+  At \(k=2^{12}\), \(\protocol\) reduces the Freivalds baseline's constraints
+  from \(50{,}495{,}818\) to \(5{,}214{,}877\) (\(9.68\times\)) and proving time
+  from \(411.28\) s to \(69.95\) s (\(5.88\times\)). It also outperforms
+  DualMatrix in proving time at every shared dimension, by \(3.65\times\) at
+  \(k=2^{13}\).
+  \end{revblock}
 
-\begin{revblock}
-When multiple matrix-multiplication claims share the same leaf structure,
-batching amortizes the cost of Merkle openings, and the Merkle proof size and
-verification time remain nearly constant as the number of matrix
-multiplications increases. On the GPT-2 workload, \(\protocol\) also achieves
-faster proof generation than both the Freivalds baseline and DualMatrix.
-However, jointly processing matrix multiplications of different dimensions
-requires multiple commitment layouts and the corresponding CP-Link proofs and
-Merkle membership proofs. Consequently, heterogeneous workloads such as GPT-2
-incur larger proof sizes and higher verification costs.
-\end{revblock}
+  \begin{revblock}
+  For claims sharing a leaf structure, batching amortizes Merkle openings and
+  keeps their proof size and verification time nearly constant. On GPT-2,
+  \(\protocol\) proves faster than both baselines, although heterogeneous matrix
+  dimensions require multiple commitment layouts, CP-Link proofs, and Merkle
+  openings, increasing proof size and verification cost.
+  \end{revblock}
 
-\begin{revblock}
-As future work, we first plan to apply the Fiat--Shamir transform to
-\(\protocol\), which is currently specified as an interactive protocol, and
-establish a rigorous security proof for the resulting non-interactive protocol.
-We also plan to reduce proof size by efficiently sharing commitment layouts and
-opening information across consecutive matrix multiplications of different
-dimensions, enabling more efficient deployment in verifiable AI workloads. We
-expect these improvements to further reduce proof size and verification cost
-while preserving the linear constraint complexity of \(\protocol\).
-\end{revblock}
-
-
-\newpage
+  \begin{revblock}
+  Future work includes proving the security of a Fiat--Shamir-transformed,
+  non-interactive \(\protocol\) and sharing commitment layouts and openings across
+  consecutive products of different dimensions. These improvements should reduce
+  proof size and verification cost for verifiable AI while preserving linear
+  constraint complexity.
+  \end{revblock}

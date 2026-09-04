@@ -68,16 +68,15 @@ error.
 Let \(\epsilon_{\mathsf{cp}}(\lambda)\),
 \(\epsilon_{\mathsf{open}}(\lambda)\), and
 \(\epsilon_{\mathsf{link}}(\lambda)\) denote, respectively, the soundness
-errors of the CP-SNARK, the Merkle and Pedersen openings, and CP-Link.  Let
-\(\epsilon_{\mathsf{code}}(\lambda)\) be the aggregate error of the encoding
-checks for
-\(\widehat{\vect x},\widehat{\vect y},\widehat{\vect z},\widehat{\vect b}\)
-sampled after the intermediate commitment is fixed.  For the four independent
-barycentric Reed--Solomon checks used in the protocol,
-\[
+errors of the CP-SNARK, the Merkle and Pedersen openings, and CP-Link. Let \(\epsilon_{\mathsf{code}}(\lambda)\) denote the soundness error of an
+  encoding-consistency check for
+  \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\), and
+  \(\widehat{\vect{b}}\), where the checked values are fixed before the
+  corresponding check point is sampled. For the barycentric Reed--Solomon check,
+  \[
   \epsilon_{\mathsf{code}}
-  \le \frac{4(n-1)}{|\mathbb F|-n}.
-\]
+  \leq \frac{n-1}{|\mathbb{F}|-n}.
+  \]
 \end{definition}
 
 \begin{theorem}[Completeness, soundness, and zero knowledge]
@@ -168,7 +167,7 @@ the full argument.
 
 \begin{remark}[Fiat--Shamir]
 The theorem above analyzes the public-coin interactive protocol.  A
-non-interactive variant can derive \(r\), \(I\), and the code-check points from
+non-interactive variant can derive \(r\), \revmath{s}, \(I\), and the code-check points from
 domain-separated transcript hashes via the Fiat--Shamir transform.  Proving
 that variant adds the standard random oracle model loss and is orthogonal to
 the interactive soundness statement above.

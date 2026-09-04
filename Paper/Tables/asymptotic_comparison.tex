@@ -1,18 +1,18 @@
-\begin{table*}[t]
+\begin{table}[t]
 \centering
 \footnotesize
   \ifshowrevisions
     \rowcolors{1}{yellow!20}{yellow!20}
   \fi
-\setlength{\tabcolsep}{4pt}
-\label{tab:asymptotic_comparison}
-\begin{tabular}{lcccc}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}
 \toprule
 \textbf{System} &
-\textbf{Prover Work} &
-\textbf{Circuit Constraints} &
-\textbf{Verifier Work} &
-\textbf{Proof Size} \\
+\shortstack{\textbf{Prover}\\\textbf{Work}} &
+\shortstack{\textbf{Circuit}\\\textbf{Constraints}} &
+\shortstack{\textbf{Verifier}\\\textbf{Work}} &
+\textbf{Proof} \\
 \midrule
 Groth16
 & $\mathcal{O}(k^3 \log k)$
@@ -49,8 +49,8 @@ Groth16
     & $\mathcal{O}(t\log k)$
     & $\mathcal{O}(t\log k)$ \\
     \bottomrule
-\end{tabular}
+\end{tabular*}
 \vspace{4pt}
-\caption{Asymptotic comparison with systems for matrix multiplication. \\
-Here, $K=\Theta(k^2)$ for dense matrices and $t$ is constant.}
-\end{table*}
+\caption{Asymptotic comparison with existing systems.}
+\label{tab:asymptotic_comparison}
+\end{table}

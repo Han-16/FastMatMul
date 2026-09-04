@@ -83,58 +83,67 @@ discrete-logarithm assumption, and additively homomorphic.
 \label{sec:prelim-snark}
 
 A SNARK (succinct non-interactive argument of knowledge) for an NP relation
-$\relation$ is a tuple $\bPi=(\setup,\prove,\verify)$. The setup algorithm
-generates public parameters, the prover produces a proof for a
-statement--witness pair in $\relation$, and the verifier decides whether to
-accept the proof. We use the standard notions of completeness, knowledge
-soundness, and zero knowledge, recalled formally in
-Appendix~\ref{app:snark-security}.
+$\relation$ is a tuple of algorithms $\bPi=(\setup,\prove,\verify)$.
+
+\begin{itemize}
+\item $\para \gets \bPi.\setup(1^\lambda,\relation)$:
+generates public parameters $\para$ for the relation $\relation$.
+
+\item $\pi \gets \bPi.\prove(\para,\stmt,\wit)$:
+outputs a proof $\pi$ for a statement $\stmt$ and witness $\wit$ satisfying $(\stmt,\wit)\in\relation$.
+
+\item $b \gets \bPi.\verify(\para,\stmt,\pi)$:
+outputs $b=1$ if $\pi$ is accepted as a valid proof for $\stmt$, and outputs $b=0$ otherwise.
+\end{itemize}
+
+\begin{remark}[Security Properties]
+We use the standard SNARK notions of completeness, knowledge soundness, and
+zero knowledge.  Appendix~\ref{app:snark-security} recalls these notions
+formally, including their negligible error bounds. 
+\end{remark}
 
 
 \subsubsection{Commit-and-Prove SNARKs}
-A commit-and-prove SNARK (CP-SNARK)~\cite{gnark,legosnark} proves relations
-over witnesses bound to an external \emph{witness commitment}. Let
-\(\relation\) be a relation over \((\stmt,\comwit,\omega)\), where
-\(\comwit\) is the committed witness and \(\omega\) is the remaining private
-witness. The prover commits as
-\(\widetilde{\cm}=\com(\ck_S,\comwit;\widetilde{o})\) and proves the relation
-with respect to the extended statement
-\(\stmt_{\cp}=(\stmt,\widetilde{\cm})\).
+A commit-and-prove SNARK (CP-SNARK)~\cite{gnark, legosnark} is a variant of a SNARK that proves statements about witnesses bound to an external commitment. We call such a commitment a \emph{witness commitment}. Let $\com$ be a commitment scheme with commitment key $\ck$. For an NP relation $\relation$ over tuples $(\stmt,\comwit,\omega)$, a CP-SNARK proves knowledge of a witness
+$\wit := (\comwit,\omega)$ such that $(\stmt,\comwit,\omega)\in\relation$,
+where $\comwit$ is the committed part of the witness and $\omega$ is the
+remaining private witness.  The committed witness is bound separately by a
+witness commitment
+$\widetilde{\cm} = \com(\ck_S, m_0 || ... || m_{q-1}; \widetilde{o})$, where $\tilde{o}$ is the
+opening randomness.  Equivalently, the CP proof is verified with respect to the
+extended public statement $\stmt_{\cp}:=(\stmt,\widetilde{\cm})$.  When the
+context is clear, we write this extended statement simply as $\stmt$.
+A CP-SNARK scheme is a tuple of algorithms
+$\bPi_{\cp}=(\setup,\com,\prove,\verify)$.
 
-We write \(\bPi_{\cp}=(\setup,\com,\prove,\verify)\). The algorithms are
-defined as follows.
-\begin{itemize}[leftmargin=*,nosep]
-  \item \(\para\gets\bPi_{\cp}.\setup(1^\lambda,\relation)\) generates
-  \(\para=(\pk,\vk,\ck_S)\), consisting of the proving, verification, and
-  witness-commitment keys.
+\begin{itemize}
+    \item $\para \gets \bPi_{\cp}.\setup(1^\lambda,\relation)$: generates public parameters $\para=(\pk,\vk,\ck)$ for the relation $\relation$, where $\pk$ is the proving key, $\vk$ is the verifying key, and $\ck$ is the commitment key.
 
-  \item \(\widetilde{\cm}\gets
-  \bPi_{\cp}.\com(\para,\comwit;\widetilde{o})\) commits to \(\comwit\) using
-  opening randomness \(\widetilde{o}\).
+    \item $\widetilde{\cm} \gets \bPi_{\cp}.\com(\para,\comwit;\tilde{o})$:
+    outputs a witness commitment to the committed witness part $\comwit$.
 
-  \item \(\pi_{\cp}\gets
-  \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit)\), where
-  \(\wit=(\comwit,\omega)\), proves that
-  \((\stmt,\comwit,\omega)\in\relation\) relative to
-  \(\widetilde{\cm}\).
+    \item $\pi_{\cp} \gets \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit)$:
+    outputs a proof for the extended statement $\stmt_{\cp}$ and witness
+    $\wit=(\comwit,\omega)$.
 
-  \item \(b\gets
-  \bPi_{\cp}.\verify(\para,\stmt_{\cp},\pi_{\cp})\) returns \(b=1\) if the
-  proof is accepted and \(b=0\) otherwise. Equivalently, we may write this as
-  \(\bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})\).
+    \item $b \gets \bPi_{\cp}.\verify(\para,\stmt_{\cp},\pi_{\cp})$:
+    outputs $b=1$ if $\pi_{\cp}$ is accepted as a valid proof for the extended
+    statement $\stmt_{\cp}$, and outputs $b=0$ otherwise. Equivalently, we may
+    write verification as
+    $\bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})$.
 \end{itemize}
-When clear from context, we abbreviate \(\stmt_{\cp}\) as \(\stmt\).
 \subsection{CP-Link}
 \label{sec:prelim-cplink}
 
-A CP-Link proof links commitments created under different commitment keys. In
-\(\protocol\), it shows that a SNARK-side commitment to an ordered
+A CP-Link proof is a proof system for linking commitments.  In the form used by
+\(\protocol\), it proves that one SNARK-side commitment to an ordered
 concatenation of sampled blocks is consistent with external commitments to the
-individual blocks, without revealing the blocks or their opening randomness.
+individual blocks, without revealing the blocks or the opening randomness.
 
-Let \(\com\) be a commitment scheme. For a SNARK-side key \(\ck_S\), an
-external key \(\ck_E\), a SNARK-side commitment \(\widetilde{\cm}\), and
-external commitments \(\cm_0,\ldots,\cm_{q-1}\), define
+Let $\com$ be a commitment scheme.  For a SNARK-side key \(\ck_S\), an external
+key \(\ck_E\), a SNARK-side commitment \(\widetilde{\cm}\), and external
+commitments \(\cm_0,\ldots,\cm_{q-1}\), the blockwise linking relation is
+defined over the statement and witness
 \[
 \begin{aligned}
 \stmt_{\mathsf{link}}
@@ -146,7 +155,7 @@ external commitments \(\cm_0,\ldots,\cm_{q-1}\), define
 ((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
 \end{aligned}
 \]
-The pair \((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) belongs to
+The pair \((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) is in
 \(\relation_{\mathsf{link}}\) if and only if
 \[
 \begin{aligned}
@@ -156,30 +165,46 @@ The pair \((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) belongs to
 \cm_i
 &=
 \com(\ck_E,\vect{m}_i;o_i)
-\quad \text{for all }i\in[q].
+\quad \text{for all } i=0,\ldots,q-1.
 \end{aligned}
 \]
-Thus, an accepting proof links each externally committed block to its
-corresponding position in the SNARK-side commitment.
+A proof for $\relation_{\mathsf{link}}$ convinces the verifier that the ordered
+blocks committed inside the CP-SNARK are exactly the blocks committed by the
+corresponding external commitments.
 
-We write \(\bPi_{\mathsf{link}}=(\setup,\prove,\verify)\). The algorithms are
-defined as follows.
-\begin{itemize}[leftmargin=*,nosep]
-  \item \(\para_{\mathsf{link}}\gets
-  \bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})\) generates
-  public parameters for the linking relation.
+We use CP-Link through the standard statement/witness interface for a linking
+relation.
 
-  \item \(\pi_{\mathsf{link}}\gets
-  \bPi_{\mathsf{link}}.\prove(
-  \para_{\mathsf{link}},\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) produces
-  a proof that the statement and witness satisfy the linking relation.
+A CP-Link proof system is a tuple of algorithms
+$\bPi_{\mathsf{link}}=(\setup,\prove,\verify)$.
 
-  \item \(b\gets\bPi_{\mathsf{link}}.\verify(
-  \para_{\mathsf{link}},\stmt_{\mathsf{link}},\pi_{\mathsf{link}})\) returns
-  \(b=1\) if the proof is accepted and \(b=0\) otherwise.
+\begin{itemize}
+\item $\para_{\mathsf{link}} \gets
+\bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})$:
+generates public parameters for the linking relation.
+
+\item $\pi_{\mathsf{link}} \gets
+\bPi_{\mathsf{link}}.\prove(
+\para_{\mathsf{link}},
+\stmt_{\mathsf{link}},
+\wit_{\mathsf{link}})$:
+outputs a proof that the statement-witness pair satisfies the linking relation.
+
+\item $b \gets
+\bPi_{\mathsf{link}}.\verify(
+\para_{\mathsf{link}},
+\stmt_{\mathsf{link}},
+\pi_{\mathsf{link}})$:
+outputs $b=1$ if the proof is accepted, and outputs $b=0$ otherwise.
 \end{itemize}
-The required CP-Link security properties are defined in
-Appendix~\ref{app:cplink-security}.
+
+\begin{remark}[Security Properties]
+For the soundness of \(\protocol\), we require CP-Link soundness: an accepting
+linking proof should imply membership in \(\relation_{\mathsf{link}}\), except
+with error \(\epsilon_{\mathsf{link}}(\lambda)\).  If the linking backend is used
+to protect the linked blocks and openings, one may additionally require witness
+zero knowledge.  Appendix~\ref{app:cplink-security} states these properties.
+\end{remark}
 
 \subsection{Freivalds' Algorithm}
 \label{sec:prelim-freivalds}
