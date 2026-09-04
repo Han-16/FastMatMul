@@ -1,0 +1,11 @@
+LogK,Rho,Linker,Merkle,Batch,N,NumQueries,Constraints,MatrixComputeTime(s/ms),SetupTime(s/ms),ProtocolSetupTime(s/ms),CircuitSetupTime(s/ms),CPLinkSetupTime(s/ms),MatrixCommitTime(s/ms),VectorCommitTime(s/ms),EncodingTime(s/ms),CommitTime(s/ms),TotalCommitTime(s/ms),MerkleProveTime(s/ms),CircuitProveTime(s/ms),CPLinkProveTime(s/ms),TotalProveTime(s/ms),CircuitVerifyTime(s/ms),MerkleVerifyTime(s/ms),CPLinkVerifyTime(s/ms),TotalVerifyTime(s/ms),MerkleProofSize(B),Groth16ProofSize(B),CPLinkProofSize(B),TotalProofSize(B),PeakMemory(B)
+7,1/2,qa_link,multi,1,256,309,167065,4ms,10.83s,0.02s,10.13s,0.68s,0.07s,0.01s,0.04s,0.08s,0.12s,1ms,1.42s,0.04s,1.58s,2ms,1ms,0.13s,0.13s,43776,292,128,44196,486514688
+7,1/2,qa_link,multi,2,256,309,328126,0.01s,21.62s,0.05s,20.27s,1.30s,0.11s,0.01s,0.04s,0.12s,0.16s,1ms,2.55s,0.07s,2.79s,2ms,1ms,0.13s,0.13s,43328,292,128,43748,861528064
+7,1/2,qa_link,multi,3,256,309,489187,0.01s,31.59s,0.07s,29.62s,1.90s,0.15s,0.01s,0.04s,0.17s,0.21s,1ms,3.60s,0.10s,3.91s,2ms,1ms,0.13s,0.13s,43712,292,128,44132,1321033728
+7,1/2,qa_link,multi,4,256,309,650248,0.02s,42.40s,0.09s,39.78s,2.53s,0.20s,0.02s,0.05s,0.21s,0.26s,1ms,4.79s,0.11s,5.16s,2ms,1ms,0.13s,0.13s,43648,292,128,44068,1960542208
+7,1/2,qa_link,multi,5,256,309,811309,0.02s,53.27s,0.11s,50.01s,3.15s,0.23s,0.02s,0.05s,0.25s,0.30s,1ms,5.72s,0.14s,6.16s,2ms,1ms,0.13s,0.13s,43776,292,128,44196,2338037760
+7,1/2,qa_link,multi,6,256,309,972370,0.02s,61.72s,0.13s,57.83s,3.75s,0.27s,0.02s,0.05s,0.29s,0.34s,1ms,6.66s,0.18s,7.19s,3ms,1ms,0.13s,0.14s,43712,292,128,44132,2649935872
+7,1/2,qa_link,multi,7,256,309,1133431,0.03s,74.36s,0.15s,69.78s,4.42s,0.32s,0.02s,0.05s,0.34s,0.40s,1ms,7.83s,0.17s,8.40s,2ms,1ms,0.13s,0.13s,43904,292,128,44324,3054780416
+7,1/2,qa_link,multi,8,256,309,1294492,0.03s,85.35s,0.18s,80.11s,5.06s,0.37s,0.02s,0.06s,0.39s,0.45s,1ms,8.69s,0.18s,9.32s,2ms,1ms,0.13s,0.13s,44096,292,128,44516,3307737088
+7,1/2,qa_link,multi,9,256,309,1455553,0.04s,94.76s,0.20s,88.98s,5.58s,0.38s,0.02s,0.06s,0.40s,0.46s,1ms,9.81s,0.23s,10.50s,2ms,1ms,0.13s,0.13s,43648,292,128,44068,3998089216
+7,1/2,qa_link,multi,10,256,309,1616614,0.04s,102.77s,0.22s,96.32s,6.23s,0.42s,0.03s,0.06s,0.45s,0.51s,1ms,10.72s,0.22s,11.46s,2ms,1ms,0.13s,0.13s,43712,292,128,44132,4204367872

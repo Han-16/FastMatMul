@@ -1,0 +1,34 @@
+\section{Conclusion}
+  \label{sec:conclusion}
+
+  We proposed \(\protocol\), which moves vector--matrix products outside the
+  SNARK and verifies sampled fold relations over encoded data. Merkle openings
+  and CP-Link bind the CP-SNARK witnesses to data committed before sampling.
+
+  For fixed \(t\) and linear code-consistency checks, the main relation has
+  \(\mathcal{O}(tk+E_{\mathsf{code}})\) constraints and therefore grows linearly
+  in \(k\), unlike the Freivalds baseline's \(\mathcal{O}(k^2)\) constraints.
+
+  \begin{revblock}
+  At \(k=2^{12}\), \(\protocol\) reduces the Freivalds baseline's constraints
+  from \(50{,}495{,}818\) to \revmath{5{,}214{,}878} (\(9.68\times\)) and proving time
+  from \(411.28\) s to \revmath{70.73} s (\revmath{5.81\times}). It also outperforms
+  DualMatrix in proving time at every shared dimension, by \revmath{3.62\times} at
+  \(k=2^{13}\).
+  \end{revblock}
+
+  \begin{revblock}
+  For claims sharing a leaf structure, batching amortizes Merkle openings and
+  keeps their proof size and verification time nearly constant. On GPT-2,
+  \(\protocol\) proves faster than both baselines, although heterogeneous matrix
+  dimensions require multiple commitment layouts, CP-Link proofs, and Merkle
+  openings, increasing proof size and verification cost.
+  \end{revblock}
+
+  \begin{revblock}
+  Future work includes proving the security of a Fiat--Shamir-transformed,
+  non-interactive \(\protocol\) and sharing commitment layouts and openings across
+  consecutive products of different dimensions. These improvements should reduce
+  proof size and verification cost for verifiable AI while preserving linear
+  constraint complexity.
+  \end{revblock}

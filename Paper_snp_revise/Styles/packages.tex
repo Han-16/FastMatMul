@@ -1,0 +1,106 @@
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage[table]{xcolor}
+\usepackage{soul}
+\usepackage[n,advantage,operators,sets,
+  adversary,landau,probability,notions,
+  logic,ff,mm,primitives,events,complexity,
+  oracles,asymptotics,keys]{cryptocode}
+\usepackage{amsfonts}   
+\usepackage{mathtools} 
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{placeins}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage[inline]{enumitem}
+\usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage{amsmath}
+
+% 공통으로 사용할 예쁜 블록 스타일 정의
+\newtcbox{\myblock}[1][]{
+  colback=blue!5!white,    % 배경색 (연한 파란색)
+  colframe=blue!60!black,  % 테두리색
+  fontupper=\sffamily,     % 깔끔한 고딕(Sans-serif) 폰트
+  nobeforeafter, 
+  center, 
+  tcbox raise base,
+  arc=4pt,                 % 둥근 모서리 반지름
+  boxrule=1pt,             % 테두리 두께
+  top=4pt, bottom=4pt, left=8pt, right=8pt % 내부 여백
+}
+
+  % Revision highlighting
+  \colorlet{revisionyellow}{yellow!20}
+  \sethlcolor{revisionyellow}
+
+  \newif\ifshowrevisions
+  %\showrevisionstrue
+  \showrevisionsfalse
+
+  \ifshowrevisions
+    % 일반 텍스트
+    \newcommand{\rev}[1]{\hl{#1}}
+
+    % 인라인 수식
+    \newcommand{\revmath}[1]{%
+      \mbox{%
+        \colorbox{revisionyellow}{%
+          \ensuremath{\displaystyle #1}%
+        }%
+      }%
+    }
+
+    % 테이블 행
+    \newcommand{\revrow}{\rowcolor{revisionyellow}}
+  \else
+    \newcommand{\rev}[1]{#1}
+    \newcommand{\revmath}[1]{\ensuremath{#1}}
+    \newcommand{\revrow}{}
+  \fi
+
+  % \rev 내부에서 사용할 명령 등록
+  \soulregister\cite7
+  \soulregister\ref7
+  \soulregister\pageref7
+  \soulregister\revmath7
+  \soulregister\url7
+
+  % 여러 문장 또는 문단을 위한 블록 하이라이트
+  \tcbuselibrary{breakable}
+
+  \newenvironment{revblock}[1][]
+  {%
+    \ifshowrevisions
+      \begin{tcolorbox}[
+        breakable,
+        colback=revisionyellow,
+        colframe=revisionyellow,
+        boxrule=0pt,
+        arc=0pt,
+        left=2pt,
+        right=2pt,
+        top=2pt,
+        bottom=2pt,
+        before skip=2pt,
+        after skip=2pt,
+        #1
+      ]
+    \fi
+  }
+  {%
+    \ifshowrevisions
+      \end{tcolorbox}
+    \fi
+  }
+

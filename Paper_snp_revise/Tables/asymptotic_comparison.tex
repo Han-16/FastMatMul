@@ -1,0 +1,56 @@
+\begin{table}[t]
+\centering
+\footnotesize
+  \ifshowrevisions
+    \rowcolors{1}{yellow!20}{yellow!20}
+  \fi
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+\textbf{System} &
+\shortstack{\textbf{Prover}\\\textbf{Work}} &
+\shortstack{\textbf{Circuit}\\\textbf{Constraints}} &
+\shortstack{\textbf{Verifier}\\\textbf{Work}} &
+\textbf{Proof} \\
+\midrule
+Groth16
+& $\mathcal{O}(k^3 \log k)$
+& $\mathcal{O}(k^3)$
+& $\mathcal{O}(1)$
+& $\mathcal{O}(1)$ \\
+    LegoSNARK
+    & $\mathcal{O}(k^2 \log k)$
+    & $\mathcal{O}(k^2)$
+    & $\mathcal{O}(1)$
+    & $\mathcal{O}(1)$ \\
+
+    zkMatrix
+    & $\mathcal{O}(k^2)$
+    & -- 
+    & $\mathcal{O}(\log k)$
+    & $\mathcal{O}(\log k)$ \\
+
+    DualMatrix
+    & $\mathcal{O}(K+k)$
+    & --
+    & $\mathcal{O}(\log k)$
+    & $\mathcal{O}(\log k)$ \\
+
+    zkMaP
+    & $\mathcal{O}(k^2)$
+    & --
+    & $\mathcal{O}(1)$
+    & $\mathcal{O}(1)$ \\
+
+    \textbf{LAMP}
+    & $\mathcal{O}(k^2)$
+    & $\mathcal{O}(tk)$
+    & $\mathcal{O}(t\log k)$
+    & $\mathcal{O}(t\log k)$ \\
+    \bottomrule
+\end{tabular*}
+\vspace{4pt}
+\caption{Asymptotic comparison with existing systems.}
+\label{tab:asymptotic_comparison}
+\end{table}

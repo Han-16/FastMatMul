@@ -1,0 +1,205 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+We introduce the notation and building blocks used throughout the paper.  Let
+$\mathbb{F}$ be a finite field of prime order $p$, let $\lambda$ be the
+security parameter, and write $\textsf{negl}(\lambda)$ and $\ppt$ for a
+negligible function and probabilistic polynomial time, respectively.
+
+\subsection{Notation}
+\label{sec:notation}
+
+We use bold uppercase letters for matrices and bold lowercase letters for
+vectors, which are row vectors unless stated otherwise.  For a matrix
+$\mat{M}$, $\mat{M}[i,j]$, $\mat{M}[i,*]$, and $\mat{M}[*,j]$ denote an entry,
+a row, and a column, respectively.  We write $[n]=\{0,1,\ldots,n-1\}$;
+$I\sample[n]^t$ denotes $t$ independently sampled indices from $[n]$, and
+$r\sample\mathbb{F}$ denotes a uniform field element.
+
+\subsection{Linear Error-Correcting Codes}
+\label{sec:prelim-codes}
+
+A linear $[n,k]$ code $\mathcal{C}\subseteq\mathbb{F}^n$ is the image of a
+linear encoder $\enc:\mathbb{F}^k\to\mathbb{F}^n$.  Its rate is
+$\rho=k/n$.  Let $d_H$ denote Hamming distance and
+$\Delta(\vect{u},\vect{v})=d_H(\vect{u},\vect{v})/n$ relative Hamming
+distance.  If $d_{\min}$ is the minimum Hamming distance of $\mathcal{C}$,
+then its relative distance and unique-decoding radius are
+$\delta=d_{\min}/n$ and
+$\tau_\ud=n^{-1}\lfloor(d_{\min}-1)/2\rfloor$, respectively.  We use a
+proximity threshold $\tau\leq\tau_\ud$.
+
+For $\mat{M}\in\mathbb{F}^{k\times k}$, its row-wise encoding
+$\widehat{\mat{M}}=\enc(\mat{M})\in\mathbb{F}^{k\times n}$ has rows
+$\enc(\mat{M}[i,*])$ for $i\in[k]$.
+
+\begin{definition}[Interleaved code]\label{def:interleaved-code}
+For $\ell\geq1$, the $\ell$-fold interleaved code
+$\mathcal{C}^{\langle\ell\rangle}$ groups $\ell$ codewords position-wise:
+its $j$-th symbol is
+$(\vect{c}^{(0)}[j],\ldots,\vect{c}^{(\ell-1)}[j])\in\mathbb{F}^{\ell}$.
+Thus $\widehat{\mat{M}}$ is a $k$-fold interleaved codeword whose $j$-th
+symbol is $\widehat{\mat{M}}[*,j]$.
+\end{definition}
+
+For $\vect{u}\in\mathbb{F}^k$, linearity gives
+\[
+  \enc(\vect{u}\mat{M})[j]
+  =\sum_{i\in[k]}u_i\widehat{\mat{M}}[i,j]
+  \eqqcolon\fold(\vect{u},\widehat{\mat{M}}[*,j]).
+\]
+Our construction applies to linear codes satisfying the required proximity-gap
+property.  The implementation uses an $[n,k]$ Reed--Solomon code with relative
+distance $\delta_{\mathsf{RS}}=(n-k+1)/n$.
+
+\subsection{Commitment Schemes}
+\label{sec:prelim-commitments}
+
+A commitment scheme binds a committer to a message while optionally hiding it.
+We use Merkle trees for position binding and Pedersen commitments for
+computational binding, perfect hiding, and additive homomorphism.
+
+\paragraph{Merkle trees.}
+For a collision-resistant hash function $H$, we write
+$\rt\gets\merkleC((v_j)_{j\in[n]};\bot)$ for a Merkle commitment with
+deterministic leaves, $\pi_j\gets\merkleO((v_i)_{i\in[n]},j)$ for an
+authentication path, and $\merkleV(\rt,j,v_j,\pi_j)$ for verification.  Under
+collision resistance, a fixed root is position-binding: it cannot be opened to
+two different values at the same index except with negligible probability.
+
+\paragraph{Pedersen commitments.}
+Let $\mathbb{G}$ be a group of order $|\mathbb{F}|$ and
+$\ck=(G_0,\ldots,G_{\ell-1},H)$ a commitment key.  For
+$\vect{v}\in\mathbb{F}^{\ell}$ and $o\sample\mathbb{F}$, define
+\[
+  \pedC(\ck,\vect{v};o)
+  =\sum_{i\in[\ell]}\vect{v}[i]G_i+oH.
+\]
+Pedersen commitments are perfectly hiding, computationally binding under the
+discrete-logarithm assumption, and additively homomorphic.
+
+
+\subsection{Succinct Non-interactive Arguments of Knowledge}
+\label{sec:prelim-snark}
+
+A SNARK (succinct non-interactive argument of knowledge) for an NP relation
+$\relation$ is a tuple $\bPi=(\setup,\prove,\verify)$. The setup algorithm
+generates public parameters, the prover produces a proof for a
+statement--witness pair in $\relation$, and the verifier decides whether to
+accept the proof. We use the standard notions of completeness, knowledge
+soundness, and zero knowledge, recalled formally in
+Appendix~\ref{app:snark-security}.
+
+
+\subsubsection{Commit-and-Prove SNARKs}
+A commit-and-prove SNARK (CP-SNARK)~\cite{gnark,legosnark} proves relations
+over witnesses bound to an external \emph{witness commitment}. Let
+\(\relation\) be a relation over \((\stmt,\comwit,\omega)\), where
+\(\comwit\) is the committed witness and \(\omega\) is the remaining private
+witness. The prover commits as
+\(\widetilde{\cm}=\com(\ck_S,\comwit;\widetilde{o})\) and proves the relation
+with respect to the extended statement
+\(\stmt_{\cp}=(\stmt,\widetilde{\cm})\).
+
+We write \(\bPi_{\cp}=(\setup,\com,\prove,\verify)\). The algorithms are
+defined as follows.
+\begin{itemize}[leftmargin=*,nosep]
+  \item \(\para\gets\bPi_{\cp}.\setup(1^\lambda,\relation)\) generates
+  \(\para=(\pk,\vk,\ck_S)\), consisting of the proving, verification, and
+  witness-commitment keys.
+
+  \item \(\widetilde{\cm}\gets
+  \bPi_{\cp}.\com(\para,\comwit;\widetilde{o})\) commits to \(\comwit\) using
+  opening randomness \(\widetilde{o}\).
+
+  \item \(\pi_{\cp}\gets
+  \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit)\), where
+  \(\wit=(\comwit,\omega)\), proves that
+  \((\stmt,\comwit,\omega)\in\relation\) relative to
+  \(\widetilde{\cm}\).
+
+  \item \(b\gets
+  \bPi_{\cp}.\verify(\para,\stmt_{\cp},\pi_{\cp})\) returns \(b=1\) if the
+  proof is accepted and \(b=0\) otherwise. Equivalently, we may write this as
+  \(\bPi_{\cp}.\verify(\para,\stmt,\widetilde{\cm},\pi_{\cp})\).
+\end{itemize}
+When clear from context, we abbreviate \(\stmt_{\cp}\) as \(\stmt\).
+\subsection{CP-Link}
+\label{sec:prelim-cplink}
+
+A CP-Link proof links commitments created under different commitment keys. In
+\(\protocol\), it shows that a SNARK-side commitment to an ordered
+concatenation of sampled blocks is consistent with external commitments to the
+individual blocks, without revealing the blocks or their opening randomness.
+
+Let \(\com\) be a commitment scheme. For a SNARK-side key \(\ck_S\), an
+external key \(\ck_E\), a SNARK-side commitment \(\widetilde{\cm}\), and
+external commitments \(\cm_0,\ldots,\cm_{q-1}\), define
+\[
+\begin{aligned}
+\stmt_{\mathsf{link}}
+&=
+((\ck_S,\widetilde{\cm}),
+(\ck_E,\cm_0,\ldots,\cm_{q-1})),\\
+\wit_{\mathsf{link}}
+&=
+((\vect{m}_i)_{i=0}^{q-1},\widetilde{o},(o_i)_{i=0}^{q-1}).
+\end{aligned}
+\]
+The pair \((\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) belongs to
+\(\relation_{\mathsf{link}}\) if and only if
+\[
+\begin{aligned}
+\widetilde{\cm}
+&=
+\com(\ck_S,\vect{m}_0\|\cdots\|\vect{m}_{q-1};\widetilde{o}),\\
+\cm_i
+&=
+\com(\ck_E,\vect{m}_i;o_i)
+\quad \text{for all }i\in[q].
+\end{aligned}
+\]
+Thus, an accepting proof links each externally committed block to its
+corresponding position in the SNARK-side commitment.
+
+We write \(\bPi_{\mathsf{link}}=(\setup,\prove,\verify)\). The algorithms are
+defined as follows.
+\begin{itemize}[leftmargin=*,nosep]
+  \item \(\para_{\mathsf{link}}\gets
+  \bPi_{\mathsf{link}}.\setup(1^\lambda,\relation_{\mathsf{link}})\) generates
+  public parameters for the linking relation.
+
+  \item \(\pi_{\mathsf{link}}\gets
+  \bPi_{\mathsf{link}}.\prove(
+  \para_{\mathsf{link}},\stmt_{\mathsf{link}},\wit_{\mathsf{link}})\) produces
+  a proof that the statement and witness satisfy the linking relation.
+
+  \item \(b\gets\bPi_{\mathsf{link}}.\verify(
+  \para_{\mathsf{link}},\stmt_{\mathsf{link}},\pi_{\mathsf{link}})\) returns
+  \(b=1\) if the proof is accepted and \(b=0\) otherwise.
+\end{itemize}
+The required CP-Link security properties are defined in
+Appendix~\ref{app:cplink-security}.
+
+\subsection{Freivalds' Algorithm}
+\label{sec:prelim-freivalds}
+
+Freivalds' algorithm~\cite{freivalds1977probabilistic} is a classical randomized algorithm for verifying matrix multiplication.
+Given $\mat{A}, \mat{B}, \mat{C} \in \mathbb{F}^{k \times k}$, it samples $\vect{r} \sample \mathbb{F}^k$ and checks whether $\vect{r}(\mat{A}\mat{B}) = \vect{r}\mat{C}$.
+The correctness relies on the following:
+
+\begin{lemma}[Schwartz--Zippel~\cite{schwartz1980fast,zippel1979probabilistic}]\label{lem:sz}
+Let $P(X_1, \ldots, X_m)$ be a non-zero polynomial of total degree $d$ over a finite field $\mathbb{F}$.
+Then for $r_1, \ldots, r_m \sample \mathbb{F}$ chosen uniformly and independently,
+\[
+\Pr[P(r_1, \ldots, r_m) = 0] \le \frac{d}{|\mathbb{F}|}.
+\]
+\end{lemma}
+
+In our protocol, we use a structured variant: instead of sampling $\vect{r} \sample \mathbb{F}^k$ uniformly, we sample one scalar $r \sample \mathbb{F}$ and set $\vect{r} = (1, r, r^2, \ldots, r^{k-1})$.
+This keeps the Freivalds challenge compact in the transcript and in the SNARK
+statement: the verifier records one field element rather than $k$ independent
+ones. If $\mat{D} = \mat{A}\mat{B} - \mat{C} \neq \mat{0}$, then for any non-zero
+column $\vect{d}_j$ of $\mat{D}$, the value $\langle \vect{r}, \vect{d}_j \rangle$ is a non-zero univariate polynomial in
+$r$ of degree at most $k-1$.
+By Lemma~\ref{lem:sz}, it vanishes with probability at most $(k-1)/|\mathbb{F}|$.
