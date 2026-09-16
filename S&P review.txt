@@ -1,0 +1,390 @@
+Dear Kyeongtae,
+
+Thank you for your submission to IEEE S&P’27! The author response phase
+begins today. We are happy to report that all submissions have three or
+more reviews and the vast majority have 4. A handful of papers may have
+extra reviews trickling in; we are working hard to ensure that these are
+submitted as soon as possible, so please check back in the next few
+days. If the last review arrives after you submitted the rebuttal, you
+can email the PC chairs with your response to the last review.
+
+IMPORTANT: Your paper has been selected for “interactive” rebuttal. This
+is a new process this year, designed to give you a chance to make minor
+changes to the paper to improve it before decisions are made. This
+process has two parts:
+
+*  You may submit a text rebuttal of no more than 750 words by ***August
+27***. You can provide up to 750 words of text directly answering
+questions or reviewer comments. (Note that HotCRP does not enforce hard
+word limits, that is, it will allow you to have more than 750 words and
+words over the 750 limit will be shown in red. Any words showing in red
+indicate that you went over the limit and the paper will be desk
+rejected.)
+
+* You should also have received an author-visible comment listing
+specific requests for the interactive rebuttal phase. (In a few cases
+this is listed in a specific review instead of as a comment.) You will
+have until ***September 3*** to upload an attachment to HotCRP
+containing an updated paper draft or section addressing these specific
+requests. Please also include a diff so that reviewers can easily see
+the changes.
+
+* These requests are intended to be doable in the short period available
+and to be targeted at the highest priority items. Please do not rewrite
+the entire paper; focus on these items which the reviewers will be
+looking at carefully. Reviewers selected these items as most likely to
+help them improve their scores, but importantly, completing these items
+does not guarantee acceptance.
+
+* If reviewers have additional questions about the new material, they
+may post them as additional hotcrp comments that you can reply to.
+However, we expect interaction in this period to be fairly limited; the
+updated material is the focus.
+
+A few papers have additional comments from the research ethics committee
+(REC); if you have received one of these comments, please read it
+carefully and follow the instructions.
+
+You can access the current set of reviews for your paper by following
+the link below (also they are copied at the end of this email):
+
+Paper Number: 1646
+Title: LAMP: Linear Verification of Matrix Multiplication via Proximity
+Testing
+Authors: Kyeongtae Lee (Kookmin University);
+Byeongkyu Han (Kookmin University);
+Jihye Kim (Kookmin University);
+Hyunok oh (Hanyang University)
+Paper site:
+https://cycle1.sp2027.ieee-security.org/paper/1646?cap=hcav1646wpiKJfSDAMqqvELsaNCUpNBC
+
+Please note that these are *initial* reviews. In many cases, reviewers
+have not yet had an opportunity to discuss the reviews with each other,
+and so different reviews may provide inconsistent feedback. Reviews may
+therefore change during the discussion phase and before the final
+decision.
+
+Note that participation in any portion of the rebuttal phase is not
+required, it is your choice to respond to the reviews via the text
+rebuttal and/or to upload revised content. Reviewers will make a best
+effort to acknowledge rebuttals and answers to questions, but may not in
+all cases.
+
+Communications are subject to the S&P code of conduct
+(https://www.ieee-security.org/TC/SP2027/codeofconduct.html), and
+violations may result in paper rejection or further sanctions. More
+broadly, please be respectful of your colleagues and their time by
+keeping comments on topic and concise.
+
+Finally, note that at this point you may no longer withdraw your paper.
+As per the CFP, now that you have been provided reviews, the paper will
+be considered under review until the formal notification of acceptance
+or rejection: https://www.ieee-security.org/TC/SP2026/cfpapers.html
+
+Best regards,
+Nicolas Papernot and Michelle Mazurek
+IEEE S&P 2027 PC Co-Chairs
+
+—-------------------------------------------
+Review #1646A
+===========================================================================
+
+Paper Summary
+-------------
+This paper studies the problem of proofs of matrix multiplications in zero-knowledge: the goal is for a prover to convince a verifier that AB = C without revealing the k*k matrices A, B, C (to which it only reveals commitments).
+
+The naive approach is to provide zero-knowledge proofs of equality for each component of the resulting matrix: each of the k^2 components is computed as the sum of k products, and thus requires O(k) arithmetic operations constraints, yielding a total of O(k^3) constraints for the matrix equality.
+A known technique to reduce this cost is Freivald's check: rather than proving AB = C, the prover proves rAB = rC, were r is a random challenge vector of length k. This proves the matrix equality with good probability, and can be done by proving three vector equalities rA = x, xB = z, rC = z: each of these requires O(k^2) products.
+
+O(k^2) is still a high cost when the matrices are very large, and the authors of this paper set to improve on that bound.
+Their main idea is that, rather than proving these equalities of k-sized vectors, the prover will apply a linear code to them, producing n-sized vectors,
+and only prove equality for a fixed number t ≤ n of randomly sampled coordinates of these encoded vectors.
+They show that, if t is chosen adequately with respect to the distance of the linear code, this still guarantees the equalities hold with good probability, while only requiring O(tk) constraints.
+The authors describe their construction for the ZK protocol implementing this core idea, prove its soundness, implement it into a tool called LAMP, and  evaluate its performance compared to other techniques.
+
+Technical Correctness
+---------------------
+1. No Apparent Flaws
+
+Technical Correctness Comments
+------------------------------
+I did not notice any technical flaws when reading the paper, but I found that the proof sketch for the theorem was lacking in details.
+
+Scientific Contribution
+-----------------------
+3. Creates a New Tool to Enable Future Science
+6. Provides a Valuable Step Forward in an Established Field
+
+Scientific Contribution Comments
+--------------------------------
+This paper proposes a new technique for zero-knowledge matrix multiplication verification, implemented into a tool, which is argued to have better complexity than existing ones.
+
+Presentation
+------------
+2. Minor Flaws in Presentation
+
+Presentation Comments
+---------------------
+The paper is rather technical, which I found makes it difficult to read. I believe adding more intuition on some notions earlier would help -- see below.
+
+Comments to Authors
+-------------------
+### Strengths
+
+- The paper introduces a new technique for proving matrix multiplication in zero-knowledge, with much better complexity than Freivald's method.
+
+- The construction for the zero-knowledge protocol is explained in details.
+
+- The approach has been implemented and the files made available.
+
+
+### Weaknesses / remarks
+
+- The paper is very technical, and as a non-expert on matrix multiplication verification, I found it challenging to read. It is natural and expected of course that the paper has technical content, but I believe that a little more intuition and background information could be given early on to make the paper easier to read. Typically, I wasn't really sure at first where the O(k^3) and O(k^2) bounds in the introduction came from, what proximity testing was, or what a linear code with relative distance delta meant. That became clearer later on when reading section 4, but some additional intuition in introduction would have helped I think.
+
+- My main criticism is that the comparison with the state of the art is insufficient in my opinion.
+It is difficult for me to assess the novelty and relevance of the approach proposed: when reading the paper, the ideas of the construction seemed sound, but the comparison with the related work on matrix multiplication verification in section 2 is very succinct, which makes it hard to grasp how different the other techniques really are. In particular, it seems from section 2 that some other approaches have a worse complexity for the prover, but a better one for the verifier compared to LAMP (e.g. KZG in constant verifier time): is the trade-off worth it? A more detailed discussion could help clarify that.
+
+- In addition, the evaluation of the implementation in section 7 only compares LAMP to Freivalds' technique, and not to the other approaches cited in section 2. Why not compare to them ? That could help give a better idea of how much of an improvement LAMP brings to the field.
+
+- The proof sketch for Theorem 6.2 is quite succinct, the ideas it presents seem to make sense, but I find it hard to be sure without a more detailed proof. Do the complete proofs exist? If so I would suggest making them available, e.g. in appendix.
+
+- I was surprised, when reading section 7, to see in Table 2 that the proof size is much lower for Freivalds than for LAMP (196B for all examples?)
+I would have expected Freivalds to produce larger proofs, due to the quadratic number of arithmetic constraints. Is that a typo in the table, or a misunderstanding on my part? In any case, this likely justifies adding a discussion on the size of proofs, which is absent from section 7.
+
+Recommended Decision
+--------------------
+2. Accept with Noteworthy Concerns in Meta Review
+
+Reviewer Confidence
+-------------------
+4. Little Confidence
+
+Should this submission be reviewed by the Research Ethics Committee?
+--------------------------------------------------------------------
+1. No
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+Review #1646B
+===========================================================================
+
+Paper Summary
+-------------
+This paper proposes a protocol to verify that three committed matrices A, B and C respect the relation A = BC without revealing them. Compared to a generic SNARK that uses $\mathcal{O}(k^2)$ constraints (where $k$ is the size of the matrix), the approach of the paper uses only $\mathcal{O}(\lambda k)$ constraints, where $\lambda$ is the security parameter.
+
+To do so, the protocol moves most of the computations out of the SNARK circuit, and checks only a few relation inside the circuits thanks to error-correcting codes and a more expensive (but still manageable) verifying cost.
+
+Technical Correctness
+---------------------
+1. No Apparent Flaws
+
+Technical Correctness Comments
+------------------------------
+I do not see any technical flaw, the approach seems sound.
+
+Scientific Contribution
+-----------------------
+3. Creates a New Tool to Enable Future Science
+6. Provides a Valuable Step Forward in an Established Field
+
+Scientific Contribution Comments
+--------------------------------
+Efficiently verifying matrices multiplication without revealing them is an important task, notably in an AI context where matrices can have a large size. As stated in the related works, there has been many recent work on this topic, and the problem is thus well motivated.
+
+This paper potentially makes significant advances in this regard, since the proposed protocol has a better prover complexity than previous work. However, there is almost no comparison to the existing related works. The paper only benchmarks a naive Freivalds algorithm to compare their work, and there is no data point to compare the efficiency of their approach to the many other existing techniques.
+
+I do have another small reservation about the contribution of the paper. Their protocol proves the multiplication relation for three committed matrices that are encoded in $\mathcal{C}$. This moves the encoding computations out of the SNARK circuit, and help the performances of the algorithm. If we look beyond the matrix multiplication setting, and if in some application we need to directly use the original matrices (and not the encoded ones) in a SNARK circuit, we would need extra steps to "bridge" the encoded matrices to the original ones. This could change the story about the cost of the overall protocol.
+
+Presentation
+------------
+1. No Flaws in Presentation
+
+Presentation Comments
+---------------------
+The paper is well written, I don't have any negative comment on the presentation. However, I do have one small remark. The last paragraph of section 5.3 is about Figure 2 and the offline relation, and should thus be at the beginning of section 5.4.
+
+Comments to Authors
+-------------------
+The paper is well written and enjoyable to read, thank you for your submission. I really like the approach that is taken, there are only two remarks I would like to have answers for (see below).
+
+Recommended Decision
+--------------------
+2. Accept with Noteworthy Concerns in Meta Review
+
+Reviewer Confidence
+-------------------
+3. Fairly Confident
+
+Questions for Text Rebuttal
+---------------------------
+- There is sadly no comparison of the LAMP protocol with the existing literature besides the comparison with the naive Freivalds algorithm. Could you motivate how LAMP is compared with the protocols from the related works and why there is no such comparison?
+
+- If for some application, it was needed to use the original matrices (for which the multiplication relation was verified) in a SNARK circuit, how would that deteriorate the complexity of your protocol? Do you know if there is any application, for example in an AI setting, where that would be the case?
+
+Should this submission be reviewed by the Research Ethics Committee?
+--------------------------------------------------------------------
+1. No
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+Review #1646C
+===========================================================================
+
+Paper Summary
+-------------
+LAMP is a protocol for proving matrix-multiplication statements without paying the usual SNARK arithmetization cost. The starting point is standard: a direct circuit for a k x k product costs O(k^3) constraints, and Freivalds' randomized check brings this to O(k^2) by replacing the product with a vector-matrix check rAB = rC. The paper's observation is that even the O(k^2) figure is an artefact of computing the vector-matrix products inside the circuit rather than just checking them.
+
+The construction moves the arithmetic outside the SNARK. The prover row-wise encodes A, B, C under a linear code, commits to the encoded columns, and only then receives the Freivalds challenge; it computes the intermediate vectors x = rA, y = xB, z = rC, commits to their encoded views, and only then receives t sampled codeword positions. The circuit checks fold equations at those t positions plus an out-of-domain code-consistency check on x, y, z, giving O(tk + E\_code) constraints. Merkle openings and pairing-based CP-Link proofs, both verified outside the circuit, bind the in-circuit witnesses to the pre-challenge commitments. Soundness is proved modularly against backend assumptions, with the interesting term being 4(1-delta)^t from code distance. An implementation in Go/gnark over BN254 is compared against a self-built Freivalds SNARK baseline for k = 2^7...2^13, plus a batching experiment and a GPT-2 layer.
+
+Technical Correctness
+---------------------
+2. Minor Issues
+
+Technical Correctness Comments
+------------------------------
+I work in security and cryptography but not in SNARK arithmetization or code-based proximity testing, so I have not attempted to adjudicate the core soundness argument.  What follows is what I could check from "the outside".
+
+(1) The theorem assumes something the protocol does not appear to check. Theorem 6.2 opens with "Assume that the input root rtABC is fixed before the Freivalds challenge and binds to valid row-wise encodings of fixed matrices A, B, C". The online relation in Figure 1 runs EncCheck on x-hat, y-hat and z-hat, but I do not see any corresponding check that A-hat, B-hat and C-hat are
+valid codewords,  that property is assumed. As a non-specialist, I may simply be missing where it is discharged, but if a malicious prover commits to words that are not encodings of any matrices, I could not convince myself the fold argument still says what the paper wants it to say. This seems worth an explicit sentence either way, and it is sharpened by the fact that Section 2 cites [28], which is a soundness repair of Orion, as "related work" without noting what that
+paper repairs.
+
+(2) The security statement and the implemented system are not the same object. Section 6 proves the public-coin interactive protocol; Remark 3 and Appendix C dispose of the non-interactive version by asserting "the standard random oracle model loss" and calling it "orthogonal". But the evaluated system is non-interactive, and this is a multi-round protocol with challenges drawn at two distinct points. Fiat-Shamir for multi-round protocols is not always routine. I would like at least a paragraph rather than a remark, or an explicit
+statement that the non-interactive security claim is left to future work.
+
+(3) Trusted setup goes undiscussed. Groth16 requires a per-circuit setup and the QALink CRS is generated with trapdoors k_0,...,k_q, a that are "discarded after setup", and depends on q = t and the block length, so a new ceremony per configuration. No setup time appears anywhere in Section 7. For a paper pitched at practice, maybe this deserves  a paragraph.
+
+Scientific Contribution
+-----------------------
+6. Provides a Valuable Step Forward in an Established Field
+
+Scientific Contribution Comments
+--------------------------------
+The framing, "from computing inside the circuit to checking inside the circuit", is clean and memorable, and the combination of Freivalds with code-based proximity testing is intuitive enough that I followed it without background in the area, which is a genuine compliment to the writing.
+
+I am not well placed to judge novelty here. Section 2 tells me that Ligero, Brakedown, Blaze and Orion already do local codeword testing, that zkMatrix and zkMaP already target committed matrix multiplication with better verifier asymptotics than what LAMP achieves, and that zkCNN, zkGPT and zkLLM already specialise sum-check machinery for neural-network layers. None of these appear in any comparison. On the evidence in the paper,  I cannot tell whether LAMP is a meaningful advance over that body of work or a repackaging of known components against a weak baseline, and I would like the specialist reviewers to weigh in.
+
+Presentation
+------------
+3. Major but Fixable Flaws in Presentation
+
+Presentation Comments
+---------------------
+The exposition is genuinely good. Sections 4 and 5 build the construction in a sensible order, the consistency-chain diagram in 4.3 is a nice device, and the three-layer soundness intuition in 4.4 let me follow the argument's shape without the technical background.
+
+The abstract states that "verification stays below 0.01 seconds in the measured range". Table 2 reports 0.06 s at every measured k, the contributions bullet says "stays around 0.06 s", and Section 7.1 says "about 0.06 s".
+
+
+- Abstract says proving time improves by 8.34x; the contributions bullet, the conclusion, and 405.04/48.06 all give 8.43x. Looks like a transposition.
+- The contributions bullet says the GPT-2 proving-time gain is 1.78x; Section 7.4, the conclusion, and 408.69/230.82 all give 1.77x.
+
+Other things worth a pass:
+- The title promises "Linear Verification", but verification is constant-time  (0.06 s) and it is the constraint count that is linear.
+- The abstract says the main relation has O(tk) constraints; the body  consistently says O(tk + E_code). Likewise "E_link(k)" in the abstract versus  "E_link(k,t)" in the body.
+- Table 1 lists "ABC encoding" and "XYZ encoding" as separate prover  components, but Table 3 has no encoding column. The Table 3 columns sum   exactly to the Table 2 totals (e.g. 32.32 + 1.81 + 0.001 + 13.60 + 0.33 =   48.06 at k = 2^12), so encoding is either folded silently into commit time or omitted. Please say which.
+- References [25] and [29] are the same Brakedown paper under two numbers, cited  in Section 2 and Section 3.2 respectively. Worth merging.
+- Index conventions clash: Section 3.1 defines [n] = {0,...,n-1}, but the Pedersen definition sums from i = 1 to n and Appendix D writes  Enc(v) = (p_v(omega_i))_{i=1}^{n}.
+- Typos: "the LAMPprover" (5.5), "[26].In particular" (Section 2), "We report   the cost of the LAMP" and "Let E_Enc(k,n) denote cost of the corresponding  encoding phase" (both 5.5), "an PPT extractor" (Appendix A).
+- No repetition counts, variance, or error bars anywhere, and no memory figures for LAMP even though the baseline's k = 2^13 entry is explained by running out of memory.
+
+Comments to Authors
+-------------------
+Again, I am reviewing this from outside your area.
+
+WHAT I LIKED
+
+The core idea is legible to a non-specialist, which is not easy to achieve. I came away understanding why the O(k^2) barrier is not intrinsic and why encoding plus sampled folds gets underneath it, and I could sanity-check the story against your own numbers: with the gain being roughly a factor k/t, at t = 128 and k = 4096 you would predict about 32x, and you report 30.3x. It is satisfying when a paper's asymptotic claim and its measurements agree that neatly, and the k = 2^7 row where LAMP is slightly *worse* than the baseline is exactly what the model predicts. Reporting that row rather than starting the table at k = 2^8 was the right call and it made me trust the rest of the evaluation more.
+
+WHAT CAN BE IMPROVED
+
+1. There is no real comparison against any of the related work, to my mind
+
+2. The GPT-2 result reads to me as a mixed result presented as a positive one. On Table 5, verification goes from 0.49 s to 6.52 s and proof size from 196 B to 3.34 MB. That is 13x slower verification and a proof roughly 17,000x larger, in exchange for 1.77x on proving time. Section 7.4 does report all of this honestly, which I appreciate, but the abstract, the contributions list and the
+conclusion mention only the 2.30x and 1.77x figures. A 3.3 MB proof is a difficult thing to call succinct, and if verifiable inference is the motivating application then the verifier and the proof are usually what matter. Please see how you can reconcile all these.
+
+3. The "linear" story is about constraints, not about prover time. Your own Table 3 shows ABC commitment generation going 3.09 -> 9.15 -> 32.32 -> 116.78 s across k = 2^10..2^13, roughly 3.6x per doubling, and Table 1 confirms this component is O(3nk) group operations, which with n = 2k is quadratic in k. Total LAMP proving time correspondingly grows 2.0x, 2.1x, 2.3x, 2.4x, 2.9x, 3.1x per doubling, climbing towards the baseline's 4x as commitment cost takes over. So the 8.43x speedup at k = 2^12 will keep growing, but slowly, and will plateau once Pedersen commitments dominate entirely. This does not undermine the work, but it needs more attention.
+
+4. Committed inputs need a story about where the commitment comes from. Everything is proved relative to rtABC. In the verifiable-AI setting you motivate, the verifier's actual question is whether inference used the right model weights ,  so how does it come to trust that rtABC is the right root? This is standard for commit-and-prove and I am not suggesting you solve it, but situating the guarantee would help the reader
+
+Recommended Decision
+--------------------
+3. Weak Reject (Can be Convinced by a Champion)
+
+Reviewer Confidence
+-------------------
+4. Little Confidence
+
+Questions for Text Rebuttal
+---------------------------
+1. COMPARISON WITH RELATED WORK. Section 2 identifies several systems solving the same or an overlapping problem, zkMatrix and zkMaP for committed matrix multiplication, and zkCNN, zkGPT and zkLLM for the neural-network setting, yet Section 7 compares only against a Freivalds baseline you implemented yourself. Please explain how LAMP positions against at least one of these, ideally with numbers, or explain why they are not comparable.
+
+2. VALIDITY OF THE COMMITTED MATRIX ENCODINGS. Theorem 6.2 assumes rtABC "binds
+to valid row-wise encodings" of fixed matrices, and Figure 1 runs EncCheck only on x-hat, y-hat and z-hat. Where, if anywhere, is that assumption discharged for A-hat, B-hat and C-hat, and what happens if a malicious prover commits to words that are not codewords? I raise this tentatively since I may be missing something.
+
+3. THE ABSTRACT AND THE MEASUREMENTS.  Pls see above
+
+Should this submission be reviewed by the Research Ethics Committee?
+--------------------------------------------------------------------
+1. No
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+Review #1646D
+===========================================================================
+
+Paper Summary
+-------------
+This paper shows an efficient SNARK for matrix multiplication. It relies on Freivalds's algorithm to reduce checking matrix multiplication to checking matrix-vector multiplication, and a linear error-correcting code (ECC) to reduce this to a linear number of online checks.
+
+Technical Correctness
+---------------------
+2. Minor Issues
+
+Technical Correctness Comments
+------------------------------
+I must have missed how exactly you prove that committed encodings are valid codewords. (You note multiple times that it must be done; I just missed how.)
+
+Scientific Contribution
+-----------------------
+6. Provides a Valuable Step Forward in an Established Field
+
+Scientific Contribution Comments
+--------------------------------
+May main concern is that the technique seems very related to ECC-based techniques used in Ligero and other recent proof systems. The similarity is mentioned in the last paragraph of Section 2 but then never commented on again. I would have expected the evaluation to compare to what could be achieved with those proof systems, but instead the only comparison is to a naive baseline consisting of proving Freivalds's algorithm using Groth16. That seems like a strawman comparison.
+
+Presentation
+------------
+1. No Flaws in Presentation
+
+Comments to Authors
+-------------------
+I would have expected the evaluation to compare to what could be achieved with more-recent proof systems (especially those that already use linear ECCs), but instead the only comparison is to a naive baseline consisting of proving Freivalds's algorithm using Groth16.
+
+Beyond whatever those experimental results might show, I feel like there is not much new conceptually. And since it only applies to matrix multiplication it may be a bit niche for S&P.
+
+Recommended Decision
+--------------------
+3. Weak Reject (Can be Convinced by a Champion)
+
+Reviewer Confidence
+-------------------
+3. Fairly Confident
+
+Should this submission be reviewed by the Research Ethics Committee?
+--------------------------------------------------------------------
+1. No
+
+
+Comment @A1 by Administrator
+---------------------------------------------------------------------------
+As part of the interactive rebuttal process, the reviewers have converged on the following primary asks:
+- Please provide a more detailed text discussion and comparison with the related work on matrix multiplication verification that is discussed in Section 2
+- Please expand Section 7 and concretely compare the efficiency of the paper's approach to the various other existing techniques/approaches discussed in Section 2
+- If this concrete comparison is not possible for some reason, please explain why and at a minimum provide a table comparing the complexity of the existing approaches to that in the paper
+- In addition, please address the textual concerns from the reviews

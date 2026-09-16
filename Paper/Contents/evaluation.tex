@@ -1,0 +1,324 @@
+\section{Implementation and Evaluation}
+\label{sec:implementation}
+
+We implement \(\protocol\) and evaluate its performance. The implementation follows the construction in Section~\ref{sec:construction}.  We instantiate the CP-SNARK with Groth16, using the commit-and-prove
+interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK
+proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is
+given in Appendix~\ref{app:cplink-instant}.  The implementation is available at
+\rev{\url{https://anonymous.4open.science/r/LAMP-1AFF/}}.
+
+Our evaluation is organized around four questions.  First, does the number of  constraints of \(\protocol\) scale linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second, which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? \\
+
+\noindent\textbf{Experimental setup.}
+We implement both \(\protocol\) and the Freivalds baseline in Go using gnark, with BN254 as the elliptic curve.  
+All experiments were run on a Linux server with an AMD EPYC 7B13 CPU with 32 cores and 256GB of memory.
+\rev{Each experiment was repeated ten times, and we report the average over these runs.}
+We use a Reed--Solomon code of rate \(\rho=1/2\) and set the number of sampled positions to \(t=\revmath{309}\).\
+
+
+
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{revblock}[unbreakable]
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}clrrrr@{}}
+\toprule
+\(\boldsymbol{k}\) & \textbf{System}
+& \multicolumn{1}{c}{\textbf{Constraints}}
+& \multicolumn{1}{c}{\textbf{Prove}}
+& \multicolumn{1}{c}{\textbf{Verify}}
+& \multicolumn{1}{c}{\textbf{Proof}} \\
+\midrule
+\multirow{3}{*}{$2^7$} & \(\protocol\) & 167{,}065 & 1.61\,s & 0.13\,s & 44{,}324\,B \\
+           & Freivalds & 49{,}610 & 0.59\,s & 2\,ms & 196\,B \\
+           & DualMatrix & -- & 3.57\,s & 0.13\,s & 71{,}288\,B \\
+\midrule
+\multirow{3}{*}{$2^8$} & \(\protocol\) & 329{,}378 & 2.90\,s & 0.13\,s & 52{,}196\,B \\
+           & Freivalds & 197{,}194 & 2.02\,s & 2\,ms & 196\,B \\
+           & DualMatrix & -- & 4.81\,s & 0.14\,s & 77{,}140\,B \\
+\midrule
+\multirow{3}{*}{$2^9$} & \(\protocol\) & 655{,}246 & 5.75\,s & 0.13\,s & 65{,}316\,B \\
+           & Freivalds & 788{,}810 & 6.99\,s & 2\,ms & 196\,B \\
+           & DualMatrix & -- & 7.98\,s & 0.15\,s & 82{,}992\,B \\
+\midrule
+\multirow{3}{*}{$2^{10}$} & \(\protocol\) & 1{,}306{,}973 & 12.28\,s & 0.13\,s & 79{,}972\,B \\
+           & Freivalds & 3{,}156{,}298 & 25.91\,s & 1\,ms & 196\,B \\
+           & DualMatrix & -- & 18.54\,s & 0.15\,s & 88{,}844\,B \\
+\midrule
+\multirow{3}{*}{$2^{11}$} & \(\protocol\) & 2{,}609{,}194 & 27.46\,s & 0.13\,s & 96{,}932\,B \\
+           & Freivalds & 12{,}622{,}154 & 102.32\,s & 2\,ms & 196\,B \\
+           & DualMatrix & -- & 57.02\,s & 0.16\,s & 94{,}696\,B \\
+\midrule
+\multirow{3}{*}{$2^{12}$} & \(\protocol\) & 5{,}214{,}878 & 70.73\,s & 0.13\,s & 116{,}004\,B \\
+           & Freivalds & 50{,}495{,}818 & 411.28\,s & 2\,ms & 196\,B \\
+           & DualMatrix & -- & 205.21\,s & 0.17\,s & 100{,}548\,B \\
+\midrule
+\multirow{3}{*}{$2^{13}$} & \(\protocol\) & 10{,}426{,}237 & 195.39\,s & 0.13\,s & 136{,}740\,B \\
+           & Freivalds & -- & -- & -- & -- \\
+           & DualMatrix & -- & 707.43\,s & 0.18\,s & 106{,}400\,B \\
+\bottomrule
+\end{tabular*}
+\end{revblock}
+\vspace{6pt}
+\caption{Performance comparison of \(\protocol\), the Freivalds baseline, and DualMatrix for square matrix multiplication.}
+\label{tab:matmul-comparison}
+\end{table}
+
+
+\subsection[Comparison with Matrix-Multiplication Proof Systems]
+  {\rev{Comparison with Matrix-Multiplication Proof Systems}}
+  \label{sec:eval-matmul-comparison}
+
+  \begin{revblock}
+  We compare \(\protocol\) with existing proof systems for matrix multiplication. 
+  Although zkMatrix and zkMaP are included in the theoretical comparison in Table~\ref{tab:asymptotic_comparison}, 
+  we were unable to identify publicly available implementations that would allow us to reproduce their experiments. 
+  We therefore compare \(\protocol\) against two systems: 
+  a Freivalds-based baseline implemented as an arithmetic circuit using LegoSNARK, and DualMatrix, for which a public implementation is available. 
+  Table~\ref{tab:matmul-comparison} reports the constraint count, proving time, verification time, and proof size of these systems. 
+  For both \(\protocol\) and DualMatrix, proving time includes commitment generation, and proof size includes the corresponding commitment data.
+
+  We report the experimental results starting at \(k=2^7\). 
+  DualMatrix is a specialized matrix-multiplication proof system that does not use an arithmetic circuit; 
+  therefore, an R1CS constraint count is not an applicable metric, and its constraint entries are left unspecified in the table.
+
+
+  For small matrix dimensions, the fixed overhead of
+  \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\) dominates the cost. In
+  particular, at \(k=2^7\) and \(k=2^8\), \(\protocol\) requires more constraints
+  and a longer proving time than the Freivalds baseline. Starting at \(k=2^9\),
+  however, the benefits of \(\protocol\) begin to emerge. For the Freivalds
+  baseline, the number of constraints increases by approximately \(4\times\)
+  whenever the matrix dimension \(k\) doubles. This is because the
+  vector--matrix products performed inside the circuit require
+  \(\mathcal{O}(k^2)\) constraints. Moreover, its proving complexity is
+  approximately \(\mathcal{O}(k^2\log k)\), causing the proving-time gap between
+  the Freivalds baseline and \(\protocol\) to grow with \(k\). At \(k=2^8\), the
+  Freivalds baseline is faster, requiring \(2.02\) seconds compared with
+  \revmath{2.90} seconds for \(\protocol\). Starting at \(k=2^9\), however,
+  \(\protocol\) becomes faster. At \(k=2^{12}\), \(\protocol\) reduces the
+  constraint count from \(50{,}495{,}818\) to \revmath{5{,}214{,}878}, a
+  \(9.68\times\) reduction, and reduces the proving time from \(411.28\) seconds
+  to \revmath{70.73} seconds, yielding a \revmath{5.81\times} speedup.
+
+  The Freivalds baseline cannot complete the experiment at \(k=2^{13}\) because
+  of insufficient memory. In contrast, \(\protocol\) completes the same
+  experiment using approximately \revmath{49.32} GB of memory, with a proving time of
+  \revmath{195.39} seconds. Because the Freivalds baseline uses the constant-size
+  Groth16 proof provided by LegoSNARK, its proof size remains \(196\) B and its
+  verification time remains approximately \(1\)--\(2\) ms, independently of the
+  constraint count. Thus, the Freivalds baseline provides very small proofs and
+  fast verification, but its proving time and memory consumption increase
+  rapidly for large matrices.
+
+  Across the range shared by \(\protocol\) and DualMatrix,
+  \(2^7\leq k\leq2^{13}\), \(\protocol\) achieves a shorter proving time at every
+  measured matrix dimension. At \(k=2^8\), \(\protocol\) requires \revmath{2.90}
+  seconds, whereas DualMatrix requires \(4.81\) seconds, making \(\protocol\)
+  approximately \revmath{1.66\times} faster. The gap increases with the matrix
+  dimension: at \(k=2^{13}\), the respective proving times are \revmath{195.39} seconds
+  and \(707.43\) seconds, giving \(\protocol\) a \revmath{3.62\times} speedup.
+  Verification times are comparable and remain below \(0.2\) seconds for both
+  systems, \rev{with equal reported times at} \revmath{k=2^7}
+  \rev{and lower times for} \(\protocol\) \rev{at the remaining dimensions}.
+
+  Proof size exhibits the opposite trend. From \(k=2^8\) through \(k=2^{10}\),
+  \(\protocol\) produces smaller proofs than DualMatrix. Starting at
+  \(k=2^{11}\), however, the proofs generated by \(\protocol\) become larger.
+  For example, at \(k=2^{13}\), the proof sizes are \revmath{136{,}740} B for
+  \(\protocol\) and \(106{,}400\) B for DualMatrix. These results demonstrate
+  that \(\protocol\) \rev{provides faster proof generation and comparable
+  verification times relative to DualMatrix}, at the cost of larger proofs for sufficiently
+  large matrices.
+  \end{revblock}
+
+
+\begin{table*}[!t]
+\centering
+\begin{revblock}[unbreakable]
+% \scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{c cc ccc ccc ccc ccc}
+\toprule
+&
+\multicolumn{2}{c}{\textbf{Setup}}
+& \multicolumn{3}{c}{\textbf{Commit}}
+& \multicolumn{3}{c}{\textbf{Prove}}
+& \multicolumn{3}{c}{\textbf{Verify}}
+& \multicolumn{3}{c}{\textbf{Proof}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}\cmidrule(lr){10-12}\cmidrule(lr){13-15}
+\multirow{-2}{*}{\(\boldsymbol{k}\)}
+& Groth16 & CP-Link
+& Encode & ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Groth16 & Merkle & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+$2^7$ & 10.06\,s & 0.66\,s & 0.02\,s & 0.07\,s & 0.01\,s & 1\,ms & 1.47\,s & 0.04\,s & 2\,ms & 1\,ms & 0.12\,s & 43{,}904\,B & 292\,B & 128\,B \\
+$2^8$ & 20.06\,s & 1.29\,s & 0.04\,s & 0.21\,s & 0.02\,s & 1\,ms & 2.56\,s & 0.07\,s & 2\,ms & 1\,ms & 0.13\,s & 51{,}776\,B & 292\,B & 128\,B \\
+$2^9$ & 39.83\,s & 2.55\,s & 0.15\,s & 0.73\,s & 0.04\,s & 1\,ms & 4.71\,s & 0.11\,s & 2\,ms & 2\,ms & 0.12\,s & 64{,}896\,B & 292\,B & 128\,B \\
+$2^{10}$ & 80.40\,s & 4.99\,s & 0.49\,s & 2.63\,s & 0.16\,s & 1\,ms & 8.81\,s & 0.19\,s & 2\,ms & 2\,ms & 0.13\,s & 79{,}552\,B & 292\,B & 128\,B \\
+$2^{11}$ & 155.01\,s & 9.89\,s & 1.56\,s & 7.78\,s & 0.52\,s & 1\,ms & 17.15\,s & 0.46\,s & 2\,ms & 3\,ms & 0.12\,s & 96{,}512\,B & 292\,B & 128\,B \\
+$2^{12}$ & 320.11\,s & 19.55\,s & 5.31\,s & 27.13\,s & 3.34\,s & 1\,ms & 34.15\,s & 0.80\,s & 2\,ms & 3\,ms & 0.13\,s & 115{,}584\,B & 292\,B & 128\,B \\
+$2^{13}$ & 638.92\,s & 40.82\,s & 18.54\,s & 99.03\,s & 8.93\,s & 1\,ms & 67.37\,s & 1.52\,s & 2\,ms & 4\,ms & 0.13\,s & 136{,}320\,B & 292\,B & 128\,B \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{revblock}
+\vspace{6pt}
+\caption{Component-level measurements for \(\protocol\).}
+\label{tab:lamp-breakdown}
+\end{table*}
+
+\subsection[LAMP Component Breakdown]
+  {\rev{LAMP Component Breakdown}}
+\label{sec:eval-lamp-breakdown}
+
+\begin{revblock}
+Table~\ref{tab:lamp-breakdown} presents a component-wise breakdown of the
+costs of \(\protocol\) with the code rate set to \(\rho=1/2\). For small
+matrices, Groth16-based proof generation is the dominant cost. As \(k\)
+increases, however, encoding and commitment generation account for a larger
+fraction of the total cost. At \(k=2^7\), encoding and commitment generation
+take \(0.02\) s and \revmath{0.09} s, respectively, whereas generating the Merkle,
+Groth16, and CP-Link proofs takes \revmath{1.51} s in total. In contrast, at
+\(k=2^{13}\), encoding and commitment generation take \revmath{126.49} s in total,
+exceeding the proof-generation cost of \revmath{68.89} s. This result shows that the
+primary bottleneck shifts from proof generation to encoding and commitment
+generation as the matrix dimension increases.
+
+\(\protocol\) requires trusted setup for both Groth16 and CP-Link, with the
+setup cost dominated by Groth16. The Groth16 setup time increases from
+\revmath{10.06} s at \(k=2^7\) to \revmath{638.92} s at \(k=2^{13}\), whereas the CP-Link
+setup time increases from \revmath{0.66} s to \revmath{40.82} s over the same range.
+
+Verification time remains nearly constant as the matrix dimension increases.
+Groth16 and Merkle verification each take only a few milliseconds, while
+CP-Link verification takes approximately \revmath{0.12}\rev{--}\revmath{0.13} s. The Groth16
+and CP-Link proof sizes also remain constant at \revmath{292} B and \(128\) B,
+respectively. Consequently, the total proof size is dominated by the Merkle
+proof, which increases from \revmath{43{,}904} B to \revmath{136{,}320} B over the
+measured range.
+
+Table~\ref{tab:lamp-code-rates} in
+Appendix~\ref{app:lamp-code-rates} presents additional results for
+\(\rho\in\{1/2,1/4,1/8\}\). A higher code rate reduces encoding and commitment
+costs by shortening the codeword, but it also decreases the relative distance
+and therefore requires more queries. Specifically, the required numbers of
+queries for \(\rho=1/8\), \(1/4\), and \(1/2\) are \(t=155\), \(189\), and
+\(309\), respectively. Thus, the code rate determines the trade-off between
+encoding and commitment costs and the generation time and size of the sampled
+proof.
+\end{revblock}
+
+\begin{table*}[!t]
+\centering
+  \ifshowrevisions
+    \rowcolors{1}{yellow!20}{yellow!20}
+  \fi
+% \scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c c ccc ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Claims}}
+& \multirow{2}{*}{\textbf{Constraints}}
+& \multicolumn{3}{c}{\textbf{Commit}}
+& \multicolumn{3}{c}{\textbf{Prove}}
+& \multicolumn{3}{c}{\textbf{Proof}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}
+& & Encode & ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+1  & 167{,}065   & 0.04\,s & 0.07\,s & 0.01\,s & 1\,ms & 1.42\,s  & 0.04\,s & 43{,}776\,B & & \\
+2  & 328{,}126   & 0.04\,s & 0.11\,s & 0.01\,s & 1\,ms & 2.55\,s  & 0.07\,s & 43{,}328\,B & & \\
+3  & 489{,}187   & 0.04\,s & 0.15\,s & 0.01\,s & 1\,ms & 3.60\,s  & 0.10\,s & 43{,}712\,B & & \\
+4  & 650{,}248   & 0.05\,s & 0.20\,s & 0.02\,s & 1\,ms & 4.79\,s  & 0.11\,s & 43{,}648\,B & & \\
+5  & 811{,}309   & 0.05\,s & 0.23\,s & 0.02\,s & 1\,ms & 5.72\,s  & 0.14\,s & 43{,}776\,B & & \\
+6  & 972{,}370   & 0.05\,s & 0.27\,s & 0.02\,s & 1\,ms & 6.66\,s  & 0.18\,s & 43{,}712\,B & & \\
+7  & 1{,}133{,}431 & 0.05\,s & 0.32\,s & 0.02\,s & 1\,ms & 7.83\,s  & 0.17\,s & 43{,}904\,B & & \\
+8  & 1{,}294{,}492 & 0.06\,s & 0.37\,s & 0.02\,s & 1\,ms & 8.69\,s  & 0.18\,s & 44{,}096\,B & & \\
+9  & 1{,}455{,}553 & 0.06\,s & 0.38\,s & 0.02\,s & 1\,ms & 9.81\,s  & 0.23\,s & 43{,}648\,B & & \\
+10 & 1{,}616{,}614 & 0.06\,s & 0.42\,s & 0.03\,s & 1\,ms & 10.72\,s & 0.22\,s & 43{,}712\,B & \multirow{-10}{*}{292\,B} & \multirow{-10}{*}{128\,B} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{Batching \(q\) independent matrix-multiplication claims
+\(\{\mat{A}_i\mat{B}_i=\mat{C}_i\}_{i\in[q]}\) at fixed \(k=2^7\).}
+\label{tab:lamp-batch}
+\end{table*}
+
+\subsection[Batching Matrix-Multiplication Claims]
+  {\rev{Batching Matrix-Multiplication Claims}}
+\label{sec:eval-batch}
+\begin{revblock}
+We evaluate the batching of multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\). 
+At each codeword position, the prover packs the symbols of all claims into a single Pedersen leaf and constructs one shared Merkle tree. 
+Consequently, the number of Merkle membership proofs is independent of the batch size.
+
+Table~\ref{tab:lamp-batch} reports the component costs at \(k=2^7\) and
+\(\rho=1/2\). As the number of claims increases, the constraint count and
+Groth16 proving time grow, while the Merkle proof size remains approximately
+\(44\) KB and verification time remains approximately \(0.13\) s. This is
+because the sampled positions and the shared Merkle openings are independent of
+the number of claims; minor size variations result from shared authentication
+nodes in the multi-opening implementation.
+\end{revblock}
+
+\subsection[GPT-2 Workload]
+  {\rev{GPT-2 Workload}}
+\label{sec:eval-gpt2}
+
+\begin{revblock}
+Table~\ref{tab:lamp-gpt2} reports the results for a GPT-2 layer with sequence
+length \(2^{10}\) and 36 matrix-multiplication claims. In this experiment,
+\(\protocol\) uses \(\rho=1/2\) and \(t=309\). As in
+Section~\ref{sec:eval-matmul-comparison}, proving times include
+encoding and commitment generation, and proof sizes include commitment data.
+For DualMatrix, we configure the inputs of its public implementation to match
+the GPT-2 matrix structures and evaluate the same matrix multiplications.
+
+Compared with the Freivalds baseline, \(\protocol\) reduces the constraint
+count from \(76{,}807{,}671\) to \revmath{62{,}460{,}189} and the proving time from
+\(408.69\) s to \revmath{317.13} s, yielding a \(1.29\times\) speedup. DualMatrix
+requires \(519.97\) s, so \(\protocol\) is \revmath{1.64\times} faster and has the
+shortest proving time among the three systems. In contrast, the
+Freivalds baseline provides the fastest verification and smallest proof, while
+DualMatrix also verifies faster and produces a smaller proof than \(\protocol\).
+
+The relatively large proof size of \(\protocol\) in the GPT-2 experiment stems
+from the different dimensions of the matrices involved in the workload. These
+matrix multiplications require multiple commitment layouts and corresponding
+CP-Link proofs and Merkle membership proofs. These linking and membership
+proofs---dominated in size by the Merkle openings---therefore account for a
+substantial portion of the total proof and are the main source of proof-size
+growth in heterogeneous workloads such as GPT-2.
+\end{revblock}
+
+\begin{table}[H]
+\centering
+\ifshowrevisions
+  \rowcolors{1}{yellow!20}{yellow!20}
+\fi
+% \footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}ccccc@{}}
+\toprule
+\textbf{System} & \textbf{Constraints} & \textbf{Prove} & \textbf{Verify} & \textbf{Proof} \\
+\midrule
+\(\protocol\) & 62{,}460{,}189 & 317.13\,s & 11.58\,s & 5{,}990{,}212\,B \\
+Freivalds & 76{,}807{,}671 & 408.69\,s & 0.49\,s & 196\,B \\
+DualMatrix & -- & 519.97\,s & 5.22\,s & 2{,}934{,}952\,B \\
+\bottomrule
+\end{tabular*}
+\vspace{6pt}
+\caption{GPT-2 at sequence length \(2^{10}\) with 36 matrix-multiplication
+claims.}
+\label{tab:lamp-gpt2}
+\end{table}

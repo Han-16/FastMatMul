@@ -1,0 +1,12 @@
+.DS_Store
+
+# Rebuttal experiment data is part of the reproducibility record.
+
+# Retired top-level source/output trees from the previous repository layout.
+/Contents/
+/output/pdf/
+
+# Local LaTeX editor/build metadata not needed in version control.
+/Paper/*.fdb_latexmk
+/Paper/*.fls
+/Paper/*.synctex.gz

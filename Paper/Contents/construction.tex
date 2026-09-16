@@ -1,0 +1,859 @@
+\section{The LAMP Protocol}
+\label{sec:construction}
+
+Section~\ref{sec:tech-overview} reduced the original matrix-multiplication
+relation to the Freivalds relation and then to sampled encoded checks.  This
+section formalizes the relation checked by \(\protocol\).  The important point is
+that \(\protocol\) is not a single arithmetic-circuit relation: the arithmetic
+checks are proved by an inner CP-SNARK, while Merkle membership and CP-Link are
+verified outside the circuit.
+
+\subsection{The Composite LAMP Relation}
+\label{sec:relation-chain}
+
+Let \(\mat{A},\mat{B},\mat{C}\in\mathbb{F}^{k\times k}\), and let
+\(\mathcal{C}:\mathbb{F}^k\to\mathbb{F}^n\) be a linear code with
+relative distance \(\delta\).  The target matrix-multiplication relation is
+\[
+  \mathcal{R}_{\mathsf{orig}}
+  =
+  \{(\mat{A},\mat{B},\mat{C}) :
+    \mat{A}\mat{B}=\mat{C}\}.
+\]
+The verifier does not receive the original matrices as public input.  Instead, the
+prover commits to row-wise encodings of the matrices and proves that the
+committed objects satisfy the multiplication relation.
+
+The relation checked by \(\protocol\) is the composite relation
+\[
+  \mathcal{R}_{\mathsf{LAMP}}
+  =
+  \mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}
+  \land
+  \mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}} .
+\]
+Here \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{on}}\) is the online relation proved by the CP-SNARK after the Freivalds challenge, query positions, and code-check points are sampled.  The relation \(\mathcal{R}_{\mathsf{LAMP}}^{\mathsf{off}}\) is the offline relation: it captures the values fixed by commitments before the online queries are known, and the verifier checks it through Merkle openings and CP-Link proofs.
+Sections~\ref{sec:snark-relation} and~\ref{sec:openings-and-cplink} define
+these two relations explicitly.
+The circuit checks field equations on sampled encoded values, while the auxiliary verifier checks that those values are the ones bound by the pre-query commitments.
+
+% \subsection{Commitment Layout and Public Challenges}
+% \label{sec:commitment-challenge}
+% The prover first encodes the matrices row-wise:
+% {\footnotesize
+% \(\widehat{\mat{A}}=\enc(\mat{A}),
+%   \widehat{\mat{B}}=\enc(\mat{B}),
+%   \widehat{\mat{C}}=\enc(\mat{C})\).
+% }
+% For each codeword position \(j\in[n]\), it packs the three encoded columns into
+% {\footnotesize
+% \(\vect{m}_{ABC,j}
+%   \coloneqq
+%   \big(
+%     \widehat{\mat{A}}[*,j]\,
+%     \|\,\widehat{\mat{B}}[*,j]\,
+%     \|\,\widehat{\mat{C}}[*,j]
+%   \big)
+%   \in\mathbb{F}^{3k}\).
+% }
+% Using a Pedersen commitment key \(\ck_{ABC}\), the prover samples
+% \(o_{ABC,j}\sample\mathbb{F}\) and computes
+% {\footnotesize
+% \(\cm_{ABC,j}
+%   \gets
+%   \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j})\).
+% }
+% The matrix root is the Merkle commitment to these Pedersen commitments:
+% {\footnotesize
+% \(\rt_{ABC}
+%   \gets
+%   \merkleC((\cm_{ABC,j})_{j\in[n]};\bot)\).
+% }
+% The root \(\rt_{ABC}\) is fixed before the Freivalds challenge is derived.
+% After receiving \(\rt_{ABC}\), the verifier samples \(r\sample\mathbb{F}\). 
+% The prover sets {\footnotesize \(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\)}
+% and computes
+% {\footnotesize
+% \(\vect{x}=\vect{r}\mat{A},
+%   \vect{y}=\vect{x}\mat{B},
+%   \vect{z}=\vect{r}\mat{C}\).
+% }
+% It then encodes the intermediate vectors:
+% {\footnotesize
+% \(\widehat{\vect{x}}=\enc(\vect{x}),
+%   \widehat{\vect{y}}=\enc(\vect{y}),
+%   \widehat{\vect{z}}=\enc(\vect{z})\).
+% }
+% For each \(j\in[n]\), the prover packs the encoded vector symbols into
+% {\footnotesize
+% \(\vect{m}_{XYZ,j}
+%   \coloneqq
+%   \big(
+%     \widehat{\vect{x}}[j]\,
+%     \|\,\widehat{\vect{y}}[j]\,
+%     \|\,\widehat{\vect{z}}[j]
+%   \big)
+%   \in\mathbb{F}^{3}\).
+% }
+% Using a Pedersen commitment key \(\ck_{XYZ}\), the prover samples
+% \(o_{XYZ,j}\sample\mathbb{F}\), computes
+% {\footnotesize
+% \(\cm_{XYZ,j}
+%   \gets
+%   \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j})\),
+% }
+% and sends the vector-symbol root
+% {\footnotesize
+% \(\rt_{XYZ}
+%   \gets
+%   \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot)\)
+% }
+% to the verifier.
+% Only after receiving \(\rt_{XYZ}\) does the verifier sample the query tuple
+% {\footnotesize \(I=(j_1,\ldots,j_t)\sample [n]^t\).}
+% It also samples public code-check points
+% {\footnotesize
+% \(\alpha_x,\alpha_y,\alpha_z\sample\mathbb{F}\setminus D\),
+% }
+% where \(D\) is the
+% code evaluation domain.  These points are used by the circuit to check that
+% {\footnotesize
+% \(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}\)
+% }
+% are encodings of
+% the claimed intermediate vectors.  For the Reed--Solomon code used in our implementation, this check is the barycentric out-of-domain consistency test recalled in Appendix~\ref{app:rs-barycentric}. 
+\subsection{Commitment Layout and Public Challenges}
+\label{sec:commitment-challenge}
+
+The prover first encodes the matrices row-wise:
+{\footnotesize
+\(\widehat{\mat{A}}=\enc(\mat{A}),
+  \widehat{\mat{B}}=\enc(\mat{B}),
+  \widehat{\mat{C}}=\enc(\mat{C})\).
+}
+For each codeword position \(j\in[n]\), it packs the three \(k\)-dimensional
+interleaved symbols, equivalently the three encoded columns, into
+{\footnotesize
+\(\vect{m}_{ABC,j}
+  \coloneqq
+  \big(
+    \widehat{\mat{A}}[*,j]\,
+    \|\,\widehat{\mat{B}}[*,j]\,
+    \|\,\widehat{\mat{C}}[*,j]
+  \big)
+  \in\mathbb{F}^{3k}\).
+}
+Using a Pedersen commitment key \(\ck_{ABC}\), the prover samples
+\(o_{ABC,j}\sample\mathbb{F}\) and computes
+{\footnotesize
+\(\cm_{ABC,j}
+  \gets
+  \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j})\).
+}
+The matrix root is the Merkle commitment to these Pedersen commitments:
+{\footnotesize
+\(\rt_{ABC}
+  \gets
+  \merkleC((\cm_{ABC,j})_{j\in[n]};\bot)\).
+}
+Here and below, \(\bot\) indicates that no additional randomness is used in the
+Merkle tree, since the leaves are Pedersen commitments that already provide
+hiding. The root \(\rt_{ABC}\) is fixed before the Freivalds challenge is
+derived.
+
+After receiving \(\rt_{ABC}\), the verifier samples \(r, \revmath{s}\sample\mathbb{F}\). 
+The prover sets {\footnotesize \(\vect{r}=(1,r,r^2,\ldots,r^{k-1})\), \revmath{\vect{s}=(1,s,\ldots,s^{k-1}),
+}}
+and computes
+{\footnotesize
+\(\vect{x}=\vect{r}\mat{A},
+  \vect{y}=\vect{x}\mat{B},
+  \vect{z}=\vect{r}\mat{C},
+  \revmath{\vect{b}=\vect{s}\mat{B}.}
+  \)
+}
+It then encodes the intermediate vectors:
+{\footnotesize
+\(\widehat{\vect{x}}=\enc(\vect{x}),
+  \widehat{\vect{y}}=\enc(\vect{y}),
+  \widehat{\vect{z}}=\enc(\vect{z}),
+  \revmath{\widehat{\vect{b}}=\enc(\vect{b})}\).
+}
+The encoded intermediate vectors form a \(\revmath{4}\)-fold interleaved codeword.  For
+each \(j\in[n]\), the prover packs its \(j\)-th interleaved symbol into
+{\footnotesize
+\(\vect{m}_{XYZ,j}
+  \coloneqq
+  \big(
+    \widehat{\vect{x}}[j]\,
+    \|\,\widehat{\vect{y}}[j]\,
+    \|\,\widehat{\vect{z}}[j]\,
+    \revmath{\|\,\widehat{\vect{b}}[j]}
+  \big)
+  \in\mathbb{F}^{\revmath{4}}\).
+}
+Using a Pedersen commitment key \(\ck_{XYZ}\), the prover samples
+\(o_{XYZ,j}\sample\mathbb{F}\), computes
+{\footnotesize
+\(\cm_{XYZ,j}
+  \gets
+  \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j})\),
+}
+and sends the vector-symbol root
+{\footnotesize
+\(\rt_{XYZ}
+  \gets
+  \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot)\)
+}
+to the verifier.
+
+\rev{The prover also sends}
+\revmath{\widetilde{\cm}_{\mathsf{int}}\gets
+\bPi_{\cp}.\com(\para,\vect m_{\mathsf{int}};\widetilde o_{\mathsf{int}})}\rev{,
+committing to the complete intermediate witness defined in
+Section~\ref{sec:snark-relation}. The verifier uses this same commitment in
+CP-SNARK verification.}
+
+Only after receiving \(\rt_{XYZ}\) \rev{and} \revmath{\widetilde{\cm}_{\mathsf{int}}} does the verifier sample the query tuple
+{\footnotesize \(I=(j_1,\ldots,j_t)\sample [n]^t\).}
+It also samples public code-check points
+{\footnotesize
+\(\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\sample\mathbb{F}\setminus D\),
+}
+where \(D\) is the
+code evaluation domain. These points are used by the circuit to check that
+{\footnotesize
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}\)
+}
+are encodings of
+the claimed intermediate vectors. For the Reed--Solomon code used in our
+implementation, this check is the barycentric out-of-domain consistency test
+recalled in Appendix~\ref{app:rs-barycentric}.
+
+\subsection{The Online Relation}
+\label{sec:snark-relation}
+The online relation is the arithmetic relation proved inside the
+inner CP-SNARK.  Its role is not to verify Merkle paths or Pedersen openings.
+Instead, it checks only the field equations that certify the sampled encoded
+positions are consistent with the Freivalds reduction.
+
+\begin{figure}[t]
+\begin{tcolorbox}[colback=white, colframe=black]
+\pseudocodeblock[mode=text]{
+$\circ$ $\relation_{\mathsf{LAMP}}^{\mathsf{on}}(\stmt; \wit):$ \\
+    $\qquad$parse \\
+    $\qquad \qquad \stmt =
+      \big(
+        \rt_{ABC},\rt_{XYZ},r, \revmath{s}, I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
+      \big)$ \\
+    $\qquad \qquad \wit=(\comwit,\revmath{\bot})$ \\
+    $\qquad \qquad \comwit =
+      \big(
+        (\vect{m}_{ABC,j})_{j\in I},
+        (\vect{m}_{XYZ,j})_{j\in I}\revmath{,\vect m_{\mathsf{int}}}
+      \big)$ \\
+    $\qquad \qquad \revmath{\vect m_{\mathsf{int}}} =
+      \big(
+        \vect{x},\vect{y},\vect{z},\revmath{\vect{b}},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
+      \big)$ \\[0.5ex]
+    $\qquad \vect{r}\gets(1,r,\ldots,r^{k-1})$ \\[0.5ex]
+    $\qquad \revmath{\vect{s}\gets(1,s,\ldots,s^{k-1})}$ \\[0.5ex]
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{x}},\vect{x};\alpha_x)=1$ \\
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{y}},\vect{y};\alpha_y)=1$ \\
+    $\qquad \mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{z}},\vect{z};\alpha_z)=1$ \\
+    $\qquad \revmath{\mathsf{EncCheck}_{\mathcal{C}}
+      (\widehat{\vect{b}},\vect{b};\alpha_b)=1}$ \\[0.5ex]
+    $\qquad \forall j\in I:$ \\
+    $\qquad \qquad$parse
+      $\vect{m}_{ABC,j}$ as
+      $\big(
+        \widehat{\mat{A}}[*,j]\,
+        \|\,\widehat{\mat{B}}[*,j]\,
+        \|\,\widehat{\mat{C}}[*,j]
+      \big)$ \\
+    $\qquad \qquad$parse
+      $\vect{m}_{XYZ,j}$ as
+      $\big(
+        \widehat{\vect{x}}[j]\,
+        \|\,\widehat{\vect{y}}[j]\,
+        \|\,\widehat{\vect{z}}[j]\,
+        \revmath{\|\,\widehat{\vect{b}}[j]}
+      \big)$ \\[0.5ex]
+    $\qquad \qquad
+      \widehat{\vect{x}}[j]
+      =
+      \fold(\vect{r},\widehat{\mat{A}}[*,j])$ \\
+    $\qquad \qquad
+      \widehat{\vect{y}}[j]
+      =
+      \fold(\vect{x},\widehat{\mat{B}}[*,j])$ \\
+    $\qquad \qquad
+      \widehat{\vect{z}}[j]
+      =
+      \fold(\vect{r},\widehat{\mat{C}}[*,j])$ \\
+    $\qquad \qquad \revmath{
+      \widehat{\vect{b}}[j]
+      =
+      \fold(\vect{s},\widehat{\mat{B}}[*,j])}$ \\
+    $\qquad \vect{y} = \vect{z}$
+}
+\end{tcolorbox}
+\caption{The Online Relation}
+\label{relation:online}
+\end{figure}
+
+The public statement contains the Merkle roots and verifier-sampled
+challenges:
+\[
+\stmt = \big( \rt_{ABC},\rt_{XYZ},r, \revmath{s}, I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}
+  \big).
+\]
+The roots are included in the statement to bind the CP-SNARK proof to the same
+transcript and offline checks; the online field equations themselves do not
+evaluate Merkle paths.
+
+The complete SNARK witness is
+  $\wit=(\comwit,\revmath{\bot})$,
+where the committed part of the witness is
+\[
+\comwit = \big( (\vect{m}_{ABC,j})_{j\in I},(\vect{m}_{XYZ,j})_{j\in I}\revmath{,\vect m_{\mathsf{int}}} \big),
+\]
+\rev{where the committed intermediate witness is}
+  $\revmath{\vect m_{\mathsf{int}}}
+  =
+  \big(
+    \vect{x},\vect{y},\vect{z},\revmath{\vect{b}},
+    \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}
+  \big).$
+The CP-SNARK treats \(\comwit\) as the committed part of the witness.  The
+prover first computes the SNARK-side witness commitments
+\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) using
+\(\bPi_{\cp}.\com\), and then proves the online relation with witness
+\(\wit=(\comwit,\revmath{\bot})\).  These witness commitments are not checked against
+the Merkle roots inside the circuit.  Instead, they are connected to the
+externally committed Merkle leaves by the offline relation in
+Section~\ref{sec:openings-and-cplink}.
+For the CP-Link statements below, let \(\ck_{\cp,T}\) denote the public
+commitment key used by the CP-SNARK witness commitment
+\(\widetilde{\cm}_{T}\), for \(T\in\{ABC,XYZ\}\).
+Write
+  $\mathsf{EncCheck}_{\mathcal{C}}(\widehat{\vect{v}},\vect{v};\alpha)=1$
+when the out-of-domain code-consistency check accepts that
+\(\widehat{\vect{v}}\) is consistent with \(\enc(\vect{v})\) at the public
+point \(\alpha\).  The online relation is defined in
+Figure~\ref{relation:online}.
+
+
+The first \rev{four} checks certify that
+\(\widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}}\) are valid
+encodings of the claimed intermediate vectors
+\(\vect{x},\vect{y},\vect{z}, \revmath{\vect{b}}\).  The remaining checks are local equations on the
+sampled codeword positions.  For each queried position \(j\), the circuit
+unpacks the sampled matrix-column block \(\vect{m}_{ABC,j}\) and the sampled
+vector-symbol block \(\vect{m}_{XYZ,j}\), and then verifies the \rev{four} fold
+relations together with the final equality
+\(\widehat{\vect{y}}=\widehat{\vect{z}}\).
+
+Thus, the online relation only checks arithmetic consistency of the sampled
+values.  It does not by itself guarantee that these sampled values came from
+the pre-query Merkle roots \(\rt_{ABC}\) and \(\rt_{XYZ}\).  That binding is
+provided by the offline relation \rev{in
+Section~\ref{sec:openings-and-cplink}}.
+
+
+
+
+\subsection{The Offline Relation}
+\label{sec:openings-and-cplink}
+
+The offline relation connects the sampled witnesses used by the
+CP-SNARK to the commitments that were fixed before the query positions were
+sampled.  The term ``offline'' indicates that these checks are performed outside the SNARK circuit. In our system, it also reflects that the committed data are fixed before the online sampled checks are carried out.
+
+For each queried position \(j\in I\), the verifier receives Merkle openings for the external Pedersen leaves $\cm_{ABC,j}$ and $\cm_{XYZ,j}$.
+The Merkle openings certify that these leaves are contained in the roots
+\(\rt_{ABC}\) and \(\rt_{XYZ}\), respectively.  In addition, the verifier checks
+CP-Link proofs connecting the CP-SNARK witness commitments
+\(\widetilde{\cm}_{ABC}\) and \(\widetilde{\cm}_{XYZ}\) to the corresponding
+external Pedersen leaves.
+
+The CP-Link relation is interpreted blockwise.  Each block
+\(\vect{m}_{T,j}\) is the serialized interleaved symbol opened at position
+\(j\) for the corresponding committed object \(T\).  For
+\(T\in\{ABC,XYZ\}\), define the ordered sampled message vector
+\[
+  \vect{M}_{T,I}
+  \coloneqq
+  \big(
+    \vect{m}_{T,j_1}
+    \,\|\,
+    \vect{m}_{T,j_2}
+    \,\|\,
+    \cdots
+    \,\|\,
+    \vect{m}_{T,j_t}
+  \big),
+  \;
+  I=(j_1,\ldots,j_t).
+\]
+The SNARK-side witness commitment \(\widetilde{\cm}_{T}\) commits to the
+concatenated sampled witness \(\vect{M}_{T,I}\), while each external Pedersen
+leaf \(\cm_{T,j_\ell}\) commits to the corresponding block
+\(\vect{m}_{T,j_\ell}\).
+
+\begin{revblock}
+For \(T\in\{ABC,XYZ\}\), let \(\ck_{\cp,T}\) denote the public commitment
+key used for the CP-SNARK witness commitment \(\widetilde{\cm}_{T}\), and let
+\(\ck_T\) denote the external Pedersen commitment key used for Merkle leaves
+of type \(T\). Using this notation, Figure~\ref{relation:lamp-off} writes the
+public CP-Link statement compactly as
+\[
+  \stmt_{\mathsf{link}}^T
+  \coloneqq
+  \big(
+    (\ck_{\cp,T},\widetilde{\cm}_{T}),
+    (\ck_T,\cm_{T,j_\ell})_{\ell\in[t]}
+  \big).
+\]
+\end{revblock}
+Therefore, the CP-Link proof for \(T\) proves the existence of openings such that
+  $\widetilde{\cm}_{T}
+  =
+  \bPi_{\cp}.\com(
+    \para,
+    \vect{M}_{T,I};
+    \widetilde{o}_{T}
+  ),$
+and, for every \(\ell\in[t]\),
+  $\cm_{T,j_\ell}
+  =
+  \pedC
+  \big(
+    \ck_T,
+    \vect{m}_{T,j_\ell};
+    o_{T,j_\ell}
+  \big).$
+This blockwise interpretation is important: the CP-Link proof claims that the ordered blocks committed inside the CP-SNARK are exactly the same as the ordered blocks committed by the corresponding external Pedersen leaves.
+
+
+The offline relation is defined in Figure~\ref{relation:lamp-off}.
+
+\begin{figure}[!t]
+\begin{tcolorbox}[colback=white, colframe=black]
+\pseudocodeblock[mode=text]{
+$\circ\;
+\relation_{\mathsf{LAMP}}^{\mathsf{off}}\big($
+    $
+      \rt_{ABC},\rt_{XYZ},I,
+      \widetilde{\cm}_{ABC},\widetilde{\cm}_{XYZ},
+      $ \\
+    $\qquad
+      \pi_{\mathsf{link}}^{ABC},\pi_{\mathsf{link}}^{XYZ},$ \\
+    $\qquad
+      (\cm_{ABC,j},\pi_{\mathsf{mem},j}^{ABC})_{j\in I},
+      (\cm_{XYZ,j},\pi_{\mathsf{mem},j}^{XYZ})_{j\in I}
+    \big):$ \\[0.5ex]
+    $\qquad \forall j\in I:$ \\
+    $\qquad \qquad
+        \merkleV(
+            \rt_{ABC},
+            j,
+            \cm_{ABC,j},
+            \pi_{\mathsf{mem},j}^{ABC}
+        ) = 1$ \\
+    $\qquad \qquad
+        \merkleV(
+            \rt_{XYZ},
+            j,
+            \cm_{XYZ,j},
+            \pi_{\mathsf{mem},j}^{XYZ}
+        ) = 1$ \\[0.5ex]
+    $\qquad
+        \bPi_{\mathsf{link}}.\verify(
+            \para_{\mathsf{link}},
+            \stmt_{\mathsf{link}}^{ABC},
+            \pi_{\mathsf{link}}^{ABC}
+        ) = 1$ \\
+    $\qquad
+        \bPi_{\mathsf{link}}.\verify(
+            \para_{\mathsf{link}},
+            \stmt_{\mathsf{link}}^{XYZ},
+            \pi_{\mathsf{link}}^{XYZ}
+        ) = 1$
+}
+\end{tcolorbox}
+\caption{The Offline Relation}
+\label{relation:lamp-off}
+\end{figure}
+\FloatBarrier
+
+By combining the Merkle membership checks with the CP-Link checks, we obtain the consistency chain described in Section~\ref{sec:overview-commit-link}.
+For each \(T\in\{ABC,XYZ\}\),
+\[
+\begin{array}{c@{\;}c@{\;}c}
+\widetilde{\cm}_{T}
+&
+\overset{\pi_{\mathsf{link}}^{T}}{\longleftrightarrow}
+&
+(\cm_{T,j})_{j\in I}
+\\[0.6ex]
+(\cm_{T,j})_{j\in I}
+&
+\overset{(\pi_{\mathsf{mem},j}^{T})_{j\in I}}{\longleftrightarrow}
+&
+\rt_T
+\end{array}
+\]
+Here \(T=ABC\) uses the packed sampled matrix-column messages
+\((\vect{m}_{ABC,j})_{j\in I}\) and the root \(\rt_{ABC}\), while \(T=XYZ\)
+uses the packed sampled vector-symbol messages
+\((\vect{m}_{XYZ,j})_{j\in I}\) and the root \(\rt_{XYZ}\).
+
+The upper line states that the SNARK-side committed witness and the opened
+external Pedersen leaves contain the same ordered sampled blocks.  The lower
+line states that those external leaves are authenticated under the corresponding
+pre-query Merkle root.  Therefore, once both
+\(\relation_{\mathsf{LAMP}}^{\mathsf{on}}\) and
+\(\relation_{\mathsf{LAMP}}^{\mathsf{off}}\) hold, the verifier knows that the
+arithmetic checks performed inside the CP-SNARK were applied to values already
+bound by \(\rt_{ABC}\) and \(\rt_{XYZ}\).  This separation is what allows the SNARK circuit to avoid in-circuit Pedersen verification and in-circuit Merkle path verification.
+
+% \begin{table}[t]
+% \centering
+% \footnotesize
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabularx}{\columnwidth}{@{}lcc@{}}
+% \toprule
+% \textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+% \midrule
+% ABC encoding
+% & \(E_{\enc}(k,n)\)
+% & -- \\
+
+% ABC commit
+% & \(\mathcal{O}(3nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & -- \\
+
+% Intermediate
+% & \(\mathcal{O}(k^2)\,\mathbb{F}\)
+% & -- \\
+
+% XYZ encoding
+% & \(E_{\enc}(k,n)\)
+% & -- \\
+
+% XYZ commit
+% & \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+% & -- 
+% \\
+% Merkle openings
+% & \(\mathcal{O}(t\log n) \mathbb{H}\)
+% & \(\mathcal{O}(t\log n)\mathbb{H} \) 
+% \\
+% % CP-SNARK
+% % & \(
+% % \mathcal{O}(tk)+E_{\mathsf{code}} +
+% % E_{\mathsf{snark}}^\mathcal{P}
+% % \)
+% % & \(E_{\mathsf{snark}}^\mathcal{V}\) 
+% CP-SNARK
+% & \(\begin{array}{c}
+% \mathcal{O}(tk)+E_{\mathsf{code}}\ \text{constraints}\\
+% E_{\mathsf{snark}}^\mathcal{P}
+% \end{array}\)
+% & \(E_{\mathsf{snark}}^\mathcal{V}\)
+% \\
+% CP-Link
+% & \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+% & \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+% \bottomrule
+% \end{tabularx}
+% \vspace{6pt}
+% \caption{Asymptotic costs for \(\protocol\).}
+% \label{tab:cost-summary}
+% \end{table}
+
+\subsection{Protocol Algorithms and Complexity}
+\label{sec:protocol-complexity}
+Figure~\ref{fig:protocol} presents the public-coin version of
+\(\protocol\).  The protocol can be made non-interactive via the
+Fiat--Shamir transform, by deriving \(r\revmath{, s}\) after \(\rt_{ABC}\) and deriving
+\(I,\alpha_x,\alpha_y,\alpha_z\revmath{, \alpha_b}\) after \(\rt_{XYZ}\)
+\rev{and} \revmath{\widetilde{\cm}_{\mathsf{int}}}.
+
+The proof consists of the CP-SNARK proof, the sampled leaf commitments and
+Merkle openings, and the CP-Link proofs.  The sampled matrix-column blocks and
+vector-symbol blocks are private CP-SNARK witnesses; they are not serialized as
+public proof material.
+The public statement contains the roots
+\(\rt_{ABC},\rt_{XYZ}\) and the verifier-sampled challenges. \\
+
+For every \(T\in\mathcal{T}=\{ABC,XYZ\}\), Figure~\ref{fig:protocol} uses the
+following CP-Link statement and witness:
+\[
+\begin{aligned}
+  \stmt_{\mathsf{link}}^T
+  &\coloneqq
+  \big(
+    (\ck_{\cp,T},\widetilde{\cm}_{T}),
+    (\ck_T,\cm_{T,j})_{j\in I}
+  \big),\\
+  \wit_{\mathsf{link}}^T
+  &\coloneqq
+  \big(
+    (\vect{m}_{T,j})_{j\in I},
+    \widetilde{o}_{T},
+    (o_{T,j})_{j\in I}
+  \big).
+\end{aligned}
+\]
+Thus the CP-Link API is used with the public linking parameters, the commitment
+keys and commitments as the statement, and the sampled messages together with
+their opening randomness as the witness. \\
+
+% \paragraph{Cost model}
+\noindent\textbf{Cost model.}
+We report the cost of \protocol.  The computation of the claimed output matrix \(C=AB\) is outside this cost model.  
+We do count the work performed by the \protocol{} prover after the matrices are available, including encoding, commitment generation, computation of the Freivalds intermediate witnesses, sampled Merkle openings, CP-SNARK proving, and CP-Link proving.
+
+Let \(E_{\enc}(k,n)\) denote the cost of the corresponding encoding phase. 
+Let \(E_{\mathsf{code}}=E_{\mathsf{code}}(k,n)\) denote the constraint cost of the intermediate
+code-consistency checks; for the Reed--Solomon check in
+Appendix~\ref{app:rs-barycentric}, this is \(\mathcal{O}(k+n)\) after
+domain-dependent coefficients are precomputed.
+We write \(\mathbb{G}\) for group operations used by Pedersen commitments,
+\(\mathbb{F}\) for field operations, and \(\mathbb{H}\) for hash evaluations.
+Let \(E_{\mathsf{snark}}^{\mathcal{P}}\) and \(E_{\mathsf{snark}}^{\mathcal{V}}\) denote the CP-SNARK proving and
+verification costs, respectively. Let \(E_{\mathsf{link}}^\mathcal{P}(k,t)\) and \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) denote the prover and verifier costs, respectively, of the selected CP-Link construction.
+For the QALink instantiation in Appendix~\ref{app:cplink-instant}, each of the
+two link statements has \(q=t\) external commitments, so
+\(E_{\mathsf{link}}^\mathcal{V}(k,t)\) includes \(2(t+2)\) Miller-loop inputs,
+batched into one final exponentiation, plus \(\mathcal{O}(t)\) group scalar
+multiplications for batching.
+
+Table~\ref{tab:cost-summary} summarizes the asymptotic costs at the level of the main protocol components. \\
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\columnwidth}{@{}lcc@{}}
+\toprule
+\textbf{Component} & \textbf{Prover} & \textbf{Verifier} \\
+\midrule
+ABC encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+ABC commit
+& \(\mathcal{O}(3nk)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& -- \\
+
+Intermediate
+& \(\mathcal{O}(k^2)\,\mathbb{F}\)
+& -- \\
+
+Intermediate encoding
+& \(E_{\enc}(k,n)\)
+& -- \\
+
+Intermediate commit
+& \(\mathcal{O}(n)\,\mathbb{G}+\mathcal{O}(n)\,\mathbb{H}\)
+& -- 
+\\
+Merkle openings
+& \(\mathcal{O}(t\log n) \mathbb{H}\)
+& \(\mathcal{O}(t\log n)\mathbb{H} \) 
+\\
+% CP-SNARK
+% & \(
+% \mathcal{O}(tk)+E_{\mathsf{code}} +
+% E_{\mathsf{snark}}^\mathcal{P}
+% \)
+% & \(E_{\mathsf{snark}}^\mathcal{V}\) 
+CP-SNARK
+& \(\begin{array}{c}
+\mathcal{O}(tk)+E_{\mathsf{code}}\ \text{constraints}\\
+E_{\mathsf{snark}}^\mathcal{P}
+\end{array}\)
+& \(E_{\mathsf{snark}}^\mathcal{V}\)
+\\
+CP-Link
+& \(E_{\mathsf{link}}^\mathcal{P}(k,t)\)
+& \(E_{\mathsf{link}}^\mathcal{V}(k,t)\) \\
+\bottomrule
+\end{tabularx}
+\vspace{6pt}
+\caption{Asymptotic costs for \(\protocol\).}
+\label{tab:cost-summary}
+\end{table}
+
+
+\noindent\textbf{Prover work.}
+The prover first encodes the three input matrices and commits to the packed
+encoded matrix columns.  The ABC commitment phase consists of \(n\) Pedersen
+commitments to blocks of length \(3k\), followed by a Merkle root over
+the resulting leaves.  After the Freivalds challenge \(r\) is sampled, the
+prover computes the intermediate witnesses
+  $\vect{x}=\vect{r}\mat{A},
+  \vect{y}=\vect{x}\mat{B},
+  \vect{z}=\vect{r}\mat{C},
+  \revmath{\vect{b}=\vect{s}\mat{B}}$
+which costs \(\mathcal{O}(k^2)\) field operations.  This is distinct from the
+excluded native computation of \(C=AB\).  The prover then encodes
+\(\vect{x},\vect{y},\vect{z}\), commits to their encoded symbols, opens the
+sampled Merkle paths, proves the online CP-SNARK relation, and produces the
+CP-Link proofs.
+
+For each queried position \(j\in I\), the CP-SNARK circuit checks \rev{four}
+length-\(k\) fold equations:
+\[
+  \fold(\vect{r},\widehat{\mat{A}}[*,j]),
+  \fold(\vect{x},\widehat{\mat{B}}[*,j]),
+\]
+\[
+\fold(\vect{r},\widehat{\mat{C}}[*,j]),
+  \revmath{\fold(\vect{s},\widehat{\mat{B}}[*,j])}.
+\]
+Thus the sampled arithmetic checks contribute \(\mathcal{O}(tk)\) constraints. 
+
+The intermediate-vector code-consistency checks add
+\(E_{\mathsf{code}}\) constraints. For the fixed-rate
+Reed--Solomon setting used in the experiments, \(n=2k\), so this extra cost is
+linear in \(k\) and the total online relation remains linear in \(k\) for fixed
+\(t\). \\
+
+% \paragraph{Verifier work}
+\noindent\textbf{Verifier work.}
+The verifier does not encode matrices, compute intermediate vectors, or build
+commitment roots.  Its work consists of CP-SNARK verification, verification of
+the sampled Merkle authentication paths, and CP-Link verification.  Therefore,
+% using the notation above, the verifier cost is $E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} + E_{\mathsf{link}}^\mathcal{V}(k,t).$ \\
+using the notation above, the verifier cost is
+$E_{\mathsf{snark}}^\mathcal{V} + \mathcal{O}(t\log n)\mathbb{H} +
+E_{\mathsf{link}}^\mathcal{V}(k,t)$, where the QALink verifier contributes
+\(\mathcal{O}(t)\) pairing terms. \\
+
+% \paragraph{Comparison}
+\noindent\textbf{Comparison.}
+A naive SNARK arithmetization of matrix multiplication costs
+\(\mathcal{O}(k^3)\) constraints, while a Freivalds-based SNARK baseline computes
+the vector-matrix products inside the circuit and costs \(\mathcal{O}(k^2)\) constraints.  
+% \(\protocol\) moves the vector-matrix products to native prover work and checks only sampled encoded-column relations inside the CP-SNARK.  
+% As a result, the main circuit constraint count is \(\mathcal{O}(tk)\).
+\(\protocol\) moves the vector-matrix products to native prover work and checks
+sampled encoded-column relations plus intermediate code-consistency equations
+inside the CP-SNARK.
+As a result, the main circuit constraint count is
+\(\mathcal{O}(tk+E_{\mathsf{code}})\), which is linear in \(k\) for the
+fixed-rate code used in our implementation.
+
+
+\begin{figure*}[p]
+\centering
+\scriptsize
+\begingroup
+\setlength{\fboxsep}{2pt}
+\scalebox{0.88}{%
+\fbox{%
+\procedure[]{\protocol}{%
+    \mathcal{P}(\mat{A},\mat{B},\mat{C}) \< \< \mathcal{V} \\
+    \widehat{\mat{A}},\widehat{\mat{B}},\widehat{\mat{C}} \gets \enc(\mat{A}),\enc(\mat{B}),\enc(\mat{C}) \in \mathbb{F}^{k \times n} \< \< \\
+    \text{for each } j\in[n]: \\ 
+    \quad \vect{m}_{ABC,j} \coloneqq \big( \widehat{\mat{A}}[*,j]\, \|\,\widehat{\mat{B}}[*,j]\, \|\,\widehat{\mat{C}}[*,j] \big) \in\mathbb{F}^{3k} \\
+    \quad o_{ABC,j}\sample\mathbb{F} \\
+    \quad \cm_{ABC,j} \gets \pedC(\ck_{ABC},\vect{m}_{ABC,j};o_{ABC,j}) 
+    \\
+    \rt_{ABC} \gets \merkleC((\cm_{ABC,j})_{j\in[n]};\bot) 
+    \< \sendmessageright*[1.3cm]{\rt_{ABC}} 
+    \\
+    \< \sendmessageleft*[1.3cm]{r\revmath{, s}} \<  r\revmath{, s} \sample \FF 
+    \\
+    \vect{r}\coloneqq(1,r,\ldots,r^{k-1}), 
+    \revmath{\vect{s}\coloneqq(1,s,\ldots,s^{k-1})} \\
+    \vect{x}\gets\vect{r}\mat{A}, \qquad \vect{y}\gets\vect{x}\mat{B}, \qquad \vect{z}\gets\vect{r}\mat{C}, \qquad \revmath{\vect{b}\gets\vect{s}\mat{B}} 
+    \\ \widehat{\vect{x}},\widehat{\vect{y}},\widehat{\vect{z}}, \revmath{\widehat{\vect{b}}} \gets \enc(\vect{x}),\enc(\vect{y}),\enc(\vect{z}), \revmath{\enc(\vect{b})} \\ 
+    \text{for each } j\in[n]: \\ 
+    \quad \vect{m}_{XYZ,j} \coloneqq \big( \widehat{\vect{x}}[j]\, \|\,\widehat{\vect{y}}[j]\, \|\,\widehat{\vect{z}}[j] \revmath{\|\,\widehat{\vect{b}}[j]} \big) \in\mathbb{F}^{\revmath{4}} \\ 
+    \quad o_{XYZ,j}\sample\mathbb{F} \\ 
+    \quad \cm_{XYZ,j} \gets \pedC(\ck_{XYZ},\vect{m}_{XYZ,j};o_{XYZ,j}) \\ 
+    \rt_{XYZ} \gets \merkleC((\cm_{XYZ,j})_{j\in[n]};\bot) \\
+    \revmath{\vect m_{\mathsf{int}}\coloneqq
+      \big(\vect x,\vect y,\vect z,\vect b,
+      \widehat{\vect x},\widehat{\vect y},\widehat{\vect z},\widehat{\vect b}\big)} \\
+    \revmath{\widetilde o_{\mathsf{int}}\sample\mathbb F,\quad
+      \widetilde{\cm}_{\mathsf{int}}\gets
+      \bPi_{\cp}.\com(\para,\vect m_{\mathsf{int}};\widetilde o_{\mathsf{int}})}
+      \< \sendmessageright*[1.3cm]{\rt_{XYZ}\revmath{,\widetilde{\cm}_{\mathsf{int}}}}
+      \< \\
+    \< \< I=(j_1,\ldots,j_t)\sample[n]^t 
+    \\ 
+    \< \sendmessageleft*[1.3cm]{I, \alpha_x, \alpha_y, \alpha_z, \revmath{\alpha_b}} \< \alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\sample\mathbb{F}\setminus D 
+    \\
+    \mathcal{T}\coloneqq(ABC,XYZ) \\
+    \text{For every } T\in\mathcal{T}\text{ and every } j\in I,\\ 
+    \quad \pi_{\mathsf{mem},j}^{T} \gets \merkleO((\cm_{T,\ell})_{\ell\in[n]},j) \\[0.3ex]
+    \stmt \coloneqq
+      \big(\rt_{ABC},\rt_{XYZ},r, \revmath{s}, I,\alpha_x,\alpha_y,\alpha_z, \revmath{\alpha_b}\big) \\
+    \comwit \coloneqq
+      \revmath{\big((\vect{m}_{ABC,j})_{j\in I},(\vect{m}_{XYZ,j})_{j\in I},\vect m_{\mathsf{int}}\big)} \\
+    \wit \coloneqq \big(\comwit,\revmath{\bot}\big) \\
+    \text{For every } T\in\mathcal{T},\\
+    \quad \widetilde{\cm}_{T} \gets
+      \bPi_{\cp}.\com(\para,(\vect{m}_{T,j})_{j\in I};\widetilde{o}_{T}) \\
+    \stmt_{\cp} \gets
+      \big(
+      \stmt,
+      (\widetilde{\cm}_{T})_{T\in\mathcal{T}}\revmath{,\widetilde{\cm}_{\mathsf{int}}}
+      \big) \\
+    \pi_{\cp} \gets \bPi_{\cp}.\prove(\para,\stmt_{\cp},\wit) \\
+    \text{For every } T\in\mathcal{T},\\
+    \quad \pi_{\mathsf{link}}^{T} \gets
+      \bPi_{\mathsf{link}}.\prove(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}^T,
+      \wit_{\mathsf{link}}^T) \\
+    \pi_{\protocol}
+        \coloneqq
+        \big(
+        \pi_{\cp},
+        (\widetilde{\cm}_{T})_{T\in\mathcal{T}},
+        \\
+    \qquad
+        \{(\cm_{T,j},\pi_{\mathsf{mem},j}^{T})\}_{T\in\mathcal{T},j\in I},
+(\pi_{\mathsf{link}}^{T})_{T\in\mathcal{T}}
+        \big)  \< \sendmessageright*[1.3cm]{\pi_\protocol}  \<
+   \text{Parse } \pi_{\protocol} 
+   \\
+    \< \< \stmt_{\cp} \gets \big( \stmt,(\widetilde{\cm}_{T})_{T\in\mathcal{T}}\revmath{,\widetilde{\cm}_{\mathsf{int}}} \big) \\
+    \< \< b_{\cp} \gets \bPi_{\cp}.\verify \big( \para, \stmt_{\cp}, \pi_{\cp}) \\
+    \< \< \text{For every } T\in\mathcal{T}: \\
+    \< \< \qquad \text{For every } j\in I: \\
+    \< \< \qquad \qquad b_{\mathsf{mem},j}^{T} \gets
+      \merkleV( \rt_{T}, j, \cm_{T,j}, \pi_{\mathsf{mem},j}^{T}) \\
+    \< \< \qquad b_{\mathsf{link}}^{T} \gets
+      \bPi_{\mathsf{link}}.\verify \big(
+      \para_{\mathsf{link}},
+      \stmt_{\mathsf{link}}^T,
+      \pi_{\mathsf{link}}^{T}
+      \big) \\
+    \< \< \text{Accept iff }
+      b_{\cp}
+      \land
+      \bigwedge_{T\in\mathcal{T}}
+      \left(
+        b_{\mathsf{link}}^{T}
+        \land
+        \bigwedge_{j\in I} b_{\mathsf{mem},j}^{T}
+      \right)
+}
+}
+}
+\endgroup
+\caption{The \protocol\ protocol}
+\label{fig:protocol}
+\end{figure*}
