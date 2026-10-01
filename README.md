@@ -60,11 +60,24 @@ Each paper folder is an independent copy with its own `main.tex`, `main.pdf`,
   content of `LAMP-1st-revision.pdf`; only timestamps and the document ID
   differed. `Paper_original/` and the submitted revision PDF remain unchanged.
 
-The archival submission PDFs `LAMP.pdf` and `LAMP_diff.pdf`, and duplicate
+The old archival submission PDFs `LAMP.pdf` and `LAMP_diff.pdf`, and duplicate
 benchmark CSV files, were removed from the paper folders. `Paper_original/`
 therefore preserves the original paper content, rather than every file in the
-upstream directory. A new submission diff should be generated against this
-original when the revised paper is selected.
+upstream directory.
+
+`Paper/LAMP_diff.tex` and `Paper/LAMP_diff.pdf` are the new comparison against
+the submitted first revision preserved in `Paper_original/`. Added/revised text
+and inserted or relocated tables are blue; deleted text is gray with
+strikethrough. The relocated Appendix F tables retain their original numerical
+results. The review PDF has 20 pages; the clean manuscript remains 18 pages.
+Regenerate the diff after manuscript changes with:
+
+```bash
+python3 Experiment/generate_revision_diff.py
+```
+
+This uses `latexdiff` and pdfLaTeX/BibTeX via `latexmk`; build logs and input
+hashes are recorded under `Revision/diff-*-20261001.*`.
 
 To compile a version, run these commands from its paper folder:
 

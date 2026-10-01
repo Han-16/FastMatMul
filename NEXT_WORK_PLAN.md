@@ -66,7 +66,7 @@
 | `Revision/archive/zkmap-local-implementation-20261001.tar.gz` | 이전 로컬 zkMaP 구현·테스트 기록 | `Implementation/` 정리 전 42개 파일을 해시 검증 후 보존; 현재 코드 관리 대상은 별도 LAMP-artifact 저장소 |
 | `Revision/` | 리뷰·연락문·수정 계획·참고 논문 | 이전 문서의 작성 상태 표시는 당시 기록으로 취급 |
 
-각 논문 폴더의 진입점은 `main.tex`, 컴파일 결과는 `main.pdf`다. 기존 제출용 `LAMP.pdf`와 `LAMP_diff.pdf`는 로컬 논문 폴더에서 제거했다. 새 제출용 diff는 최종 수정본과 원본으로 다시 생성한다.
+각 논문 폴더의 진입점은 `main.tex`, 컴파일 결과는 `main.pdf`다. 기존 제출용 `LAMP.pdf`와 예전 `LAMP_diff.pdf`는 정리했다. 현재 수정본과 `Paper_original/`의 1차 제출 기준본을 비교한 새 `Paper/LAMP_diff.tex`·`Paper/LAMP_diff.pdf`를 생성했다. 추가·수정과 새로 삽입하거나 부록으로 옮긴 표는 파란색, 삭제는 회색 취소선이다. diff는 20쪽이고 clean 원고는 18쪽이다. 원고 변경 후에는 `python3 Experiment/generate_revision_diff.py`로 다시 생성한다.
 
 ## 3. 지금 우선할 일
 
@@ -100,7 +100,8 @@
 - [ ] `Paper/`의 EPYC 비교 반영본을 공동저자와 확정한다.
 - [x] 비교 표·설명을 추가한 뒤 제출 안내의 허용 분량에 맞는지 페이지 수를 확인한다.
 - [x] 선택한 원고를 pdfLaTeX·BibTeX으로 빌드하고 참조·표·수식·페이지 배치를 확인한다.
-- [ ] 수정 PDF, 원본 대비 새 diff, shepherd response letter를 준비한다.
+- [x] 수정 PDF와 1차 제출본 대비 파란색 diff PDF를 준비하고 표·본문 배치를 확인한다.
+- [ ] shepherd response letter를 준비한다.
 - [ ] 달성한 zkMatrix 비교 범위와 남은 zkMaP 비교를 구분해 설명한다.
 - [ ] 제출 PDF·소스·측정 자료의 버전과 접수 기록을 보존한다.
 
