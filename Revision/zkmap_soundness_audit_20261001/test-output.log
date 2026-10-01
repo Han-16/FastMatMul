@@ -1,0 +1,10 @@
+=== RUN   TestCounterexampleStatementSubstitution
+    counterexample_test.go:61: n=2: C'=AB+E00, VC and challenge changed; replay and decoded replay ACCEPTED; unrelated true witness ACCEPTED
+    counterexample_test.go:61: n=4: C'=AB+E00, VC and challenge changed; replay and decoded replay ACCEPTED; unrelated true witness ACCEPTED
+    counterexample_test.go:61: n=8: C'=AB+E00, VC and challenge changed; replay and decoded replay ACCEPTED; unrelated true witness ACCEPTED
+--- PASS: TestCounterexampleStatementSubstitution (0.09s)
+=== RUN   TestCounterexampleAllInfinityProof
+    counterexample_test.go:85: false matrix-product statement ACCEPTED with all-infinity proof, including decoded 196-byte payload
+--- PASS: TestCounterexampleAllInfinityProof (0.00s)
+PASS
+ok  	command-line-arguments	0.888s

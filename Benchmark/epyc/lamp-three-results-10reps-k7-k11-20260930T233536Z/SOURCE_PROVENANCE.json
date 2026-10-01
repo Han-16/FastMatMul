@@ -1,0 +1,39 @@
+{
+  "destination_repository": "https://github.com/lysias9049/FastMatMul",
+  "replaced_main_commit": "7dafe8bf53af052e92c01c4d4206cb2630b2c9cb",
+  "paper_archive_branch": "archive/paper-before-implementations-20261001",
+  "upstream_repository": "https://github.com/snp-labs/LAMP",
+  "upstream_branch": "comparison/zkmatrix-benchmarks",
+  "upstream_commit": "317b4cba9b1d0da17697a9435ad3539380f6a58c",
+  "zkmap_integration_commit": "c7770b1b08b6a4fcd1f1b85d4dae85fbd5861245",
+  "zkmap_variant": "completeness-roots-v1",
+  "security_certified": false,
+  "copied_implementation_roots": [
+    "benchmark/*.go",
+    "circuit",
+    "cmd",
+    "config",
+    "crypto",
+    "lib",
+    "matrix",
+    "protocol",
+    "scripts"
+  ],
+  "excluded_material": [
+    "paper manuscript and compiled PDFs",
+    "review and rebuttal files",
+    "historical performance outputs",
+    "gnark audit PDFs",
+    "generated binaries"
+  ],
+  "protocol_code_changes_from_upstream": "Only new crypto/zkmap and cmd/zkmap; existing LAMP and zkMatrix Go sources are copied without edits.",
+  "server_or_performance_experiments_executed": false,
+  "validation": {
+    "go_test_short_all": "passed",
+    "python_runner_tests": 22,
+    "native_cmd_build": "passed",
+    "linux_amd64_cmd_build": "passed",
+    "go_files_verified_unchanged": 795,
+    "small_zkmap_single_and_batch_decoded": "passed"
+  }
+}

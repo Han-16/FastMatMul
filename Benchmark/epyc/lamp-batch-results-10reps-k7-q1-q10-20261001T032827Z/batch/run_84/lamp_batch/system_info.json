@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-10-01T04:32:51Z",
+  "hostname": "ubuntu24-vcpu32-vram256-v20260930",
+  "os": "linux",
+  "arch": "amd64",
+  "goVersion": "go1.26.2",
+  "cpuModel": "AMD EPYC 7B13",
+  "logicalCores": 32,
+  "totalMemoryBytes": 270249447424,
+  "totalMemory": "251.69 GiB"
+}

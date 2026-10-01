@@ -1,0 +1,31 @@
+{
+  "server_square_k7_k10_3reps": {
+    "label": "server_square_k7_k10_3reps",
+    "log_k": 7,
+    "log_k_range": [7, 10],
+    "rho": "1/2",
+    "queries": 309,
+    "repetitions": 3,
+    "threads": 32,
+    "timeout_seconds": 86400,
+    "zkmatrix_batch_q": [],
+    "lamp_batch_q": [],
+    "max_matrix_elements": 1048576,
+    "resource_plan": "Sequential LAMP and independent zkMatrix comparison for n=128,256,512,1024; three repetitions per scheme and size, 32 threads. Larger matrices are deferred. Plan mode does not execute benchmarks.",
+    "include_square": true
+  },
+  "server_batch_q1_q10_3reps": {
+    "label": "server_batch_q1_q10_3reps",
+    "log_k": 7,
+    "rho": "1/2",
+    "queries": 309,
+    "repetitions": 3,
+    "threads": 32,
+    "timeout_seconds": 86400,
+    "zkmatrix_batch_q": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "lamp_batch_q": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "max_matrix_elements": 1048576,
+    "resource_plan": "Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; three repetitions per scheme and batch size, 32 threads. Plan mode does not execute benchmarks.",
+    "include_square": false
+  }
+}

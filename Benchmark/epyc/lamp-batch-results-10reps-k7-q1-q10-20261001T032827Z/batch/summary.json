@@ -1,0 +1,2952 @@
+[
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      1,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.6520279734000001,
+      "sample_sd": 0.0036766675611250126,
+      "min": 0.645843488,
+      "median": 0.652416202,
+      "max": 0.656886714
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.009659787,
+      "sample_sd": 0.0004359091634682111,
+      "min": 0.009105275,
+      "median": 0.009679505,
+      "max": 0.010374955
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.003547549,
+        "sample_sd": 0.0001555914095779212,
+        "min": 0.003415382,
+        "median": 0.003482947,
+        "max": 0.003818022
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.0220006189,
+        "sample_sd": 0.00036610736869953895,
+        "min": 0.021538872,
+        "median": 0.021968102,
+        "max": 0.022531552
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.6300273545,
+        "sample_sd": 0.003818663843423911,
+        "min": 0.623311936,
+        "median": 0.6306997649999999,
+        "max": 0.634844512
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.6520279734000001,
+        "sample_sd": 0.0036766675611250126,
+        "min": 0.645843488,
+        "median": 0.652416202,
+        "max": 0.656886714
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.009659787,
+        "sample_sd": 0.0004359091634682111,
+        "min": 0.009105275,
+        "median": 0.009679505,
+        "max": 0.010374955
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.115953872,
+      "sample_sd": null,
+      "min": 0.115953872,
+      "median": 0.115953872,
+      "max": 0.115953872
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 112,
+      "sample_sd": 0.0,
+      "min": 112,
+      "median": 112.0,
+      "max": 112
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 4100,
+      "sample_sd": 0.0,
+      "min": 4100,
+      "median": 4100.0,
+      "max": 4100
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      2,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.701986008,
+      "sample_sd": 0.0035121610640466263,
+      "min": 0.694725905,
+      "median": 0.7019098484999999,
+      "max": 0.707752902
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.011756132,
+      "sample_sd": 0.0005038714204086859,
+      "min": 0.011050136,
+      "median": 0.011867501,
+      "max": 0.012728287
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0074683427,
+        "sample_sd": 0.000553171136286663,
+        "min": 0.006891873,
+        "median": 0.007171853,
+        "max": 0.008243834
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.0434094435,
+        "sample_sd": 0.0009122125490810486,
+        "min": 0.042380552,
+        "median": 0.043339624,
+        "max": 0.045554865
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.6585765645,
+        "sample_sd": 0.003962861662384439,
+        "min": 0.651060561,
+        "median": 0.6587658905,
+        "max": 0.6651315689999999
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.701986008,
+        "sample_sd": 0.0035121610640466263,
+        "min": 0.694725905,
+        "median": 0.7019098484999999,
+        "max": 0.707752902
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.011756132,
+        "sample_sd": 0.0005038714204086859,
+        "min": 0.011050136,
+        "median": 0.011867501,
+        "max": 0.012728287
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.116524423,
+      "sample_sd": null,
+      "min": 0.116524423,
+      "median": 0.116524423,
+      "max": 0.116524423
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 224,
+      "sample_sd": 0.0,
+      "min": 224,
+      "median": 224.0,
+      "max": 224
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 4936,
+      "sample_sd": 0.0,
+      "min": 4936,
+      "median": 4936.0,
+      "max": 4936
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      3,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.7462784244,
+      "sample_sd": 0.003463387449076436,
+      "min": 0.738448018,
+      "median": 0.745969667,
+      "max": 0.751126125
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.014015788500000001,
+      "sample_sd": 0.00034968174266236554,
+      "min": 0.013518448,
+      "median": 0.013935602,
+      "max": 0.014573578
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0112500773,
+        "sample_sd": 0.0009302493910577663,
+        "min": 0.010306446,
+        "median": 0.0110467655,
+        "max": 0.013003047
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.0644874226,
+        "sample_sd": 0.0015924016754962876,
+        "min": 0.063470284,
+        "median": 0.063995469,
+        "max": 0.068840406
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.6817910018,
+        "sample_sd": 0.0040303037103330275,
+        "min": 0.674592054,
+        "median": 0.6819061225,
+        "max": 0.687655841
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.7462784244,
+        "sample_sd": 0.003463387449076436,
+        "min": 0.738448018,
+        "median": 0.745969667,
+        "max": 0.751126125
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.014015788500000001,
+        "sample_sd": 0.00034968174266236554,
+        "min": 0.013518448,
+        "median": 0.013935602,
+        "max": 0.014573578
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.115846282,
+      "sample_sd": null,
+      "min": 0.115846282,
+      "median": 0.115846282,
+      "max": 0.115846282
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 336,
+      "sample_sd": 0.0,
+      "min": 336,
+      "median": 336.0,
+      "max": 336
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 5772,
+      "sample_sd": 0.0,
+      "min": 5772,
+      "median": 5772.0,
+      "max": 5772
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      4,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.798321862,
+      "sample_sd": 0.003174781465857492,
+      "min": 0.795070489,
+      "median": 0.7969131945000001,
+      "max": 0.804346945
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.0160970017,
+      "sample_sd": 0.0004491103689604471,
+      "min": 0.015462108,
+      "median": 0.016024549,
+      "max": 0.016918919
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0145409739,
+        "sample_sd": 0.000862202330299236,
+        "min": 0.013565168,
+        "median": 0.0142608565,
+        "max": 0.016415039
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.0862577697,
+        "sample_sd": 0.0008480896960040448,
+        "min": 0.085036396,
+        "median": 0.086200337,
+        "max": 0.087770696
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.7120640923,
+        "sample_sd": 0.0033310263051670743,
+        "min": 0.708370962,
+        "median": 0.7106731485,
+        "max": 0.718627757
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.798321862,
+        "sample_sd": 0.003174781465857492,
+        "min": 0.795070489,
+        "median": 0.7969131945000001,
+        "max": 0.804346945
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.0160970017,
+        "sample_sd": 0.0004491103689604471,
+        "min": 0.015462108,
+        "median": 0.016024549,
+        "max": 0.016918919
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.116387802,
+      "sample_sd": null,
+      "min": 0.116387802,
+      "median": 0.116387802,
+      "max": 0.116387802
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 448,
+      "sample_sd": 0.0,
+      "min": 448,
+      "median": 448.0,
+      "max": 448
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 6608,
+      "sample_sd": 0.0,
+      "min": 6608,
+      "median": 6608.0,
+      "max": 6608
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      5,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.8462702707,
+      "sample_sd": 0.002706917890359258,
+      "min": 0.841267662,
+      "median": 0.8473922865,
+      "max": 0.849719817
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.018453133,
+      "sample_sd": 0.00038231683393779843,
+      "min": 0.01791017,
+      "median": 0.018508894999999997,
+      "max": 0.01899875
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0189974681,
+        "sample_sd": 0.0007776080131567934,
+        "min": 0.01758173,
+        "median": 0.01911182,
+        "max": 0.020104039
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1060372114,
+        "sample_sd": 0.00114543551776443,
+        "min": 0.104812475,
+        "median": 0.106096936,
+        "max": 0.108495087
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.7402330593,
+        "sample_sd": 0.002633599974838757,
+        "min": 0.7361986570000001,
+        "median": 0.7413449400000001,
+        "max": 0.743256691
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.8462702707,
+        "sample_sd": 0.002706917890359258,
+        "min": 0.841267662,
+        "median": 0.8473922865,
+        "max": 0.849719817
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.018453133,
+        "sample_sd": 0.00038231683393779843,
+        "min": 0.01791017,
+        "median": 0.018508894999999997,
+        "max": 0.01899875
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.115758533,
+      "sample_sd": null,
+      "min": 0.115758533,
+      "median": 0.115758533,
+      "max": 0.115758533
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 560,
+      "sample_sd": 0.0,
+      "min": 560,
+      "median": 560.0,
+      "max": 560
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 7444,
+      "sample_sd": 0.0,
+      "min": 7444,
+      "median": 7444.0,
+      "max": 7444
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      6,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.8955884808,
+      "sample_sd": 0.004207534033838436,
+      "min": 0.88909146,
+      "median": 0.8961368030000001,
+      "max": 0.901510416
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.0204312081,
+      "sample_sd": 0.0003545594101098335,
+      "min": 0.019831681,
+      "median": 0.020468031499999997,
+      "max": 0.020903771
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0221248728,
+        "sample_sd": 0.0009987136866043468,
+        "min": 0.020444452,
+        "median": 0.022170127,
+        "max": 0.023436182
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.12764955249999999,
+        "sample_sd": 0.001178515896375631,
+        "min": 0.125656408,
+        "median": 0.127732933,
+        "max": 0.129348229
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.7679389283,
+        "sample_sd": 0.0040561954739917186,
+        "min": 0.763292372,
+        "median": 0.767890119,
+        "max": 0.774075947
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.8955884808,
+        "sample_sd": 0.004207534033838436,
+        "min": 0.88909146,
+        "median": 0.8961368030000001,
+        "max": 0.901510416
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.0204312081,
+        "sample_sd": 0.0003545594101098335,
+        "min": 0.019831681,
+        "median": 0.020468031499999997,
+        "max": 0.020903771
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.116154302,
+      "sample_sd": null,
+      "min": 0.116154302,
+      "median": 0.116154302,
+      "max": 0.116154302
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 672,
+      "sample_sd": 0.0,
+      "min": 672,
+      "median": 672.0,
+      "max": 672
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 8280,
+      "sample_sd": 0.0,
+      "min": 8280,
+      "median": 8280.0,
+      "max": 8280
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      7,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.9438743741,
+      "sample_sd": 0.004334797232440815,
+      "min": 0.936880534,
+      "median": 0.94363399,
+      "max": 0.952548283
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.0231473493,
+      "sample_sd": 0.0004782158277563364,
+      "min": 0.022383892,
+      "median": 0.023059402,
+      "max": 0.024003323
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0259962616,
+        "sample_sd": 0.000976818700569945,
+        "min": 0.024847974,
+        "median": 0.0258653485,
+        "max": 0.028045695
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1488021431,
+        "sample_sd": 0.0020922766516606552,
+        "min": 0.147457149,
+        "median": 0.14816017,
+        "max": 0.154427432
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.795072231,
+        "sample_sd": 0.0031714648387098196,
+        "min": 0.789415666,
+        "median": 0.795385649,
+        "max": 0.799633482
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.9438743741,
+        "sample_sd": 0.004334797232440815,
+        "min": 0.936880534,
+        "median": 0.94363399,
+        "max": 0.952548283
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.0231473493,
+        "sample_sd": 0.0004782158277563364,
+        "min": 0.022383892,
+        "median": 0.023059402,
+        "max": 0.024003323
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.116108023,
+      "sample_sd": null,
+      "min": 0.116108023,
+      "median": 0.116108023,
+      "max": 0.116108023
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 784,
+      "sample_sd": 0.0,
+      "min": 784,
+      "median": 784.0,
+      "max": 784
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 9116,
+      "sample_sd": 0.0,
+      "min": 9116,
+      "median": 9116.0,
+      "max": 9116
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      8,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 0.9923757421,
+      "sample_sd": 0.004390285862441903,
+      "min": 0.984590218,
+      "median": 0.991933229,
+      "max": 0.99716738
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.024569016200000002,
+      "sample_sd": 0.0009776281198902667,
+      "min": 0.023039322,
+      "median": 0.0246915285,
+      "max": 0.025737314
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.028881429,
+        "sample_sd": 0.0007283530381956882,
+        "min": 0.027919337,
+        "median": 0.028729215500000002,
+        "max": 0.030094806
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1694580042,
+        "sample_sd": 0.0009015466478399828,
+        "min": 0.168540074,
+        "median": 0.16929135550000002,
+        "max": 0.17136228
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.8229177379,
+        "sample_sd": 0.004228167690920298,
+        "min": 0.81548279,
+        "median": 0.821828678,
+        "max": 0.827692097
+      },
+      "prove": {
+        "n": 10,
+        "mean": 0.9923757421,
+        "sample_sd": 0.004390285862441903,
+        "min": 0.984590218,
+        "median": 0.991933229,
+        "max": 0.99716738
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.024569016200000002,
+        "sample_sd": 0.0009776281198902667,
+        "min": 0.023039322,
+        "median": 0.0246915285,
+        "max": 0.025737314
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.115587012,
+      "sample_sd": null,
+      "min": 0.115587012,
+      "median": 0.115587012,
+      "max": 0.115587012
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 896,
+      "sample_sd": 0.0,
+      "min": 896,
+      "median": 896.0,
+      "max": 896
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 9952,
+      "sample_sd": 0.0,
+      "min": 9952,
+      "median": 9952.0,
+      "max": 9952
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      9,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 1.0389819914,
+      "sample_sd": 0.003465549935092055,
+      "min": 1.033047424,
+      "median": 1.038743067,
+      "max": 1.043925756
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.0271641144,
+      "sample_sd": 0.00036603646376107254,
+      "min": 0.026475647,
+      "median": 0.027169890000000002,
+      "max": 0.027707144
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0323881277,
+        "sample_sd": 0.0007828543813825063,
+        "min": 0.031326826,
+        "median": 0.032489824,
+        "max": 0.033781082
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1902056959,
+        "sample_sd": 0.001880651366459945,
+        "min": 0.187745893,
+        "median": 0.1897826935,
+        "max": 0.19387234
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.8487762955,
+        "sample_sd": 0.0029234129507739346,
+        "min": 0.843737685,
+        "median": 0.8491462635,
+        "max": 0.8527618669999999
+      },
+      "prove": {
+        "n": 10,
+        "mean": 1.0389819914,
+        "sample_sd": 0.003465549935092055,
+        "min": 1.033047424,
+        "median": 1.038743067,
+        "max": 1.043925756
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.0271641144,
+        "sample_sd": 0.00036603646376107254,
+        "min": 0.026475647,
+        "median": 0.027169890000000002,
+        "max": 0.027707144
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.123541207,
+      "sample_sd": null,
+      "min": 0.123541207,
+      "median": 0.123541207,
+      "max": 0.123541207
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 1008,
+      "sample_sd": 0.0,
+      "min": 1008,
+      "median": 1008.0,
+      "max": 1008
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 10788,
+      "sample_sd": 0.0,
+      "min": 10788,
+      "median": 10788.0,
+      "max": 10788
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "independent_zkmatrix_optimized_bn254",
+      "independent_zkmatrix_optimized_bn254_accelerated",
+      "square",
+      "{\"inner\": 128, \"m\": 128, \"n\": 128}",
+      10,
+      0,
+      "deterministic_pseudorandom_field_matrices",
+      "independent_zkmatrix_implementation",
+      "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate",
+      "zkMatrix canonical serialized statement codec bytes, including codec framing",
+      "commit-inclusive online prove; setup shared once, matmul excluded",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"gomaxprocs\": 32, \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": 32, \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "6dd16ad7f7952947fc2d27387f2a8f68eb1aabc7aebe58b70808e98944296353",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 1.0879478043,
+      "sample_sd": 0.006982137546147892,
+      "min": 1.081063556,
+      "median": 1.0866932870000001,
+      "max": 1.102850915
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.028846437,
+      "sample_sd": 0.000965466545131995,
+      "min": 0.027048815,
+      "median": 0.0289958965,
+      "max": 0.030192469
+    },
+    "timings_seconds": {
+      "matmul": {
+        "n": 10,
+        "mean": 0.0361863113,
+        "sample_sd": 0.0010891636672817715,
+        "min": 0.03478834,
+        "median": 0.0360773915,
+        "max": 0.038013476
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.2115665403,
+        "sample_sd": 0.0024726259613869804,
+        "min": 0.209116112,
+        "median": 0.21078193699999997,
+        "max": 0.216868876
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 0.876381264,
+        "sample_sd": 0.004871107259109334,
+        "min": 0.8706009499999999,
+        "median": 0.8754607759999999,
+        "max": 0.8859820390000002
+      },
+      "prove": {
+        "n": 10,
+        "mean": 1.0879478043,
+        "sample_sd": 0.006982137546147892,
+        "min": 1.081063556,
+        "median": 1.0866932870000001,
+        "max": 1.102850915
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.028846437,
+        "sample_sd": 0.000965466545131995,
+        "min": 0.027048815,
+        "median": 0.0289958965,
+        "max": 0.030192469
+      }
+    },
+    "setup_seconds_shared_once": {
+      "n": 1,
+      "mean": 0.115810117,
+      "sample_sd": null,
+      "min": 0.115810117,
+      "median": 0.115810117,
+      "max": 0.115810117
+    },
+    "shared_setup_invocations": 1,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 1120,
+      "sample_sd": 0.0,
+      "min": 1120,
+      "median": 1120.0,
+      "max": 1120
+    },
+    "distinct_query_count": null,
+    "original_reported_proof_bytes": null,
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 11624,
+      "sample_sd": 0.0,
+      "min": 11624,
+      "median": 11624.0,
+      "max": 11624
+    },
+    "proof_size_accounting": "zkMatrix canonical serialized proof bytes, including codec framing; statement/commitment bytes separate"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      1,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 1.6586009692000003,
+      "sample_sd": 0.027317610320061064,
+      "min": 1.6134441820000003,
+      "median": 1.6623211945000005,
+      "max": 1.699241207
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1298766421,
+      "sample_sd": 0.0011251009335667495,
+      "min": 0.128469086,
+      "median": 0.1297545485,
+      "max": 0.131763078
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 0.4799003826,
+        "sample_sd": 0.011976519725933102,
+        "min": 0.461862267,
+        "median": 0.479372866,
+        "max": 0.497791644
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 1.6586009692000003,
+        "sample_sd": 0.027317610320061064,
+        "min": 1.6134441820000003,
+        "median": 1.6623211945000005,
+        "max": 1.699241207
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1073090828,
+        "sample_sd": 0.0017218093865742775,
+        "min": 0.105278688,
+        "median": 0.106885732,
+        "max": 0.110058545
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.07046687880000001,
+        "sample_sd": 0.0012064076512433059,
+        "min": 0.06885961100000002,
+        "median": 0.0702570235,
+        "max": 0.07238081399999999
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.003838025,
+        "sample_sd": 0.00025495034943777666,
+        "min": 0.00361915,
+        "median": 0.0037300505,
+        "max": 0.004409466
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.036933595,
+        "sample_sd": 0.0010702303899080175,
+        "min": 0.035071272,
+        "median": 0.036620931999999995,
+        "max": 0.038417822
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.10740047380000001,
+        "sample_sd": 0.0017232401313031591,
+        "min": 0.105369048,
+        "median": 0.10697680700000001,
+        "max": 0.110153435
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.12073143260000001,
+        "sample_sd": 0.0018362932998224203,
+        "min": 0.118112709,
+        "median": 0.12093012450000001,
+        "max": 0.12280676600000001
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 1.6224566935,
+        "sample_sd": 0.027357332778816815,
+        "min": 1.578989416,
+        "median": 1.6265763445,
+        "max": 1.661793234
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 1.5512918864000003,
+        "sample_sd": 0.028019147051059397,
+        "min": 1.5050408190000002,
+        "median": 1.5533567975000007,
+        "max": 1.5932260790000001
+      },
+      "prove": {
+        "n": 10,
+        "mean": 1.6586009692000003,
+        "sample_sd": 0.027317610320061064,
+        "min": 1.6134441820000003,
+        "median": 1.6623211945000005,
+        "max": 1.699241207
+      },
+      "setup": {
+        "n": 10,
+        "mean": 10.822005578799999,
+        "sample_sd": 0.09808745442219831,
+        "min": 10.661551618999999,
+        "median": 10.83090701,
+        "max": 10.975663950000001
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0133309588,
+        "sample_sd": 0.001612401231070246,
+        "min": 0.010592439,
+        "median": 0.0133909935,
+        "max": 0.016640207
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1298766421,
+        "sample_sd": 0.0011251009335667495,
+        "min": 0.128469086,
+        "median": 0.1297545485,
+        "max": 0.131763078
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 178,
+      "sample_sd": 4.521553322083512,
+      "min": 169,
+      "median": 178.5,
+      "max": 186
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44093.6,
+      "sample_sd": 263.3608424449871,
+      "min": 43748,
+      "median": 44068.0,
+      "max": 44708
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24281.6,
+      "sample_sd": 263.3608424449871,
+      "min": 23936,
+      "median": 24256.0,
+      "max": 24896
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      2,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 2.8885462572000007,
+      "sample_sd": 0.03600338527116014,
+      "min": 2.852262593999999,
+      "median": 2.8774692870000003,
+      "max": 2.9715103210000002
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1291621945,
+      "sample_sd": 0.0005557785837686032,
+      "min": 0.128338402,
+      "median": 0.12917644849999999,
+      "max": 0.130002107
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 0.9139573427000001,
+        "sample_sd": 0.02832142429305348,
+        "min": 0.880640989,
+        "median": 0.9081359315,
+        "max": 0.953346102
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 2.8885462572000007,
+        "sample_sd": 0.03600338527116014,
+        "min": 2.852262593999999,
+        "median": 2.8774692870000003,
+        "max": 2.9715103210000002
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1522553226,
+        "sample_sd": 0.007690612685553892,
+        "min": 0.145728947,
+        "median": 0.149362577,
+        "max": 0.168775619
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.1139381969,
+        "sample_sd": 0.006885073627669511,
+        "min": 0.10970366499999999,
+        "median": 0.1109442605,
+        "max": 0.12891062400000003
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.007811564,
+        "sample_sd": 0.00010899135419533664,
+        "min": 0.007598769,
+        "median": 0.007821895,
+        "max": 0.007971679
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0384123247,
+        "sample_sd": 0.001275454139354036,
+        "min": 0.036119682,
+        "median": 0.038712631,
+        "max": 0.039967245
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.1523505216,
+        "sample_sd": 0.007693926274390909,
+        "min": 0.145823347,
+        "median": 0.149459542,
+        "max": 0.168877869
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.1653031248,
+        "sample_sd": 0.00796917463490112,
+        "min": 0.157813828,
+        "median": 0.162341186,
+        "max": 0.18214593800000003
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 2.8191266627,
+        "sample_sd": 0.036518240654501995,
+        "min": 2.781627113,
+        "median": 2.8079924565,
+        "max": 2.90236108
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 2.736290934600001,
+        "sample_sd": 0.037488399361900515,
+        "min": 2.701812832999999,
+        "median": 2.7232459400000026,
+        "max": 2.822152308
+      },
+      "prove": {
+        "n": 10,
+        "mean": 2.8885462572000007,
+        "sample_sd": 0.03600338527116014,
+        "min": 2.852262593999999,
+        "median": 2.8774692870000003,
+        "max": 2.9715103210000002
+      },
+      "setup": {
+        "n": 10,
+        "mean": 21.3868655414,
+        "sample_sd": 0.27347404010305043,
+        "min": 20.749468843,
+        "median": 21.4631022,
+        "max": 21.64934563
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.012952603200000001,
+        "sample_sd": 0.001376420123029448,
+        "min": 0.01116319,
+        "median": 0.012812,
+        "max": 0.01556118
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1291621945,
+        "sample_sd": 0.0005557785837686032,
+        "min": 0.128338402,
+        "median": 0.12917644849999999,
+        "max": 0.130002107
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 179.1,
+      "sample_sd": 5.7629082164399525,
+      "min": 170,
+      "median": 180.5,
+      "max": 187
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44189.6,
+      "sample_sd": 409.7444189844309,
+      "min": 43620,
+      "median": 44068.0,
+      "max": 44900
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24377.6,
+      "sample_sd": 409.7444189844309,
+      "min": 23808,
+      "median": 24256.0,
+      "max": 25088
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      3,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 3.951482695500001,
+      "sample_sd": 0.02019872456494433,
+      "min": 3.9196636460000036,
+      "median": 3.9476012975000003,
+      "max": 3.989959136000003
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1293595819,
+      "sample_sd": 0.00151304873437268,
+      "min": 0.127864513,
+      "median": 0.12884945450000002,
+      "max": 0.13272875
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 1.3804913510999999,
+        "sample_sd": 0.03165512163000009,
+        "min": 1.3198600759999999,
+        "median": 1.3853218655,
+        "max": 1.432088919
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 3.951482695500001,
+        "sample_sd": 0.02019872456494433,
+        "min": 3.9196636460000036,
+        "median": 3.9476012975000003,
+        "max": 3.989959136000003
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.1932214098,
+        "sample_sd": 0.0014421863670795708,
+        "min": 0.19081206,
+        "median": 0.19317657,
+        "max": 0.195123682
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.15119020760000002,
+        "sample_sd": 0.0007934395826434291,
+        "min": 0.150042556,
+        "median": 0.15103594599999998,
+        "max": 0.152738779
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0114804432,
+        "sample_sd": 0.00011515695929739642,
+        "min": 0.0113389,
+        "median": 0.011474172500000001,
+        "max": 0.01171642
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0421238502,
+        "sample_sd": 0.0009834171051955976,
+        "min": 0.04054426,
+        "median": 0.042003839,
+        "max": 0.04351119
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.1933140578,
+        "sample_sd": 0.001443262674185037,
+        "min": 0.19090446,
+        "median": 0.1932688355,
+        "max": 0.195222002
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.2084985358,
+        "sample_sd": 0.0016827140211873868,
+        "min": 0.20580273999999998,
+        "median": 0.20863561349999998,
+        "max": 0.21150423
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 3.8526544511,
+        "sample_sd": 0.01877895136304036,
+        "min": 3.824509927,
+        "median": 3.849346901,
+        "max": 3.887894957
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 3.758261285700001,
+        "sample_sd": 0.0200135215219157,
+        "min": 3.7277554760000036,
+        "median": 3.7546334265000003,
+        "max": 3.796930119000003
+      },
+      "prove": {
+        "n": 10,
+        "mean": 3.951482695500001,
+        "sample_sd": 0.02019872456494433,
+        "min": 3.9196636460000036,
+        "median": 3.9476012975000003,
+        "max": 3.989959136000003
+      },
+      "setup": {
+        "n": 10,
+        "mean": 31.1677030922,
+        "sample_sd": 0.19296125598247874,
+        "min": 30.894473183,
+        "median": 31.136897193,
+        "max": 31.440819959
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.015184478,
+        "sample_sd": 0.0013919885810962835,
+        "min": 0.01289226,
+        "median": 0.0155439945,
+        "max": 0.016993676
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1293595819,
+        "sample_sd": 0.00151304873437268,
+        "min": 0.127864513,
+        "median": 0.12884945450000002,
+        "max": 0.13272875
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 179.1,
+      "sample_sd": 4.629614814791111,
+      "min": 174,
+      "median": 178.0,
+      "max": 186
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44144.8,
+      "sample_sd": 262.66869711567165,
+      "min": 43620,
+      "median": 44228.0,
+      "max": 44452
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24332.8,
+      "sample_sd": 262.66869711567165,
+      "min": 23808,
+      "median": 24416.0,
+      "max": 24640
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      4,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 5.266872091,
+      "sample_sd": 0.07543706413268556,
+      "min": 5.150828712000006,
+      "median": 5.292020089499996,
+      "max": 5.3466359240000045
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1314475356,
+      "sample_sd": 0.0027532590666199423,
+      "min": 0.128697579,
+      "median": 0.129832682,
+      "max": 0.135925394
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 1.769888637,
+        "sample_sd": 0.03833968341279827,
+        "min": 1.697661001,
+        "median": 1.7781486165,
+        "max": 1.813815272
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 5.266872091,
+        "sample_sd": 0.07543706413268556,
+        "min": 5.150828712000006,
+        "median": 5.292020089499996,
+        "max": 5.3466359240000045
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.2378894833,
+        "sample_sd": 0.002000485099313333,
+        "min": 0.235402608,
+        "median": 0.2375264105,
+        "max": 0.242264478
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.19211966319999998,
+        "sample_sd": 0.0017899424309148297,
+        "min": 0.190651598,
+        "median": 0.1917144945,
+        "max": 0.196853317
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.014986485,
+        "sample_sd": 0.00016889961247570803,
+        "min": 0.01474779,
+        "median": 0.01499391,
+        "max": 0.01538387
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.045865149,
+        "sample_sd": 0.001212248604319537,
+        "min": 0.044718911,
+        "median": 0.045437845000000004,
+        "max": 0.04820944
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.2379848122,
+        "sample_sd": 0.0020012866464162956,
+        "min": 0.235494768,
+        "median": 0.23762131050000002,
+        "max": 0.242357927
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.2574758281,
+        "sample_sd": 0.003488535527313189,
+        "min": 0.25272664100000003,
+        "median": 0.257114948,
+        "max": 0.26375208
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 5.131564067599999,
+        "sample_sd": 0.0758779647312606,
+        "min": 5.021130089,
+        "median": 5.155636273999999,
+        "max": 5.215470812
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 5.0289826077,
+        "sample_sd": 0.07545961593736919,
+        "min": 4.915426104000006,
+        "median": 5.052745179999996,
+        "max": 5.108418077000005
+      },
+      "prove": {
+        "n": 10,
+        "mean": 5.266872091,
+        "sample_sd": 0.07543706413268556,
+        "min": 5.150828712000006,
+        "median": 5.292020089499996,
+        "max": 5.3466359240000045
+      },
+      "setup": {
+        "n": 10,
+        "mean": 42.5342120404,
+        "sample_sd": 0.342243419203437,
+        "min": 41.987576718,
+        "median": 42.533233210000006,
+        "max": 43.094499968
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0194910159,
+        "sample_sd": 0.0036405326207922884,
+        "min": 0.01471955,
+        "median": 0.018383455,
+        "max": 0.02426769
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1314475356,
+        "sample_sd": 0.0027532590666199423,
+        "min": 0.128697579,
+        "median": 0.129832682,
+        "max": 0.135925394
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 180.8,
+      "sample_sd": 5.4528280124476085,
+      "min": 172,
+      "median": 182.0,
+      "max": 189
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44080.8,
+      "sample_sd": 269.51017296817076,
+      "min": 43684,
+      "median": 44036.0,
+      "max": 44516
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24268.8,
+      "sample_sd": 269.51017296817076,
+      "min": 23872,
+      "median": 24224.0,
+      "max": 24704
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      5,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 6.361995814900001,
+      "sample_sd": 0.07677353415727532,
+      "min": 6.198641336999998,
+      "median": 6.3963632485000055,
+      "max": 6.4202960430000005
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1323381099,
+      "sample_sd": 0.0028216826196780947,
+      "min": 0.128903741,
+      "median": 0.13316615250000002,
+      "max": 0.136445044
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 2.245851077,
+        "sample_sd": 0.04851356935705059,
+        "min": 2.147116188,
+        "median": 2.2665827075,
+        "max": 2.301760808
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 6.361995814900001,
+        "sample_sd": 0.07677353415727532,
+        "min": 6.198641336999998,
+        "median": 6.3963632485000055,
+        "max": 6.4202960430000005
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.2836058834,
+        "sample_sd": 0.008463557040092112,
+        "min": 0.279557631,
+        "median": 0.2813782925,
+        "max": 0.307517433
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.2355681829,
+        "sample_sd": 0.008868707631677979,
+        "min": 0.232162425,
+        "median": 0.232637802,
+        "max": 0.260753393
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0188145135,
+        "sample_sd": 0.0002164795054211577,
+        "min": 0.01842279,
+        "median": 0.0187508605,
+        "max": 0.019113804
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0481328127,
+        "sample_sd": 0.0008525403595085096,
+        "min": 0.04685943,
+        "median": 0.04803961599999999,
+        "max": 0.049551961
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.2837009956,
+        "sample_sd": 0.008463488020908558,
+        "min": 0.279661501,
+        "median": 0.2814716525,
+        "max": 0.307612823
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.3035769089,
+        "sample_sd": 0.008778177995589978,
+        "min": 0.297929085,
+        "median": 0.300645206,
+        "max": 0.327619163
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 6.196425149,
+        "sample_sd": 0.07586771634385558,
+        "min": 6.034829597,
+        "median": 6.228882217500001,
+        "max": 6.249840706
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 6.078389931500001,
+        "sample_sd": 0.0761241443986219,
+        "min": 5.917369917999998,
+        "median": 6.1129741340000034,
+        "max": 6.140738412
+      },
+      "prove": {
+        "n": 10,
+        "mean": 6.361995814900001,
+        "sample_sd": 0.07677353415727532,
+        "min": 6.198641336999998,
+        "median": 6.3963632485000055,
+        "max": 6.4202960430000005
+      },
+      "setup": {
+        "n": 10,
+        "mean": 52.2775434737,
+        "sample_sd": 0.38125343614361823,
+        "min": 51.502087498,
+        "median": 52.402179616,
+        "max": 52.64239231
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0198759133,
+        "sample_sd": 0.0018723544253587989,
+        "min": 0.01724694,
+        "median": 0.0193181755,
+        "max": 0.023390498
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1323381099,
+        "sample_sd": 0.0028216826196780947,
+        "min": 0.128903741,
+        "median": 0.13316615250000002,
+        "max": 0.136445044
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 176.9,
+      "sample_sd": 4.094712037087183,
+      "min": 171,
+      "median": 177.5,
+      "max": 183
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44202.4,
+      "sample_sd": 182.14719322569866,
+      "min": 43940,
+      "median": 44164.0,
+      "max": 44516
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24390.4,
+      "sample_sd": 182.14719322569866,
+      "min": 24128,
+      "median": 24352.0,
+      "max": 24704
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      6,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 7.289325774999999,
+      "sample_sd": 0.07942993526355926,
+      "min": 7.19739912499999,
+      "median": 7.256241375999998,
+      "max": 7.395241577
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1298227083,
+      "sample_sd": 0.002011836102622129,
+      "min": 0.127926371,
+      "median": 0.12918307,
+      "max": 0.134138466
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 2.6118124997,
+        "sample_sd": 0.0731674820925185,
+        "min": 2.50624536,
+        "median": 2.6210250325,
+        "max": 2.725338176
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 7.289325774999999,
+        "sample_sd": 0.07942993526355926,
+        "min": 7.19739912499999,
+        "median": 7.256241375999998,
+        "max": 7.395241577
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.3227254935,
+        "sample_sd": 0.0074989153220441996,
+        "min": 0.318715247,
+        "median": 0.320488193,
+        "max": 0.343722204
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.2709429518,
+        "sample_sd": 0.007454435092970841,
+        "min": 0.266711451,
+        "median": 0.2683130765,
+        "max": 0.29166358200000003
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0223951132,
+        "sample_sd": 0.0005509720052034906,
+        "min": 0.021882819,
+        "median": 0.022261816,
+        "max": 0.023854641
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0518765306,
+        "sample_sd": 0.00090850297278474,
+        "min": 0.049657971,
+        "median": 0.052132647000000004,
+        "max": 0.052828
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.3228194824,
+        "sample_sd": 0.00749807504176933,
+        "min": 0.318809336,
+        "median": 0.320581533,
+        "max": 0.343814924
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.3468234415,
+        "sample_sd": 0.00841498654240596,
+        "min": 0.340842981,
+        "median": 0.34473107300000005,
+        "max": 0.3701144150000001
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 7.0885742575,
+        "sample_sd": 0.08672628627803826,
+        "min": 6.988769596,
+        "median": 7.055177938,
+        "max": 7.201349487
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 6.966600281499999,
+        "sample_sd": 0.08066458379816438,
+        "min": 6.87825880399999,
+        "median": 6.933440635499996,
+        "max": 7.074410664
+      },
+      "prove": {
+        "n": 10,
+        "mean": 7.289325774999999,
+        "sample_sd": 0.07942993526355926,
+        "min": 7.19739912499999,
+        "median": 7.256241375999998,
+        "max": 7.395241577
+      },
+      "setup": {
+        "n": 10,
+        "mean": 62.071531326,
+        "sample_sd": 0.734612055843921,
+        "min": 61.222380171,
+        "median": 62.101767486,
+        "max": 63.716110543999996
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0240039591,
+        "sample_sd": 0.0025008358157676204,
+        "min": 0.01883381,
+        "median": 0.024229179500000003,
+        "max": 0.02681688
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1298227083,
+        "sample_sd": 0.002011836102622129,
+        "min": 0.127926371,
+        "median": 0.12918307,
+        "max": 0.134138466
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 177.8,
+      "sample_sd": 5.028805910838963,
+      "min": 169,
+      "median": 177.5,
+      "max": 185
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44100,
+      "sample_sd": 245.56510790872187,
+      "min": 43876,
+      "median": 44004.0,
+      "max": 44580
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24288,
+      "sample_sd": 245.56510790872187,
+      "min": 24064,
+      "median": 24192.0,
+      "max": 24768
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      7,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 8.759383703499998,
+      "sample_sd": 0.08497846549562071,
+      "min": 8.600497492999992,
+      "median": 8.789439734499993,
+      "max": 8.835783410000005
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1293012378,
+      "sample_sd": 0.0006833029154603562,
+      "min": 0.128504341,
+      "median": 0.1291506515,
+      "max": 0.130384518
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 3.0250435663,
+        "sample_sd": 0.1039393575707608,
+        "min": 2.853050931,
+        "median": 3.033081202,
+        "max": 3.215426944
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 8.759383703499998,
+        "sample_sd": 0.08497846549562071,
+        "min": 8.600497492999992,
+        "median": 8.789439734499993,
+        "max": 8.835783410000005
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.3647512094,
+        "sample_sd": 0.01018440186545638,
+        "min": 0.358576045,
+        "median": 0.3598505565,
+        "max": 0.390644121
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.3103070195,
+        "sample_sd": 0.009952940868566743,
+        "min": 0.304194496,
+        "median": 0.3054880965,
+        "max": 0.33525392
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0261954499,
+        "sample_sd": 0.000505062547921971,
+        "min": 0.02588406,
+        "median": 0.026018165000000003,
+        "max": 0.02759818
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0545402589,
+        "sample_sd": 0.0005100032937380457,
+        "min": 0.05392653,
+        "median": 0.054530295,
+        "max": 0.05548445
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.3648472784,
+        "sample_sd": 0.010184229460071552,
+        "min": 0.358668445,
+        "median": 0.359948297,
+        "max": 0.39073837
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.3889628406,
+        "sample_sd": 0.009925462924664053,
+        "min": 0.3808309710000001,
+        "median": 0.385367599,
+        "max": 0.41403419
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 8.5154669209,
+        "sample_sd": 0.08329987081535077,
+        "min": 8.357712393,
+        "median": 8.555710338,
+        "max": 8.585124926999999
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 8.394632494099998,
+        "sample_sd": 0.08301718451590784,
+        "min": 8.241665497999993,
+        "median": 8.41114098999999,
+        "max": 8.476224796000004
+      },
+      "prove": {
+        "n": 10,
+        "mean": 8.759383703499998,
+        "sample_sd": 0.08497846549562071,
+        "min": 8.600497492999992,
+        "median": 8.789439734499993,
+        "max": 8.835783410000005
+      },
+      "setup": {
+        "n": 10,
+        "mean": 74.7040089619,
+        "sample_sd": 0.6591434976010024,
+        "min": 73.635570433,
+        "median": 74.557675794,
+        "max": 75.76175872
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0241155622,
+        "sample_sd": 0.0019550371412588334,
+        "min": 0.02101129,
+        "median": 0.02396973,
+        "max": 0.02732039
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1293012378,
+        "sample_sd": 0.0006833029154603562,
+        "min": 0.128504341,
+        "median": 0.1291506515,
+        "max": 0.130384518
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 177.3,
+      "sample_sd": 5.186520991955976,
+      "min": 169,
+      "median": 177.5,
+      "max": 185
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44138.4,
+      "sample_sd": 267.22075767674437,
+      "min": 43812,
+      "median": 44100.0,
+      "max": 44644
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24326.4,
+      "sample_sd": 267.22075767674437,
+      "min": 24000,
+      "median": 24288.0,
+      "max": 24832
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      8,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 9.738293521299994,
+      "sample_sd": 0.11400431792890195,
+      "min": 9.63557281899999,
+      "median": 9.671177077500005,
+      "max": 9.896397381
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1292418655,
+      "sample_sd": 0.0004950589934528026,
+      "min": 0.128561751,
+      "median": 0.129379066,
+      "max": 0.12989163
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 3.4693112040000003,
+        "sample_sd": 0.047079965739564925,
+        "min": 3.402810505,
+        "median": 3.4486970745,
+        "max": 3.537797175
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 9.738293521299994,
+        "sample_sd": 0.11400431792890195,
+        "min": 9.63557281899999,
+        "median": 9.671177077500005,
+        "max": 9.896397381
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.4061421467,
+        "sample_sd": 0.009732643677909712,
+        "min": 0.40007194,
+        "median": 0.40221392,
+        "max": 0.429291589
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.34760570350000003,
+        "sample_sd": 0.009506935787209828,
+        "min": 0.34192438,
+        "median": 0.34326171,
+        "max": 0.36971140900000005
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0294637232,
+        "sample_sd": 0.0003477922739700935,
+        "min": 0.028730561,
+        "median": 0.029532675,
+        "max": 0.029896131
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0586290343,
+        "sample_sd": 0.0005779273695676173,
+        "min": 0.057933761,
+        "median": 0.058458289999999996,
+        "max": 0.059671991
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.4062347378,
+        "sample_sd": 0.009731934084858089,
+        "min": 0.40016434,
+        "median": 0.40230637,
+        "max": 0.4293834
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.4320646218,
+        "sample_sd": 0.01073384953906405,
+        "min": 0.42522639999999995,
+        "median": 0.426726135,
+        "max": 0.45660770900000003
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 9.4693008784,
+        "sample_sd": 0.10692233518838595,
+        "min": 9.369300966,
+        "median": 9.406984192,
+        "max": 9.617571362
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 9.332151374599993,
+        "sample_sd": 0.11685844467903538,
+        "min": 9.223863081999996,
+        "median": 9.261404860500004,
+        "max": 9.493855731
+      },
+      "prove": {
+        "n": 10,
+        "mean": 9.738293521299994,
+        "sample_sd": 0.11400431792890195,
+        "min": 9.63557281899999,
+        "median": 9.671177077500005,
+        "max": 9.896397381
+      },
+      "setup": {
+        "n": 10,
+        "mean": 84.5673341914,
+        "sample_sd": 0.5670260791618823,
+        "min": 83.384739174,
+        "median": 84.634132783,
+        "max": 85.367631123
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.025829884,
+        "sample_sd": 0.0018441608103814831,
+        "min": 0.02298278,
+        "median": 0.02614659,
+        "max": 0.028230851
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1292418655,
+        "sample_sd": 0.0004950589934528026,
+        "min": 0.128561751,
+        "median": 0.129379066,
+        "max": 0.12989163
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 180.2,
+      "sample_sd": 4.871686908385363,
+      "min": 172,
+      "median": 180.0,
+      "max": 188
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44048.8,
+      "sample_sd": 289.45803764199667,
+      "min": 43684,
+      "median": 44036.0,
+      "max": 44516
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24236.8,
+      "sample_sd": 289.45803764199667,
+      "min": 23872,
+      "median": 24224.0,
+      "max": 24704
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      9,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 10.835808522199995,
+      "sample_sd": 0.12325724170800488,
+      "min": 10.60409108399999,
+      "median": 10.880628671499991,
+      "max": 10.960811163999992
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1288909694,
+      "sample_sd": 0.0004805814707599747,
+      "min": 0.128021451,
+      "median": 0.1289440955,
+      "max": 0.129477341
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 3.8035900149,
+        "sample_sd": 0.07285891647593605,
+        "min": 3.704115011,
+        "median": 3.787566007,
+        "max": 3.959701572
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 10.835808522199995,
+        "sample_sd": 0.12325724170800488,
+        "min": 10.60409108399999,
+        "median": 10.880628671499991,
+        "max": 10.960811163999992
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.4432602544,
+        "sample_sd": 0.002781612003581298,
+        "min": 0.440268741,
+        "median": 0.4425798015,
+        "max": 0.448797381
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.3822843723,
+        "sample_sd": 0.002768699725426798,
+        "min": 0.378738731,
+        "median": 0.381655906,
+        "max": 0.387205501
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0329341853,
+        "sample_sd": 0.00020148828476065008,
+        "min": 0.032604691,
+        "median": 0.03293751,
+        "max": 0.03324829
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.061072545,
+        "sample_sd": 0.0005378874363088336,
+        "min": 0.0603171,
+        "median": 0.06110139,
+        "max": 0.06169908
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.4433569173,
+        "sample_sd": 0.002786097471320897,
+        "min": 0.440360521,
+        "median": 0.44267492649999995,
+        "max": 0.448904581
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.46936407739999997,
+        "sample_sd": 0.003264485333571898,
+        "min": 0.46533768100000006,
+        "median": 0.468692086,
+        "max": 0.475842631
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 10.508488437,
+        "sample_sd": 0.10547179683443027,
+        "min": 10.315831993,
+        "median": 10.541466986500001,
+        "max": 10.617045924000001
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 10.392548267799995,
+        "sample_sd": 0.12312664902235584,
+        "min": 10.163822342999989,
+        "median": 10.437530624999992,
+        "max": 10.512013782999992
+      },
+      "prove": {
+        "n": 10,
+        "mean": 10.835808522199995,
+        "sample_sd": 0.12325724170800488,
+        "min": 10.60409108399999,
+        "median": 10.880628671499991,
+        "max": 10.960811163999992
+      },
+      "setup": {
+        "n": 10,
+        "mean": 93.8612893673,
+        "sample_sd": 0.7768950810748558,
+        "min": 92.734823543,
+        "median": 93.750200646,
+        "max": 95.26074698000001
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0260071601,
+        "sample_sd": 0.0016802800927993753,
+        "min": 0.02304386,
+        "median": 0.025930210000000002,
+        "max": 0.02826629
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1288909694,
+        "sample_sd": 0.0004805814707599747,
+        "min": 0.128021451,
+        "median": 0.1289440955,
+        "max": 0.129477341
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 178.8,
+      "sample_sd": 5.827139568909908,
+      "min": 166,
+      "median": 181.0,
+      "max": 186
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44112.8,
+      "sample_sd": 319.359358716791,
+      "min": 43620,
+      "median": 44068.0,
+      "max": 44580
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24300.8,
+      "sample_sd": 319.359358716791,
+      "min": 23808,
+      "median": 24256.0,
+      "max": 24768
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  },
+  {
+    "key": [
+      "lamp",
+      "qa_link/multi",
+      "batch",
+      "{\"K\": 128, \"N\": 256, \"log_k\": 7}",
+      10,
+      309,
+      "official_GenerateIndices_with_replacement",
+      "official_revision_e2d1cae_public_protocol",
+      "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness",
+      "two public BN254 scalar roots, 32 bytes each; dimensions are metadata, derived indices/challenges are omitted",
+      "commit-inclusive online, setup and compile paused; assignment/NewWitness included",
+      "batch",
+      "{\"cpu_count\": 32, \"go\": \"go version go1.26.2 linux/amd64\", \"go_version\": \"go1.26.2\", \"goarch\": \"amd64\", \"gomaxprocs\": 32, \"goos\": \"linux\", \"memory_bytes\": 270249447424, \"os\": \"Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39\", \"platform_processor\": \"x86_64\", \"processor\": \"AMD EPYC 7B13\", \"runtime_num_cpu\": \"32\", \"thread_budget\": 32}",
+      "b34d2287c30730a3990d92630185a0a792a2897f",
+      "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+      "c27fd8980355e8244356925f727a73ed2d4c9b96b33c6ce25d9c8317218ef7f3",
+      "{\"include_square\": false, \"label\": \"server_batch_q1_q10_10reps\", \"lamp_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], \"log_k\": 7, \"max_matrix_elements\": 1048576, \"name\": \"server_batch_q1_q10_10reps\", \"queries\": 309, \"repetitions\": 10, \"resource_plan\": \"Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.\", \"rho\": \"1/2\", \"threads\": 32, \"timeout_seconds\": 86400, \"zkmatrix_batch_q\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}"
+    ],
+    "n": 10,
+    "prove_seconds": {
+      "n": 10,
+      "mean": 11.796035654499997,
+      "sample_sd": 0.10291848521571217,
+      "min": 11.616704220999992,
+      "median": 11.819238601999999,
+      "max": 11.951464203
+    },
+    "verify_seconds": {
+      "n": 10,
+      "mean": 0.1289635224,
+      "sample_sd": 0.0005282848526385943,
+      "min": 0.128429511,
+      "median": 0.12886136050000002,
+      "max": 0.130118641
+    },
+    "timings_seconds": {
+      "circuit_compile": {
+        "n": 10,
+        "mean": 4.3166377621,
+        "sample_sd": 0.14524080043333526,
+        "min": 4.161605286,
+        "median": 4.294673079000001,
+        "max": 4.537225308
+      },
+      "full_online_prove": {
+        "n": 10,
+        "mean": 11.796035654499997,
+        "sample_sd": 0.10291848521571217,
+        "min": 11.616704220999992,
+        "median": 11.819238601999999,
+        "max": 11.951464203
+      },
+      "matrix_commit": {
+        "n": 10,
+        "mean": 0.4866184096,
+        "sample_sd": 0.008036867397514398,
+        "min": 0.479935073,
+        "median": 0.4837212325,
+        "max": 0.505403763
+      },
+      "matrix_commit_ex_encoding": {
+        "n": 10,
+        "mean": 0.4219375794,
+        "sample_sd": 0.007969353246704112,
+        "min": 0.414797923,
+        "median": 0.419175917,
+        "max": 0.440350193
+      },
+      "matrix_compute": {
+        "n": 10,
+        "mean": 0.0366162681,
+        "sample_sd": 0.0003058927423941823,
+        "min": 0.03603163,
+        "median": 0.036569825,
+        "max": 0.0370593
+      },
+      "matrix_encoding": {
+        "n": 10,
+        "mean": 0.0647746192,
+        "sample_sd": 0.0006292106605612733,
+        "min": 0.063907951,
+        "median": 0.0646600305,
+        "max": 0.06588584
+      },
+      "official_abc_commit_through_challenges": {
+        "n": 10,
+        "mean": 0.4867121986,
+        "sample_sd": 0.008037143752423419,
+        "min": 0.480026373,
+        "median": 0.48381353250000003,
+        "max": 0.505496313
+      },
+      "official_reported_totalcommit": {
+        "n": 10,
+        "mean": 0.5144029477000001,
+        "sample_sd": 0.008787077397414793,
+        "min": 0.506635713,
+        "median": 0.5115580230000001,
+        "max": 0.534051553
+      },
+      "original_reported_totalprove": {
+        "n": 10,
+        "mean": 11.462608563,
+        "sample_sd": 0.09277728803118122,
+        "min": 11.292839929,
+        "median": 11.495659635500001,
+        "max": 11.56589183
+      },
+      "precommitted_online_prove": {
+        "n": 10,
+        "mean": 11.309417244899997,
+        "sample_sd": 0.10063864589491799,
+        "min": 11.133610327999993,
+        "median": 11.325252499500005,
+        "max": 11.46774143
+      },
+      "prove": {
+        "n": 10,
+        "mean": 11.796035654499997,
+        "sample_sd": 0.10291848521571217,
+        "min": 11.616704220999992,
+        "median": 11.819238601999999,
+        "max": 11.951464203
+      },
+      "setup": {
+        "n": 10,
+        "mean": 104.0382025719,
+        "sample_sd": 0.6621190555435448,
+        "min": 102.966245142,
+        "median": 104.08601694949999,
+        "max": 105.283494279
+      },
+      "vector_fold_encoding_commit": {
+        "n": 10,
+        "mean": 0.0276907491,
+        "sample_sd": 0.0010334943150191918,
+        "min": 0.02589149,
+        "median": 0.0276427755,
+        "max": 0.02972894
+      },
+      "verify": {
+        "n": 10,
+        "mean": 0.1289635224,
+        "sample_sd": 0.0005282848526385943,
+        "min": 0.128429511,
+        "median": 0.12886136050000002,
+        "max": 0.130118641
+      }
+    },
+    "setup_seconds_shared_once": null,
+    "shared_setup_invocations": 0,
+    "statement_bytes": {
+      "n": 10,
+      "mean": 64,
+      "sample_sd": 0.0,
+      "min": 64,
+      "median": 64.0,
+      "max": 64
+    },
+    "distinct_query_count": {
+      "n": 10,
+      "mean": 178.5,
+      "sample_sd": 6.328945848682508,
+      "min": 168,
+      "median": 179.0,
+      "max": 189
+    },
+    "original_reported_proof_bytes": {
+      "n": 10,
+      "mean": 44183.2,
+      "sample_sd": 410.13298656248884,
+      "min": 43364,
+      "median": 44196.0,
+      "max": 44836
+    },
+    "compressed_payload_bytes": {
+      "n": 10,
+      "mean": 24371.2,
+      "sample_sd": 410.13298656248884,
+      "min": 23552,
+      "median": 24384.0,
+      "max": 25024
+    },
+    "proof_size_accounting": "original reported bytes use uncompressed G1 sizes; LCP1 payload is compressed and decoded/reverified, excluding public roots, keys and witness"
+  }
+]

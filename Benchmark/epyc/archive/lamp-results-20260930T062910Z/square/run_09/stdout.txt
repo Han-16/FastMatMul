@@ -1,0 +1,4 @@
+run 1/3: 512x512x512 q=1 verified, proof=4992 bytes, totalprove=7.896694s
+run 2/3: 512x512x512 q=1 verified, proof=4992 bytes, totalprove=7.987846s
+run 3/3: 512x512x512 q=1 verified, proof=4992 bytes, totalprove=7.992642s
+CSV: /home/sklee63kr/LAMP-comparison/benchmark/comparison/vm_3reps_20260930T062910Z/square/run_09/zkmatrix.csv

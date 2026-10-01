@@ -1,0 +1,10 @@
+run 1/10 n=256 q=1: verified
+run 2/10 n=256 q=1: verified
+run 3/10 n=256 q=1: verified
+run 4/10 n=256 q=1: verified
+run 5/10 n=256 q=1: verified
+run 6/10 n=256 q=1: verified
+run 7/10 n=256 q=1: verified
+run 8/10 n=256 q=1: verified
+run 9/10 n=256 q=1: verified
+run 10/10 n=256 q=1: verified

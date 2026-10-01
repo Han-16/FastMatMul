@@ -1,0 +1,106 @@
+{
+  "archived_at": "2026-10-01",
+  "previous_directory": "Implementation/",
+  "archive_path": "Revision/archive/zkmap-local-implementation-20261001.tar.gz",
+  "archive_sha256": "a737738fefa7a277ca184ea9aa7b048e5c2d5fc6b0f80119934d431fc7646557",
+  "file_count": 42,
+  "archive_file_hashes_matched": true,
+  "upstream_repository": "https://github.com/lysias9049/FastMatMul",
+  "upstream_main_at_verification": "b34d2287c30730a3990d92630185a0a792a2897f",
+  "remote_verification": "Earlier git ls-remote --heads fastmatmul in this cleanup returned b34d2287c30730a3990d92630185a0a792a2897f for refs/heads/main. The local source checkout has that exact HEAD.",
+  "protocol_source_comparison": [
+    {
+      "local": "Implementation/zkmap/zkmap/completeness.go",
+      "upstream": "crypto/zkmap/completeness.go",
+      "sha256": "9a58331a2ad599363973233fd539af1961d4b8ba2b7928bda280b199f7ee9948",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/completeness_test.go",
+      "upstream": "crypto/zkmap/completeness_test.go",
+      "sha256": "8e25e71ed7373139311d3d6ae941f5c936415bd8492329938056f3a20c6b56d8",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/completeness_wire.go",
+      "upstream": "crypto/zkmap/completeness_wire.go",
+      "sha256": "c65876a179bc1ce91287dedf6736a43cf07ef2d852514fe39d102ea3b4604fef",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/matrix.go",
+      "upstream": "crypto/zkmap/matrix.go",
+      "sha256": "c1b6e0d2bc08f81f1b8b28cbce18aeee687da1ff8ccd6f22d32a623b32a74ea2",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/polynomial.go",
+      "upstream": "crypto/zkmap/polynomial.go",
+      "sha256": "8e4669bd76dea746aa7dcc0bde1d3ed7e33c6a95e4b2f91ab8028df9c9294f12",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/protocol.go",
+      "upstream": "crypto/zkmap/protocol.go",
+      "sha256": "61caca43b45ef52f7a8290cafb640389294897715a74257c0abc26bebe788643",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/protocol_test.go",
+      "upstream": "crypto/zkmap/protocol_test.go",
+      "sha256": "8b338230568773355a91e66038e760e6c74d728bb266ba6c643f763b860dc891",
+      "byte_identical": true
+    },
+    {
+      "local": "Implementation/zkmap/zkmap/wire.go",
+      "upstream": "crypto/zkmap/wire.go",
+      "sha256": "7b223c00aba48a05f82cd03b7492f7381074e9ea4d8249cccb2a33eadfaa6199",
+      "byte_identical": true
+    }
+  ],
+  "scope": "Protocol Go files are byte-identical to upstream. The archive preserves the local standalone module, CLI version, scripts, planning documents, test logs, and binaries, including differences from the integrated repository. Archived internal paths remain historical execution paths.",
+  "files_sha256": {
+    "Implementation/ZKMAP_IMPLEMENTATION_PLAN.md": "f345e9779adaf80c417835d20d993b3c8691f741e8030fe9fee94448926872c7",
+    "Implementation/zkmap/COMPLETENESS_REPAIR.md": "51f8b92cefe5346170362b0c7d2e3bb7e5b6e367c8d576ff3df727904bce18ba",
+    "Implementation/zkmap/go.mod": "2b8556cea8f68fb950044b0df366ed145d5ac09945bb2003381b30e0d4642b98",
+    "Implementation/zkmap/go.sum": "0d6830ab44a272c874c80302a6b59414a552b8b14363154d8e0317494fbb5119",
+    "Implementation/zkmap/README.md": "b58440e8d6921732477a43f4c7e96ea203990f81c2a6843da9036817b821edad",
+    "Implementation/zkmap/.gitignore": "a5470d5d5f01973cfa8e8eae1bc80e78ed42349fab48ae22d0fdf60321bb53c3",
+    "Implementation/zkmap/bin/zkmap": "e8d1ec168bdcdc3a6903ad7784768046c1b1f368582f28a89dfff86fcf7c965a",
+    "Implementation/zkmap/bin/zkmap-linux-amd64": "f503cef80ee9150cc0a5d751047107b62937e6b765f778a29f36c9e752466f2d",
+    "Implementation/zkmap/zkmap/protocol_test.go": "8b338230568773355a91e66038e760e6c74d728bb266ba6c643f763b860dc891",
+    "Implementation/zkmap/zkmap/matrix.go": "c1b6e0d2bc08f81f1b8b28cbce18aeee687da1ff8ccd6f22d32a623b32a74ea2",
+    "Implementation/zkmap/zkmap/protocol.go": "61caca43b45ef52f7a8290cafb640389294897715a74257c0abc26bebe788643",
+    "Implementation/zkmap/zkmap/completeness_test.go": "8e25e71ed7373139311d3d6ae941f5c936415bd8492329938056f3a20c6b56d8",
+    "Implementation/zkmap/zkmap/completeness_wire.go": "c65876a179bc1ce91287dedf6736a43cf07ef2d852514fe39d102ea3b4604fef",
+    "Implementation/zkmap/zkmap/completeness.go": "9a58331a2ad599363973233fd539af1961d4b8ba2b7928bda280b199f7ee9948",
+    "Implementation/zkmap/zkmap/wire.go": "7b223c00aba48a05f82cd03b7492f7381074e9ea4d8249cccb2a33eadfaa6199",
+    "Implementation/zkmap/zkmap/polynomial.go": "8e4669bd76dea746aa7dcc0bde1d3ed7e33c6a95e4b2f91ab8028df9c9294f12",
+    "Implementation/zkmap/scripts/run_section7.py": "a8e46a04f1a464e3feb79162e63a94f1c158381e423ebc3330d0c249fb7d29f1",
+    "Implementation/zkmap/scripts/test_run_section7.py": "524e99082864b8e711a72c87107ac2663cfe768c30d11d2340f37ce1d39d5771",
+    "Implementation/zkmap/scripts/section7_profiles.json": "d836cf0d7ceefd301ac454faff709efdabd7e8a0ebc67629adbd4dfed3b342ea",
+    "Implementation/zkmap/cmd/zkmap/zero.go": "9c266f8defe8419ebfde6e7617848e84e6c90cbb1952140608fac03872cf7281",
+    "Implementation/zkmap/cmd/zkmap/completeness_test.go": "db5e958d98c8cfab0ee132dd7c7d9185976c3f4b7068b9a52c47b26fc9f9b419",
+    "Implementation/zkmap/cmd/zkmap/completeness.go": "99c26498fa1f7fca437fed9520993a8b2ddb18e2f2bde206adc19c3dfdab38fc",
+    "Implementation/zkmap/cmd/zkmap/main.go": "bdec9be76d674a2a2a76d7d4138ae4ac22f1977f77325dea0efe2bc372726dc9",
+    "Implementation/zkmap/cmd/zkmap/main_test.go": "adca9bf6356978bcea5a93aec06bcc315c32f97f26923882789fb1d454615c67",
+    "Implementation/zkmap/test-results/20260930/random-k2-coefficients.jsonl": "2b2293d407d47ee09b8a7dd400d765426467189361ad81426f82392fb513fad1",
+    "Implementation/zkmap/test-results/20260930/batch-zero-scalar.jsonl": "5237dc51e809fd377976aa4eecd608c498b3267067d7c464f14fc957b722ebf2",
+    "Implementation/zkmap/test-results/20260930/batch-zero-literal.jsonl": "395ca99be2c0653798a6c8fbb364d83cdcf350f681753fe57245317db1269836",
+    "Implementation/zkmap/test-results/20260930/profile-tests.log": "405a0f2e942067e46a145858fc42939deb31afd9252c5c5905e496b903ac6990",
+    "Implementation/zkmap/test-results/20260930/section7-plan.json": "ce10523c7d1ba15a633473e90c7f60a9503d732612ab58aa0d883943e3b83813",
+    "Implementation/zkmap/test-results/20260930/RESULTS.md": "b2d886ea163d9e48544146c7fe1665691a53f81bf19c39a48e60f3bae0812f21",
+    "Implementation/zkmap/test-results/20260930/manifest.json": "d7f420b4cacddd86b65ff082b51a3c608cdafc3188f4dbb63237c842823c58bd",
+    "Implementation/zkmap/test-results/20260930/random-k2-integer.jsonl": "365dc500960ea105f4249ed76b80bd426a48b3bf7da74d460f0f9f059a2e14b4",
+    "Implementation/zkmap/test-results/20260930/random-k7-roots.jsonl": "a2706e722d75a9d73784d73c9d7eb46993733a2c2969487757bf6b4ce872af0d",
+    "Implementation/zkmap/test-results/20260930/zero-k2.jsonl": "1c3dadd73bf8260d7e81b2ed56e3ca9f982ad9fe92be5e66b217f95f12bcc708",
+    "Implementation/zkmap/test-results/20260930/go-tests.log": "34249bd2d65b1ffcbea4a3d4559f57927afe55f57d8888244dd328ef4daf85de",
+    "Implementation/zkmap/test-results/20261001/profile-tests.log": "8f67aaf33488ddb02d6a3fb593f1a698d1012b5c6ef4bf3fdff584f45e2a2572",
+    "Implementation/zkmap/test-results/20261001/complete-small.jsonl": "29f6b91d001ab558c94ab6763810faca9f5e4d35d7f3fadafe1442600b1eca83",
+    "Implementation/zkmap/test-results/20261001/RESULTS.md": "11b86aeb658d05eea98b706e7148a9b1ccf53285fc645e44b17e6243197403e8",
+    "Implementation/zkmap/test-results/20261001/complete-batch-small.jsonl": "9205352b349fca202e3f88f132c0b1e0aeef42095915f838aee2e3ec68f7f08d",
+    "Implementation/zkmap/test-results/20261001/paper-small.jsonl": "2d7338d59b6d244645349016cc9b5eb6bb393ae50df5bc3ada3f2de58a217000",
+    "Implementation/zkmap/test-results/20261001/manifest.json": "cab937c8c9af5f5e498e64f6f23651f3ffc873f4b91c4cd7e6123119a631e077",
+    "Implementation/zkmap/test-results/20261001/go-tests.log": "fd56234e427ac8178e2fa8c0920d798f537a1ab98220c028cd231f8dea7ee5cd"
+  }
+}

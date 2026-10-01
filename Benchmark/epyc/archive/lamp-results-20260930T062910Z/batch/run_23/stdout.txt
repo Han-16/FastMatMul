@@ -1,0 +1,21 @@
+🔥 [LAMPBATCH Protocol] logK=7, K=128, N=256, L=309, batch=5, linker=qa_link, merkle=multi
+   ✅ Matrix Compute Time: 0.02 s
+=== Circuit Setup & Prove ===
+[90m06:48:25[0m [32mINF[0m [1mcompiling circuit[0m
+[90m06:48:25[0m [32mINF[0m [1mparsed circuit inputs[0m [36mnbPublic=[0m316 [36mnbSecret=[0m598131
+[90m06:48:27[0m [32mINF[0m [1mbuilding constraint builder[0m [36mnbConstraints=[0m811309
+=== 3. Generating Proof ===
+[90m06:49:22[0m DBG constraint system solver done [36mnbConstraints=[0m811309 [36mtook=[0m2489.510124
+[90m06:49:25[0m DBG prover done [36macceleration=[0mnone [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mnbConstraints=[0m811309 [36mtook=[0m3283.680423
+   ✅ Prove Time: 5.77s
+=== Generating Off-line Proofs ===
+=== Verifying All Proofs ===
+[90m06:49:25[0m DBG verifier done [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mtook=[0m2.39083
+   ✅ Verify Time: 0.14s
+✅ ALL LAMPBATCH PROOFS VERIFIED SUCCESSFULLY!
+[90m06:49:26[0m DBG verifier done [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mtook=[0m2.44144
+📊 Proof Sizes -> Groth16: 292 B, Merkle: 44096 B, CPLink: 128 B | Total: 44516 B
+💾 Result saved to CSV: LAMPBATCH Protocol: logK=7, rho=1/2, linker=qa_link, merkle=multi, L=309, batch=5, constraints=811309
+
+
+🎉 All LAMPBATCH tasks finished!

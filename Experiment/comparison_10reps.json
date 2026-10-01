@@ -1,0 +1,46 @@
+{
+  "server_square_k7_k12_10reps": {
+    "label": "server_square_k7_k12_10reps",
+    "log_k": 7,
+    "log_k_range": [7, 12],
+    "rho": "1/2",
+    "queries": 309,
+    "repetitions": 10,
+    "threads": 32,
+    "timeout_seconds": 86400,
+    "zkmatrix_batch_q": [],
+    "lamp_batch_q": [],
+    "max_matrix_elements": 16777216,
+    "resource_plan": "Sequential LAMP and independent zkMatrix comparison for n=128,256,512,1024,2048,4096; ten fresh repetitions per scheme and size, 32 threads on a nominal 256 GiB host with at least 32 logical CPUs and 240 GiB usable memory. n=8192 is deferred. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.",
+    "include_square": true
+  },
+  "server_square_k7_k11_10reps": {
+    "label": "server_square_k7_k11_10reps",
+    "log_k": 7,
+    "log_k_range": [7, 11],
+    "rho": "1/2",
+    "queries": 309,
+    "repetitions": 10,
+    "threads": 32,
+    "timeout_seconds": 86400,
+    "zkmatrix_batch_q": [],
+    "lamp_batch_q": [],
+    "max_matrix_elements": 4194304,
+    "resource_plan": "Sequential LAMP and independent zkMatrix comparison for n=128,256,512,1024,2048; ten fresh repetitions per scheme and size, 32 threads on a nominal 256 GiB host with at least 32 logical CPUs and 240 GiB usable memory. n=4096 and n=8192 are deferred for this profile. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.",
+    "include_square": true
+  },
+  "server_batch_q1_q10_10reps": {
+    "label": "server_batch_q1_q10_10reps",
+    "log_k": 7,
+    "rho": "1/2",
+    "queries": 309,
+    "repetitions": 10,
+    "threads": 32,
+    "timeout_seconds": 86400,
+    "zkmatrix_batch_q": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "lamp_batch_q": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "max_matrix_elements": 1048576,
+    "resource_plan": "Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.",
+    "include_square": false
+  }
+}

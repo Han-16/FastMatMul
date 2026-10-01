@@ -7,6 +7,9 @@
 /output/pdf/
 
 # Local LaTeX editor/build metadata not needed in version control.
-/Paper/*.fdb_latexmk
-/Paper/*.fls
-/Paper/*.synctex.gz
+/Paper*/*.fdb_latexmk
+/Paper*/*.fls
+/Paper*/*.synctex.gz
+
+# zkMaP PDF inspection and local Go build cache.
+/tmp/zkmap/

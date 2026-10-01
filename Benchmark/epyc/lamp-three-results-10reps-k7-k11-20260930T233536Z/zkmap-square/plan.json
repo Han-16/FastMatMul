@@ -1,0 +1,211 @@
+{
+  "profile": "square",
+  "cwd": "/home/sklee63kr/FastMatMul-comparison",
+  "executed": true,
+  "profile_sha256": "29d24fb0d9d502cb8873968fc5a3e1f1fecd85019a6b064c24ada3a8d4768d92",
+  "runner_sha256": "ff2589fc22ef6335afd3495852313b28c0d935115dd3abff1d91937f0305fe4b",
+  "lamp_reference_parameters": {
+    "rho": "1/2",
+    "queries": 309,
+    "applied_to_zkmap": false
+  },
+  "success_measurements_available": false,
+  "variant": "completeness-roots-v1",
+  "protocol_fidelity": "local_completeness_variant_not_published_zkmap",
+  "security_certified": false,
+  "comparison_eligible_as_published_zkmap": false,
+  "note": "This is a local completeness variant, not published zkMaP. Verification reports algebraic acceptance only. Setup and actual AB computation are measured separately.",
+  "commands": [
+    {
+      "name": "square_k7_q1",
+      "n": 128,
+      "batch_q": 1,
+      "command": [
+        "/home/sklee63kr/FastMatMul-comparison/benchmark/comparison/vm_three_10reps_k7_k11_20260930T233536Z/bin/zkmap",
+        "-variant",
+        "completeness-roots-v1",
+        "-K",
+        "7",
+        "-repetitions",
+        "10",
+        "-threads",
+        "32",
+        "-seed",
+        "1",
+        "-max-matrix-elements",
+        "16384",
+        "-projection-encoding",
+        "roots-of-unity",
+        "-verifier",
+        "appendix-e",
+        "-batch-product",
+        "literal",
+        "-input",
+        "random"
+      ]
+    },
+    {
+      "name": "square_k8_q1",
+      "n": 256,
+      "batch_q": 1,
+      "command": [
+        "/home/sklee63kr/FastMatMul-comparison/benchmark/comparison/vm_three_10reps_k7_k11_20260930T233536Z/bin/zkmap",
+        "-variant",
+        "completeness-roots-v1",
+        "-K",
+        "8",
+        "-repetitions",
+        "10",
+        "-threads",
+        "32",
+        "-seed",
+        "1",
+        "-max-matrix-elements",
+        "65536",
+        "-projection-encoding",
+        "roots-of-unity",
+        "-verifier",
+        "appendix-e",
+        "-batch-product",
+        "literal",
+        "-input",
+        "random"
+      ]
+    },
+    {
+      "name": "square_k9_q1",
+      "n": 512,
+      "batch_q": 1,
+      "command": [
+        "/home/sklee63kr/FastMatMul-comparison/benchmark/comparison/vm_three_10reps_k7_k11_20260930T233536Z/bin/zkmap",
+        "-variant",
+        "completeness-roots-v1",
+        "-K",
+        "9",
+        "-repetitions",
+        "10",
+        "-threads",
+        "32",
+        "-seed",
+        "1",
+        "-max-matrix-elements",
+        "262144",
+        "-projection-encoding",
+        "roots-of-unity",
+        "-verifier",
+        "appendix-e",
+        "-batch-product",
+        "literal",
+        "-input",
+        "random"
+      ]
+    },
+    {
+      "name": "square_k10_q1",
+      "n": 1024,
+      "batch_q": 1,
+      "command": [
+        "/home/sklee63kr/FastMatMul-comparison/benchmark/comparison/vm_three_10reps_k7_k11_20260930T233536Z/bin/zkmap",
+        "-variant",
+        "completeness-roots-v1",
+        "-K",
+        "10",
+        "-repetitions",
+        "10",
+        "-threads",
+        "32",
+        "-seed",
+        "1",
+        "-max-matrix-elements",
+        "1048576",
+        "-projection-encoding",
+        "roots-of-unity",
+        "-verifier",
+        "appendix-e",
+        "-batch-product",
+        "literal",
+        "-input",
+        "random"
+      ]
+    },
+    {
+      "name": "square_k11_q1",
+      "n": 2048,
+      "batch_q": 1,
+      "command": [
+        "/home/sklee63kr/FastMatMul-comparison/benchmark/comparison/vm_three_10reps_k7_k11_20260930T233536Z/bin/zkmap",
+        "-variant",
+        "completeness-roots-v1",
+        "-K",
+        "11",
+        "-repetitions",
+        "10",
+        "-threads",
+        "32",
+        "-seed",
+        "1",
+        "-max-matrix-elements",
+        "4194304",
+        "-projection-encoding",
+        "roots-of-unity",
+        "-verifier",
+        "appendix-e",
+        "-batch-product",
+        "literal",
+        "-input",
+        "random"
+      ]
+    }
+  ],
+  "gpt2": {
+    "sequence_length": 1024,
+    "claims": 36,
+    "execution_supported": false,
+    "reason": "Algorithm 2/F executable specification is square-only; rectangular interpolation and heterogeneous graph/batch context are not specified. This shape inventory does not certify the graph or implement the workload.",
+    "groups": [
+      {
+        "family": "packed_qkv",
+        "count": 1,
+        "m": 1024,
+        "inner": 1024,
+        "n": 4096
+      },
+      {
+        "family": "attention_scores",
+        "count": 16,
+        "m": 1024,
+        "inner": 64,
+        "n": 1024
+      },
+      {
+        "family": "attention_values",
+        "count": 16,
+        "m": 1024,
+        "inner": 1024,
+        "n": 64
+      },
+      {
+        "family": "attention_output",
+        "count": 1,
+        "m": 1024,
+        "inner": 1024,
+        "n": 1024
+      },
+      {
+        "family": "mlp_up",
+        "count": 1,
+        "m": 1024,
+        "inner": 1024,
+        "n": 4096
+      },
+      {
+        "family": "mlp_down",
+        "count": 1,
+        "m": 1024,
+        "inner": 4096,
+        "n": 1024
+      }
+    ]
+  },
+  "binary_sha256": "70ca7583d190da0dc8060fe7ecb7dc824e476ac329d84c17a359da855be7af5f"
+}

@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/snp-labs/LAMP",
+  "branch": "comparison/zkmatrix-benchmarks",
+  "retrieved_branch_commit": "317b4cba9b1d0da17697a9435ad3539380f6a58c",
+  "measurement_date": "2026-09-29",
+  "source_note": "docs/comparison/LOCAL_RESULTS.md at the retrieved branch commit",
+  "environment_caveat": "The source note reports an unrelated desktop process using roughly one CPU. The host was not an isolated quiet benchmark machine.",
+  "batch_note": "The batch JSONL contains all 200 completed verified records, including completed records from the interrupted first invocation. Both invocation manifests are preserved.",
+  "files": {
+    "squares_k7_k10_m1pro_20260929_run1.jsonl": "69e6890393092ab9cc45d4cd69008d7a635bfc2d49e77249e97387b2a9fa6693",
+    "batch_q1_q10_m1pro_20260929_resume1.jsonl": "b98a8258ff5359b30208ff8c8d9a20c99951f8c31d4b90cb85e2a23629c2fb76",
+    "manifests/squares_k7_k10_m1pro_20260929_run1.json": "06fb2f0bae4c929a4f09a6eae457c20b68786705e4ced357e8f16d79ab8f15cb",
+    "manifests/batch_q1_q10_m1pro_20260929_run1.json": "350577fd4ef80c5ba224361c1a89999d4d4546f45b071faf98e93b73a66e9ce9",
+    "manifests/batch_q1_q10_m1pro_20260929_resume1.json": "7a9594d84dfdcb6f10aeccad9cc261394d118ca89da72dff26d57810d6be8430",
+    "source/measured/source-manifest.json": "85a520eca0a473b01bf0d2014f4ad3babce8aae5a0deb8176d0dd2d18e131c91",
+    "source/measured/comparison-source.tar.gz": "fbc70d5dcd4f47f0f769d28952dfc0aa0e1acb12026c49b966ce1281cb9cbece",
+    "source/measured/comparison-source.tar.gz.sha256": "02f5301dec9d338ee8f1c2afa52479b280c524f6264418433209b45eef1c6762"
+  }
+}

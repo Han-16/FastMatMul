@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-01",
+  "scope": "Local completeness-roots-v1 variant only; not a finding about the published zkMaP protocol",
+  "source_commit": "b34d2287c30730a3990d92630185a0a792a2897f",
+  "source_directory": "tmp/zkmap/fastmatmul-implementation-checkout",
+  "source_modifications": "Existing scripts/comparison/configs.json change only; protocol files unchanged",
+  "toolchain": "go1.25.6 darwin/amd64",
+  "command": "GOTOOLCHAIN=local GOCACHE=/Users/kyeongtae/Project/LAMP/tmp/zkmap/go-cache /Users/kyeongtae/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.6.darwin-amd64/bin/go test -mod=readonly -count=1 -v /Users/kyeongtae/Project/LAMP/Revision/zkmap_soundness_audit_20261001/counterexample_test.go",
+  "setup": "Production SetupComplete with crypto/rand; attack uses no trapdoor",
+  "meaning_of_pass": "The false statements were accepted; counterexamples reproduced, not soundness certified",
+  "counterexamples": [
+    "n=2,4,8: exact proof for C=AB accepted after VC replaced with commitment to C'=AB+E00, despite changed challenge",
+    "Same false-statement acceptance after canonical serialization and decoding",
+    "Proof generated with unrelated true witness accepted for false statement",
+    "n=4: all-infinity proof accepted for C'=AB+E00, including decoded 196-byte payload"
+  ],
+  "file_sha256": {
+    "crypto/zkmap/completeness.go": "9a58331a2ad599363973233fd539af1961d4b8ba2b7928bda280b199f7ee9948",
+    "crypto/zkmap/protocol.go": "61caca43b45ef52f7a8290cafb640389294897715a74257c0abc26bebe788643",
+    "crypto/zkmap/completeness_wire.go": "c65876a179bc1ce91287dedf6736a43cf07ef2d852514fe39d102ea3b4604fef"
+  }
+}

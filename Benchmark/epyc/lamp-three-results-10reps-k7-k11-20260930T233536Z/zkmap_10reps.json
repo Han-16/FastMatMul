@@ -1,0 +1,89 @@
+{
+  "curve": "BN254",
+  "repetitions": 10,
+  "threads": 32,
+  "seed": 1,
+  "projection_encoding": "roots-of-unity",
+  "verifier": "appendix-e",
+  "batch_product": "literal",
+  "lamp_reference_parameters": {
+    "rho": "1/2",
+    "queries": 309,
+    "applied_to_zkmap": false
+  },
+  "square_log_k": [
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "batch_log_k": 7,
+  "batch_q": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "gpt2": {
+    "sequence_length": 1024,
+    "claims": 36,
+    "execution_supported": false,
+    "reason": "Algorithm 2/F executable specification is square-only; rectangular interpolation and heterogeneous graph/batch context are not specified. This shape inventory does not certify the graph or implement the workload.",
+    "groups": [
+      {
+        "family": "packed_qkv",
+        "count": 1,
+        "m": 1024,
+        "inner": 1024,
+        "n": 4096
+      },
+      {
+        "family": "attention_scores",
+        "count": 16,
+        "m": 1024,
+        "inner": 64,
+        "n": 1024
+      },
+      {
+        "family": "attention_values",
+        "count": 16,
+        "m": 1024,
+        "inner": 1024,
+        "n": 64
+      },
+      {
+        "family": "attention_output",
+        "count": 1,
+        "m": 1024,
+        "inner": 1024,
+        "n": 1024
+      },
+      {
+        "family": "mlp_up",
+        "count": 1,
+        "m": 1024,
+        "inner": 1024,
+        "n": 4096
+      },
+      {
+        "family": "mlp_down",
+        "count": 1,
+        "m": 1024,
+        "inner": 4096,
+        "n": 1024
+      }
+    ]
+  },
+  "variant": "completeness-roots-v1",
+  "fidelity": "local_completeness_variant_not_published_zkmap",
+  "security_certified": false,
+  "timeout_seconds": 86400,
+  "resource_plan": "Sequential server measurement of completeness-roots-v1 only; n=128,256,512,1024,2048, ten repetitions, 32 threads. Optional independent batch q=1..10 at n=128. Not a sound or zero-knowledge matrix-verification benchmark of published zkMaP; record separately from LAMP and zkMatrix."
+}

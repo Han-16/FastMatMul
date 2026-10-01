@@ -1,0 +1,11 @@
+run 1/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.650064s
+run 2/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.650754s
+run 3/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.651545s
+run 4/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.647200s
+run 5/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.656887s
+run 6/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.653926s
+run 7/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.654156s
+run 8/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.653288s
+run 9/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.656617s
+run 10/10: 128x128x128 q=1 verified, proof=4100 bytes, totalprove=0.645843s
+CSV: /home/sklee63kr/FastMatMul-comparison/benchmark/comparison/vm_batch_10reps_k7_q1_q10_20261001T032827Z/batch/run_01/zkmatrix.csv

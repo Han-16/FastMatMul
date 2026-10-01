@@ -1,47 +1,67 @@
 # LAMP
 
-**LAMP: Linear-Constraint Proofs for Matrix Multiplication via Proximity
-Testing**
+**LAMP: Linear Verification of Matrix Multiplication via Proximity Testing**
 
-LAMP is a cryptography research artifact for checking large matrix
-multiplication claims in verifiable computation. This repository contains the
-paper source, compiled paper, experimental result files, references, and review
-notes for the FastMatMul paper.
+This workspace contains the S&P 2027 paper versions, preserved benchmark
+measurements, experiment configuration, and review and shepherding records.
 
-The main paper studies how to reduce the in-circuit cost of verifying a
-`k x k` matrix product compared with direct matrix multiplication and a
-Freivalds-style SNARK baseline.
+## Repositories
+
+- [lysias9049/LAMP](https://github.com/lysias9049/LAMP): this paper workspace,
+  manuscript revisions, planning documents, and supporting benchmark records.
+- [lysias9049/LAMP-artifact](https://github.com/lysias9049/LAMP-artifact): runnable
+  implementations and artifacts. Make implementation changes in that repository.
+
+Repository URLs recorded in past measurements are historical provenance;
+preserve their original commits, source fingerprints, and execution records.
 
 ## Repository Layout
 
 ```text
 .
-+-- Paper/
-|   +-- main.tex                  # Main paper entry point
-|   +-- main.pdf                  # Compiled paper
-|   +-- Contents/                 # Paper sections
-|   +-- Styles/                   # LaTeX packages, macros, bibliography
++-- Paper_original/              # Original S&P revision
++-- Paper/                       # Current manuscript for the EPYC comparison
++-- Benchmark/
+|   +-- original/                # Original LAMP benchmark CSV files
+|   +-- m1/                      # M1 raw results, manifests, source, table generator
+|   +-- epyc/                    # Square and batch 10-repetition results
+|       +-- archive/             # Earlier 3-repetition measurements
 +-- Experiment/
-|   +-- Rebuttal/                 # Official revision data and accounting
-|   +-- Previous/                 # Superseded measurements
-+-- Implementation/               # Go/gnark implementation and harness
-+-- NEXT_WORK_PLAN.md             # Current remaining-work checklist
-+-- Rebuttal.md                   # Submitted text rebuttal
-+-- S&P review.txt                # Original reviews and interactive asks
-+-- archive/post-rebuttal-plans/  # Historical plans and evidence snapshots
-+-- AGENTS.md                     # Local writing/workflow instructions
+|   +-- comparison_3reps.json     # Planned EPYC comparison configuration
+|   +-- prepare_comparison_3reps.py
++-- Revision/                    # Reviews, rebuttal, shepherd drafts, reference papers
+|   +-- archive/                 # Historical reviews/plans and local zkMaP archive
++-- NEXT_WORK_PLAN.md            # Current work plan, in Korean
++-- AGENTS.md                    # Instructions for AI work in this repository
++-- README.md                    # Workspace guide
 ```
 
-`NEXT_WORK_PLAN.md` is the only active planning document. Historical
-post-rebuttal plans are retained under `archive/post-rebuttal-plans/` and should
-not be interpreted as the current task status.
+`NEXT_WORK_PLAN.md` records the current work. Files under `Revision/archive/`
+are historical snapshots, not current submission status or active instructions.
+Shepherd drafts under `Revision/` may also contain status statements from their
+original drafting dates.
 
-## Paper
+## Paper Versions
 
-The paper source is in `Paper/main.tex`, with section files under
-`Paper/Contents/`.
+Each paper folder is an independent copy with its own `main.tex`, `main.pdf`,
+`Contents/`, `Styles/`, and `Tables/`.
 
-To rebuild the paper from the `Paper/` directory:
+- `Paper_original/` is the original from `Han-16/FastMatMul`, branch
+  `snp-revise-v1`, folder `Paper_snp_revise/`, commit
+  `930f306d5df1c378089ca181c0770745a930610c`.
+- `Paper/` is the current manuscript selected by the user. Its `main.tex`
+  includes Section 7 from `Contents/evaluation.tex`. The new EPYC results
+  have not yet been incorporated. On 2026-10-01, its compiled `main.pdf`
+  was verified to have the same 18-page content as `LAMP-1st-revision.pdf`;
+  only PDF timestamps and the document ID differ.
+
+The archival submission PDFs `LAMP.pdf` and `LAMP_diff.pdf`, and duplicate
+benchmark CSV files, were removed from the paper folders. `Paper_original/`
+therefore preserves the original paper content, rather than every file in the
+upstream directory. A new submission diff should be generated against this
+original when the revised paper is selected.
+
+To compile a version, run these commands from its paper folder:
 
 ```bash
 pdflatex main
@@ -50,43 +70,79 @@ pdflatex main
 pdflatex main
 ```
 
-The generated PDF is available at:
+## Benchmark Data
 
-```text
-Paper/main.pdf
+Measurements are preserved separately from paper sources. Each paper's
+`Tables/` directory retains the LaTeX tables required for compilation.
+
+### Original Results
+
+`Benchmark/original/` preserves:
+
+- `lamp_benchmark_results.csv`
+- `lamp_batch_benchmark_results.csv`
+- `lamp_gpt2_benchmark_results.csv`
+
+These are the existing paper measurements, distinct from the new server
+comparison. No implementation or measurement-version classification is
+inferred solely from the CSV filenames.
+
+### M1 Comparison
+
+`Benchmark/m1/` preserves raw JSONL results, invocation manifests, the measured
+source snapshot, provenance, and aggregate measurements. To validate 280
+verified records and regenerate only the M1 paper's two comparison tables:
+
+```bash
+python3 Benchmark/m1/generate_tables.py
 ```
 
-## Experimental Data
+This command does not run experiments. The measured source snapshot is
+archived evidence. The original comparison implementation came from
+`snp-labs/LAMP`, branch `comparison/zkmatrix-benchmarks`; ongoing implementation
+work is maintained in `lysias9049/LAMP-artifact`.
 
-The benchmark CSV files under `Experiment/Rebuttal/` record the measurements
-used in the evaluation section.  `FINAL_ACCOUNTING.md` states their protocol
-version and evidence boundary.
+### EPYC Comparison
 
-The available data files are:
+`Benchmark/epyc/` contains the received server results:
 
-- `Experiment/Rebuttal/lamp_benchmark_results.csv`
-- `Experiment/Rebuttal/lamp_batch_benchmark_results.csv`
-- `Experiment/Rebuttal/lamp_gpt2_benchmark_results.csv`
-- `Experiment/Rebuttal/freivalds_benchmark_results.csv`
-- `Experiment/Rebuttal/dualmatrix_benchmark_results.csv`
-- `Experiment/Rebuttal/dualmatrix_gpt2_benchmark_results.csv`
-- `Experiment/Rebuttal/final_protocol_accounting.csv`
+- `lamp-three-results-10reps-k7-k11-20260930T233536Z/`: LAMP and independent
+  zkMatrix, square sizes 128–2048, ten repetitions per system and size.
+  The separate zkMaP modified-variant measurements are excluded from the
+  paper's performance comparison.
+- `lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/`: LAMP and independent
+  zkMatrix, batches of 1–10 independent 128×128 products, ten repetitions
+  per system and batch size.
+- `archive/lamp-results-20260930T062910Z/`: earlier three-repetition square
+  and batch measurements, retained as experiment history.
 
-See `Paper/Contents/evaluation.tex` and
-`Experiment/Rebuttal/FINAL_ACCOUNTING.md` for the reported measurements and
-caveats.
+The new runs use the same pinned measurement source, AMD EPYC 7B13 host,
+BN254 curve, and 32 threads. LAMP uses code rate 1/2 and 309 queries.
+Raw results, configurations, logs, and code snapshots remain together in
+each result folder. All file hashes were checked before and after relocation.
 
-## Artifact Scope
+Keep raw measurements, manifests, source versions, and host information with
+the results. Do not merge M1 and EPYC timings into one aggregate.
 
-This repository contains the paper, implementation, benchmark outputs,
-accounting notes, and review material.  The preserved server timings are
-pre-binding point snapshots; final-circuit compile rows and a final serializer
-smoke test are recorded separately.
+## Implementation Source
 
-## Notes
+The runnable implementations are maintained in
+[lysias9049/LAMP-artifact](https://github.com/lysias9049/LAMP-artifact).
+The zkMaP protocol source formerly under `Implementation/` was checked against
+commit `b34d2287c30730a3990d92630185a0a792a2897f`, which was the remote main
+at verification under the former `lysias9049/FastMatMul` repository URL.
+The eight protocol Go files are byte-identical. The same commit is available
+as the artifact repository's main at the repository transition on 2026-10-01.
 
-- The paper is written in English and uses standard cryptographic notation.
-- The LaTeX build target is pdfLaTeX with BibTeX.
-- The paper distinguishes recorded byte subtotals from final all-inclusive
-  prover-to-verifier communication.  CRS, proving/verifying keys, and generator
-  material are setup data rather than per-proof communication.
+The local standalone module, CLI, scripts, plans, test logs, and binaries are
+preserved in `Revision/archive/zkmap-local-implementation-20261001.tar.gz`.
+Its adjacent JSON records upstream provenance and file hashes. All 42 local
+files were checked against the archive before removing `Implementation/`.
+The source snapshots accompanying benchmark measurements remain preserved.
+
+## Writing and Review
+
+The paper body is in English; planning documents are in Korean. pdfLaTeX with
+BibTeX is the build target. See `AGENTS.md` for writing conventions and version
+handling. The 2026-09-18 AE review is retained under `Revision/archive/`; its
+observations do not establish the current state of the AE submission.

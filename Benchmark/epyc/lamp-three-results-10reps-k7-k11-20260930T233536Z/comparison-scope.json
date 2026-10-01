@@ -1,0 +1,28 @@
+{
+  "repository": "https://github.com/lysias9049/FastMatMul",
+  "source_commit": "b34d2287c30730a3990d92630185a0a792a2897f",
+  "square_sizes": [
+    128,
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "repetitions": 10,
+  "threads": 32,
+  "scheme_labels": [
+    "LAMP",
+    "independent zkMatrix",
+    "zkMaP completeness-roots-v1"
+  ],
+  "zkmap_comparison_eligible_as_published_protocol": false,
+  "zkmap_security_certified": false,
+  "zkmap_missing_checks": [
+    "projection binding to ABC commitments",
+    "degree constraints",
+    "zero-knowledge hiding"
+  ],
+  "timing_scope": "commit-inclusive online prove; setup and actual AB computation separate",
+  "python": "3.12.3 (main, Jul 15 2026, 23:46:41) [GCC 13.3.0]",
+  "os": "Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39"
+}

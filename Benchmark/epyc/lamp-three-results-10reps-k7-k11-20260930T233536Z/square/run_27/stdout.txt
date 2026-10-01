@@ -1,0 +1,21 @@
+🔥 [LAMP ZK Protocol] logK=9, K=512, N=1024, L=309, linker=qa_link, merkle=multi
+   ✅ Matrix Compute Time: 0.18 s
+=== Circuit Setup & Prove ===
+[90m23:46:54[0m [32mINF[0m [1mcompiling circuit[0m
+[90m23:46:54[0m [32mINF[0m [1mparsed circuit inputs[0m [36mnbPublic=[0m315 [36mnbSecret=[0m480159
+[90m23:46:56[0m [32mINF[0m [1mbuilding constraint builder[0m [36mnbConstraints=[0m655246
+=== 3. Generating Proof ===
+[90m23:47:41[0m DBG constraint system solver done [36mnbConstraints=[0m655246 [36mtook=[0m2098.510542
+[90m23:47:44[0m DBG prover done [36macceleration=[0mnone [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mnbConstraints=[0m655246 [36mtook=[0m2817.367191
+   ✅ Prove Time: 4.92s
+=== Generating Off-line Proofs ===
+=== Verifying All Proofs ===
+[90m23:47:44[0m DBG verifier done [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mtook=[0m2.184899
+   ✅ Verify Time: 0.13s
+✅ ALL BLINDED ZK PROOFS VERIFIED SUCCESSFULLY!
+[90m23:47:44[0m DBG verifier done [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mtook=[0m2.14116
+📊 Proof Sizes -> Groth16: 292 B, Merkle: 64576 B, CPLink: 128 B | Total: 64996 B
+💾 Result saved to CSV: LAMP Protocol: logK=9, rho=1/2, linker=qa_link, merkle=multi, L=309, constraints=655246
+
+
+🎉 All LAMP ZK tasks finished!

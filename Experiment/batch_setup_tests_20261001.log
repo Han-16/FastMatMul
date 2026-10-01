@@ -1,0 +1,11 @@
+test_actual_shell_plan_does_not_execute_go_or_create_results (test_epyc_batch_setup.BatchSetupTests) ... ok
+test_detected_failure_stops_remaining_measurements (test_epyc_batch_setup.BatchSetupTests) ... ok
+test_downloaded_paths_validate_200_records_and_reject_missing_or_unverified (test_epyc_batch_setup.BatchSetupTests) ... ok
+test_incomplete_manifest_cannot_be_reported_as_complete (test_epyc_batch_setup.BatchSetupTests) ... ok
+test_plan_rejects_missing_batch_and_square_or_different_parameters (test_epyc_batch_setup.BatchSetupTests) ... ok
+test_runner_failure_is_returned_and_existing_output_is_preserved (test_epyc_batch_setup.BatchSetupTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.406s
+
+OK

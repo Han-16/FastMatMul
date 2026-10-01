@@ -1,0 +1,968 @@
+{
+  "date": "2026-10-01",
+  "raw_result_directory": "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z",
+  "archive_path": "/Users/kyeongtae/Downloads/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z.tar.gz",
+  "archive_sha256": "6490f125398470c30ea27b0e033f0a552a0af7d5912044635bf91b7471d00970",
+  "archive_extracted_files_matched": 561,
+  "verification": "200 normal-input verified records; all 110 commands exited successfully; fresh aggregation agrees with downloaded summary within floating-point roundoff; not a formal soundness certification",
+  "local_aggregation_python": "3.9.6 (default, Jan  9 2026, 11:03:41) \n[Clang 17.0.0 (clang-1700.6.4.2)]",
+  "aggregation_comparison": {
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-15,
+    "roundoff_differences": [
+      {
+        "path": "[0].timings_seconds.precommitted_online_prove.sample_sd",
+        "absolute_delta": 4.336808689942018e-19
+      },
+      {
+        "path": "[1].timings_seconds.matmul.sample_sd",
+        "absolute_delta": 1.0842021724855044e-19
+      },
+      {
+        "path": "[2].timings_seconds.matrix_commit.sample_sd",
+        "absolute_delta": 2.168404344971009e-19
+      },
+      {
+        "path": "[2].timings_seconds.precommitted_online_prove.sample_sd",
+        "absolute_delta": 8.673617379884035e-19
+      },
+      {
+        "path": "[3].verify_seconds.sample_sd",
+        "absolute_delta": 5.421010862427522e-20
+      },
+      {
+        "path": "[3].timings_seconds.verify.sample_sd",
+        "absolute_delta": 5.421010862427522e-20
+      },
+      {
+        "path": "[4].verify_seconds.sample_sd",
+        "absolute_delta": 5.421010862427522e-20
+      },
+      {
+        "path": "[4].timings_seconds.verify.sample_sd",
+        "absolute_delta": 5.421010862427522e-20
+      },
+      {
+        "path": "[5].verify_seconds.sample_sd",
+        "absolute_delta": 5.421010862427522e-20
+      },
+      {
+        "path": "[5].timings_seconds.matrix_commit.sample_sd",
+        "absolute_delta": 2.168404344971009e-19
+      },
+      {
+        "path": "[5].timings_seconds.verify.sample_sd",
+        "absolute_delta": 5.421010862427522e-20
+      },
+      {
+        "path": "[6].timings_seconds.matmul.sample_sd",
+        "absolute_delta": 2.168404344971009e-19
+      },
+      {
+        "path": "[7].timings_seconds.matmul.sample_sd",
+        "absolute_delta": 1.0842021724855044e-19
+      },
+      {
+        "path": "[8].timings_seconds.matmul.sample_sd",
+        "absolute_delta": 1.0842021724855044e-19
+      },
+      {
+        "path": "[9].prove_seconds.sample_sd",
+        "absolute_delta": 8.673617379884035e-19
+      },
+      {
+        "path": "[9].timings_seconds.matmul.sample_sd",
+        "absolute_delta": 2.168404344971009e-19
+      },
+      {
+        "path": "[9].timings_seconds.precommitted_online_prove.sample_sd",
+        "absolute_delta": 8.673617379884035e-19
+      },
+      {
+        "path": "[9].timings_seconds.prove.sample_sd",
+        "absolute_delta": 8.673617379884035e-19
+      },
+      {
+        "path": "[10].timings_seconds.setup.sample_sd",
+        "absolute_delta": 1.3877787807814457e-17
+      },
+      {
+        "path": "[10].original_reported_proof_bytes.sample_sd",
+        "absolute_delta": 5.684341886080802e-14
+      },
+      {
+        "path": "[10].compressed_payload_bytes.sample_sd",
+        "absolute_delta": 5.684341886080802e-14
+      },
+      {
+        "path": "[11].prove_seconds.sample_sd",
+        "absolute_delta": 6.938893903907228e-18
+      },
+      {
+        "path": "[11].timings_seconds.full_online_prove.sample_sd",
+        "absolute_delta": 6.938893903907228e-18
+      },
+      {
+        "path": "[11].timings_seconds.prove.sample_sd",
+        "absolute_delta": 6.938893903907228e-18
+      },
+      {
+        "path": "[11].distinct_query_count.sample_sd",
+        "absolute_delta": 8.881784197001252e-16
+      },
+      {
+        "path": "[12].timings_seconds.matrix_encoding.sample_sd",
+        "absolute_delta": 2.168404344971009e-19
+      },
+      {
+        "path": "[12].timings_seconds.precommitted_online_prove.sample_sd",
+        "absolute_delta": 3.469446951953614e-18
+      },
+      {
+        "path": "[13].distinct_query_count.sample_sd",
+        "absolute_delta": 8.881784197001252e-16
+      },
+      {
+        "path": "[15].timings_seconds.circuit_compile.sample_sd",
+        "absolute_delta": 1.3877787807814457e-17
+      },
+      {
+        "path": "[15].timings_seconds.official_abc_commit_through_challenges.sample_sd",
+        "absolute_delta": 8.673617379884035e-19
+      },
+      {
+        "path": "[17].distinct_query_count.sample_sd",
+        "absolute_delta": 8.881784197001252e-16
+      },
+      {
+        "path": "[18].prove_seconds.sample_sd",
+        "absolute_delta": 1.3877787807814457e-17
+      },
+      {
+        "path": "[18].timings_seconds.full_online_prove.sample_sd",
+        "absolute_delta": 1.3877787807814457e-17
+      },
+      {
+        "path": "[18].timings_seconds.matrix_compute.sample_sd",
+        "absolute_delta": 2.710505431213761e-20
+      },
+      {
+        "path": "[18].timings_seconds.official_abc_commit_through_challenges.sample_sd",
+        "absolute_delta": 4.336808689942018e-19
+      },
+      {
+        "path": "[18].timings_seconds.prove.sample_sd",
+        "absolute_delta": 1.3877787807814457e-17
+      },
+      {
+        "path": "[19].timings_seconds.official_abc_commit_through_challenges.sample_sd",
+        "absolute_delta": 1.734723475976807e-18
+      },
+      {
+        "path": "[19].original_reported_proof_bytes.sample_sd",
+        "absolute_delta": 5.684341886080802e-14
+      }
+    ]
+  },
+  "source": {
+    "head": "b34d2287c30730a3990d92630185a0a792a2897f",
+    "tracked_diff_sha256": "08fbccb9899b95fffc030b1bb24e3f0a4dfa1a302d2b97b700b1f9c877e1b7b4",
+    "source_tree_sha256": "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+    "source_files_hashed": 804,
+    "working_tree_status": [
+      " M scripts/comparison/configs.json",
+      "?? .lamp-epyc-batch.lock"
+    ],
+    "scope": "Go source and Go module files, including lib/gnark, plus comparison runner/config; no docs, env files, or outputs"
+  },
+  "environment": {
+    "processor": "AMD EPYC 7B13",
+    "cpu_count": 32,
+    "memory_bytes": 270249447424,
+    "go": "go version go1.26.2 linux/amd64",
+    "gomaxprocs": 32,
+    "thread_budget": 32,
+    "os": "Linux-6.17.0-1022-gcp-x86_64-with-glibc2.39"
+  },
+  "config": {
+    "label": "server_batch_q1_q10_10reps",
+    "log_k": 7,
+    "rho": "1/2",
+    "queries": 309,
+    "repetitions": 10,
+    "threads": 32,
+    "timeout_seconds": 86400,
+    "zkmatrix_batch_q": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "lamp_batch_q": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "max_matrix_elements": 1048576,
+    "resource_plan": "Sequential LAMP and independent zkMatrix comparison for n=128 and q=1..10 independent products; ten fresh repetitions per scheme and batch size, 32 threads. Keep this dataset separate from the completed three-repetition dataset. Plan mode does not execute benchmarks.",
+    "include_square": false
+  },
+  "source_tree_matches_square_10reps": true,
+  "wall_time_minutes": 114.13345529238383,
+  "timing_scope": "Commit-inclusive online prove; setup, compile and actual AB computation excluded",
+  "groups": [
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 1,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.6520279734000001,
+        "sample_sd": 0.0036766675611250126,
+        "min": 0.645843488,
+        "median": 0.652416202,
+        "max": 0.656886714
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.009659787,
+        "sample_sd": 0.0004359091634682111,
+        "min": 0.009105275,
+        "median": 0.009679505,
+        "max": 0.010374955
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 4100,
+        "sample_sd": 0.0,
+        "min": 4100,
+        "median": 4100.0,
+        "max": 4100
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 112,
+        "sample_sd": 0.0,
+        "min": 112,
+        "median": 112.0,
+        "max": 112
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 1,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 1.6586009692000003,
+        "sample_sd": 0.027317610320061064,
+        "min": 1.6134441820000003,
+        "median": 1.6623211945000005,
+        "max": 1.699241207
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1298766421,
+        "sample_sd": 0.0011251009335667495,
+        "min": 0.128469086,
+        "median": 0.1297545485,
+        "max": 0.131763078
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24281.6,
+        "sample_sd": 263.36084244498716,
+        "min": 23936,
+        "median": 24256.0,
+        "max": 24896
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 2,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.701986008,
+        "sample_sd": 0.0035121610640466263,
+        "min": 0.694725905,
+        "median": 0.7019098484999999,
+        "max": 0.707752902
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.011756132,
+        "sample_sd": 0.0005038714204086859,
+        "min": 0.011050136,
+        "median": 0.011867501,
+        "max": 0.012728287
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 4936,
+        "sample_sd": 0.0,
+        "min": 4936,
+        "median": 4936.0,
+        "max": 4936
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 224,
+        "sample_sd": 0.0,
+        "min": 224,
+        "median": 224.0,
+        "max": 224
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 2,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 2.8885462572000007,
+        "sample_sd": 0.03600338527116015,
+        "min": 2.852262593999999,
+        "median": 2.8774692870000003,
+        "max": 2.9715103210000002
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1291621945,
+        "sample_sd": 0.0005557785837686032,
+        "min": 0.128338402,
+        "median": 0.12917644849999999,
+        "max": 0.130002107
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24377.6,
+        "sample_sd": 409.7444189844309,
+        "min": 23808,
+        "median": 24256.0,
+        "max": 25088
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 3,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.7462784244,
+        "sample_sd": 0.003463387449076436,
+        "min": 0.738448018,
+        "median": 0.745969667,
+        "max": 0.751126125
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.014015788500000001,
+        "sample_sd": 0.00034968174266236554,
+        "min": 0.013518448,
+        "median": 0.013935602,
+        "max": 0.014573578
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 5772,
+        "sample_sd": 0.0,
+        "min": 5772,
+        "median": 5772.0,
+        "max": 5772
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 336,
+        "sample_sd": 0.0,
+        "min": 336,
+        "median": 336.0,
+        "max": 336
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 3,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 3.951482695500001,
+        "sample_sd": 0.02019872456494433,
+        "min": 3.9196636460000036,
+        "median": 3.9476012975000003,
+        "max": 3.989959136000003
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1293595819,
+        "sample_sd": 0.00151304873437268,
+        "min": 0.127864513,
+        "median": 0.12884945450000002,
+        "max": 0.13272875
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24332.8,
+        "sample_sd": 262.66869711567165,
+        "min": 23808,
+        "median": 24416.0,
+        "max": 24640
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 4,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.798321862,
+        "sample_sd": 0.003174781465857492,
+        "min": 0.795070489,
+        "median": 0.7969131945000001,
+        "max": 0.804346945
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.0160970017,
+        "sample_sd": 0.00044911036896044706,
+        "min": 0.015462108,
+        "median": 0.016024549,
+        "max": 0.016918919
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 6608,
+        "sample_sd": 0.0,
+        "min": 6608,
+        "median": 6608.0,
+        "max": 6608
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 448,
+        "sample_sd": 0.0,
+        "min": 448,
+        "median": 448.0,
+        "max": 448
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 4,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 5.266872091,
+        "sample_sd": 0.07543706413268556,
+        "min": 5.150828712000006,
+        "median": 5.292020089499996,
+        "max": 5.3466359240000045
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1314475356,
+        "sample_sd": 0.0027532590666199423,
+        "min": 0.128697579,
+        "median": 0.129832682,
+        "max": 0.135925394
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24268.8,
+        "sample_sd": 269.51017296817076,
+        "min": 23872,
+        "median": 24224.0,
+        "max": 24704
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 5,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.8462702707,
+        "sample_sd": 0.002706917890359258,
+        "min": 0.841267662,
+        "median": 0.8473922865,
+        "max": 0.849719817
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.018453133,
+        "sample_sd": 0.0003823168339377985,
+        "min": 0.01791017,
+        "median": 0.018508894999999997,
+        "max": 0.01899875
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 7444,
+        "sample_sd": 0.0,
+        "min": 7444,
+        "median": 7444.0,
+        "max": 7444
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 560,
+        "sample_sd": 0.0,
+        "min": 560,
+        "median": 560.0,
+        "max": 560
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 5,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 6.361995814900001,
+        "sample_sd": 0.07677353415727532,
+        "min": 6.198641336999998,
+        "median": 6.3963632485000055,
+        "max": 6.4202960430000005
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1323381099,
+        "sample_sd": 0.0028216826196780947,
+        "min": 0.128903741,
+        "median": 0.13316615250000002,
+        "max": 0.136445044
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24390.4,
+        "sample_sd": 182.14719322569866,
+        "min": 24128,
+        "median": 24352.0,
+        "max": 24704
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 6,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.8955884808,
+        "sample_sd": 0.004207534033838436,
+        "min": 0.88909146,
+        "median": 0.8961368030000001,
+        "max": 0.901510416
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.0204312081,
+        "sample_sd": 0.00035455941010983347,
+        "min": 0.019831681,
+        "median": 0.020468031499999997,
+        "max": 0.020903771
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 8280,
+        "sample_sd": 0.0,
+        "min": 8280,
+        "median": 8280.0,
+        "max": 8280
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 672,
+        "sample_sd": 0.0,
+        "min": 672,
+        "median": 672.0,
+        "max": 672
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 6,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 7.289325774999999,
+        "sample_sd": 0.07942993526355926,
+        "min": 7.19739912499999,
+        "median": 7.256241375999998,
+        "max": 7.395241577
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1298227083,
+        "sample_sd": 0.002011836102622129,
+        "min": 0.127926371,
+        "median": 0.12918307,
+        "max": 0.134138466
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24288,
+        "sample_sd": 245.56510790872187,
+        "min": 24064,
+        "median": 24192.0,
+        "max": 24768
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 7,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.9438743741,
+        "sample_sd": 0.004334797232440815,
+        "min": 0.936880534,
+        "median": 0.94363399,
+        "max": 0.952548283
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.0231473493,
+        "sample_sd": 0.0004782158277563364,
+        "min": 0.022383892,
+        "median": 0.023059402,
+        "max": 0.024003323
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 9116,
+        "sample_sd": 0.0,
+        "min": 9116,
+        "median": 9116.0,
+        "max": 9116
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 784,
+        "sample_sd": 0.0,
+        "min": 784,
+        "median": 784.0,
+        "max": 784
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 7,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 8.759383703499998,
+        "sample_sd": 0.08497846549562071,
+        "min": 8.600497492999992,
+        "median": 8.789439734499993,
+        "max": 8.835783410000005
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1293012378,
+        "sample_sd": 0.0006833029154603562,
+        "min": 0.128504341,
+        "median": 0.1291506515,
+        "max": 0.130384518
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24326.4,
+        "sample_sd": 267.22075767674437,
+        "min": 24000,
+        "median": 24288.0,
+        "max": 24832
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 8,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 0.9923757421,
+        "sample_sd": 0.004390285862441903,
+        "min": 0.984590218,
+        "median": 0.991933229,
+        "max": 0.99716738
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.024569016200000002,
+        "sample_sd": 0.0009776281198902667,
+        "min": 0.023039322,
+        "median": 0.0246915285,
+        "max": 0.025737314
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 9952,
+        "sample_sd": 0.0,
+        "min": 9952,
+        "median": 9952.0,
+        "max": 9952
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 896,
+        "sample_sd": 0.0,
+        "min": 896,
+        "median": 896.0,
+        "max": 896
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 8,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 9.738293521299994,
+        "sample_sd": 0.11400431792890195,
+        "min": 9.63557281899999,
+        "median": 9.671177077500005,
+        "max": 9.896397381
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1292418655,
+        "sample_sd": 0.0004950589934528026,
+        "min": 0.128561751,
+        "median": 0.129379066,
+        "max": 0.12989163
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24236.8,
+        "sample_sd": 289.45803764199667,
+        "min": 23872,
+        "median": 24224.0,
+        "max": 24704
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 9,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 1.0389819914,
+        "sample_sd": 0.003465549935092055,
+        "min": 1.033047424,
+        "median": 1.038743067,
+        "max": 1.043925756
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.0271641144,
+        "sample_sd": 0.00036603646376107254,
+        "min": 0.026475647,
+        "median": 0.027169890000000002,
+        "max": 0.027707144
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 10788,
+        "sample_sd": 0.0,
+        "min": 10788,
+        "median": 10788.0,
+        "max": 10788
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 1008,
+        "sample_sd": 0.0,
+        "min": 1008,
+        "median": 1008.0,
+        "max": 1008
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 9,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 10.835808522199995,
+        "sample_sd": 0.1232572417080049,
+        "min": 10.60409108399999,
+        "median": 10.880628671499991,
+        "max": 10.960811163999992
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1288909694,
+        "sample_sd": 0.0004805814707599747,
+        "min": 0.128021451,
+        "median": 0.1289440955,
+        "max": 0.129477341
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24300.8,
+        "sample_sd": 319.359358716791,
+        "min": 23808,
+        "median": 24256.0,
+        "max": 24768
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    },
+    {
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "batch_q": 10,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 1.0879478043,
+        "sample_sd": 0.006982137546147891,
+        "min": 1.081063556,
+        "median": 1.0866932870000001,
+        "max": 1.102850915
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.028846437,
+        "sample_sd": 0.000965466545131995,
+        "min": 0.027048815,
+        "median": 0.0289958965,
+        "max": 0.030192469
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 11624,
+        "sample_sd": 0.0,
+        "min": 11624,
+        "median": 11624.0,
+        "max": 11624
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 1120,
+        "sample_sd": 0.0,
+        "min": 1120,
+        "median": 1120.0,
+        "max": 1120
+      }
+    },
+    {
+      "scheme": "lamp",
+      "batch_q": 10,
+      "repetitions": 10,
+      "prove_seconds": {
+        "n": 10,
+        "mean": 11.796035654499997,
+        "sample_sd": 0.10291848521571217,
+        "min": 11.616704220999992,
+        "median": 11.819238601999999,
+        "max": 11.951464203
+      },
+      "verify_seconds": {
+        "n": 10,
+        "mean": 0.1289635224,
+        "sample_sd": 0.0005282848526385943,
+        "min": 0.128429511,
+        "median": 0.12886136050000002,
+        "max": 0.130118641
+      },
+      "compressed_proof_bytes": {
+        "n": 10,
+        "mean": 24371.2,
+        "sample_sd": 410.13298656248884,
+        "min": 23552,
+        "median": 24384.0,
+        "max": 25024
+      },
+      "statement_bytes": {
+        "n": 10,
+        "mean": 64,
+        "sample_sd": 0.0,
+        "min": 64,
+        "median": 64.0,
+        "max": 64
+      }
+    }
+  ]
+}
