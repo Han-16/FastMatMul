@@ -1,0 +1,12 @@
+Dear Shepherd,
+
+We have completed the additional zkMatrix experiments and revised the manuscript accordingly. We attach the revised manuscript and a comparison PDF highlighting additions and revisions in blue.
+
+Section 7 now includes single-product and batch benchmarks comparing LAMP with our independent implementation of zkMatrix on the same EPYC server, using BN254 and the LAMP parameters specified in Section 7. We describe the implementation adaptations and measurement scope, and discuss the trade-offs in proving time, verification time, and proof size. The introduction and conclusion have also been updated to reflect these results.
+
+For zkMaP, our reproduction of the published equations encountered completeness failures under the encoding conventions we tested. Our modified variant restores honest-input acceptance but fails statement binding. We therefore exclude its measurements from the performance comparison and explain the reproduction difficulties in Section 7. These findings concern our reproduction and modified variant; we do not claim that the published protocol is unsound.
+
+We would appreciate your assessment of these revisions and your guidance on any further evidence or clarification needed regarding zkMaP to address the remaining noteworthy concern.
+
+Best regards,
+The authors
