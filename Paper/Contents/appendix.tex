@@ -565,6 +565,84 @@ Verification uses \(q+2\) pairing terms and one final exponentiation via
 multi-pairing; the proof contains one \(\mathbb{G}_1\) element and the
 verification key contains \(q+2\) \(\mathbb{G}_2\) elements.
 
+% Detailed original evaluation tables; numerical entries are unchanged.
+\begin{table*}[!t]
+\centering
+\begin{revblock}[unbreakable]
+% \scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{c cc ccc ccc ccc ccc}
+\toprule
+&
+\multicolumn{2}{c}{\textbf{Setup}}
+& \multicolumn{3}{c}{\textbf{Commit}}
+& \multicolumn{3}{c}{\textbf{Prove}}
+& \multicolumn{3}{c}{\textbf{Verify}}
+& \multicolumn{3}{c}{\textbf{Proof}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}\cmidrule(lr){10-12}\cmidrule(lr){13-15}
+\multirow{-2}{*}{\(\boldsymbol{k}\)}
+& Groth16 & CP-Link
+& Encode & ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Groth16 & Merkle & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+$2^7$ & 10.06\,s & 0.66\,s & 0.02\,s & 0.07\,s & 0.01\,s & 1\,ms & 1.47\,s & 0.04\,s & 2\,ms & 1\,ms & 0.12\,s & 43{,}904\,B & 292\,B & 128\,B \\
+$2^8$ & 20.06\,s & 1.29\,s & 0.04\,s & 0.21\,s & 0.02\,s & 1\,ms & 2.56\,s & 0.07\,s & 2\,ms & 1\,ms & 0.13\,s & 51{,}776\,B & 292\,B & 128\,B \\
+$2^9$ & 39.83\,s & 2.55\,s & 0.15\,s & 0.73\,s & 0.04\,s & 1\,ms & 4.71\,s & 0.11\,s & 2\,ms & 2\,ms & 0.12\,s & 64{,}896\,B & 292\,B & 128\,B \\
+$2^{10}$ & 80.40\,s & 4.99\,s & 0.49\,s & 2.63\,s & 0.16\,s & 1\,ms & 8.81\,s & 0.19\,s & 2\,ms & 2\,ms & 0.13\,s & 79{,}552\,B & 292\,B & 128\,B \\
+$2^{11}$ & 155.01\,s & 9.89\,s & 1.56\,s & 7.78\,s & 0.52\,s & 1\,ms & 17.15\,s & 0.46\,s & 2\,ms & 3\,ms & 0.12\,s & 96{,}512\,B & 292\,B & 128\,B \\
+$2^{12}$ & 320.11\,s & 19.55\,s & 5.31\,s & 27.13\,s & 3.34\,s & 1\,ms & 34.15\,s & 0.80\,s & 2\,ms & 3\,ms & 0.13\,s & 115{,}584\,B & 292\,B & 128\,B \\
+$2^{13}$ & 638.92\,s & 40.82\,s & 18.54\,s & 99.03\,s & 8.93\,s & 1\,ms & 67.37\,s & 1.52\,s & 2\,ms & 4\,ms & 0.13\,s & 136{,}320\,B & 292\,B & 128\,B \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{revblock}
+\vspace{6pt}
+\caption{Component-level measurements for \(\protocol\).}
+\label{tab:lamp-breakdown}
+\end{table*}
+
+\begin{table*}[!t]
+\centering
+  \ifshowrevisions
+    \rowcolors{1}{yellow!20}{yellow!20}
+  \fi
+% \scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{c c ccc ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Claims}}
+& \multirow{2}{*}{\textbf{Constraints}}
+& \multicolumn{3}{c}{\textbf{Commit}}
+& \multicolumn{3}{c}{\textbf{Prove}}
+& \multicolumn{3}{c}{\textbf{Proof}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}
+& & Encode & ABC & XYZ
+& Merkle & Groth16 & CP-Link
+& Merkle & Groth16 & CP-Link \\
+\midrule
+1  & 167{,}065   & 0.04\,s & 0.07\,s & 0.01\,s & 1\,ms & 1.42\,s  & 0.04\,s & 43{,}776\,B & & \\
+2  & 328{,}126   & 0.04\,s & 0.11\,s & 0.01\,s & 1\,ms & 2.55\,s  & 0.07\,s & 43{,}328\,B & & \\
+3  & 489{,}187   & 0.04\,s & 0.15\,s & 0.01\,s & 1\,ms & 3.60\,s  & 0.10\,s & 43{,}712\,B & & \\
+4  & 650{,}248   & 0.05\,s & 0.20\,s & 0.02\,s & 1\,ms & 4.79\,s  & 0.11\,s & 43{,}648\,B & & \\
+5  & 811{,}309   & 0.05\,s & 0.23\,s & 0.02\,s & 1\,ms & 5.72\,s  & 0.14\,s & 43{,}776\,B & & \\
+6  & 972{,}370   & 0.05\,s & 0.27\,s & 0.02\,s & 1\,ms & 6.66\,s  & 0.18\,s & 43{,}712\,B & & \\
+7  & 1{,}133{,}431 & 0.05\,s & 0.32\,s & 0.02\,s & 1\,ms & 7.83\,s  & 0.17\,s & 43{,}904\,B & & \\
+8  & 1{,}294{,}492 & 0.06\,s & 0.37\,s & 0.02\,s & 1\,ms & 8.69\,s  & 0.18\,s & 44{,}096\,B & & \\
+9  & 1{,}455{,}553 & 0.06\,s & 0.38\,s & 0.02\,s & 1\,ms & 9.81\,s  & 0.23\,s & 43{,}648\,B & & \\
+10 & 1{,}616{,}614 & 0.06\,s & 0.42\,s & 0.03\,s & 1\,ms & 10.72\,s & 0.22\,s & 43{,}712\,B & \multirow{-10}{*}{292\,B} & \multirow{-10}{*}{128\,B} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{6pt}
+\caption{Batching \(q\) independent matrix-multiplication claims
+\(\{\mat{A}_i\mat{B}_i=\mat{C}_i\}_{i\in[q]}\) at fixed \(k=2^7\).}
+\label{tab:lamp-batch}
+\end{table*}
+
 % Queue the two-column results table before the final appendix page begins.
 \begin{table*}[!t]
 \centering
@@ -649,17 +727,12 @@ satisfies the batched equation with probability at most
 \(1/(|\mathbb{F}|-1)\).  For Fiat--Shamir-derived coefficients, this bound is
 interpreted in the random oracle model.
 
-\section{LAMP Results Across Code Rates}
+\section{Additional Evaluation Measurements}
 \label{app:lamp-code-rates}
+\label{app:component-batch}
 
-Table~\ref{tab:lamp-code-rates} reports the performance of \(\protocol\) for
-code rates \(\rho\in\{1/2,1/4,1/8\}\).  The setup time is the sum of the
-Groth16 and CP-Link setup times.  Encoding and commitment generation are
-reported separately, where commitment is the sum of the ABC and XYZ
-commitment times and excludes encoding.  Proving time is the sum of the
-Merkle, Groth16, and CP-Link proof-generation times and excludes both encoding
-and commitment generation.  
-
-
-
-%Since queried positions are sampled independently, the measurements remain well-defined when \(t>n\).
+Tables~\ref{tab:lamp-breakdown} and~\ref{tab:lamp-batch} preserve component and
+batch results; Table~\ref{tab:lamp-code-rates} compares code rates, all with
+original accounting. Setup sums Groth16 and CP-Link; commitment excludes
+encoding; proving sums Merkle, Groth16, and CP-Link generation, excluding
+encoding and commitments.

@@ -2,10 +2,10 @@
 
 - 갱신일: **2026-10-01, 한국 시간**
 - 논문: **S&P 2027 #1646 — LAMP: Linear Verification of Matrix Multiplication via Proximity Testing**
-- 현재 단계: 채택 후 shepherding. **10/1 단일 행렬 128~2048 및 n=128, q=1~10 배치를 LAMP·zkMatrix 각각 10회 완료했고, 원시 결과를 로컬에 보존·검증했다. 다음 작업은 `Paper/`에 zkMatrix 비교와 trade-off를 반영하는 것이다.**
+- 현재 단계: 채택 후 shepherding. **10/1 단일 행렬 128~2048 및 n=128, q=1~10 배치를 LAMP·zkMatrix 각각 10회 완료했고, 원시 결과를 로컬에 보존·검증했다. `Paper/`에 zkMatrix 비교와 trade-off, zkMaP 비교 제외 사유를 반영하고 18쪽 PDF를 빌드했다. 다음 작업은 공동저자 검토와 shepherd 대응·제출 패키지 확정이다.**
 - AE는 동료 담당이다. 현재 AE 제출 상태·배지·평가 진행 상황은 이번 작업에서 재조회하지 않았다.
 - 저장소 역할을 확정했다. 논문·수정 계획·실험 비교 근거는 [lysias9049/LAMP](https://github.com/lysias9049/LAMP), 실행 구현체·아티팩트는 [lysias9049/LAMP-artifact](https://github.com/lysias9049/LAMP-artifact)에서 관리한다. 현재 로컬 폴더는 논문 작업용이다. 10/1 확인 당시 아티팩트 main은 기존 측정 소스와 같은 `b34d2287c30730a3990d92630185a0a792a2897f`다. 이전 저장소명이 남아 있는 원시 측정 기록·소스 출처는 당시 기록으로 보존한다.
-- 로컬 Git은 `origin`을 논문 저장소, `artifact`를 구현체 저장소에 연결했다. 현재 작업 브랜치의 추적 대상과 push 대상은 논문 `origin`으로 설정했다. 이번 저장소 구분 작업에서는 원격 참조를 갱신했고, commit·push는 하지 않았다.
+- 로컬 Git은 `origin`을 논문 저장소, `artifact`를 구현체 저장소에 연결했다. 현재 작업 브랜치의 추적 대상과 push 대상은 논문 `origin`이다. 사용자의 요청에 따라 수정 전 로컬 자료를 commit하고, 새 논문 저장소의 초기 README 이력을 합쳐 `3930ecccdd06aee857da3522118e1bcd0fcf34ea`를 `origin/main`에 push·확인했다. 이어서 아래 논문 보완을 완료했다.
 
 ## 1. 현재 상황
 
@@ -28,6 +28,19 @@
 - **zkMaP 수정판에서 false-statement 수락 반례를 확인했다.** 정상 C=AB의 증명이 C'=AB+E00의 commitment에 대해서도 통과하며, 항등원 증명도 통과한다. 자료는 `Revision/zkmap_soundness_audit_20261001/`에 보관했다. 이 결과는 로컬 수정판에 관한 것이며 출판된 zkMaP 전체에 대한 결론으로 확대하지 않는다. 현재 범위에서 수정판의 soundness 보완·재측정은 진행하지 않는다.
 - 실제 runner의 배치 전용 실행 계획과 준비 도구 테스트를 로컬에서 확인했다. 이번 준비 작업에서는 VM 접속이나 서버 성능 측정을 실행하지 않았다.
 
+### 10/1 EPYC 결과를 반영한 논문 수정
+
+- Section 7에 독립 zkMatrix와의 단일 행렬·배치 비교표 두 개를 추가했다. 정방행렬은 128~2048, 배치는 128×128에서 q=1~10, 시스템·설정당 10회이며 평균과 표본 표준편차를 표시한다.
+- 서버 원시 결과 300건·30조건을 소스 commit/fingerprint, 실행 명령, host, BN254, 32 threads, LAMP rho=1/2·t=309와 대조했다. 재집계가 서버 요약과 일치한다. `Benchmark/epyc/generate_comparison_tables.py`는 검증·표 재생성만 하며 실험을 실행하지 않는다.
+- 새 비교는 encoding·commitment·witness 준비를 포함한 online proving 시간을 사용한다. setup·compile·C=AB 계산·serialization은 제외한다. 증명은 canonical compressed payload 크기, 공개 statement는 별도 집계다. 기존 표와 byte 집계가 달라 직접 비교하지 않는다고 설명했다.
+- 독립 zkMatrix의 최적화한 4-IPA, masking, structured SRS, pairing accelerator, Algorithm 6 배치를 명시했다. 출판 논문의 BLS12-381을 BN254로 옮긴 구현이며 동일 보안수준이나 원저자 코드 재현으로 주장하지 않는다. LAMP 구현의 evaluation-basis 인코딩과 challenge transcript도 공개하고, 논문의 public-coin 보안 분석과 구분한다.
+- 측정한 단일 행렬에서 zkMatrix는 128·256에서 더 빠르고, LAMP는 512·1024·2048에서 더 빠르다. 2048에서는 LAMP 약 28.310초, zkMatrix 약 113.180초로 약 4.00배다. 반면 zkMatrix의 검증·증명 크기가 이 전체 구간에서 더 좋다.
+- 배치에서는 zkMatrix가 모든 q=1~10에서 더 빠르며, q=10에서 약 1.088초 대 LAMP 약 11.796초다. LAMP의 증명 크기·검증은 거의 일정하나, 이 구간에서는 zkMatrix의 절대 비용이 더 작다. 측정 밖 crossover를 주장하지 않는다.
+- zkMaP의 출판된 식을 재현할 때 정상 입력에서 발생한 completeness 문제와 로컬 수정판의 statement-binding 실패를 구분해 설명했다. 수정판 성능 수치는 본문·표에 넣지 않았으며, 출판 프로토콜 전체의 실패로 확대하지 않는다.
+- Introduction·conclusion의 비교 주장도 범위에 맞춰 수정했다. 기존 Freivalds·DualMatrix·GPT-2 및 code-rate 표 5개의 블록은 수치·내용이 같다. 세부 component와 LAMP 단독 배치 표를 부록 F로 이동했으며, 기존 구성·보안 증명은 보존했다. `Paper_original/`은 변경하지 않았다.
+- pdfLaTeX·BibTeX 빌드와 렌더링을 확인했다. 총 18쪽, 본문·새 비교표는 13쪽 안에 있으며 undefined reference/citation과 overfull box는 없다. 결과는 `Paper/main.pdf`, source/PDF hash와 검증 기록은 `Benchmark/epyc/paper_revision_validation_20261001.json`이다.
+- 이는 zkMatrix 비교와 zkMaP 재현 문제 설명을 반영한 공동저자 검토용 원고다. Shepherd가 요구한 두 시스템의 완전한 공정 벤치마크를 모두 달성했다고 주장하지 않는다. 우려 제거 여부와 zkMaP 대응 범위는 shepherd의 판단·답변이 필요하다. HotCRP 제출이나 추가 코멘트 전송은 하지 않았다.
+
 ### 이전 계획 및 배경
 
 - 최초 영문 수정 계획은 사용자 보고에 따라 shepherd에게 제출 완료했다.
@@ -42,7 +55,7 @@
 | 위치 | 역할 | 현재 상태 |
 |---|---|---|
 | `Paper_original/` | 수정 전 기준 논문 | GitHub `Han-16/FastMatMul`, `snp-revise-v1`, `Paper_snp_revise/`, 커밋 `930f306d5df1c378089ca181c0770745a930610c` 기준 |
-| `Paper/` | 현재 수정할 논문 | 진입점 `main.tex`, Section 7은 `Contents/evaluation.tex`. 새 비교 결과는 아직 미반영 |
+| `Paper/` | 현재 수정할 논문 | 진입점 `main.tex`, Section 7은 `Contents/evaluation.tex`. 새 EPYC 단일 행렬·배치 비교, trade-off와 zkMaP 제외 사유 반영; 18쪽 빌드 |
 | `Benchmark/original/` | 기존 논문 측정 자료 | 정방행렬·batch·GPT-2 CSV 세 개 보존 |
 | `Benchmark/m1/` | 교수님 비교 측정 근거 | 원시 JSONL 280건, 실행 manifest, 측정 소스, 출처, 집계·표 생성 스크립트 보존 |
 | `Benchmark/epyc/archive/lamp-results-20260930T062910Z/` | EPYC 3회 측정 기록 | 단일 행렬 128~1024 및 배치 n=128, q=1~10 |
@@ -70,23 +83,23 @@
 - [x] 원시 결과와 manifest·명령·설정·소스 버전을 위 실제 로컬 경로에 보존하고, 검증·집계 기록을 `Benchmark/epyc/`에 저장한다.
 - [x] 새 배치 manifest의 AMD EPYC 7B13, 32 vCPU, 약 251GiB usable memory, Linux, Go 1.26.2, 32 threads 및 순차 실행 기록을 확인한다.
 - [x] 새 배치 결과에서 두 시스템의 q=1~10 각각 10개, 총 200개의 정상 입력 검증 성공 기록을 확인한다. 중단·실패한 실행은 없다.
-- [ ] 곡선, 행렬·배치 의미, setup 및 encoding·commitment 포함 범위, proof·statement byte 집계를 대조한다.
+- [x] 곡선, 행렬·배치 의미, setup 및 encoding·commitment 포함 범위, proof·statement byte 집계를 대조한다.
 - [x] 새 배치 원시 결과로 평균과 표본 표준편차를 재계산한다. M1과 EPYC, 기존 3회와 새 10회 결과를 한 평균으로 합치지 않는다.
 - [x] 결과와 로그를 확보한 뒤 VM을 중지한다. 사용자가 중지를 완료했다고 보고했다.
 
 ### P1. EPYC 논문 보완
 
-- [ ] `Paper/main.tex`가 불러오는 `Paper/Contents/evaluation.tex`에 서버 환경, 10회 반복, 측정 범위, 독립 구현의 차이와 결과를 반영한다.
-- [ ] 필요한 표를 `Paper/Tables/`에 만들고 원시 결과와 수치를 대조한다.
-- [ ] introduction·conclusion 등 비교 주장을 결과와 맞춘다. 측정하지 않은 크기나 다른 시스템에 성능 우위를 확장하지 않는다.
-- [ ] zkMatrix와의 prover·verifier·proof 및 batch trade-off를 설명한다.
+- [x] `Paper/main.tex`가 불러오는 `Paper/Contents/evaluation.tex`에 서버 환경, 10회 반복, 측정 범위, 독립 구현의 차이와 결과를 반영한다.
+- [x] 필요한 표를 `Paper/Tables/`에 만들고 원시 결과와 수치를 대조한다.
+- [x] introduction·conclusion 등 비교 주장을 결과와 맞춘다. 측정하지 않은 크기나 다른 시스템에 성능 우위를 확장하지 않는다.
+- [x] zkMatrix와의 prover·verifier·proof 및 batch trade-off를 설명한다.
 - [ ] zkMaP 비교가 남아 있다는 점과 대응 가능한 범위를 공동저자·shepherd와 조율한다.
 
 ### P2. 제출할 버전과 수정 패키지 확정
 
 - [ ] `Paper/`의 EPYC 비교 반영본을 공동저자와 확정한다.
-- [ ] 비교 표·설명을 추가한 뒤 제출 안내의 허용 분량에 맞는지 페이지 수를 확인한다.
-- [ ] 선택한 원고를 pdfLaTeX·BibTeX으로 빌드하고 참조·표·수식·페이지 배치를 확인한다.
+- [x] 비교 표·설명을 추가한 뒤 제출 안내의 허용 분량에 맞는지 페이지 수를 확인한다.
+- [x] 선택한 원고를 pdfLaTeX·BibTeX으로 빌드하고 참조·표·수식·페이지 배치를 확인한다.
 - [ ] 수정 PDF, 원본 대비 새 diff, shepherd response letter를 준비한다.
 - [ ] 달성한 zkMatrix 비교 범위와 남은 zkMaP 비교를 구분해 설명한다.
 - [ ] 제출 PDF·소스·측정 자료의 버전과 접수 기록을 보존한다.

@@ -106,20 +106,18 @@ matrix-multiplication statements.  Our contributions are as follows.
 
   \item \textbf{Implementation and evaluation.}
   \begin{revblock}
-  We implement \(\protocol\) in Go and evaluate it against a Freivalds-based
-  SNARK baseline and DualMatrix.  In the square-matrix experiments with
-  \(\rho=1/2\) and \(t=309\), \(\protocol\) reduces the constraint count by
-  \(9.68\times\) and proving time by \revmath{5.81\times} relative to the Freivalds
-  baseline at \(k=2^{12}\).  It also proves faster than DualMatrix at every
-  matrix dimension measured for both systems, achieving a \revmath{3.62\times}
-  speedup at \(k=2^{13}\).
+  We implement LAMP in Go. At \(k=4096\), it uses \(9.68\times\) fewer
+  constraints and proves \(5.81\times\) faster than a Freivalds SNARK; it
+  proves faster than DualMatrix at every shared dimension, by \(3.62\times\)
+  at \(k=8192\). Against an independent BN254 zkMatrix implementation, LAMP
+  proves \(4.00\times\) faster at \(k=2048\), while zkMatrix verifies faster
+  and produces smaller proofs throughout the measured range.
 
-  We further evaluate batching and a GPT-2 workload.  Batching matrix products
-  with a shared leaf layout keeps the Merkle proof size and verification time
-  nearly constant as the number of claims increases.  On GPT-2, \(\protocol\)
-  proves faster than both the Freivalds baseline and DualMatrix, although
-  heterogeneous matrix dimensions require multiple commitment layouts and
-  increase proof size and verification cost.
+  Shared-layout batching keeps LAMP's Merkle proof size and verification
+  nearly constant, but zkMatrix proves faster for the measured batches of
+  one to ten independent \(128\times128\) products. On GPT-2, LAMP proves
+  faster than Freivalds and DualMatrix, while heterogeneous commitment
+  layouts increase its proof size and verification cost.
   \end{revblock}
 \end{itemize}
 

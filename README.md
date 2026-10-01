@@ -50,10 +50,15 @@ Each paper folder is an independent copy with its own `main.tex`, `main.pdf`,
   `snp-revise-v1`, folder `Paper_snp_revise/`, commit
   `930f306d5df1c378089ca181c0770745a930610c`.
 - `Paper/` is the current manuscript selected by the user. Its `main.tex`
-  includes Section 7 from `Contents/evaluation.tex`. The new EPYC results
-  have not yet been incorporated. On 2026-10-01, its compiled `main.pdf`
-  was verified to have the same 18-page content as `LAMP-1st-revision.pdf`;
-  only PDF timestamps and the document ID differ.
+  includes Section 7 from `Contents/evaluation.tex`. It now includes the
+  independent zkMatrix EPYC square and batch comparisons, their measurement
+  definitions and trade-offs, and the reasons for excluding modified zkMaP
+  timings. Original component and LAMP-only batch tables are preserved in
+  Appendix F. The revised `main.pdf` has 18 pages, with the main text and new
+  comparison tables within page 13.
+- Before this revision, `Paper/main.pdf` was verified to match the 18-page
+  content of `LAMP-1st-revision.pdf`; only timestamps and the document ID
+  differed. `Paper_original/` and the submitted revision PDF remain unchanged.
 
 The archival submission PDFs `LAMP.pdf` and `LAMP_diff.pdf`, and duplicate
 benchmark CSV files, were removed from the paper folders. `Paper_original/`
@@ -120,6 +125,25 @@ The new runs use the same pinned measurement source, AMD EPYC 7B13 host,
 BN254 curve, and 32 threads. LAMP uses code rate 1/2 and 309 queries.
 Raw results, configurations, logs, and code snapshots remain together in
 each result folder. All file hashes were checked before and after relocation.
+
+To validate the 300 LAMP/zkMatrix records and regenerate the paper's two
+comparison tables and aggregate JSON, run from the repository root:
+
+```bash
+python3 Benchmark/epyc/generate_comparison_tables.py
+```
+
+This does not run experiments. It checks the pinned source, command completion,
+host and parameter settings, ten records per condition, and agreement with
+the received server aggregates. New timings are commitment-inclusive online
+costs, excluding setup, circuit compilation, matrix-product computation and
+serialization. Proof sizes use canonical compressed encodings, with public
+statement sizes reported separately; original table byte counts are retained
+and are not directly comparable to these compressed sizes.
+
+`paper_comparison_measurements.json` records aggregates and input hashes;
+`paper_revision_validation_20261001.json` records the source/PDF hashes and
+build checks. Benchmark verification does not certify protocol soundness.
 
 Keep raw measurements, manifests, source versions, and host information with
 the results. Do not merge M1 and EPYC timings into one aggregate.

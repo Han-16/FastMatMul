@@ -10,25 +10,26 @@
   in \(k\), unlike the Freivalds baseline's \(\mathcal{O}(k^2)\) constraints.
 
   \begin{revblock}
-  At \(k=2^{12}\), \(\protocol\) reduces the Freivalds baseline's constraints
-  from \(50{,}495{,}818\) to \revmath{5{,}214{,}878} (\(9.68\times\)) and proving time
-  from \(411.28\) s to \revmath{70.73} s (\revmath{5.81\times}). It also outperforms
+  At \(k=2^{12}\), \(\protocol\) uses \(9.68\times\) fewer constraints and proves
+  \(5.81\times\) faster than Freivalds. It also outperforms
   DualMatrix in proving time at every shared dimension, by \revmath{3.62\times} at
   \(k=2^{13}\).
+  The independent zkMatrix comparison shows a different trade-off: LAMP
+  proves \(4.00\times\) faster at \(k=2048\), but zkMatrix verifies faster and
+  produces smaller proofs at every measured dimension.
   \end{revblock}
 
   \begin{revblock}
-  For claims sharing a leaf structure, batching amortizes Merkle openings and
-  keeps their proof size and verification time nearly constant. On GPT-2,
-  \(\protocol\) proves faster than both baselines, although heterogeneous matrix
-  dimensions require multiple commitment layouts, CP-Link proofs, and Merkle
-  openings, increasing proof size and verification cost.
+  Shared-layout batching keeps LAMP's proof size and verification nearly
+  constant, but zkMatrix proves faster for the measured \(128\times128\)
+  batches of one to ten claims. LAMP proves faster than Freivalds and
+  DualMatrix on GPT-2, at higher verification and communication costs.
+  Modified zkMaP measurements are excluded because they cannot represent
+  a faithful, sound benchmark of the published protocol.
   \end{revblock}
 
   \begin{revblock}
   Future work includes proving the security of a Fiat--Shamir-transformed,
   non-interactive \(\protocol\) and sharing commitment layouts and openings across
-  consecutive products of different dimensions. These improvements should reduce
-  proof size and verification cost for verifiable AI while preserving linear
-  constraint complexity.
+  consecutive products of different dimensions.
   \end{revblock}

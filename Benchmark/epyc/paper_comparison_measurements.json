@@ -1,0 +1,868 @@
+{
+  "source_commit": "b34d2287c30730a3990d92630185a0a792a2897f",
+  "source_tree_sha256": "79ba76054e42800de44600c750a8438947f60ce9d8793e6777f3c3e120d6670c",
+  "verified_record_count": 300,
+  "input_files_sha256": {
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/manifest.json": "0c0a7b07a096eb97ef63718885f0bd4ae15af012b4801118bab882cff74ef743",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_01/lamp_comparison.jsonl": "90d157e00eee89718f73f3fe41240e31528b43114d0dd180fdc6b60afc8bc907",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_02/lamp_comparison.jsonl": "1b103715aaee0414de58e1ebb30c7df9f7ea1544355bd1714fd0e5460b605155",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_03/lamp_comparison.jsonl": "b55167e196a88f2b1fad2908709aa8933f67b003ddb697896866481ee9480177",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_04/lamp_comparison.jsonl": "eedc30b2464c0d01226b8ac633e624f42a209088fca233950798cb0277500687",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_05/lamp_comparison.jsonl": "b7b5a2aada4c69be0dafc6cd96b03b328b583cdd38739caa53f3332741f989c5",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_06/lamp_comparison.jsonl": "affe9a875ee8f0eff9a8879f3be22a0f36dfbf0ea04038024b9c730e44be7217",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_07/lamp_comparison.jsonl": "119d3a7855799989f9de4e7d3b1ce6bbd55386731d7282fb05226a17527d1d65",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_08/lamp_comparison.jsonl": "ce6f8598efc5a7c1f2056c3c64a6da8e47e370c7cfc5cbba6108c85132e7f5ee",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_09/lamp_comparison.jsonl": "a414a2395605222cb43c52f26413d1847e98cbd46d61358261db15357f56637e",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_10/lamp_comparison.jsonl": "079a5dee6d6a37862989dd7a47102e572e0cdd016b8634b6b2ca8ae19d9d82cb",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_11/lamp_comparison.jsonl": "3b31c4fa57d2040c35754fc78716e458bdc4a206db8f7ea5c2fa22aca2d64999",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_12/lamp_comparison.jsonl": "0502bc963590493b6b51783f8c50ebada639791a35e03c0a10e2bf3f0c5a165e",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_13/lamp_comparison.jsonl": "d1bfd523b27bab4fb2b73b4eb9f950822c4999e6ef5b41d427467fd90f76a806",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_14/lamp_comparison.jsonl": "6a165358a0b342705b28dd362964a4b9210ebee76fa7ccdeaff57ec3ca5a1713",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_15/lamp_comparison.jsonl": "dc32d8055310a7e000c43c40a713f7624f7faed4de9309fe709ca3c20e2b01a1",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_16/lamp_comparison.jsonl": "8c89ca79fabc259768b64bf4f1afd3a0e404aaf053b041f710253384115dde76",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_17/lamp_comparison.jsonl": "b29f40d224f81226411206b13b5abbd6c0bf85fb8ce68f5df8f265f59a0c38bb",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_18/lamp_comparison.jsonl": "82ffaa4519965ef6783550490f2947fa9dd841a0d4b287898582fe1ea3cecb72",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_19/lamp_comparison.jsonl": "728d0d3cc131a950f37f5babb4b36cd26f1391f17647d91a4f0faaaea816f6fe",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_20/lamp_comparison.jsonl": "277167f1c6b9eef4c174719f77cd6a37784558ac852c49fc3a2c8fc23e5c2f1b",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_21/lamp_comparison.jsonl": "82419c17d7933dcd73cb9ceef009da38fd74a3dca7bdacc53d45bd4142cb1de0",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_22/lamp_comparison.jsonl": "a26827c2a242d73d3849288ebefbf1d23c2a499e98ac05ed2a06e8506138c5fc",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_23/lamp_comparison.jsonl": "3fc786b4477a259b1407c6c780cd4cb6fbfa70da07f8a2f5c0c7f6a89ec20a50",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_24/lamp_comparison.jsonl": "12132d6726919821a1dfc50f1ad5f7daa270b1a8dd8dbcc3ba788d702d45a63d",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_25/lamp_comparison.jsonl": "5ff074f6ba75cb9d0524bbb8df93870f6b829c6280e50531321d5d4868f0ea56",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_26/lamp_comparison.jsonl": "32406dce53007f99db56e35d97c78ed9f22a793c9f33355bce44354d3643d5a2",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_27/lamp_comparison.jsonl": "b485caafd40462e0363c0d7c83a7a052079640164b7c53b9e20f4077d1452595",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_28/lamp_comparison.jsonl": "b0e5eca64ea60326c90ff3bcc7017d960bb8e21bd513549c57a8b589e6e19c19",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_29/lamp_comparison.jsonl": "8d34501ab74f0285328415d9e59f10dccfafd4d8c5b73fbee7e011b9073d48fa",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_30/lamp_comparison.jsonl": "39891436d069ef55b909c4116c907c216bed02cba4ce940be015b30e423945e5",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_31/lamp_comparison.jsonl": "b46d794cccec3679545c3678a7500d533707879dc6333c9570a16bbd73d4fa3a",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_32/lamp_comparison.jsonl": "326fe8136191ad2b96b71ed16c7886ab1bb5b914d172c48090e94147c1739718",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_33/lamp_comparison.jsonl": "4f3062dbfb23ebbbf29a08509244881c8297fae2d5659828ea6e728e3bb6b0f2",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_34/lamp_comparison.jsonl": "b3e7f0b4518692d1fd02d369f84a3fff181f4e59576454963f2db8f3ac5b01bb",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_35/lamp_comparison.jsonl": "cc078dd2845e44bb2266036a09d308912c07c1bfa24b6a70e8ab4a4bf3732328",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_36/lamp_comparison.jsonl": "6baa9331ffbc8397f46b13e0b1dae365c2ed20782038f80f8c740e468389c768",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_37/lamp_comparison.jsonl": "534ca5b56736c2c9e2d1fac0ea001835f3e4aaf08cd642b90e339a5e2a1950ad",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_38/lamp_comparison.jsonl": "c79426e3aeae2f0e7e0fb889a470edff766dd030da4b9bbe0a9ad0bba232d866",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_39/lamp_comparison.jsonl": "ec7b65e610844bb27e9f5a0b20ce3b92bddb03ffa93605510787820d9890d152",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_40/lamp_comparison.jsonl": "95f3bc7cfb075109ca1ec0965736f108775c9e530a42b91cdedac1d22feab63c",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_41/lamp_comparison.jsonl": "9c0b1fe746c35076a027b5b5264509266fac64471b74a3d1671c63238662aedf",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_42/lamp_comparison.jsonl": "25d56d5e0824f890d9032111743806df388751c7d1476b6ab4bb3bc9ecef7d36",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_43/lamp_comparison.jsonl": "61f0e7783f26aa05512ea5640643afec5b8ac25289ab5a3214025bc392d915da",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_44/lamp_comparison.jsonl": "81bf7b60fa827a37df124905220336138a4d1296b187aba2a96af525c8aebcda",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_45/lamp_comparison.jsonl": "379592732527d60c990c6ffc9788129e2875e35cc1dafa9cb15b74fec90292c2",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_46/lamp_comparison.jsonl": "5ce2a2425324620b2b7cc842ed6502209a0adcc74eaa02b66e73097447284dfe",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_47/lamp_comparison.jsonl": "ef47c67f46b47503be533ad4a8b0c53d1e0d696fc93f9ead8ec2b85908a2395f",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_48/lamp_comparison.jsonl": "2de5756443489129d3d48e6997159ab552bea54276c022a1d7d40f8038098f7c",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_49/lamp_comparison.jsonl": "547e3b5d9fba9205dac6f2158ae357f9db6f29790e68f8a39a068ab0f1766178",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_50/lamp_comparison.jsonl": "9a50b85b5f04d76e288b4f880676f9c6e188e4581a072a240f4758699866a69e",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_51/lamp_comparison.jsonl": "79d2df3104896ea41a50d1154d24a557ae14778cf9fd1a9e446578f6a83e191d",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_52/lamp_comparison.jsonl": "d11746722bd491db611008ddc1083d39253f63ce693cc731fee21eb36d17045d",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_53/lamp_comparison.jsonl": "5dac535131648c8c354183abe71ae0ad641b16b80ad46d9f61e5d2445f699a87",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_54/lamp_comparison.jsonl": "e76323162589c6140365a3d82abe5157700bbdcfa0b26a848ee9a51912e01154",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/run_55/lamp_comparison.jsonl": "bf2e1a2998f7fce69085fa70115901b9a0d1dd9c21ccb60976ae10154ebf543f",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/manifest.json": "3c3577367cc1779d138becc2de4f7cee078b0be20d9cffbcb653eaca3e683136",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_01/lamp_comparison.jsonl": "3867fdd7bd586a6ff2ba8d4e8186cc84228e83fab3522742e5ed7cff29d41642",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_02/lamp_comparison.jsonl": "2219edce88492e85847a1a58dc8c32b9f398f708b54d22632a97ee9e3d646c5a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_03/lamp_comparison.jsonl": "bf423ae2afa7636e0b20932458822e4a6653bcfeab500317da494e297c11a092",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_04/lamp_comparison.jsonl": "cb6155e6224eb1139dd202881c31397f17d80bc5e45a21c56a3f549295d24ca9",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_05/lamp_comparison.jsonl": "10b75a9a2ae0d10dee413f295d91d14ff9469d37c1756185ba58fe5794ab58dd",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_06/lamp_comparison.jsonl": "55a6d7b026cd07a2f4523e9f0e0afc12f5cb04d999f9384a11ba310541de923a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_07/lamp_comparison.jsonl": "dc67d8575879ba75ba5ad8a2c37f165981f4a373919405e353bbe0506ce4fcf8",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_08/lamp_comparison.jsonl": "5876cff15f8d56c47399a28c5cbc8283f5153892be00ac455ca0bd3a006e5bd8",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_09/lamp_comparison.jsonl": "e62345f4782ff94d40b1b2b83cdfb2a902ab579cbc75b9890f8305af974b0963",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_10/lamp_comparison.jsonl": "a57bf0bc8ab576fbb8710b97564b1f1b182db865a72f4fa58d3df2b29ddda454",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_11/lamp_comparison.jsonl": "96463b26c6444b20b7b1aad2d898acde582bbb45d23c9c83bc3674afa0e643dc",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_12/lamp_comparison.jsonl": "f7b4f145c7816e96fd2065496a7d650d20c191eaa7a4a89283694c8e1966d686",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_13/lamp_comparison.jsonl": "01950c507d7e305d96c53bac3c1a0e46e6202b30085124ed1612b7a4134f2a7c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_14/lamp_comparison.jsonl": "708a002dc2c499bdd0189d1d19b4395106301b66ada50b922f26ed15f1f416ec",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_15/lamp_comparison.jsonl": "12a4f104a144b32c865ff1d6820a28009dc140b9f9a4796cc06064a18a8e3306",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_16/lamp_comparison.jsonl": "9320bf9c8320db2a2f348a866aaf8d31ffaeba89bd83f0205803d711d926d829",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_17/lamp_comparison.jsonl": "ecc4779cf0d901077e37448b622e0bb765e73a2aa759ede5573996549277ac9c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_18/lamp_comparison.jsonl": "128fbd11e4dc849b0cc5091deabaa452f9ece303ac581de57b5717fea7cc73e2",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_19/lamp_comparison.jsonl": "9e7c2d48a4868c031d46f279f38ed32b450c95ea52a7185274bb0e2d3d360c75",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_20/lamp_comparison.jsonl": "fb8811bd942217f14c3ce279a2d0bdf328e6dc4f99fd8fbf947ce5f678ef537c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_21/lamp_comparison.jsonl": "37cbe358e85837f0294c8564d3835f61f40948da4972fd3eb0d94b5468ef1a3a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_22/lamp_comparison.jsonl": "2c4730c2685b5905b0134700a2531f7e0951c03dd7416e562597a62c876678e9",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_23/lamp_comparison.jsonl": "a8f07895062fed2a258e590d0d61407a8014b5db905745394817e5a4266e0b6c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_24/lamp_comparison.jsonl": "c4887da04e0ac64121c5fa1f8faa17f095f270f1c4fab37242e19dfa6f1b43e1",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_25/lamp_comparison.jsonl": "ba6a3b528f4429d19c3a441c8c4ddda7778d2cea31225b1cc1d49c660053a42c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_26/lamp_comparison.jsonl": "aca70c9c25af4422da85c822e80bae020a97fa50351453de119fe80e0d348ac5",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_27/lamp_comparison.jsonl": "ef660930fb4fe3bbb5d9e688f8efa46c367bf77a3ed0574a64d120ef2d6e2761",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_28/lamp_comparison.jsonl": "aa1a9eca07db98201d49407fd0c91733494b502339031a15af73b044e2f972ce",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_29/lamp_comparison.jsonl": "76a5191a97d9ad1e57aa682e0b068cdc7f7534c1df40a09b6d7ff6bb99d7ec10",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_30/lamp_comparison.jsonl": "265d65fe121a7f81ee5e87f4452ab1451c9a6e6b40ad32b66beda7a7d288b59a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_31/lamp_comparison.jsonl": "88a411cbfa71fdecd47f5312ba0151b3b808e4c487f8b67615002d9ef0a610be",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_32/lamp_comparison.jsonl": "b6cbf9859ef5d0d62a757567c635d1346286e1251121f14da4e5159539af66f5",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_33/lamp_comparison.jsonl": "ff1f047bd7a6c799b4efbbce3610a7dbed3169e7411c738a18ff0e2a8b1c259e",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_34/lamp_comparison.jsonl": "cc3b4f4394b5212b66b82221ed53a1097a09b5f9803e80c48223e5dd0111f3de",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_35/lamp_comparison.jsonl": "4a26f0a6c742bcfbcda6918e363010b982fd5ee101f48d7d144be92a8acad090",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_36/lamp_comparison.jsonl": "eeefc2940a0ce7404c9b792fce3e94f84de29608b52a0ecb81eee281fe0ddf4a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_37/lamp_comparison.jsonl": "6384d47e2c32687e71e8bd15ac04d37884ad7458085e9b1a533b1e8cdb59bf7b",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_38/lamp_comparison.jsonl": "bbfb785cd9bfb1a35aa896df677f4d065dd08ec20c41dc3904c2cb2ee2ab0cd0",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_39/lamp_comparison.jsonl": "dbfc54e8c3b15a73919e1d4ec91e7e0ea04da4ec04e407110dfbedacff32a9a6",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_40/lamp_comparison.jsonl": "2ad36fcc217bbd9d1e15ed2cb0c15c39fdcf41f916b84b4f272c7ad992cf39d0",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_41/lamp_comparison.jsonl": "db5def02e69492ec624f92b091334ff2899c31b64e02730b673a453c159c9cf0",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_42/lamp_comparison.jsonl": "49f87e5971647a9235e743a142b83e4d37d2e490604ff1c9e170de5e87237ccf",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_43/lamp_comparison.jsonl": "11dcefd85045fc12ce9e21425cab4ab247b302f52c7e4758af35b9d17f9f37a5",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_44/lamp_comparison.jsonl": "64058c1a898df2cebc1846cf921db6e4fd89851821ccf83e2c6f03682bead35a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_45/lamp_comparison.jsonl": "53510e188f8b93af98c10e114e98522045b9382a13965e3c0f73c8a1aa69715d",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_46/lamp_comparison.jsonl": "3565f24e4a5e42481f4167f6cf9c36c73b5106b7012e6f40e3353e282e68b274",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_47/lamp_comparison.jsonl": "65382c8870f135cea94da6c0c81f8d02a387dd20421ce72f5beaad0bf00dc5f8",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_48/lamp_comparison.jsonl": "4de5114d855ac6a71f1f91e3017e3aafd76e51f375fa30c0d986dabe5c11557d",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_49/lamp_comparison.jsonl": "ad759ae7e6542ca01f8dc8dcd503c54b1033906f02cecf058991557373c09020",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_50/lamp_comparison.jsonl": "38812fb29a40436c0ce9e44e36c4977d0566ef4c3828631e1b20044d0fdfd646",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_51/lamp_comparison.jsonl": "b3b2d964fda47a16706659c40eba25fed8de82616ddd7e1079c849b9b39c8e61",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_52/lamp_comparison.jsonl": "a585febb7ef9409fae512e57ee06f43a7347f8bf8095dd985fac983e6c03562c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_53/lamp_comparison.jsonl": "3744842d4c57d7b7dc0bbf6834e2985d36de7810b24647ddd19094b512daa893",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_54/lamp_comparison.jsonl": "ae3cc28662300684b8c29bb4b5e04fde71fb6bf953ef7d39613146298b8a6a16",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_55/lamp_comparison.jsonl": "ffb35b8abd3e82a0ee17a95d3ba2f0bf25e4eb611c8e0876e6dda41ac8513726",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_56/lamp_comparison.jsonl": "41272313ca7d4aecf3f1785284e0c193a1a35ae19924c822f31b7698d73c0ed4",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_57/lamp_comparison.jsonl": "d090e4708362658cca294ce7dd1a303870581ba97cd8e7f2c876066951f522b1",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_58/lamp_comparison.jsonl": "017f41e7327c611e2cca526e5769fdad18b658fe264c96e7cb056d10214d51a7",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_59/lamp_comparison.jsonl": "05de4580a6db925affcfdd97c719b06fc245474967db71b791de53099d18e49a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_60/lamp_comparison.jsonl": "e2e5ba93932e3c0a2f1e7fe7eea2236ff98196b824291722599d738c5cb270ef",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_61/lamp_comparison.jsonl": "0b935a2673c5e3c9063ab331f5a22eb1d41181faa6debf30cb4808d6351ec436",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_62/lamp_comparison.jsonl": "675e1465648301796768f1ace54e5123703bcef03f1ccfc8a380e486038cf66b",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_63/lamp_comparison.jsonl": "ed93ed78e2b1a031b5947755db40e06e6fd5510e21375c12944fb29b98303281",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_64/lamp_comparison.jsonl": "e97c6b21cc661d5a4a127b517c0ab9173d73692731d5c817d67d7fef9916324e",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_65/lamp_comparison.jsonl": "00616dcf537a41aeacfd62f6dd29f61bbac009cb5bfbf96636be9877ec743e3c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_66/lamp_comparison.jsonl": "3d4870a893be8b9fe6ca76e861543e15778f56d9381c39a7c1ad24791191dbee",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_67/lamp_comparison.jsonl": "5f1498aa817d498bdf437bfbf6990f3447143a058c56c10f2d5f281da7574721",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_68/lamp_comparison.jsonl": "7ca0f42194bf3fe6496c8550d33e06cb5fa533f6382a2d4df1f36383d741bedb",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_69/lamp_comparison.jsonl": "c7253a1c9f0582dd52a3943b8285c45170406725695fad514ec84d00aeb326ff",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_70/lamp_comparison.jsonl": "5df4c9356b5c7cd7771805a9baaf98d948e57c515af2ccd79cba039cf3439852",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_71/lamp_comparison.jsonl": "a654bcc32abe8cfdddb93cdfb66e36839b8da88079448101912d4b93a1bfd11f",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_72/lamp_comparison.jsonl": "2fd304d96455e4f217409062b92e8b030738a8780f49c5c88066f85b8da7bc78",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_73/lamp_comparison.jsonl": "58c3a797ba57190b68ac5d71668b9b1740bc62d79ce32535573e3fa4903378b3",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_74/lamp_comparison.jsonl": "57776fb7cf0f8bc99156bf317ef8c2d63c004ebeec628a2ce25875ef9f49ed93",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_75/lamp_comparison.jsonl": "0bd4c5e2d0fe846658cf66bc0da35831880083e881a67f6351141fa7cad72d1c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_76/lamp_comparison.jsonl": "3bc57be06ee1c8cf51ad3af50b67971ebdc57d5f432e91554d0e9b4342352bd3",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_77/lamp_comparison.jsonl": "eefdbea6aa0af0aec8004dbdb6582a7a2eeba1b7b049331684d67e69e48e1e06",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_78/lamp_comparison.jsonl": "0c3bc101ffbffcca9de645cb126c7bde2a6f1c64909cbd08c7f7d5963c1dd13d",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_79/lamp_comparison.jsonl": "219497aa012c2bc55248f33d8ba7e8b7f8bd0495ada9bb1e5dea630b416142f1",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_80/lamp_comparison.jsonl": "f6c5302d884a7c715f0bd7e6746374be81fd9001e844123dc2d83143589f60c2",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_81/lamp_comparison.jsonl": "d4c90a9fdc1951f4b8b56a1f0ffb5f1f94f6d7cd67d3a9ab77a273f907829f9a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_82/lamp_comparison.jsonl": "e3040e0b4cd453fd235cbf40cf8c48144b134db014af4e2c609148bf05fc4750",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_83/lamp_comparison.jsonl": "46ccc2c2d27cceaa90827b8a554831860168a30d8e13ef22032b74dfab695ad7",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_84/lamp_comparison.jsonl": "81b9ecaae71df4c91ba789f72b04e71e0b34c518911fb0d4a6e9593234641a30",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_85/lamp_comparison.jsonl": "2812405f06284b3d489b2763dadff0aa35fa7077c89e909f729ebf925f28d1f2",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_86/lamp_comparison.jsonl": "4cc68808a5502a00dbdd8c609bf2fa277d2edb70cc37d728f0b7acfd56746a7c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_87/lamp_comparison.jsonl": "728cb6886661d1f10ce62ba66c518dafc49091bf2e8784d878aa7854a4030e64",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_88/lamp_comparison.jsonl": "50d9b3007354ea87f44b27aad378ae2ca9dfacf90ccd679a1d84c79057a800ee",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_89/lamp_comparison.jsonl": "2bb8453e0a7325480841d55785c82bdc4cc509904e90c36252a0197deb72b0b0",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_90/lamp_comparison.jsonl": "ae252806365ec57990f5cc4907a49bac35aa9c673a8649153712bcb0151bb2d4",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_91/lamp_comparison.jsonl": "903769651e79889b705f510ac559fe3ed725885bcc0ab22b239511060d004ca0",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_92/lamp_comparison.jsonl": "bde22663911949d9daea64d50cbce27cb15ed4329c3382514235adf977d88931",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_93/lamp_comparison.jsonl": "7c6a53c5ad4f5cca14cdced9e2df85b98d5ae20620c17b4544971d563d1bf04e",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_94/lamp_comparison.jsonl": "263654a5e913fd90b03cdf1c195f94abeb3aa12de513b525d685f80c339c532c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_95/lamp_comparison.jsonl": "5a926688e3e99c5539ece1853830291b9afdd39ac906d99ac2bb915634e63e6a",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_96/lamp_comparison.jsonl": "7227f3d28b15ec344112483d2265c3e15c3761d2a4598a32c1118eb91f2223cf",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_97/lamp_comparison.jsonl": "b7262ea585d4d4cac11925ab65473c0cd983573762cd49ad19ff58179e4e3653",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_98/lamp_comparison.jsonl": "f36136477a5b685bf20b991c0b8ada4bf8a2b8abe8ceb93bc6b67062e5f3e6ed",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_99/lamp_comparison.jsonl": "0541880b9719fe3e63cb2ad8efd4a620906859c23f5c115cbdbdfbcc902feed2",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_100/lamp_comparison.jsonl": "24c3066e4e918be1994e1f6b41bd0ba6111d4d3e83180d40a30e365d5855ba53",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_101/lamp_comparison.jsonl": "4545e629905298f2a91d23e5a3b5d6781852f3abf5e6167eb4cb4d1a0bb103a9",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_102/lamp_comparison.jsonl": "0068d7c51a2d89ea8d32d1db411732340945b1aa00a0a1f9620e908e6babd0fd",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_103/lamp_comparison.jsonl": "b6060e77293e6c81124a1a750be620ed91a9ba5c6d2235e06214a97c7f095594",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_104/lamp_comparison.jsonl": "189d1d2a0b493de734ac95ac56022d25144f8d2e8061a0c6738808da22c35bc4",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_105/lamp_comparison.jsonl": "7e9d37e33ce4d509fb6abaa496e41b139202291d4d9bbc56c78d6c3d7984d056",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_106/lamp_comparison.jsonl": "d53636aff51f13037ff9146f5d226a5ff11f9e5152bcdf7327e8fb5f76a12f5f",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_107/lamp_comparison.jsonl": "9a53ad2ff386e8ee1fe1bef880ef42a5b626ab180d09efeab93f3903e3e5da51",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_108/lamp_comparison.jsonl": "fad2f81be17ae6346d65495df1b2246a2540aa22ad7a775fecd265dec310a7d1",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_109/lamp_comparison.jsonl": "67c94244a9b9e5acce364ccd3beade9c356c053273354c35c0a5ac62d73a306c",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/run_110/lamp_comparison.jsonl": "d8badd44ea0dcd5bb083597cc5703d7f5ceefe093a099c40f468bee4f3c0ed0b",
+    "Benchmark/epyc/lamp-three-results-10reps-k7-k11-20260930T233536Z/square/summary.json": "70276cdc7e805732bc9f2276e42495ad6b42554b553f242cd5aa7344c54b9120",
+    "Benchmark/epyc/lamp-batch-results-10reps-k7-q1-q10-20261001T032827Z/batch/summary.json": "5b9ea44266891ada2841743f15fbdf2245e98f206c7a70bded8b4c8bbe7e87ef"
+  },
+  "groups": [
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 1,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.6520279734000001,
+        "sample_sd": 0.0036766675611250126
+      },
+      "verify_ms": {
+        "mean": 9.659787,
+        "sample_sd": 0.43590916346821124
+      },
+      "proof_bytes": {
+        "mean": 4100,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 112,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 1,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 1.6586009692000003,
+        "sample_sd": 0.027317610320061064
+      },
+      "verify_ms": {
+        "mean": 129.8766421,
+        "sample_sd": 1.1251009335667506
+      },
+      "proof_bytes": {
+        "mean": 24281.6,
+        "sample_sd": 263.36084244498716
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 2,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.701986008,
+        "sample_sd": 0.0035121610640466263
+      },
+      "verify_ms": {
+        "mean": 11.756132000000001,
+        "sample_sd": 0.5038714204086859
+      },
+      "proof_bytes": {
+        "mean": 4936,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 224,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 2,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 2.8885462572000007,
+        "sample_sd": 0.03600338527116015
+      },
+      "verify_ms": {
+        "mean": 129.1621945,
+        "sample_sd": 0.5557785837685969
+      },
+      "proof_bytes": {
+        "mean": 24377.6,
+        "sample_sd": 409.7444189844309
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 3,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.7462784244,
+        "sample_sd": 0.003463387449076436
+      },
+      "verify_ms": {
+        "mean": 14.0157885,
+        "sample_sd": 0.3496817426623653
+      },
+      "proof_bytes": {
+        "mean": 5772,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 336,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 3,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 3.951482695500001,
+        "sample_sd": 0.02019872456494433
+      },
+      "verify_ms": {
+        "mean": 129.3595819,
+        "sample_sd": 1.513048734372684
+      },
+      "proof_bytes": {
+        "mean": 24332.8,
+        "sample_sd": 262.66869711567165
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 4,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.798321862,
+        "sample_sd": 0.003174781465857492
+      },
+      "verify_ms": {
+        "mean": 16.0970017,
+        "sample_sd": 0.44911036896044754
+      },
+      "proof_bytes": {
+        "mean": 6608,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 448,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 4,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 5.266872091,
+        "sample_sd": 0.07543706413268556
+      },
+      "verify_ms": {
+        "mean": 131.4475356,
+        "sample_sd": 2.753259066619943
+      },
+      "proof_bytes": {
+        "mean": 24268.8,
+        "sample_sd": 269.51017296817076
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 5,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.8462702707,
+        "sample_sd": 0.002706917890359258
+      },
+      "verify_ms": {
+        "mean": 18.453133,
+        "sample_sd": 0.38231683393779825
+      },
+      "proof_bytes": {
+        "mean": 7444,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 560,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 5,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 6.361995814900001,
+        "sample_sd": 0.07677353415727532
+      },
+      "verify_ms": {
+        "mean": 132.3381099,
+        "sample_sd": 2.8216826196780938
+      },
+      "proof_bytes": {
+        "mean": 24390.4,
+        "sample_sd": 182.14719322569866
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 6,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.8955884808,
+        "sample_sd": 0.004207534033838436
+      },
+      "verify_ms": {
+        "mean": 20.4312081,
+        "sample_sd": 0.35455941010983383
+      },
+      "proof_bytes": {
+        "mean": 8280,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 672,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 6,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 7.289325774999999,
+        "sample_sd": 0.07942993526355926
+      },
+      "verify_ms": {
+        "mean": 129.8227083,
+        "sample_sd": 2.0118361026221327
+      },
+      "proof_bytes": {
+        "mean": 24288,
+        "sample_sd": 245.56510790872187
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 7,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.9438743741,
+        "sample_sd": 0.004334797232440815
+      },
+      "verify_ms": {
+        "mean": 23.147349300000002,
+        "sample_sd": 0.478215827756337
+      },
+      "proof_bytes": {
+        "mean": 9116,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 784,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 7,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 8.759383703499998,
+        "sample_sd": 0.08497846549562071
+      },
+      "verify_ms": {
+        "mean": 129.3012378,
+        "sample_sd": 0.683302915460361
+      },
+      "proof_bytes": {
+        "mean": 24326.4,
+        "sample_sd": 267.22075767674437
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 8,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.9923757421,
+        "sample_sd": 0.004390285862441903
+      },
+      "verify_ms": {
+        "mean": 24.5690162,
+        "sample_sd": 0.9776281198902665
+      },
+      "proof_bytes": {
+        "mean": 9952,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 896,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 8,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 9.738293521299994,
+        "sample_sd": 0.11400431792890195
+      },
+      "verify_ms": {
+        "mean": 129.2418655,
+        "sample_sd": 0.49505899345280124
+      },
+      "proof_bytes": {
+        "mean": 24236.8,
+        "sample_sd": 289.45803764199667
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 9,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 1.0389819914,
+        "sample_sd": 0.003465549935092055
+      },
+      "verify_ms": {
+        "mean": 27.1641144,
+        "sample_sd": 0.3660364637610725
+      },
+      "proof_bytes": {
+        "mean": 10788,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 1008,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 9,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 10.835808522199995,
+        "sample_sd": 0.1232572417080049
+      },
+      "verify_ms": {
+        "mean": 128.89096940000002,
+        "sample_sd": 0.4805814707599763
+      },
+      "proof_bytes": {
+        "mean": 24300.8,
+        "sample_sd": 319.359358716791
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 10,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 1.0879478043,
+        "sample_sd": 0.006982137546147891
+      },
+      "verify_ms": {
+        "mean": 28.846436999999998,
+        "sample_sd": 0.9654665451319949
+      },
+      "proof_bytes": {
+        "mean": 11624,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 1120,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "batch",
+      "dimension": 128,
+      "batch_q": 10,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 11.796035654499997,
+        "sample_sd": 0.10291848521571217
+      },
+      "verify_ms": {
+        "mean": 128.9635224,
+        "sample_sd": 0.5282848526385949
+      },
+      "proof_bytes": {
+        "mean": 24371.2,
+        "sample_sd": 410.13298656248884
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 128,
+      "batch_q": 1,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 0.6549621392,
+        "sample_sd": 0.002433836690475328
+      },
+      "verify_ms": {
+        "mean": 9.277298,
+        "sample_sd": 0.2391674350649675
+      },
+      "proof_bytes": {
+        "mean": 4096,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 112,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 128,
+      "batch_q": 1,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 1.6261257223000005,
+        "sample_sd": 0.007496663927719203
+      },
+      "verify_ms": {
+        "mean": 130.5541878,
+        "sample_sd": 0.8541810910388893
+      },
+      "proof_bytes": {
+        "mean": 24364.8,
+        "sample_sd": 215.56169521611312
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 256,
+      "batch_q": 1,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 2.1932956532,
+        "sample_sd": 0.017730732434596216
+      },
+      "verify_ms": {
+        "mean": 9.9627079,
+        "sample_sd": 0.01544731273609318
+      },
+      "proof_bytes": {
+        "mean": 4544,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 112,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 256,
+      "batch_q": 1,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 2.9995266557000004,
+        "sample_sd": 0.018705127815754043
+      },
+      "verify_ms": {
+        "mean": 130.3101085,
+        "sample_sd": 0.4962784808062762
+      },
+      "proof_bytes": {
+        "mean": 32582.4,
+        "sample_sd": 303.8783382283845
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 512,
+      "batch_q": 1,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 7.9788146409000005,
+        "sample_sd": 0.05515005596372843
+      },
+      "verify_ms": {
+        "mean": 10.8587822,
+        "sample_sd": 0.018183837431448118
+      },
+      "proof_bytes": {
+        "mean": 4992,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 112,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 512,
+      "batch_q": 1,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 6.095014844599999,
+        "sample_sd": 0.03471402730673412
+      },
+      "verify_ms": {
+        "mean": 130.3732461,
+        "sample_sd": 0.6005412621419064
+      },
+      "proof_bytes": {
+        "mean": 45113.6,
+        "sample_sd": 541.7574693121965
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 1024,
+      "batch_q": 1,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 29.5134597003,
+        "sample_sd": 0.15918296849481084
+      },
+      "verify_ms": {
+        "mean": 11.9095152,
+        "sample_sd": 0.4683192462687533
+      },
+      "proof_bytes": {
+        "mean": 5440,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 112,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 1024,
+      "batch_q": 1,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 12.725949757899999,
+        "sample_sd": 0.07067322594759982
+      },
+      "verify_ms": {
+        "mean": 130.87676019999998,
+        "sample_sd": 0.613277855747625
+      },
+      "proof_bytes": {
+        "mean": 61254.4,
+        "sample_sd": 1012.5807731841555
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 2048,
+      "batch_q": 1,
+      "scheme": "independent_zkmatrix_optimized_bn254",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 113.1796357727,
+        "sample_sd": 0.6967655038152701
+      },
+      "verify_ms": {
+        "mean": 12.692061,
+        "sample_sd": 0.024411187171276855
+      },
+      "proof_bytes": {
+        "mean": 5888,
+        "sample_sd": 0.0
+      },
+      "statement_bytes": {
+        "mean": 112,
+        "sample_sd": 0.0
+      }
+    },
+    {
+      "workload": "square",
+      "dimension": 2048,
+      "batch_q": 1,
+      "scheme": "lamp",
+      "repetitions": 10,
+      "prove_seconds": {
+        "mean": 28.3104777077,
+        "sample_sd": 0.10008379659016109
+      },
+      "verify_ms": {
+        "mean": 131.0814651,
+        "sample_sd": 0.43466556984228577
+      },
+      "proof_bytes": {
+        "mean": 78585.6,
+        "sample_sd": 1141.861560007264
+      },
+      "statement_bytes": {
+        "mean": 64,
+        "sample_sd": 0.0
+      }
+    }
+  ]
+}
