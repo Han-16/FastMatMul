@@ -441,7 +441,7 @@ LaTeX Warning: Citation `bunz2018bulletproofs' on page 2 undefined on input lin
 e 452.
 
 
-LaTeX Warning: Citation `cong2026dualmatrix' on page 2 undefined on input line 
+LaTeX Warning: Citation `cong2026dualmatrix' on page 2 undefined on input line
 453.
 
 
@@ -528,7 +528,7 @@ LaTeX Warning: Citation `restoring_orion' on page 3 undefined on input line 556
 
 Underfull \hbox (badness 1681) in paragraph at lines 739--745
 \T1/ptm/m/n/10.03749 Merkle com-mit-ment with de-ter-min-is-tic leaves, $\OML/c
-mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10  
+mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10
 
 Underfull \hbox (badness 2600) in paragraph at lines 739--745
 []\OT1/cmr/m/n/10 ((\OML/cmm/m/it/10 v[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ; j
@@ -568,7 +568,7 @@ LaTeX Warning: Citation `schwartz1980fast' on page 4 undefined on input line 86
 7.
 
 
-LaTeX Warning: Citation `zippel1979probabilistic' on page 4 undefined on input 
+LaTeX Warning: Citation `zippel1979probabilistic' on page 4 undefined on input
 line 867.
 
 
@@ -639,7 +639,7 @@ LaTeX Warning: Reference `sec:security' on page 6 undefined on input line 1143.
 
 
 
-LaTeX Warning: Reference `sec:tech-overview' on page 6 undefined on input line 
+LaTeX Warning: Reference `sec:tech-overview' on page 6 undefined on input line
 1152.
 
 
@@ -675,11 +675,11 @@ LaTeX Warning: Reference `sec:openings-and-cplink' on page 7 undefined on input
  line 1513.
 
 
-LaTeX Warning: Reference `relation:lamp-off' on page 7 undefined on input line 
+LaTeX Warning: Reference `relation:lamp-off' on page 7 undefined on input line
 1560.
 
 
-LaTeX Warning: Reference `relation:lamp-off' on page 7 undefined on input line 
+LaTeX Warning: Reference `relation:lamp-off' on page 7 undefined on input line
 1591.
 
 
@@ -727,7 +727,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 1786--1787
 
 
 Underfull \hbox (badness 10000) in alignment at lines 1837--1837
-[][][] 
+[][][]
 
 [8]
 Underfull \hbox (badness 10000) in paragraph at lines 1872--1877
@@ -744,7 +744,7 @@ LaTeX Warning: Reference `sec:construction' on page 9 undefined on input line 2
 
 
 
-LaTeX Warning: Reference `def:lamp-backend-assumptions' on page 9 undefined on 
+LaTeX Warning: Reference `def:lamp-backend-assumptions' on page 9 undefined on
 input line 2098.
 
 
@@ -754,7 +754,7 @@ LaTeX Warning: Reference `app:security-proof' on page 11 undefined on input lin
 e 2176.
 
 
-LaTeX Warning: Reference `sec:construction' on page 11 undefined on input line 
+LaTeX Warning: Reference `sec:construction' on page 11 undefined on input line
 2477.
 
 
@@ -777,7 +777,7 @@ LaTeX Warning: Citation `cong2024zkmatrix' on page 11 undefined on input line 2
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1pcr.fd)
 
-LaTeX Warning: Reference `tab:matmul-comparison' on page 11 undefined on input 
+LaTeX Warning: Reference `tab:matmul-comparison' on page 11 undefined on input
 line 2627.
 
 
@@ -837,7 +837,7 @@ Underfull \hbox (badness 1533) in paragraph at lines 3080--3087
 
 No file LAMP_diff.bbl.
 
-LaTeX Warning: Reference `sec:prelim-snark' on page 13 undefined on input line 
+LaTeX Warning: Reference `sec:prelim-snark' on page 13 undefined on input line
 3100.
 
 
@@ -1452,7 +1452,7 @@ LaTeX Warning: Citation `bunz2018bulletproofs' on page 2 undefined on input lin
 e 452.
 
 
-LaTeX Warning: Citation `cong2026dualmatrix' on page 2 undefined on input line 
+LaTeX Warning: Citation `cong2026dualmatrix' on page 2 undefined on input line
 453.
 
 
@@ -1535,7 +1535,7 @@ LaTeX Warning: Citation `restoring_orion' on page 3 undefined on input line 556
 
 Underfull \hbox (badness 1681) in paragraph at lines 739--745
 \T1/ptm/m/n/10.03749 Merkle com-mit-ment with de-ter-min-is-tic leaves, $\OML/c
-mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10  
+mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10
 
 Underfull \hbox (badness 2600) in paragraph at lines 739--745
 []\OT1/cmr/m/n/10 ((\OML/cmm/m/it/10 v[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ; j
@@ -1567,7 +1567,7 @@ LaTeX Warning: Citation `schwartz1980fast' on page 4 undefined on input line 86
 7.
 
 
-LaTeX Warning: Citation `zippel1979probabilistic' on page 4 undefined on input 
+LaTeX Warning: Citation `zippel1979probabilistic' on page 4 undefined on input
 line 867.
 
 
@@ -1628,7 +1628,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 1786--1787
 
 
 Underfull \hbox (badness 10000) in alignment at lines 1837--1837
-[][][] 
+[][][]
 
 [8]
 Underfull \hbox (badness 10000) in paragraph at lines 1872--1877
@@ -2222,7 +2222,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 535--547
 
 Underfull \hbox (badness 1681) in paragraph at lines 739--745
 \T1/ptm/m/n/10.03749 Merkle com-mit-ment with de-ter-min-is-tic leaves, $\OML/c
-mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10  
+mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10
 
 Underfull \hbox (badness 2600) in paragraph at lines 739--745
 []\OT1/cmr/m/n/10 ((\OML/cmm/m/it/10 v[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ; j
@@ -2301,7 +2301,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 1786--1787
 
 
 Underfull \hbox (badness 10000) in alignment at lines 1837--1837
-[][][] 
+[][][]
 
 [8]
 Underfull \hbox (badness 10000) in paragraph at lines 1872--1877
@@ -2853,7 +2853,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 535--547
 
 Underfull \hbox (badness 1681) in paragraph at lines 739--745
 \T1/ptm/m/n/10.03749 Merkle com-mit-ment with de-ter-min-is-tic leaves, $\OML/c
-mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10  
+mm/m/it/10 ^^Y[] \OMS/cmsy/m/n/10
 
 Underfull \hbox (badness 2600) in paragraph at lines 739--745
 []\OT1/cmr/m/n/10 ((\OML/cmm/m/it/10 v[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ; j
@@ -2932,7 +2932,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 1786--1787
 
 
 Underfull \hbox (badness 10000) in alignment at lines 1837--1837
-[][][] 
+[][][]
 
 [8]
 Underfull \hbox (badness 10000) in paragraph at lines 1872--1877

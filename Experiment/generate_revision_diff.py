@@ -109,6 +109,8 @@ def main():
         build_log = ROOT / "Revision" / "diff-build-20261001.log"
         run([str(TEXBIN / "latexmk"), "-pdf", "-interaction=nonstopmode",
              "-halt-on-error", output.name], work, build_log)
+        build_log.write_text("\n".join(line.rstrip() for line in
+                                     build_log.read_text().splitlines()) + "\n")
         shutil.copy2(work / pdf.name, pdf)
         report = {
             "baseline": "Paper_original/main.tex (submitted first revision)",
