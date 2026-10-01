@@ -18,8 +18,8 @@ Reed--Solomon rate \(\rho=1/2\) and \(t=309\). The new comparison uses these
 LAMP parameters and BN254 for both systems on the same Linux VM: EPYC 7B13,
 32 vCPUs, 256GiB provisioned memory, Go 1.26.2, and 32 threads. We measure
 \(k\in\{128,256,512,1024,2048\}\) and \(q=1,\ldots,10\) independent
-\(128\times128\) products, ten times per configuration. New timings report
-mean \(\pm\) sample standard deviation; byte counts are means.
+\(128\times128\) products, ten times per configuration. The new tables report
+ten-run means for timings and byte counts.
 
 The independent zkMatrix uses the optimized four-IPA construction,
 zero-knowledge masking, structured SRS, pairing accelerator, and Algorithm~6
@@ -34,8 +34,10 @@ not Fiat--Shamir security of this implementation transcript.}
 Proving includes encoding, commitments, witness preparation, and online proofs;
 setup, compilation, and computing \(\mat C=\mat A\mat B\) are excluded.
 Serialization is outside the timings. Proof bytes use canonical compressed
-payloads including framing, with public statements separate and SRS/keys
-excluded. All 300 proofs verify, including after payload decoding. Original
+payloads including framing. Statement (B) is the byte size of the encoded
+public input to verification (commitments or roots, including framing),
+reported separately from the proof. Matrix entries and SRS/keys are excluded
+from these byte counts. All 300 proofs verify, including after payload decoding. Original
 tables retain phase-based timing and different G1 byte accounting; their sizes
 are not directly comparable to the new compressed sizes.
 
@@ -144,14 +146,14 @@ properties.
 \setlength{\tabcolsep}{1.5pt}
 \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}rlrrrr@{}}
 \toprule
-\(k\) & System & Prove (s) & Verify (ms) & Proof (B) & Stmt. (B) \\
+\(k\) & System & Prove (s) & Verify (ms) & Proof (B) & Statement (B) \\
 \midrule
 \epycSquareRows
 \bottomrule
 \end{tabular*}
 \caption{Independent EPYC comparison, including commitment generation.
-Timings are mean \(\pm\) sample standard deviation over ten runs. Proof and
-statement bytes are separate, with canonical compressed proof encodings.}
+Times and byte counts are means over ten runs. Statement is the encoded
+public input, reported separately from the canonically compressed proof.}
 \label{tab:epyc-zkmatrix-square}
 \end{table}
 
@@ -166,7 +168,7 @@ statement bytes are separate, with canonical compressed proof encodings.}
 \toprule
 \multirow{2}{*}{\(q\)} & \multicolumn{2}{c}{Prove (s)}
 & \multicolumn{2}{c}{Verify (ms)} & \multicolumn{2}{c}{Proof (B)}
-& \multicolumn{2}{c}{Stmt. (B)} \\
+& \multicolumn{2}{c}{Statement (B)} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
 & LAMP & zkMatrix & LAMP & zkMatrix & LAMP & zkMatrix & LAMP & zkMatrix \\
 \midrule
@@ -174,9 +176,9 @@ statement bytes are separate, with canonical compressed proof encodings.}
 \bottomrule
 \end{tabular*}
 \caption{Independent EPYC comparison for batches of \(q\) independent
-\(128\times128\) products. Timings are mean \(\pm\) sample standard deviation
-from ten runs; commitment generation is included. Proof and statement bytes
-are means, using the compressed accounting of Table~\ref{tab:epyc-zkmatrix-square}.}
+\(128\times128\) products. Times and byte counts are means over ten runs;
+commitment generation is included. Proof and statement sizes use the
+accounting of Table~\ref{tab:epyc-zkmatrix-square}.}
 \label{tab:epyc-zkmatrix-batch}
 \end{table*}
 

@@ -26,7 +26,7 @@
     "Paper/Contents/appendix.tex": "53d8f96cc3dc5bbdcc5219f5b3042ac91e9023d9090596e2210ba657c3d990d5",
     "Paper/Contents/conclusion.tex": "856fe34494ba31d3c439ee04528fd2a24b440698c34406bc075d9830c5580bd1",
     "Paper/Contents/construction.tex": "89dd27649b8938d2d075acb50d55d070d0435bba8221f2160aae9b175055ead3",
-    "Paper/Contents/evaluation.tex": "3d9b2f7c3e3d2172cf62507b16b43bcbdbb07e6e72cf3f72f30a1b21e2470016",
+    "Paper/Contents/evaluation.tex": "99e2b37cefa52f757e9ed983407bd2f135647cefa788552adc9205befabda1b2",
     "Paper/Contents/introduction.tex": "d8ce01cb14a04c257d433801bb789175e9edd50e22ea0678d5e42c13dec5bf70",
     "Paper/Contents/preliminaries.tex": "05f0b7effa4bd4cb87dbe05e3230ddf06b12883fe3ab1572850a8dfcf653ebd9",
     "Paper/Contents/preliminaries_2nd_arxiv.tex": "a384781b8d3fdcd0599e9119a4c41b89ab83d453bb076a199d37d472339f3dca",
@@ -39,10 +39,10 @@
     "Paper/Tables/Meow_vs_Freivalds.tex": "263b9be881b3810e90b0b872af1828dd7f21b64dbc66185734e55cec9de24ee7",
     "Paper/Tables/Precompute_and_Encoding.tex": "01d666d56d0b0511810543e63ef69020c5fb60544dca56529ab5a04c92c51d72",
     "Paper/Tables/asymptotic_comparison.tex": "89739607a53530d646e3628466f01facaea22a8590f74c23528abc7047598ec3",
-    "Paper/Tables/zkMatrix_epyc_batch_rows.tex": "e157a29211f2c39e8d9d4a49646713844d775221c606bfed3a8e8be0800593ec",
-    "Paper/Tables/zkMatrix_epyc_square_rows.tex": "38ce34201618ff1e842d204c251c3287bb70450a643796d006a4b7bcd4e578d9"
+    "Paper/Tables/zkMatrix_epyc_batch_rows.tex": "11b2b4ec34b03262e1ddfd3a5236864a95034ef893abd776af799ddf9317a68b",
+    "Paper/Tables/zkMatrix_epyc_square_rows.tex": "a7705d2399d27b2dbbe232130004b811cdb970d807ce058cb4381a6cc766ffd1"
   },
-  "pdf_sha256": "9a421d9a39af50c673a1750e0b15faed43c8ac15d5efceb5618d3ad491fd3b1b",
+  "pdf_sha256": "db35ba47902905a7c7530b2720b35e3ba7be1e4b9bc1c864efe20538e4a381cd",
   "page_content_sha256": [
     "eae3287f6ccc6b000db0c30035f5b7bd2463b285a3e92fc1600dcbbdd8f9b739",
     "345a9c1276236219ed019be31ab9bbd3b9d0be40c86ba7b2c9f115ee85edac2d",
@@ -54,9 +54,9 @@
     "6b495420cb73386d9d174bd670fa1dcfc93bfe7a88927a1a2688f33dfdadd1a1",
     "e003ddbe24f4f66b98609a178e48f096df46d409b8d139153ab3434c25de871c",
     "e100eae3834084dc8f4bbaab4fed5b909b4bfbdd6f86faac031da9be9460b66d",
-    "fd365f7111c8a7424798bcf01da7eeccef5265fc41a2e857dd7a2195d11082c6",
-    "4778259f787afce7b5587611433c08c14676e9bd3a7c3bf501d9e643729f9229",
-    "40645ba4f128528b43ba4107e5b560bc476b50b5b7233e7f71fefa01e328f150",
+    "57bdb7a8b26da3d365af0ad9fa3bd9597a98951ca091babdacd0c45d81530462",
+    "0cab6c08703d68a13e81ebbc43983e3fb7a043d6c5fc32af686163beb090693a",
+    "1f80ce61808258886d5274754598142db69f3295a91f6ec795bea2e61ef44352",
     "6fca5c7cccc74d79d6f8b387fc2d2d2c44deb3d9b10ce87a692634dcdb691f52",
     "1e1d67dc3f9ea003876a7a5b6540cbb4413762648d2f9478ac1a325181e6ac7d",
     "1c47af876673191dcebbdb7a7612d8275467ff1f7c44bba23421ec3ee897b6a2",
@@ -74,14 +74,19 @@
     "c879e2b0b562df8a24b33e7fb2ab0a3cc0d9fc89b3bdd63f646d4c9ea2611d35",
     "7238c147abd0c50cdd9d35b69299cde67572384a49cc00bb16170db7f8ea367a",
     "3dfd5ac8d03e0fb32b8275c2b1385a128ea2ea84f63aaa4d1b200c8a3264e29e",
-    "cac0906b4edc7473a84469f23f15c47cdcaeb9a3b346f5a6f0461f41b645b6a5",
-    "d27b24a6c9d5ab42c87e286d32ea26a09de02a0b23965e7b23eeeb5ef83ed539",
-    "3aa341606db1977df6951bb8605a3d61d4fe1637fa488828c4b879bbd19c4a4e",
+    "9de457fedec1cb014156156a594cc7f2c3e02630512ad77f2ad1a37f998818bf",
+    "9bcd39b55375cdd55a7ce7b1a31e49c03ade2b1746c5bec7dd2b468647ffca9f",
+    "dbd8c5335b5b4ff5d046aab546c60da9f1a4fe6e7af0c4cb91a6ca55246c19ff",
     "315919907746e7025d10b9bbaff405bb50eb572bb582ab0de16665ed8f32d3ec",
     "e0b7e2fd4995f2f7f36718801c33dbc66a5b9ab28f987698b263c958735e71d8",
     "8607357678a245354d1b4dd560b9275c64b37cbcb851ee45ee8e09633b57264d",
     "8c12fd1bffd73e6ae5b25fd305144a4785a5f8c00c7ad0199a46688eb31eb30f",
     "e7c447365e389266c40a46da1a5f4e341670a731f88ed534bf7e0f20d5265122"
   ],
-  "pdf_hash_note": "The local LaTeX build regenerated PDF metadata after the isolated validation build; all 18 page text and content streams are identical. Page digests permit validation independent of timestamp/document-ID changes."
+  "pdf_hash_note": "Current PDF validated after table presentation edits; page digests allow validation independent of metadata changes.",
+  "table_presentation": "Ten-run means only; sample standard deviations are preserved in paper_comparison_measurements.json. Statement (B) is the encoded public input size, separate from proof bytes.",
+  "visual_review_pages": [
+    12,
+    13
+  ]
 }

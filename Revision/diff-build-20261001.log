@@ -791,187 +791,187 @@ LaTeX Warning: Citation `cong2024zkmatrix' on page 11 undefined on input line 2
 [11]
 
 LaTeX Warning: Reference `tab:asymptotic_comparison' on page 12 undefined on in
-put line 2633.
+put line 2634.
 
 
 LaTeX Warning: Reference `tab:matmul-comparison' on page 12 undefined on input 
-line 2634.
+line 2635.
 
 
 LaTeX Warning: Reference `tab:matmul-comparison' on page 12 undefined on input 
-line 2636.
+line 2637.
 
 
-Underfull \hbox (badness 3168) in paragraph at lines 2657--2668
+Underfull \hbox (badness 3168) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 2600) in paragraph at lines 2657--2668
+Underfull \hbox (badness 2600) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 1968) in paragraph at lines 2657--2668
+Underfull \hbox (badness 1968) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 4621) in paragraph at lines 2657--2668
+Underfull \hbox (badness 4621) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 4429) in paragraph at lines 2657--2668
+Underfull \hbox (badness 4429) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []
 
 
-Underfull \hbox (badness 1527) in paragraph at lines 2684--2705
+Underfull \hbox (badness 1527) in paragraph at lines 2685--2706
 |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 6252) in paragraph at lines 2684--2705
+Underfull \hbox (badness 6252) in paragraph at lines 2685--2706
 |   []   [][]|   []   |   []   |   []   |   []   |   []
 
 LaTeX Warning: Reference `tab:epyc-zkmatrix-square' on page 12 undefined on inp
-ut line 2709.
+ut line 2710.
 
 
 [12]
 
-LaTeX Warning: Citation `zkMaP' on page 13 undefined on input line 2740.
+LaTeX Warning: Citation `zkMaP' on page 13 undefined on input line 2741.
 
 
 LaTeX Warning: Reference `tab:asymptotic_comparison' on page 13 undefined on in
-put line 2740.
+put line 2741.
 
 
 LaTeX Warning: Reference `tab:epyc-zkmatrix-square' on page 13 undefined on inp
-ut line 2822.
+ut line 2823.
 
 
 LaTeX Warning: Reference `tab:lamp-breakdown' on page 13 undefined on input lin
-e 2831.
+e 2832.
 
 
 LaTeX Warning: Reference `app:component-batch' on page 13 undefined on input li
-ne 2832.
+ne 2833.
 
 
 
 LaTeX Warning: Reference `tab:lamp-code-rates' on page 13 undefined on input li
-ne 2877.
+ne 2878.
 
 
 LaTeX Warning: Reference `app:lamp-code-rates' on page 13 undefined on input li
-ne 2877.
+ne 2878.
 
 
 LaTeX Warning: Reference `tab:lamp-code-rates' on page 13 undefined on input li
-ne 2880.
+ne 2881.
 
 
 LaTeX Warning: Reference `tab:lamp-batch' on page 13 undefined on input line 29
-43.
+44.
 
 
 LaTeX Warning: Reference `app:component-batch' on page 13 undefined on input li
-ne 2946.
+ne 2947.
 
 
 LaTeX Warning: Reference `tab:epyc-zkmatrix-batch' on page 13 undefined on inpu
-t line 2956.
+t line 2957.
 
 
 [13]
 
 LaTeX Warning: Reference `tab:lamp-gpt2' on page 14 undefined on input line 297
-8.
+9.
 
 
 LaTeX Warning: Reference `sec:eval-matmul-comparison' on page 14 undefined on i
-nput line 2980.
+nput line 2981.
 
 
-Underfull \hbox (badness 2368) in paragraph at lines 3008--3018
+Underfull \hbox (badness 2368) in paragraph at lines 3009--3019
 []|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   [
 ]
 
-Underfull \hbox (badness 1888) in paragraph at lines 3008--3018
+Underfull \hbox (badness 1888) in paragraph at lines 3009--3019
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 |   []   [][]\T1/ptm/m/n/10.03749 with smaller proofs than LAMP.
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 Het-ero-ge-neous ma-trix di-men-sions []re-quire mul-ti-pl
 e
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 com-mit-ment lay-outs[]|   []   |   []   [][], []CP-Link
 
-Underfull \hbox (badness 4621) in paragraph at lines 3008--3018
+Underfull \hbox (badness 4621) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 proofs[]|   []   |   []   |   []   |   []   |   []   |   [
 ]
 
 
-Underfull \hbox (badness 1902) in paragraph at lines 3073--3085
+Underfull \hbox (badness 1902) in paragraph at lines 3074--3086
 \T1/ptm/m/n/10.03749 for the mea-sured $\OT1/cmr/m/n/10 128 \OMS/cmsy/m/n/10 ^^
 B \OT1/cmr/m/n/10 128$ \T1/ptm/m/n/10.03749 batches of one to ten
 
 [14]
-Underfull \hbox (badness 1533) in paragraph at lines 3087--3094
+Underfull \hbox (badness 1533) in paragraph at lines 3088--3095
 \T1/ptm/m/n/10.03749 Shamir-transformed, non-interactive $[]$ and shar-ing
 No file LAMP_diff.bbl.
 
 LaTeX Warning: Reference `sec:prelim-snark' on page 15 undefined on input line 
-3107.
+3108.
 
 
 LaTeX Warning: Reference `sec:prelim-cplink' on page 15 undefined on input line
- 3152.
+ 3153.
 
 
-LaTeX Warning: Citation `legosnark' on page 15 undefined on input line 3168.
+LaTeX Warning: Citation `legosnark' on page 15 undefined on input line 3169.
 
 
-LaTeX Warning: Citation `qa-nizk' on page 15 undefined on input line 3168.
+LaTeX Warning: Citation `qa-nizk' on page 15 undefined on input line 3169.
 
 
 
-LaTeX Warning: Reference `thm:security' on page 15 undefined on input line 3218
+LaTeX Warning: Reference `thm:security' on page 15 undefined on input line 3219
 .
 
 
 LaTeX Warning: Reference `def:lamp-backend-assumptions' on page 15 undefined on
- input line 3257.
+ input line 3258.
 
 
 [15]
 
 LaTeX Warning: Reference `sec:snark-relation' on page 16 undefined on input lin
-e 3420.
+e 3421.
 
 
-Underfull \hbox (badness 2809) in paragraph at lines 3426--3430
+Underfull \hbox (badness 2809) in paragraph at lines 3427--3431
 \T1/ptm/m/n/10.03749 be the pub-lic eval-u-a-tion do-main. A mes-sage $\OT1/cmr
 /bx/n/10 v \OT1/cmr/m/n/10 =
 
 [16]
-Underfull \hbox (badness 2707) in paragraph at lines 3526--3529
+Underfull \hbox (badness 2707) in paragraph at lines 3527--3530
 []\T1/ptm/m/n/10.03749 In $[]$, this check is ap-plied to $[]\OML/cmm/m/it/10 ;
  []; []; []$ \T1/ptm/m/n/10.03749 at
 
-Underfull \hbox (badness 10000) in paragraph at lines 3539--3543
+Underfull \hbox (badness 10000) in paragraph at lines 3540--3544
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3551--3554
+Underfull \hbox (badness 10000) in paragraph at lines 3552--3555
 []\T1/ptm/m/n/10.03749 The pub-lic state-ment is $\OT1/cmss/m/n/10 x[] \OT1/cmr
 /m/n/10 =
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3611--3613
+Underfull \hbox (badness 10000) in paragraph at lines 3612--3614
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3636--3638
+Underfull \hbox (badness 10000) in paragraph at lines 3637--3639
 
 
-LaTeX Warning: Citation `qa-nizk' on page 17 undefined on input line 3661.
+LaTeX Warning: Citation `qa-nizk' on page 17 undefined on input line 3662.
 
 
 LaTeX Warning: Reference `app:cplink-security' on page 17 undefined on input li
-ne 3662.
+ne 3663.
 
 
 [17]
@@ -979,15 +979,15 @@ ne 3662.
 [18]
 
 LaTeX Warning: Reference `tab:lamp-breakdown' on page 19 undefined on input lin
-e 3839.
+e 3840.
 
 
 LaTeX Warning: Reference `tab:lamp-batch' on page 19 undefined on input line 38
-39.
+40.
 
 
 LaTeX Warning: Reference `tab:lamp-code-rates' on page 19 undefined on input li
-ne 3839.
+ne 3840.
 
 
 ** Conference Paper **
@@ -1060,7 +1060,7 @@ r/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/te
 xlive/2025/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on LAMP_diff.pdf (19 pages, 576961 bytes).
+Output written on LAMP_diff.pdf (19 pages, 576385 bytes).
 Transcript written on LAMP_diff.log.
 Latexmk: Getting log file 'LAMP_diff.log'
 Latexmk: Examining 'LAMP_diff.fls'
@@ -1747,102 +1747,103 @@ LaTeX Warning: Citation `cong2024zkmatrix' on page 11 undefined on input line 2
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1pcr.fd)
 [11]
-Underfull \hbox (badness 3168) in paragraph at lines 2657--2668
+Underfull \hbox (badness 3168) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 2600) in paragraph at lines 2657--2668
+Underfull \hbox (badness 2600) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 1968) in paragraph at lines 2657--2668
+Underfull \hbox (badness 1968) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 4621) in paragraph at lines 2657--2668
+Underfull \hbox (badness 4621) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 4429) in paragraph at lines 2657--2668
+Underfull \hbox (badness 4429) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []
 
 
-Underfull \hbox (badness 1527) in paragraph at lines 2684--2705
+Underfull \hbox (badness 1527) in paragraph at lines 2685--2706
 |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 6252) in paragraph at lines 2684--2705
+Underfull \hbox (badness 6252) in paragraph at lines 2685--2706
 |   []   [][]|   []   |   []   |   []   |   []   |   []
 
 [12]
 
-LaTeX Warning: Citation `zkMaP' on page 13 undefined on input line 2740.
+LaTeX Warning: Citation `zkMaP' on page 13 undefined on input line 2741.
 
 
 
 [13]
-Underfull \hbox (badness 2368) in paragraph at lines 3008--3018
+Underfull \hbox (badness 2368) in paragraph at lines 3009--3019
 []|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   [
 ]
 
-Underfull \hbox (badness 1888) in paragraph at lines 3008--3018
+Underfull \hbox (badness 1888) in paragraph at lines 3009--3019
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 |   []   [][]\T1/ptm/m/n/10.03749 with smaller proofs than LAMP.
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 Het-ero-ge-neous ma-trix di-men-sions []re-quire mul-ti-pl
 e
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 com-mit-ment lay-outs[]|   []   |   []   [][], []CP-Link
 
-Underfull \hbox (badness 4621) in paragraph at lines 3008--3018
+Underfull \hbox (badness 4621) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 proofs[]|   []   |   []   |   []   |   []   |   []   |   [
 ]
 
 
-Underfull \hbox (badness 1902) in paragraph at lines 3073--3085
+Underfull \hbox (badness 1902) in paragraph at lines 3074--3086
 \T1/ptm/m/n/10.03749 for the mea-sured $\OT1/cmr/m/n/10 128 \OMS/cmsy/m/n/10 ^^
 B \OT1/cmr/m/n/10 128$ \T1/ptm/m/n/10.03749 batches of one to ten
 
 [14]
-Underfull \hbox (badness 1533) in paragraph at lines 3087--3094
+Underfull \hbox (badness 1533) in paragraph at lines 3088--3095
 \T1/ptm/m/n/10.03749 Shamir-transformed, non-interactive $[]$ and shar-ing
 (./LAMP_diff.bbl
 
 [15])
 
-LaTeX Warning: Citation `legosnark' on page 16 undefined on input line 3168.
+LaTeX Warning: Citation `legosnark' on page 16 undefined on input line 3169.
 
 
-LaTeX Warning: Citation `qa-nizk' on page 16 undefined on input line 3168.
+LaTeX Warning: Citation `qa-nizk' on page 16 undefined on input line 3169.
+
 
 
 [16]
 
-Underfull \hbox (badness 2809) in paragraph at lines 3426--3430
+Underfull \hbox (badness 2809) in paragraph at lines 3427--3431
 \T1/ptm/m/n/10.03749 be the pub-lic eval-u-a-tion do-main. A mes-sage $\OT1/cmr
 /bx/n/10 v \OT1/cmr/m/n/10 =
 
 [17]
-Underfull \hbox (badness 2707) in paragraph at lines 3526--3529
+Underfull \hbox (badness 2707) in paragraph at lines 3527--3530
 []\T1/ptm/m/n/10.03749 In $[]$, this check is ap-plied to $[]\OML/cmm/m/it/10 ;
  []; []; []$ \T1/ptm/m/n/10.03749 at
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3539--3543
+Underfull \hbox (badness 10000) in paragraph at lines 3540--3544
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3551--3554
+Underfull \hbox (badness 10000) in paragraph at lines 3552--3555
 []\T1/ptm/m/n/10.03749 The pub-lic state-ment is $\OT1/cmss/m/n/10 x[] \OT1/cmr
 /m/n/10 =
 
-Underfull \hbox (badness 10000) in paragraph at lines 3611--3613
+Underfull \hbox (badness 10000) in paragraph at lines 3612--3614
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3636--3638
+Underfull \hbox (badness 10000) in paragraph at lines 3637--3639
 
 
 [18]
 
-LaTeX Warning: Citation `qa-nizk' on page 19 undefined on input line 3661.
+LaTeX Warning: Citation `qa-nizk' on page 19 undefined on input line 3662.
 
 
 ** Conference Paper **
@@ -1915,7 +1916,7 @@ r/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/te
 xlive/2025/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on LAMP_diff.pdf (20 pages, 593806 bytes).
+Output written on LAMP_diff.pdf (20 pages, 593050 bytes).
 Transcript written on LAMP_diff.log.
 Latexmk: Getting log file 'LAMP_diff.log'
 Latexmk: Examining 'LAMP_diff.fls'
@@ -2461,59 +2462,59 @@ Underfull \hbox (badness 2401) in paragraph at lines 2025--2029
 [9] [10]
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1pcr.fd)
 [11]
-Underfull \hbox (badness 3168) in paragraph at lines 2657--2668
+Underfull \hbox (badness 3168) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 2600) in paragraph at lines 2657--2668
+Underfull \hbox (badness 2600) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 1968) in paragraph at lines 2657--2668
+Underfull \hbox (badness 1968) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 4621) in paragraph at lines 2657--2668
+Underfull \hbox (badness 4621) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 4429) in paragraph at lines 2657--2668
+Underfull \hbox (badness 4429) in paragraph at lines 2658--2669
 |   []   |   []   |   []   |   []   |   []   |   []
 
 
-Underfull \hbox (badness 1527) in paragraph at lines 2684--2705
+Underfull \hbox (badness 1527) in paragraph at lines 2685--2706
 |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 6252) in paragraph at lines 2684--2705
+Underfull \hbox (badness 6252) in paragraph at lines 2685--2706
 |   []   [][]|   []   |   []   |   []   |   []   |   []
 
 [12]
 
 [13]
-Underfull \hbox (badness 2368) in paragraph at lines 3008--3018
+Underfull \hbox (badness 2368) in paragraph at lines 3009--3019
 []|   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   [
 ]
 
-Underfull \hbox (badness 1888) in paragraph at lines 3008--3018
+Underfull \hbox (badness 1888) in paragraph at lines 3009--3019
 |   []   |   []   |   []   |   []   |   []   |   []   |   []   |   []
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 |   []   [][]\T1/ptm/m/n/10.03749 with smaller proofs than LAMP.
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 Het-ero-ge-neous ma-trix di-men-sions []re-quire mul-ti-pl
 e
 
-Underfull \hbox (badness 10000) in paragraph at lines 3008--3018
+Underfull \hbox (badness 10000) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 com-mit-ment lay-outs[]|   []   |   []   [][], []CP-Link
 
-Underfull \hbox (badness 4621) in paragraph at lines 3008--3018
+Underfull \hbox (badness 4621) in paragraph at lines 3009--3019
 \T1/ptm/m/n/10.03749 proofs[]|   []   |   []   |   []   |   []   |   []   |   [
 ]
 
 
-Underfull \hbox (badness 1902) in paragraph at lines 3073--3085
+Underfull \hbox (badness 1902) in paragraph at lines 3074--3086
 \T1/ptm/m/n/10.03749 for the mea-sured $\OT1/cmr/m/n/10 128 \OMS/cmsy/m/n/10 ^^
 B \OT1/cmr/m/n/10 128$ \T1/ptm/m/n/10.03749 batches of one to ten
 
 [14]
-Underfull \hbox (badness 1533) in paragraph at lines 3087--3094
+Underfull \hbox (badness 1533) in paragraph at lines 3088--3095
 \T1/ptm/m/n/10.03749 Shamir-transformed, non-interactive $[]$ and shar-ing
 (./LAMP_diff.bbl
 
@@ -2521,27 +2522,27 @@ Underfull \hbox (badness 1533) in paragraph at lines 3087--3094
 
 [16]
 
-Underfull \hbox (badness 2809) in paragraph at lines 3426--3430
+Underfull \hbox (badness 2809) in paragraph at lines 3427--3431
 \T1/ptm/m/n/10.03749 be the pub-lic eval-u-a-tion do-main. A mes-sage $\OT1/cmr
 /bx/n/10 v \OT1/cmr/m/n/10 =
 
 [17]
-Underfull \hbox (badness 2707) in paragraph at lines 3526--3529
+Underfull \hbox (badness 2707) in paragraph at lines 3527--3530
 []\T1/ptm/m/n/10.03749 In $[]$, this check is ap-plied to $[]\OML/cmm/m/it/10 ;
  []; []; []$ \T1/ptm/m/n/10.03749 at
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3539--3543
+Underfull \hbox (badness 10000) in paragraph at lines 3540--3544
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3551--3554
+Underfull \hbox (badness 10000) in paragraph at lines 3552--3555
 []\T1/ptm/m/n/10.03749 The pub-lic state-ment is $\OT1/cmss/m/n/10 x[] \OT1/cmr
 /m/n/10 =
 
-Underfull \hbox (badness 10000) in paragraph at lines 3611--3613
+Underfull \hbox (badness 10000) in paragraph at lines 3612--3614
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 3636--3638
+Underfull \hbox (badness 10000) in paragraph at lines 3637--3639
 
 
 [18]
@@ -2605,7 +2606,7 @@ r/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/te
 xlive/2025/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on LAMP_diff.pdf (20 pages, 595588 bytes).
+Output written on LAMP_diff.pdf (20 pages, 594845 bytes).
 Transcript written on LAMP_diff.log.
 Latexmk: Getting log file 'LAMP_diff.log'
 Latexmk: Examining 'LAMP_diff.fls'

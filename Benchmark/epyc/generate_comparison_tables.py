@@ -133,7 +133,8 @@ def collect():
 
 
 def time_cell(metric, places):
-    return rf"\({metric['mean']:.{places}f}\pm{metric['sample_sd']:.{places}f}\)"
+    # Keep sample deviations in the measurement JSON; paper cells show means.
+    return rf"\({metric['mean']:.{places}f}\)"
 
 
 def bytes_cell(metric):

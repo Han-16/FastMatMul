@@ -103,15 +103,15 @@
 \citation{cong2024zkmatrix}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Implementation and Evaluation}{11}{section.7}\protected@file@percent }
 \newlabel{sec:implementation}{{7}{11}{Implementation and Evaluation}{section.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Performance comparison of \(\textsf  {LAMP}\), the Freivalds baseline, and DualMatrix for square matrix multiplication.}}{11}{table.3}\protected@file@percent }
-\newlabel{tab:matmul-comparison}{{3}{11}{Performance comparison of \(\protocol \), the Freivalds baseline, and DualMatrix for square matrix multiplication}{table.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Comparison with Matrix-Multiplication Proof Systems}{11}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:eval-matmul-comparison}{{7.1}{11}{Comparison with Matrix-Multiplication Proof Systems}{subsection.7.1}{}}
 \citation{zkMaP}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Comparison with Matrix-Multiplication Proof Systems}{12}{subsection.7.1}\protected@file@percent }
-\newlabel{sec:eval-matmul-comparison}{{7.1}{12}{Comparison with Matrix-Multiplication Proof Systems}{subsection.7.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Performance comparison of \(\textsf  {LAMP}\), the Freivalds baseline, and DualMatrix for square matrix multiplication.}}{12}{table.3}\protected@file@percent }
+\newlabel{tab:matmul-comparison}{{3}{12}{Performance comparison of \(\protocol \), the Freivalds baseline, and DualMatrix for square matrix multiplication}{table.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}LAMP Component Breakdown}{12}{subsection.7.2}\protected@file@percent }
 \newlabel{sec:eval-lamp-breakdown}{{7.2}{12}{LAMP Component Breakdown}{subsection.7.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Independent EPYC comparison, including commitment generation. Timings are mean \(\pm \) sample standard deviation over ten runs. Proof and statement bytes are separate, with canonical compressed proof encodings.}}{12}{table.4}\protected@file@percent }
-\newlabel{tab:epyc-zkmatrix-square}{{4}{12}{Independent EPYC comparison, including commitment generation. Timings are mean \(\pm \) sample standard deviation over ten runs. Proof and statement bytes are separate, with canonical compressed proof encodings}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Independent EPYC comparison, including commitment generation. Times and byte counts are means over ten runs. Statement is the encoded public input, reported separately from the canonically compressed proof.}}{12}{table.4}\protected@file@percent }
+\newlabel{tab:epyc-zkmatrix-square}{{4}{12}{Independent EPYC comparison, including commitment generation. Times and byte counts are means over ten runs. Statement is the encoded public input, reported separately from the canonically compressed proof}{table.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Batching Matrix-Multiplication Claims}{12}{subsection.7.3}\protected@file@percent }
 \newlabel{sec:eval-batch}{{7.3}{12}{Batching Matrix-Multiplication Claims}{subsection.7.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.4}GPT-2 Workload}{12}{subsection.7.4}\protected@file@percent }
@@ -130,8 +130,8 @@
 \bibcite{legosnark}{10}
 \bibcite{thaler2013time}{11}
 \bibcite{cong2024zkmatrix}{12}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Independent EPYC comparison for batches of \(q\) independent \(128\times 128\) products. Timings are mean \(\pm \) sample standard deviation from ten runs; commitment generation is included. Proof and statement bytes are means, using the compressed accounting of Table~\ref {tab:epyc-zkmatrix-square}.}}{13}{table.5}\protected@file@percent }
-\newlabel{tab:epyc-zkmatrix-batch}{{5}{13}{Independent EPYC comparison for batches of \(q\) independent \(128\times 128\) products. Timings are mean \(\pm \) sample standard deviation from ten runs; commitment generation is included. Proof and statement bytes are means, using the compressed accounting of Table~\ref {tab:epyc-zkmatrix-square}}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Independent EPYC comparison for batches of \(q\) independent \(128\times 128\) products. Times and byte counts are means over ten runs; commitment generation is included. Proof and statement sizes use the accounting of Table~\ref {tab:epyc-zkmatrix-square}.}}{13}{table.5}\protected@file@percent }
+\newlabel{tab:epyc-zkmatrix-batch}{{5}{13}{Independent EPYC comparison for batches of \(q\) independent \(128\times 128\) products. Times and byte counts are means over ten runs; commitment generation is included. Proof and statement sizes use the accounting of Table~\ref {tab:epyc-zkmatrix-square}}{table.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces GPT-2 at sequence length \(2^{10}\) with 36 matrix-multiplication claims.}}{13}{table.6}\protected@file@percent }
 \newlabel{tab:lamp-gpt2}{{6}{13}{GPT-2 at sequence length \(2^{10}\) with 36 matrix-multiplication claims}{table.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{13}{section.8}\protected@file@percent }
