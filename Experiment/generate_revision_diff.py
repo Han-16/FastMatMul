@@ -80,23 +80,12 @@ def main():
         # The full generated source lives in LAMP_diff.tex, not in the diagnostic log.
         generation_log.write_text(generation_log.read_text().removeprefix(diff))
         style = r'''
-% Requested review colors; body additions have no underline.
+% Show the revised manuscript with blue additions and hidden deletions.
 \definecolor{DiffBlue}{RGB}{0,65,190}
-\definecolor{DiffDeleted}{RGB}{115,115,115}
 \renewcommand{\DIFaddtex}[1]{{\protect\color{DiffBlue}#1}}
-\renewcommand{\DIFdeltex}[1]{{\protect\color{DiffDeleted}\sout{#1}}}
+\renewcommand{\DIFdeltex}[1]{}
 '''
         diff = diff.replace(r"\begin{document}", style + "\n" + r"\begin{document}", 1)
-        legend = r'''
-\noindent{\footnotesize Compared with the submitted first revision:
-\textcolor{DiffBlue}{blue = added/revised or relocated};
-\textcolor{DiffDeleted}{\sout{gray = removed}}.
-Tables relocated to Appendix F retain their original measurements.}
-\par\smallskip
-'''
-        diff = diff.replace(r"\maketitle", r"\maketitle" + "\n" + legend, 1)
-        diff = diff.replace(r"\DIFdelend \DIFaddbegin",
-                            r"\DIFdelend\allowbreak \DIFaddbegin")
         diff = diff.replace(r"\url{https://github.com/lysias9049/LAMP-artifact}",
                             r"\textcolor{DiffBlue}{\url{https://github.com/lysias9049/LAMP-artifact}}")
 
@@ -127,7 +116,8 @@ Tables relocated to Appendix F retain their original measurements.}
             "diff_source": str(output.relative_to(ROOT)),
             "diff_pdf": str(pdf.relative_to(ROOT)),
             "additions": "blue; includes relocated tables",
-            "deletions": "gray strikethrough",
+            "deletions": "hidden",
+            "first_page_legend": False,
             "input_sha256": INPUTS,
             "diff_tex_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
             "diff_pdf_sha256": hashlib.sha256(pdf.read_bytes()).hexdigest(),

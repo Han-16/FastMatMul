@@ -67,9 +67,9 @@ upstream directory.
 
 `Paper/LAMP_diff.tex` and `Paper/LAMP_diff.pdf` are the new comparison against
 the submitted first revision preserved in `Paper_original/`. Added/revised text
-and inserted or relocated tables are blue; deleted text is gray with
-strikethrough. The relocated Appendix F tables retain their original numerical
-results. The review PDF has 20 pages; the clean manuscript remains 18 pages.
+and inserted or relocated tables are blue; deleted text is hidden and there is
+no first-page legend. The relocated Appendix F tables retain their original
+numerical results. Both the review PDF and the clean manuscript have 18 pages.
 Regenerate the diff after manuscript changes with:
 
 ```bash

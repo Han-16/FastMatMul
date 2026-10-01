@@ -238,11 +238,10 @@
 %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
 
 
-% Requested review colors; body additions have no underline.
+% Show the revised manuscript with blue additions and hidden deletions.
 \definecolor{DiffBlue}{RGB}{0,65,190}
-\definecolor{DiffDeleted}{RGB}{115,115,115}
 \renewcommand{\DIFaddtex}[1]{{\protect\color{DiffBlue}#1}}
-\renewcommand{\DIFdeltex}[1]{{\protect\color{DiffDeleted}\sout{#1}}}
+\renewcommand{\DIFdeltex}[1]{}
 
 \begin{document}
 
@@ -251,13 +250,6 @@
 \author{\IEEEauthorblockN{Anonymous Submission}}
 
 \maketitle
-
-\noindent{\footnotesize Compared with the submitted first revision:
-\textcolor{DiffBlue}{blue = added/revised or relocated};
-\textcolor{DiffDeleted}{\sout{gray = removed}}.
-Tables relocated to Appendix F retain their original measurements.}
-\par\smallskip
-
 
 \begin{abstract}
 
@@ -401,12 +393,12 @@ matrix-multiplication statements.  Our contributions are as follows.
   We implement \DIFdelbegin \DIFdel{\(\protocol\) in Goand evaluate it against a Freivalds-based
   SNARK baseline and DualMatrix. In the square-matrix experiments with
   \(\rho=1/2\) and \(t=309\), \(\protocol\) reduces the constraint count by
-  }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{LAMP in Go. At \(k=4096\), it uses }\DIFaddend \(9.68\times\) \DIFdelbegin \DIFdel{and proving time by }%DIFDELCMD < \ensuremath{5.81\times} %%%
-\DIFdel{relative to the Freivalds baseline at \(k=2^{12}\).  It also }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{fewer
+  }\DIFdelend \DIFaddbegin \DIFadd{LAMP in Go. At \(k=4096\), it uses }\DIFaddend \(9.68\times\) \DIFdelbegin \DIFdel{and proving time by }%DIFDELCMD < \ensuremath{5.81\times} %%%
+\DIFdel{relative to the Freivalds baseline at \(k=2^{12}\).  It also }\DIFdelend \DIFaddbegin \DIFadd{fewer
   constraints and }\DIFaddend proves \DIFaddbegin \DIFadd{\(5.81\times\) faster than a Freivalds SNARK; it
   proves }\DIFaddend faster than DualMatrix at every \DIFdelbegin \DIFdel{matrix dimensionmeasured for both systems, achieving a }%DIFDELCMD < \ensuremath{3.62\times}
 %DIFDELCMD <   %%%
-\DIFdel{speedup at \(k=2^{13}\). }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{shared dimension, by \(3.62\times\)
+\DIFdel{speedup at \(k=2^{13}\). }\DIFdelend \DIFaddbegin \DIFadd{shared dimension, by \(3.62\times\)
   at \(k=8192\). Against an independent BN254 zkMatrix implementation, LAMP
   proves \(4.00\times\) faster at \(k=2048\), while zkMatrix verifies faster
   and produces smaller proofs throughout the measured range.
@@ -414,16 +406,16 @@ matrix-multiplication statements.  Our contributions are as follows.
 
   \DIFdelbegin \DIFdel{We further evaluate batching and a GPT-2 workload.
 Batching matrix products
-  with a shared leaf layout keeps the }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Shared-layout batching keeps LAMP's }\DIFaddend Merkle proof size and verification
+  with a shared leaf layout keeps the }\DIFdelend \DIFaddbegin \DIFadd{Shared-layout batching keeps LAMP's }\DIFaddend Merkle proof size and verification
   \DIFdelbegin \DIFdel{time
   nearly constantas the number of
-  claims increases}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{nearly constant, but zkMatrix proves faster for the measured batches of
+  claims increases}\DIFdelend \DIFaddbegin \DIFadd{nearly constant, but zkMatrix proves faster for the measured batches of
   one to ten independent \(128\times128\) products}\DIFaddend . On GPT-2, \DIFdelbegin \DIFdel{\(\protocol\)
-  }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{LAMP }\DIFaddend proves
-  faster than \DIFdelbegin \DIFdel{both the Freivalds baseline }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Freivalds }\DIFaddend and DualMatrix, \DIFdelbegin \DIFdel{although
+  }\DIFdelend \DIFaddbegin \DIFadd{LAMP }\DIFaddend proves
+  faster than \DIFdelbegin \DIFdel{both the Freivalds baseline }\DIFdelend \DIFaddbegin \DIFadd{Freivalds }\DIFaddend and DualMatrix, \DIFdelbegin \DIFdel{although
   heterogeneous matrix dimensions require multiple commitment
   layouts and
-  increase }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{while heterogeneous commitment
+  increase }\DIFdelend \DIFaddbegin \DIFadd{while heterogeneous commitment
   layouts increase its }\DIFaddend proof size and verification cost.
   \end{revblock}
 \end{itemize}
@@ -2486,13 +2478,13 @@ We implement \(\protocol\) and evaluate its performance. The implementation foll
 interface~\cite{gnark,legosnark}.  For CP-Link, we use a pairing-based QA-NIZK
 proof~\cite{qa-nizk}; the concrete instantiation used in our implementation is
 given in Appendix~\ref{app:cplink-instant}. \DIFdelbegin \DIFdel{The implementation is available at }%DIFDELCMD < \url{https://anonymous.4open.science/r/LAMP-1AFF/}%%%
-\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Implementation and comparison code
+\DIFdelend \DIFaddbegin \DIFadd{Implementation and comparison code
 are maintained at }\textcolor{DiffBlue}{\url{https://github.com/lysias9049/LAMP-artifact}}\DIFaddend .
 
 \DIFdelbegin \DIFdel{Our evaluation is organized around four questions.  First, does the number of  constraints of \(\protocol\) scale linearly with the matrix dimension, as predicted by Section~\ref{sec:protocol-complexity}?  Second,
 which components dominate proving time, proof size, and verification time?  Third, how does \(\protocol\) behave when proving multiple independent claims \(\mat{A}_i\mat{B}_i=\mat{C}_i\) in a batch, rather than a single product \(\mat{A}\mat{B}=\mat{C}\)?  Fourth, does the advantage remain useful on a neural-network workload? }%DIFDELCMD < \\
 %DIFDELCMD < %%%
-\DIFdelend\allowbreak \DIFaddbegin \DIFadd{We evaluate circuit scaling, component costs, batching independent products,
+\DIFdelend \DIFaddbegin \DIFadd{We evaluate circuit scaling, component costs, batching independent products,
 and a GPT-2 workload. We also compare against an independent implementation
 of zkMatrix~\mbox{%DIFAUXCMD
 \cite{cong2024zkmatrix}}\hskip0pt%DIFAUXCMD
@@ -2501,14 +2493,14 @@ of zkMatrix~\mbox{%DIFAUXCMD
 
 \noindent\textbf{Experimental setup \DIFaddbegin \DIFadd{and comparison scope}\DIFaddend .}
 \DIFdelbegin \DIFdel{We implement both \(\protocol\) and the Freivalds baseline in Gousing gnark , with BN254 as the elliptic curve.  
-All experiments were run on a Linux server with an AMD }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{The original Go/gnark experiments use BN254 on Linux with an }\DIFaddend EPYC 7B13\DIFdelbegin \DIFdel{CPU with }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{,
+All experiments were run on a Linux server with an AMD }\DIFdelend \DIFaddbegin \DIFadd{The original Go/gnark experiments use BN254 on Linux with an }\DIFaddend EPYC 7B13\DIFdelbegin \DIFdel{CPU with }\DIFdelend \DIFaddbegin \DIFadd{,
 }\DIFaddend 32 cores\DIFaddbegin \DIFadd{, }\DIFaddend and 256GB \DIFdelbegin \DIFdel{of memory.
-Each experiment was repeated ten times }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{memory, reporting ten-run averages. LAMP uses
+Each experiment was repeated ten times }\DIFdelend \DIFaddbegin \DIFadd{memory, reporting ten-run averages. LAMP uses
 Reed--Solomon rate \(\rho=1/2\) and \(t=309\). The new comparison uses these
 LAMP parameters and BN254 for both systems on the same Linux VM: EPYC 7B13}\DIFaddend ,
 \DIFaddbegin \DIFadd{32 vCPUs, 256GiB provisioned memory, Go 1.26.2, and 32 threads. We measure
 \(k\in\{128,256,512,1024,2048\}\) }\DIFaddend and \DIFdelbegin \DIFdel{we report the average over these runs. We use a Reed--Solomon code of rate \(\rho=1/2\) and set the number of sampled positions to \(t=\ensuremath{309}\). \
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{\(q=1,\ldots,10\) independent
+}\DIFdelend \DIFaddbegin \DIFadd{\(q=1,\ldots,10\) independent
 \(128\times128\) products, ten times per configuration. The new tables report
 ten-run means for timings and byte counts.
 }\DIFaddend 
@@ -2631,10 +2623,10 @@ are not directly comparable to the new compressed sizes.
   we were unable to identify publicly available implementations that would allow us to reproduce their experiments. 
   We therefore compare \(\protocol\) against two systems: 
   a
-Freivalds-based baseline implemented as an arithmetic }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Table~\ref{tab:matmul-comparison} retains the original comparison with a
+Freivalds-based baseline implemented as an arithmetic }\DIFdelend \DIFaddbegin \DIFadd{Table~\ref{tab:matmul-comparison} retains the original comparison with a
 Freivalds }\DIFaddend circuit using LegoSNARK \DIFdelbegin \DIFdel{, and DualMatrix, for which a public implementation is available.
 Table~\ref{tab:matmul-comparison} reports the
-constraint count, proving time, verification time, and proof size of these systems. For both \(\protocol\) and DualMatrix, proving time includes commitment generation, and proof size includes }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{and the public DualMatrix implementation.
+constraint count, proving time, verification time, and proof size of these systems. For both \(\protocol\) and DualMatrix, proving time includes commitment generation, and proof size includes }\DIFdelend \DIFaddbegin \DIFadd{and the public DualMatrix implementation.
 DualMatrix was selected for code availability; it need not represent the
 fastest current system. It has no R1CS constraint count. Proving times include
 commitments and proof sizes include }\DIFaddend the corresponding commitment data.
@@ -2658,11 +2650,11 @@ At \(k=2^8\), the
   }%DIFDELCMD < \ensuremath{2.90} %%%
 \DIFdel{seconds for \(\protocol\). Starting at
 \(k=2^9\), however,
-  \(\protocol\) becomes faster }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{LAMP's fixed overhead makes Freivalds faster at \(k=128,256\); LAMP becomes
+  \(\protocol\) becomes faster }\DIFdelend \DIFaddbegin \DIFadd{LAMP's fixed overhead makes Freivalds faster at \(k=128,256\); LAMP becomes
 faster from \(k=512\)}\DIFaddend . At \DIFdelbegin \DIFdel{\(k=2^{12}\), \(\protocol\) reduces the
   constraint count from \(50{,}495{,}818\) to }%DIFDELCMD < \ensuremath{5{,}214{,}878}%%%
 \DIFdel{, a
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{\(k=4096\), LAMP uses }\DIFaddend \(9.68\times\) \DIFdelbegin \DIFdel{reduction, and reduces the proving time from \(411.28\) seconds
+}\DIFdelend \DIFaddbegin \DIFadd{\(k=4096\), LAMP uses }\DIFaddend \(9.68\times\) \DIFdelbegin \DIFdel{reduction, and reduces the proving time from \(411.28\) seconds
   to }%DIFDELCMD < \ensuremath{70.73} %%%
 \DIFdel{seconds, yielding a }%DIFDELCMD < \ensuremath{5.81\times} %%%
 \DIFdel{speedup. }%DIFDELCMD < 
@@ -2686,7 +2678,7 @@ At \(k=2^8\), \(\protocol\) requires }%DIFDELCMD < \ensuremath{2.90}
 %DIFDELCMD <   %%%
 \DIFdel{seconds, whereas DualMatrix requires \(4.81\) seconds, making \(\protocol\)
   approximately }%DIFDELCMD < \ensuremath{1.66\times} %%%
-\DIFdelend\allowbreak \DIFaddbegin \DIFadd{fewer constraints
+\DIFdelend \DIFaddbegin \DIFadd{fewer constraints
 and proves \(5.81\times\) }\DIFaddend faster. \DIFdelbegin \DIFdel{The gap increases with the matrix
   dimension: at \(k=2^{13}\),
 the respective proving times are }%DIFDELCMD < \ensuremath{195.39} %%%
@@ -2696,7 +2688,7 @@ the respective proving times are }%DIFDELCMD < \ensuremath{195.39} %%%
 remain below \(0.2\) seconds for both
   systems, with equal reported times at }%DIFDELCMD < \ensuremath{k=2^7}
 %DIFDELCMD <   %%%
-\DIFdel{and lower times for \(\protocol\) at the remaining dimensions. }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Freivalds runs out of memory at \(k=8192\),
+\DIFdel{and lower times for \(\protocol\) at the remaining dimensions. }\DIFdelend \DIFaddbegin \DIFadd{Freivalds runs out of memory at \(k=8192\),
 where LAMP uses approximately 49.32GB and proves in 195.39s. Freivalds retains
 196B proofs and approximately 1--2ms verification. LAMP proves faster than
 DualMatrix at every shared dimension, by \(3.62\times\) at \(k=8192\), with both
@@ -2704,10 +2696,10 @@ verifying in under 0.2s. Under the original accounting, LAMP's proofs are
 smaller through \(k=1024\), but larger from \(k=2048\).
 }\DIFaddend 
 
-\DIFdelbegin \DIFdel{Proof size exhibits the opposite trend. From \(k=2^8\) }\DIFdelend\allowbreak \DIFaddbegin \noindent\textbf{\DIFadd{Independent zkMatrix comparison.}}
+\DIFdelbegin \DIFdel{Proof size exhibits the opposite trend. From \(k=2^8\) }\DIFdelend \DIFaddbegin \noindent\textbf{\DIFadd{Independent zkMatrix comparison.}}
 \DIFadd{In Table~\ref{tab:epyc-zkmatrix-square}, zkMatrix proves faster at
 \(k=128,256\), whereas LAMP proves faster at every measured dimension from
-512 }\DIFaddend through \DIFdelbegin \DIFdel{\(k=2^{10}\)}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{2048. At \(k=2048\), LAMP takes 28.310s versus 113.180s, a
+512 }\DIFaddend through \DIFdelbegin \DIFdel{\(k=2^{10}\)}\DIFdelend \DIFaddbegin \DIFadd{2048. At \(k=2048\), LAMP takes 28.310s versus 113.180s, a
 \(4.00\times\) speedup. Conversely, zkMatrix verifies in 12.69ms with 5}\DIFaddend ,\DIFdelbegin \DIFdel{\(\protocol\) produces smaller proofs than DualMatrix. Starting at
   \(k=2^{11}\), however, the proofs generated by \(\protocol\) become larger.
 For example, at \(k=2^{13}\), the proof sizes are }%DIFDELCMD < \ensuremath{136{,}740} %%%
@@ -2716,7 +2708,7 @@ For example, at \(k=2^{13}\), the proof sizes are }%DIFDELCMD < \ensuremath{136{
 These results demonstrate
   that \(\protocol\) provides faster proof generation and comparable
   verification times relative to DualMatrix, at the cost of larger proofs for sufficiently
-  large matrices}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{888B
+  large matrices}\DIFdelend \DIFaddbegin \DIFadd{888B
 proofs, versus 131.08ms and a mean of 78,585.6B for LAMP. zkMatrix verifies
 faster with smaller proofs throughout this grid. LAMP's verification includes
 CP-Link to its SNARK witnesses; an additional link from standalone zkMatrix
@@ -2779,7 +2771,7 @@ properties}\DIFaddend .
 %DIFDELCMD < \label{tab:lamp-breakdown}
 %DIFDELCMD < \end{table*}
 %DIFDELCMD < %%%
-\DIFdelend\allowbreak \DIFaddbegin \begin{table}[!t]
+\DIFdelend \DIFaddbegin \begin{table}[!t]
 \color{DiffBlue}
 \centering
 \scriptsize
@@ -2829,7 +2821,7 @@ accounting of Table~\ref{tab:epyc-zkmatrix-square}.}
 \label{sec:eval-lamp-breakdown}
 
 \begin{revblock}
-Table~\ref{tab:lamp-breakdown} \DIFdelbegin \DIFdel{presents a component-wise breakdown of the costs of \(\protocol\) with the code rate set to }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{in Appendix~\ref{app:component-batch} retains the component measurements at
+Table~\ref{tab:lamp-breakdown} \DIFdelbegin \DIFdel{presents a component-wise breakdown of the costs of \(\protocol\) with the code rate set to }\DIFdelend \DIFaddbegin \DIFadd{in Appendix~\ref{app:component-batch} retains the component measurements at
 }\DIFaddend \(\rho=1/2\). \DIFdelbegin \DIFdel{For small
 matrices, Groth16-based proof generation is the dominant cost. As \(k\)
 increases, however, encoding and commitment generation account for a larger
@@ -2838,7 +2830,7 @@ take \(0.02\) s and }%DIFDELCMD < \ensuremath{0.09} %%%
 \DIFdel{s, respectively, whereas generating the Merkle,
 Groth16, and CP-Link proofs takes }%DIFDELCMD < \ensuremath{1.51} %%%
 \DIFdel{s in total. In contrast, at
-\(k=2^{13}\)}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Groth16 proof generation dominates for small matrices; at
+\(k=2^{13}\)}\DIFdelend \DIFaddbegin \DIFadd{Groth16 proof generation dominates for small matrices; at
 \(k=8192\)}\DIFaddend , encoding and \DIFdelbegin \DIFdel{commitment generation take }%DIFDELCMD < \ensuremath{126.49} %%%
 \DIFdel{sin total, exceeding the proof-generation cost of }%DIFDELCMD < \ensuremath{68.89} %%%
 \DIFdel{s . This result shows that the
@@ -2847,44 +2839,44 @@ generationto encoding and commitment
 generation as the matrix dimension increases. }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
-\DIFdel{\(\protocol\) requires trusted setup for both }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{commitments take 126.49s, exceeding 68.89s for proof
+\DIFdel{\(\protocol\) requires trusted setup for both }\DIFdelend \DIFaddbegin \DIFadd{commitments take 126.49s, exceeding 68.89s for proof
 generation. Trusted setup is required for }\DIFaddend Groth16 and CP-Link, with \DIFdelbegin \DIFdel{the
 setup costdominated by Groth16. The }\DIFdelend Groth16
 \DIFdelbegin \DIFdel{setup time increases from
 }%DIFDELCMD < \ensuremath{10.06} %%%
 \DIFdel{s at \(k=2^7\) to }%DIFDELCMD < \ensuremath{638.92} %%%
-\DIFdel{s at \(k=2^{13}\), whereas the }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{dominating setup cost. }\DIFaddend CP-Link \DIFdelbegin \DIFdel{setup time increases from }%DIFDELCMD < \ensuremath{0.66} %%%
+\DIFdel{s at \(k=2^{13}\), whereas the }\DIFdelend \DIFaddbegin \DIFadd{dominating setup cost. }\DIFaddend CP-Link \DIFdelbegin \DIFdel{setup time increases from }%DIFDELCMD < \ensuremath{0.66} %%%
 \DIFdel{s to }%DIFDELCMD < \ensuremath{40.82} %%%
 \DIFdel{s over the same range.
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
 \DIFdel{Verification time remains nearly constant as the matrix dimension increases.
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{accounts for approximately 0.12--0.13s of
+}\DIFdelend \DIFaddbegin \DIFadd{accounts for approximately 0.12--0.13s of
 verification; }\DIFaddend Groth16 and Merkle verification \DIFdelbegin \DIFdel{each }\DIFdelend take only a few milliseconds\DIFdelbegin \DIFdel{, while
 CP-Link verification takes approximately }%DIFDELCMD < \ensuremath{0.12}%%%
 \DIFdel{--}%DIFDELCMD < \ensuremath{0.13} %%%
 \DIFdel{s.
-The }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{.
+The }\DIFdelend \DIFaddbegin \DIFadd{.
 Under this table's byte accounting, }\DIFaddend Groth16 and CP-Link \DIFdelbegin \DIFdel{proof sizes also remain constant at }%DIFDELCMD < \ensuremath{292} %%%
 \DIFdel{B and
 \(128\) B, respectively. Consequently, the total proof size is dominated by the Merkle proof, which increases from }%DIFDELCMD < \ensuremath{43{,}904} %%%
 \DIFdel{B to }%DIFDELCMD < \ensuremath{136{,}320} %%%
 \DIFdel{B over the
-measured range}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{proofs remain 292B and
+measured range}\DIFdelend \DIFaddbegin \DIFadd{proofs remain 292B and
 128B, while Merkle openings dominate proof growth}\DIFaddend .
 
 \DIFdelbegin \DIFdel{Table~\ref{tab:lamp-code-rates} in
 }\DIFdelend Appendix~\ref{app:lamp-code-rates}\DIFdelbegin \DIFdel{presents additional results for
-\(\rho\in\{1/2,1/4,1/8\}\). A higher code rate reduces }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{, Table~\ref{tab:lamp-code-rates}, compares
+\(\rho\in\{1/2,1/4,1/8\}\). A higher code rate reduces }\DIFdelend \DIFaddbegin \DIFadd{, Table~\ref{tab:lamp-code-rates}, compares
 rates \(1/8,1/4,1/2\) with \(t=155,189,309\), respectively. Shorter codewords
 reduce }\DIFaddend encoding and commitment costs\DIFdelbegin \DIFdel{by shortening the codeword, but it also decreases the relative distance
-and therefore }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{, but their smaller relative distance
+and therefore }\DIFdelend \DIFaddbegin \DIFadd{, but their smaller relative distance
 }\DIFaddend requires more queries\DIFdelbegin \DIFdel{. Specifically, the required numbers of
 queries for \(\rho=1/8\)}\DIFdelend , \DIFdelbegin \DIFdel{\(1/4\), and \(1/2\) are \(t=155\), \(189\), and
 \(309\), respectively. Thus, the code rate determines the trade-off between
 encoding and commitment costs and the generation time and sizeof the sampled
-proof}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{increasing sampled-proof cost and size}\DIFaddend .
+proof}\DIFdelend \DIFaddbegin \DIFadd{increasing sampled-proof cost and size}\DIFaddend .
 \end{revblock}
 
 
@@ -2940,13 +2932,13 @@ Consequently, the number of Merkle membership proofs is independent of the batch
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
-\DIFdelend\allowbreak \DIFaddbegin \DIFadd{LAMP shares Pedersen leaves and Merkle openings across independent claims.
+\DIFdelend \DIFaddbegin \DIFadd{LAMP shares Pedersen leaves and Merkle openings across independent claims.
 }\DIFaddend Table~\ref{tab:lamp-batch} \DIFdelbegin \DIFdel{reports the
 component costs at \(k=2^7\) and \(\rho=1/2\). As the number of claims increases, the constraint count and
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{in Appendix~\ref{app:component-batch} retains the
-original component costs: constraints and }\DIFaddend Groth16 proving time grow \DIFdelbegin \DIFdel{, while the }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{with
+}\DIFdelend \DIFaddbegin \DIFadd{in Appendix~\ref{app:component-batch} retains the
+original component costs: constraints and }\DIFaddend Groth16 proving time grow \DIFdelbegin \DIFdel{, while the }\DIFdelend \DIFaddbegin \DIFadd{with
 \(q\), while }\DIFaddend Merkle proof size \DIFdelbegin \DIFdel{remains approximately
-\(44\) KB }\DIFdelend and verification time \DIFdelbegin \DIFdel{remains approximately \(0.13\) s }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{remain nearly constant.
+\(44\) KB }\DIFdelend and verification time \DIFdelbegin \DIFdel{remains approximately \(0.13\) s }\DIFdelend \DIFaddbegin \DIFadd{remain nearly constant.
 }
 
 \DIFadd{Table~\ref{tab:epyc-zkmatrix-batch} measures batch protocols, including at
@@ -2976,11 +2968,11 @@ nodes in the multi-opening implementation.
 \label{sec:eval-gpt2}
 
 \begin{revblock}
-Table~\ref{tab:lamp-gpt2} \DIFdelbegin \DIFdel{reports the results for a GPT-2 layer with }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{retains the GPT-2 results for }\DIFaddend sequence length
+Table~\ref{tab:lamp-gpt2} \DIFdelbegin \DIFdel{reports the results for a GPT-2 layer with }\DIFdelend \DIFaddbegin \DIFadd{retains the GPT-2 results for }\DIFaddend sequence length
 \(2^{10}\) and 36 \DIFdelbegin \DIFdel{matrix-multiplication claims. In this experiment, \(\protocol\) uses \(\rho=1/2\) and \(t=309\). As in
-Section~\ref{sec:eval-matmul-comparison}, proving times }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{products, with \(\rho=1/2,t=309\). DualMatrix's public
+Section~\ref{sec:eval-matmul-comparison}, proving times }\DIFdelend \DIFaddbegin \DIFadd{products, with \(\rho=1/2,t=309\). DualMatrix's public
 implementation uses the same matrix structures. Timings }\DIFaddend include encoding and
-\DIFdelbegin \DIFdel{commitment generation, and proof }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{commitments, and }\DIFaddend sizes include commitment data \DIFdelbegin \DIFdel{.
+\DIFdelbegin \DIFdel{commitment generation, and proof }\DIFdelend \DIFaddbegin \DIFadd{commitments, and }\DIFaddend sizes include commitment data \DIFdelbegin \DIFdel{.
 For DualMatrix, we configure the inputs of its public implementation to match
 the GPT-2 matrix structures and evaluate the same matrix multiplications.
 }%DIFDELCMD < 
@@ -2990,7 +2982,7 @@ the GPT-2 matrix structures and evaluate the same matrix multiplications.
 count from \(76{,}807{,}671\) to }%DIFDELCMD < \ensuremath{62{,}460{,}189} %%%
 \DIFdel{and the proving
 time from \(408.69\) s to }%DIFDELCMD < \ensuremath{317.13} %%%
-\DIFdel{s , yielding a }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{under the original accounting.
+\DIFdel{s , yielding a }\DIFdelend \DIFaddbegin \DIFadd{under the original accounting.
 LAMP reduces Freivalds' constraints from 76,807,671 to 62,460,189 and proving
 from 408.69s to 317.13s (}\DIFaddend \(1.29\times\)\DIFdelbegin \DIFdel{speedup. DualMatrix requires \(519.97\) s
 , so \(\protocol\) is }%DIFDELCMD < \ensuremath{1.64\times} %%%
@@ -2998,7 +2990,7 @@ from 408.69s to 317.13s (}\DIFaddend \(1.29\times\)\DIFdelbegin \DIFdel{speedup.
 shortest proving time among the three systems. In contrast, the
 Freivalds baseline provides the fastest verification and smallest
 proof, while
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{). DualMatrix takes 519.97s
+}\DIFdelend \DIFaddbegin \DIFadd{). DualMatrix takes 519.97s
 (\(1.64\times\) slower than LAMP). Freivalds verifies fastest with the smallest
 proof; }\DIFaddend DualMatrix also verifies faster \DIFdelbegin \DIFdel{and produces a smaller proof than \(\protocol\).
 }%DIFDELCMD < 
@@ -3006,14 +2998,14 @@ proof; }\DIFaddend DualMatrix also verifies faster \DIFdelbegin \DIFdel{and prod
 %DIFDELCMD < %%%
 \DIFdel{The relatively large proof size of \(\protocol\) in the GPT-2 experiment stems
 from the different dimensions of the matrices involved in the workload. These
-matrix multiplications }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{with smaller proofs than LAMP.
+matrix multiplications }\DIFdelend \DIFaddbegin \DIFadd{with smaller proofs than LAMP.
 Heterogeneous matrix dimensions }\DIFaddend require multiple commitment layouts\DIFdelbegin \DIFdel{and corresponding
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{, }\DIFaddend CP-Link
+}\DIFdelend \DIFaddbegin \DIFadd{, }\DIFaddend CP-Link
 proofs\DIFdelbegin \DIFdel{and Merkle membership proofs. These linking and membership
 proofs---dominated in size by the Merkle openings---therefore account for a
 substantial portion of the total proof and are the main source of proof-size
 growth in heterogeneous workloads such as GPT-2.
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{, and Merkle openings, increasing LAMP's proof and verification costs.
+}\DIFdelend \DIFaddbegin \DIFadd{, and Merkle openings, increasing LAMP's proof and verification costs.
 We have no zkMatrix or zkMaP measurements for this workload.
 }\DIFaddend \end{revblock}
 
@@ -3057,10 +3049,10 @@ claims.}
   \begin{revblock}
   At \(k=2^{12}\), \(\protocol\) \DIFdelbegin \DIFdel{reduces the Freivalds baseline's constraints
   from \(50{,}495{,}818\) to }%DIFDELCMD < \ensuremath{5{,}214{,}878} %%%
-\DIFdel{(}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{uses }\DIFaddend \(9.68\times\) \DIFdelbegin \DIFdel{) and proving time
+\DIFdel{(}\DIFdelend \DIFaddbegin \DIFadd{uses }\DIFaddend \(9.68\times\) \DIFdelbegin \DIFdel{) and proving time
   from \(411.28\) s to }%DIFDELCMD < \ensuremath{70.73} %%%
 \DIFdel{s (}%DIFDELCMD < \ensuremath{5.81\times}%%%
-\DIFdel{)}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{fewer constraints and proves
+\DIFdel{)}\DIFdelend \DIFaddbegin \DIFadd{fewer constraints and proves
   \(5.81\times\) faster than Freivalds}\DIFaddend . It also outperforms
   DualMatrix in proving time at every shared dimension, by \ensuremath{3.62\times} at
   \(k=2^{13}\).
@@ -3071,15 +3063,15 @@ claims.}
 
   \begin{revblock}
   \DIFdelbegin \DIFdel{For claims sharing a leaf structure, batching amortizes Merkle openings and
-  keeps their }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Shared-layout batching keeps LAMP's }\DIFaddend proof size and verification \DIFdelbegin \DIFdel{time nearly
-  constant. On }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{nearly
+  keeps their }\DIFdelend \DIFaddbegin \DIFadd{Shared-layout batching keeps LAMP's }\DIFaddend proof size and verification \DIFdelbegin \DIFdel{time nearly
+  constant. On }\DIFdelend \DIFaddbegin \DIFadd{nearly
   constant, but zkMatrix proves faster for the measured \(128\times128\)
   batches of one to ten claims. LAMP proves faster than Freivalds and
   DualMatrix on }\DIFaddend GPT-2, \DIFdelbegin \DIFdel{\(\protocol\) proves faster than both baselines, although heterogeneous matrix
   dimensions require multiple commitment layouts, CP-Link proofs, and
   Merkle
   openings, increasing proof size and verification cost.
-  }\DIFdelend\allowbreak \DIFaddbegin \DIFadd{at higher verification and communication costs.
+  }\DIFdelend \DIFaddbegin \DIFadd{at higher verification and communication costs.
   Modified zkMaP measurements are excluded because they cannot represent
   a faithful, sound benchmark of the published protocol.
   }\DIFaddend \end{revblock}
@@ -3831,7 +3823,7 @@ satisfies the batched equation with probability at most
 \(1/(|\mathbb{F}|-1)\).  For Fiat--Shamir-derived coefficients, this bound is
 interpreted in the random oracle model.
 
-\section{\DIFdelbegin \DIFdel{LAMP Results Across Code Rates}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{Additional Evaluation Measurements}\DIFaddend }
+\section{\DIFdelbegin \DIFdel{LAMP Results Across Code Rates}\DIFdelend \DIFaddbegin \DIFadd{Additional Evaluation Measurements}\DIFaddend }
 \label{app:lamp-code-rates}
 \DIFaddbegin \label{app:component-batch}
 \DIFaddend 
@@ -3839,18 +3831,18 @@ interpreted in the random oracle model.
 \DIFaddbegin \DIFadd{Tables~\ref{tab:lamp-breakdown} and~\ref{tab:lamp-batch} preserve component and
 batch results; }\DIFaddend Table~\ref{tab:lamp-code-rates} \DIFdelbegin \DIFdel{reports the performance of \(\protocol\) for
 code rates\(\rho\in\{1/2,1/4,1/8\}\). The setup time is the sum of the
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{compares code rates, all with
+}\DIFdelend \DIFaddbegin \DIFadd{compares code rates, all with
 original accounting. Setup sums }\DIFaddend Groth16 and CP-Link\DIFdelbegin \DIFdel{setup times.  Encoding and commitment generation are
 reported separately, where commitment is the sum of the ABC and XYZ
 commitment times and excludes
 encoding.  Proving time is the sum of the
-}\DIFdelend\allowbreak \DIFaddbegin \DIFadd{; commitment excludes
+}\DIFdelend \DIFaddbegin \DIFadd{; commitment excludes
 encoding; proving sums }\DIFaddend Merkle, Groth16, and CP-Link \DIFdelbegin \DIFdel{proof-generation times and excludes both encoding and commitment generation.
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
 %DIF < Since queried positions are sampled independently, the measurements remain well-defined when \(t>n\).
-\DIFdelend\allowbreak \DIFaddbegin \DIFadd{generation, excluding
+\DIFdelend \DIFaddbegin \DIFadd{generation, excluding
 encoding and commitments.
 }\DIFaddend 
 

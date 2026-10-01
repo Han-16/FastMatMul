@@ -4,7 +4,8 @@
   "diff_source": "Paper/LAMP_diff.tex",
   "diff_pdf": "Paper/LAMP_diff.pdf",
   "additions": "blue; includes relocated tables",
-  "deletions": "gray strikethrough",
+  "deletions": "hidden",
+  "first_page_legend": false,
   "input_sha256": {
     "Paper_original/main.tex": "1da2f09d92a8548f022f291a65d4f0b05e74314de9622da1b39d8d6f42df6e1a",
     "Paper_original/Styles/packages.tex": "0dc07f21e4c25973d5a64a2a2d6dfb2da11d0e4101ce28fc760d4e971ece19e0",
@@ -37,15 +38,16 @@
     "Paper/Contents/conclusion.tex": "856fe34494ba31d3c439ee04528fd2a24b440698c34406bc075d9830c5580bd1",
     "Paper/Contents/appendix.tex": "53d8f96cc3dc5bbdcc5219f5b3042ac91e9023d9090596e2210ba657c3d990d5"
   },
-  "diff_tex_sha256": "afd07d0e77383e8d6467ff1052dc8c94a9e71c47bfc53560b250baaf3c157acb",
-  "diff_pdf_sha256": "892e6b1f3e56e53236fefd5d518408312408fec8e76e142f1d976e82ef19929d",
-  "page_count": 20,
+  "diff_tex_sha256": "54d9455800a32ed844296b0bdafd7d9b4aea0406949e2361be40c38f9947191f",
+  "diff_pdf_sha256": "c5be18e0ab70e2a6b3dcdbf79c9438121057a4e483a7a246c07b8953f9314931",
+  "page_count": 18,
   "visual_review": {
     "pages": [
-      13,
-      14
+      1,
+      12,
+      13
     ],
-    "result": "New comparison tables show means without deviations, Statement (B) headings and blue coloring; no clipping."
+    "result": "No first-page legend or visible deletions. Revised text and inserted tables are blue; no clipping in inspected pages."
   },
   "final_latex_pass": {
     "undefined_references_or_citations": false,
@@ -53,27 +55,26 @@
     "latex_errors": false
   },
   "clean_manuscript_page_count": 18,
+  "clean_manuscript_sha256": "db35ba47902905a7c7530b2720b35e3ba7be1e4b9bc1c864efe20538e4a381cd",
   "submitted_pdf_sha256": "1f7163f50b7d6fe344c15cf4cd62c47b636300e07f078c1a6d9cc55ae0d40410",
   "diff_page_content_sha256": [
-    "8ad34cdbaf6f023f3794dd1b9227faad6189ca3813b675acf824186dd1c66b44",
-    "cec0885734c9786eb98a1cfbe9c1db2fa2159a56c81ee6de684843822bf853d1",
-    "aabd56dd31fd2c6b2915512082fe84f6aee1f4cd7a17e6c52e0c74c0a6974482",
-    "d1cd8b3462faf93b3b10df5c030f6c1e81be994ab2439f12c7ee88bbb43eac3b",
-    "8dc5455def876f066f36622ad49e5378adc207cc03477832d99b9f4310861028",
-    "52874663098b04b79d01dbe312fbb8077da3e7377462fad38ac625efd2efee2f",
-    "258a30353fe75af12a423e5125c75461d1aba4a6c3618fc3f86253602fa402b5",
-    "f9b080c28ca91047c3fa557953a32f47c3f94e5f7d1ae86cc84145b72228515e",
-    "17a4bc899cbfe3a39b2d7cba393808c39587fe3120cb965380d0ec10c5d45d34",
-    "7e56c77317d325cb0c7b8eccde0ab2e6693d90efda23c48cc83518f9205950e9",
-    "98ea6d3eec4e96e9c29ea087139adf2180df0cc30024bb2703c5489b105dc6b0",
-    "75f3be1f84a117df22a1b46f5e7a326ad21dab0a6a01e8b3fa99c524f8c6a037",
-    "14f601c2035f3e838858643ed69c9c3444d0d49acef138b31b7373e37a837a5d",
-    "fe555cdaaabb42d13d1acb33b8c04cdf3f41625784f64ee3ba85db315e35a153",
-    "1d10f34d605c780997786d821f8dd7c807e59af3ef32757e963e3e5708f26e1d",
-    "00754ec2a05ae878495bdead4484fe792809ac31265e6e8ddade1412a34f8e7f",
-    "38b65a885ea0792f90772ce4e94c1b77e1206b3beadc62af4fe78a8250c0f429",
-    "63d22dbd114f9cc5e813b4bae4646196b8ac1d3fafe7b8509daaf2bfa8846f8d",
-    "66221732191b791dbfd7a530161c7572ecb1df86e305c94d067038d5a6f15675",
-    "379d77b69486446a88c4fe1217b1ce75eb99c4633f4313ada1fd69b1ea9457af"
+    "09337f459be34bc75a5529cc9b07d08541ad6af380f353e368cfd581e08a91d1",
+    "b93be277171ed5c1bbe7b8305cb67062011964ac65b806d2eb9fb6729706ffb1",
+    "2e0661812d3cc6e42123df45ffb3442926d437c675b3a423608cdf5a89bae11a",
+    "699808b3cbf67cae2581e6117aae038b28a1d2de645ee78789b03505bcdb7ee3",
+    "340dec84ed1ff838cfee2e3fb93a20fa1cf0a5b27a616a76d32170f9ef7fffcf",
+    "26d7c16df6ba8a50daf9a1c971c6ae2e5de97fb12ab13308d2f43cc3f66e2e65",
+    "4cdb6887617bfc9f646a8fc65b2f836fd7c01c960e0658e5700232863a46bc27",
+    "8980099f9966aebd6f55983fccf93c484d0a4cbe3c33d9f92b18eb501e1e3192",
+    "2c2fac9261ae18c34e0bea9848f55a938c86119aded31bc224ab14f7474f4bf0",
+    "c2e806ddee9ceaf8d3902ddf82de8f7e4111d12e77ded2df51ffc616235de444",
+    "16452f031f9954d49b386cb580326203fc0f53b58671b7e20537a74fa0acd4da",
+    "fb51c5c0ba20416a4351a30692d82493486b406b9aea5682804928e770a5426e",
+    "483c381e1226b34c2429827a7886920e2d34547c7ab3d93563bc3d99c4395265",
+    "3e03c15eb5237b26bca7d7a3af07c8da1c0ac0ed1df125634475523dad5b619b",
+    "71af2e3d97242edd3a539ba047f98d9fe4b4c4b5204e331ba66d1203e53e5c4b",
+    "d59de229c79a72cbaecca1b1b610a55d8f7924cbb4792ace42c9ce50614b8680",
+    "1c09a2720929d9c9c9550c8bae17b354c22188f9d99d9bdc68044e738a5b1863",
+    "4462c5c0a6e7e3dafeca0c31ff1c75f6a3c446670579471e534a5ab3286861ef"
   ]
 }
